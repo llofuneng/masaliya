@@ -119,23 +119,23 @@ const ICONS = {
 
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list) */
 const PRODUCTS = [
-  { id: 'sihirli-kutuphane', aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+  { id: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
     img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/sihirli-kutuphane-son.jpg', 'Hediye sayfası'], ['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
-  { id: 'deniz-kizi-kralligi', aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
+  { id: 'deniz-kizi-kralligi', coverTitle: { box: [.03, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
     extra: [['img/deniz-kizi-kralligi-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/deniz-kizi-kralligi-son.jpg', 'Hediye sayfası']], spreads: SPREADS_LAVIN },
-  { id: 'kayip-ay-isigi', aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Efe', title: 've Kayıp Ay Işığı', age: '4–9 yaş',
+  { id: 'kayip-ay-isigi', coverTitle: { box: [.03, .31], sub: 've Kayıp Ay Işığı' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Efe', title: 've Kayıp Ay Işığı', age: '4–9 yaş',
     img: 'img/kayip-ay-isigi-kapak.jpg', alt: 'Efe ve Kayıp Ay Işığı kapağı: astronot kaskıyla gülümseyen çocuk',
     desc: 'Bir gece Ay’ın ışığı kaybolur. Kahramanımız kaskını takar, yıldızların arasından geçerek Ay ışığını yeniden yakmaya gider.' },
 
-  { id: 'deniz-kizi-kralligi-boyama', aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
+  { id: 'deniz-kizi-kralligi-boyama', coverTitle: { box: [.03, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
     desc: 'Masalın kahramanı sensin, renkleri de sen seç! 8 boyama sayfası ve 7 etkinlik: dalgalar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
     extra: [['img/deniz-kizi-kralligi-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/deniz-kizi-kralligi-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_LAVIN },
-  { id: 'sihirli-kutuphane-boyama', aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+  { id: 'sihirli-kutuphane-boyama', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
     img: 'img/sihirli-kutuphane-boyama-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
     desc: 'Masalın kahramanı sensin, renkleri de sen seç! 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/sihirli-kutuphane-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/sihirli-kutuphane-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
@@ -191,8 +191,9 @@ function fullTitle(p, name) {
 function priceLine(p) {
   if (p.status !== 'hazir') return 'Yakında';
   const pr = PRICES[p.type];
+  if (p.type === 'kitap' && pr && pr.hard) return `Sert kapak ${fmt(pr.hard)}${pr.soft ? ` · yumuşak kapak ${fmt(pr.soft)}` : ''}`;
   const known = pr ? Object.values(pr).filter(Boolean) : [];
-  return known.length ? `${fmt(Math.min(...known))}’den başlayan fiyatlarla` : 'Fiyat yakında';
+  return known.length ? fmt(Math.min(...known)) : 'Fiyat yakında';
 }
 
 /* ---------- Gold paper-cut heroes: girls, boys, adults (home page 3D scene, Ürünlerimiz page) ---------- */
@@ -382,6 +383,64 @@ function renderCollection(aud) {
   show();
 }
 
+/* ---------- Product page helpers ---------- */
+const trDate = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+const inDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return d; };
+
+// a cover with the visitor's name set in place of the sample hero's name
+function drawCoverName(canvas, img, p, name) {
+  const W = img.naturalWidth, H = img.naturalHeight, [y0, y1] = p.coverTitle.box;
+  canvas.width = W; canvas.height = H;
+  const c = canvas.getContext('2d');
+  c.drawImage(img, 0, 0, W, H);
+  // soften the painted title away, then set the new one
+  c.save(); c.beginPath(); c.rect(0, y0 * H, W, (y1 - y0) * H); c.clip();
+  c.filter = 'blur(22px)'; c.drawImage(img, -40, -40, W + 80, H + 80); c.filter = 'none';
+  const fade = c.createLinearGradient(0, y0 * H, 0, y1 * H);
+  fade.addColorStop(0, 'rgba(20,10,8,.10)'); fade.addColorStop(.5, 'rgba(20,10,8,.22)'); fade.addColorStop(1, 'rgba(20,10,8,.06)');
+  c.fillStyle = fade; c.fillRect(0, y0 * H, W, (y1 - y0) * H);
+  c.restore();
+  const mid = (y0 + (y1 - y0) * .58) * H;
+  let size = W * .2;
+  c.textAlign = 'center'; c.shadowColor = 'rgba(30,10,4,.55)'; c.shadowBlur = W * .02;
+  do { c.font = `italic 500 ${size}px "Cormorant Garamond", Garamond, serif`; size -= 2; } while (c.measureText(name).width > W * .8 && size > W * .07);
+  const g = c.createLinearGradient(0, mid - size, 0, mid);
+  g.addColorStop(0, '#fff6dc'); g.addColorStop(.6, '#f1d08e'); g.addColorStop(1, '#c9974a');
+  c.fillStyle = g; c.fillText(name, W / 2, mid);
+  c.font = `italic 500 ${W * .052}px "Cormorant Garamond", Garamond, serif`; c.fillStyle = '#fff2d6';
+  c.fillText(p.coverTitle.sub, W / 2, mid + W * .075);
+}
+
+// full-screen page viewer, shared by every product page
+function openLightbox(pages, start) {
+  let box = document.getElementById('lightbox');
+  if (!box) {
+    box = document.createElement('div'); box.id = 'lightbox'; box.className = 'lightbox'; box.hidden = true;
+    box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Sayfa');
+    box.innerHTML = `<img alt=""><button class="lb-close" type="button" aria-label="Kapat">✕</button>
+      <button class="lb-prev" type="button" aria-label="Önceki sayfa">←</button><button class="lb-next" type="button" aria-label="Sonraki sayfa">→</button><span class="lb-count"></span>`;
+    document.body.appendChild(box);
+  }
+  let cur = start;
+  const img = box.querySelector('img'), count = box.querySelector('.lb-count');
+  const go = i => { cur = (i + pages.length) % pages.length; img.src = pages[cur][0]; img.alt = pages[cur][1]; count.textContent = `${cur + 1} / ${pages.length}`; };
+  const close = () => { box.hidden = true; document.removeEventListener('keydown', key); document.body.style.overflow = ''; };
+  const key = e => { if (e.key === 'Escape') close(); if (e.key === 'ArrowLeft') go(cur - 1); if (e.key === 'ArrowRight') go(cur + 1); };
+  box.querySelector('.lb-close').onclick = close;
+  box.querySelector('.lb-prev').onclick = () => go(cur - 1);
+  box.querySelector('.lb-next').onclick = () => go(cur + 1);
+  box.onclick = e => { if (e.target === box) close(); };
+  swipe(img, () => go(cur + 1), () => go(cur - 1));
+  document.addEventListener('keydown', key);
+  go(start); box.hidden = false; document.body.style.overflow = 'hidden';
+  box.querySelector('.lb-close').focus();
+}
+function swipe(el, next, prev) {
+  let x0 = null;
+  el.onpointerdown = e => { x0 = e.clientX; };
+  el.onpointerup = e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); el.dataset.swiped = '1'; } };
+}
+
 /* ---------- Product page ---------- */
 function renderProduct() {
   const root = document.getElementById('product');
@@ -391,7 +450,7 @@ function renderProduct() {
       // an address we don't know: say so instead of quietly showing another book
       document.title = 'Bulunamadı · Masaliya';
       root.innerHTML = `<div class="notfound"><p class="eyebrow">Sayfa bulunamadı</p><h1>Bu masal rafta yok</h1><p class="lede">Aradığınız ürün kaldırılmış ya da adresi değişmiş olabilir.</p><a class="btn" href="urunler.html">Ürünlerimize göz atın</a></div>`;
-      document.getElementById('inside').hidden = true; document.getElementById('related').innerHTML = '';
+      document.getElementById('related').innerHTML = '';
       return;
     }
     const a = AUDIENCES[p.aud];
@@ -417,7 +476,10 @@ function renderProduct() {
         </div>` : '';
     const buy = orderable ? `
       <form id="buy" class="info" style="gap:18px">
-        ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"></label>` : ''}
+        ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
+        ${p.type === 'kitap' ? `
+        <label class="field" for="ithaf">İthaf · isteğe bağlı<textarea id="ithaf" rows="2" maxlength="160" placeholder="Bu kitap, cesur ve iyi kalpli ${p.hero} için yazıldı."></textarea><small class="hint">Kitabın ilk sayfasına yazılır. Boş bırakırsanız bu cümleyi kullanırız.</small></label>
+        <label class="field" for="giver">Hediye eden · isteğe bağlı<input id="giver" type="text" maxlength="60" autocomplete="off" placeholder="Anneannen ve deden"><small class="hint">Kitabın son sayfasındaki hediye sayfasına yazılır.</small></label>` : ''}
         <div class="field"><span class="step">2 · Üç fotoğraf</span>
           <div class="slots">
             ${['Önden', 'Hafif yandan', 'Gülümserken'].map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><b>${i + 1} · ${t}</b></label>`).join('')}
@@ -449,7 +511,7 @@ function renderProduct() {
           <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
           <label class="field" for="c-email">E-posta<input id="c-email" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
         </div>
-        <button class="btn" type="submit">Siparişi Başlat</button>
+        <button class="btn" type="submit">Siparişi gönder</button>
         <p class="form-note" id="buy-note" aria-live="polite"></p>
       </form>`
       : `
@@ -460,13 +522,33 @@ function renderProduct() {
         <p class="form-note" id="int-note" aria-live="polite"></p>
       </form>`;
 
+    const inner = p.spreads || p.pages;
+    // what is in it, and when it arrives if ordered today
+    const content = p.spreads ? `${p.spreads.length} çift sayfa masal, ithaf ve hediye sayfası`
+      : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : p.type === 'yapboz' ? 'Kapaktaki sahne, yapboz olarak' : '';
+    const specs = orderable ? `<dl class="specs">
+        <div><dt>Boyut</dt><dd>${p.type === 'yapboz' ? 'Tek boy' : 'A4 · 21 × 29,7 cm'}</dd></div>
+        ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
+        <div><dt>Önizleme</dt><dd>bugün sipariş verirseniz en geç ${trDate(inDays(3))}</dd></div>
+        <div><dt>Teslim</dt><dd>dijital onayınızla hemen, basılı onaydan sonra en geç 7 günde kargoda</dd></div>
+      </dl>` : '';
     root.innerHTML = `<div class="product">
-      ${gallery}
-      <div class="info">
+      <div class="p-gallery">${gallery}</div>
+      <div class="p-head">
         <p class="eyebrow" id="crumbs-inline">${a.name}</p>
         <h1 id="p-title">${fullTitle(p)}</h1>
-        <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span>${p.age ? `<span>${p.age}</span>` : ''}<span>${p.status === 'hazir' ? 'A4' : 'Yakında'}</span></div>
+        <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span>${p.age ? `<span>${p.age}</span>` : ''}<span>${p.status === 'hazir' ? (p.type === 'yapboz' ? 'Tek boy' : 'A4') : 'Yakında'}</span></div>
         <p class="desc">${esc(p.desc)}</p>
+        ${specs}
+      </div>
+      ${inner ? `<section class="p-viewer" id="inside" aria-label="Kitabın içinden">
+        <p class="eyebrow">Kitabın içinden · bütün sayfalar</p>
+        <div class="spread${p.spreads ? '' : ' portrait'}" id="spread" tabindex="0" role="button" aria-label="Sayfayı büyüt"><img id="spread-img" src="" alt=""></div>
+        <div class="viewer-bar"><button class="arrow" id="prev" type="button" aria-label="Önceki sayfa">←</button><span class="counter" id="counter" aria-live="polite"></span><button class="arrow" id="next" type="button" aria-label="Sonraki sayfa">→</button><button class="zoom" id="zoom" type="button">Büyüt</button></div>
+        <div class="vthumbs${p.spreads ? '' : ' portrait'}" id="vthumbs" aria-label="Bütün sayfalar"></div>
+        <p class="sample-note">Örnek kitap. Sizin kitabınızda kahramanın yüzü ve adı her sayfada yer alır.</p>
+      </section>` : ''}
+      <div class="p-buy info">
         ${buy}
         <div class="assure"><ul>
           <li>${p.type === 'yapboz' ? 'En geç 3 gün içinde tasarımı size gönderir' : 'En geç 3 gün içinde bütün sayfaları size gönderir'}, onayınızı bekleriz.</li>
@@ -476,18 +558,38 @@ function renderProduct() {
           <li><a href="gizlilik.html">Gizlilik sözümüzü okuyun</a></li>
         </ul></div>
       </div>
-    </div>`;
+    </div>
+    ${orderable ? `<div class="buybar" id="buybar"><span><small>Toplam</small><b id="buybar-total"></b></span><a class="btn" href="#buy">Masalını oluştur</a></div>` : ''}`;
 
     // Gallery thumbs
     root.querySelectorAll('[data-shot]').forEach(b => b.addEventListener('click', () => {
       const s = shots[+b.dataset.shot], m = document.getElementById('g-main');
-      m.src = s[0]; m.alt = s[1];
+      m.src = s[0]; m.alt = s[1]; coverShown = +b.dataset.shot === 0; paintCover();
       root.querySelectorAll('[data-shot]').forEach(x => x.setAttribute('aria-current', String(x === b)));
     }));
-    // Live name
+    // Live name: in the title, on the cover, in the dedication suggestion
     const nameIn = document.getElementById('hero-name');
+    let coverShown = true, coverTimer = 0;
+    const mainBox = root.querySelector('.gallery .main'), coverCanvas = document.createElement('canvas');
+    coverCanvas.className = 'cover-name-canvas'; coverCanvas.setAttribute('aria-hidden', 'true');
+    if (mainBox && p.coverTitle) mainBox.appendChild(coverCanvas);
+    function paintCover() {
+      const n = nameIn ? cap(nameIn.value.trim()) : '';
+      const on = !!(p.coverTitle && coverShown && n && n !== p.hero);
+      coverCanvas.hidden = !on;
+      if (!on) return;
+      const img = new Image(); img.src = p.img;
+      Promise.all([img.decode(), document.fonts.load('italic 500 40px "Cormorant Garamond"', n)]).then(() => drawCoverName(coverCanvas, img, p, n)).catch(() => {});
+    }
     if (nameIn) {
-      const sync = () => { document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim()); try { sessionStorage.setItem('masaliya-hero', cap(nameIn.value.trim())); } catch (e) {} };
+      const ithaf = document.getElementById('ithaf');
+      const sync = () => {
+        const n = cap(nameIn.value.trim());
+        document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim());
+        if (ithaf) ithaf.placeholder = `Bu kitap, cesur ve iyi kalpli ${n || p.hero} için yazıldı.`;
+        clearTimeout(coverTimer); coverTimer = setTimeout(paintCover, 200);
+        try { sessionStorage.setItem('masaliya-hero', n); } catch (e) {}
+      };
       try { const saved = sessionStorage.getItem('masaliya-hero'); if (saved) { nameIn.value = saved; sync(); } } catch (e) {}
       nameIn.addEventListener('input', sync);
     }
@@ -506,12 +608,13 @@ function renderProduct() {
       const set = root.querySelector('input[name="set"]:checked'), pdf = document.getElementById('pdf-addon');
       if (pdf) { document.getElementById('pdf-wrap').hidden = digital; if (digital) pdf.checked = false; }
       const base = c ? +c.dataset.price : singlePrice;
-      if (!base) { t.textContent = 'Fiyat yakında'; return; }
+      if (!base) { t.textContent = 'Fiyat yakında'; const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = 'Fiyat yakında'; return; }
       let sum = base;
       if (set && set.dataset.extra) sum = Math.round((sum + +set.dataset.extra) * (1 - +set.dataset.discount));
       if (pdf && pdf.checked) sum += PDF_ADDON_PRICE || 0;
       sum += giftBox.checked ? (GIFT_BOX_PRICE || 0) : 0;
       t.textContent = fmt(sum) + (giftBox.checked && !GIFT_BOX_PRICE ? ' + hediye kutusu' : '');
+      const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = fmt(sum);
     }
     if (giftBox) giftBox.addEventListener('change', () => { giftWanted = giftBox.checked; total(); });
     root.querySelectorAll('input[name="cover"], input[name="set"], #pdf-addon').forEach(r => r.addEventListener('change', total));
@@ -546,16 +649,20 @@ function renderProduct() {
     const intF = document.getElementById('interest');
     if (intF) intF.addEventListener('submit', e => { e.preventDefault(); document.getElementById('int-note').textContent = 'Önizleme sürümü: haber listesi site yayına alınırken bağlanacak.'; });
 
-    // Spreads
     // inside the book: spreads for story books, single pages for coloring books
-    const viewer = document.getElementById('inside'), inner = p.spreads || p.pages;
-    viewer.hidden = !inner;
-    if (inner) { viewer.querySelector('.spread').classList.toggle('portrait', !p.spreads); setupViewer(inner); }
+    if (inner) setupViewer(inner);
+    // phone: a slim bar with the total stays at hand until the order form is on screen
+    const bar = document.getElementById('buybar');
+    if (bar && buyF && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([en]) => bar.classList.toggle('away', en.isIntersecting), { rootMargin: '0px 0px -20% 0px' }).observe(buyF);
+      bar.querySelector('a').addEventListener('click', e => { e.preventDefault(); buyF.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    }
 
     // Related
     const rel = PRODUCTS.filter(x => x.aud === p.aud && x.id !== p.id).slice(0, 3);
     document.getElementById('related').innerHTML = rel.map(card).join('');
-    scrollTo(0, 0);
+    if (location.hash === '#inside' && document.getElementById('inside')) requestAnimationFrame(() => document.getElementById('inside').scrollIntoView());
+    else scrollTo(0, 0);
   }
   addEventListener('hashchange', () => { if (document.body.dataset.product) return; show(); const b = document.getElementById('back'); if (b) b.href = backHref(); });
   show();
@@ -564,27 +671,42 @@ function renderProduct() {
 function setupViewer(spreads) {
   let cur = 0;
   const img = document.getElementById('spread-img'), counter = document.getElementById('counter'), strip = document.getElementById('vthumbs');
+  const frame = document.getElementById('spread');
   // every page as a thumbnail, so the whole book can be seen at a glance
-  strip.classList.toggle('portrait', document.querySelector('#inside .spread').classList.contains('portrait'));
   strip.innerHTML = spreads.map(([src, alt], i) => `<button type="button" data-i="${i}" aria-label="Sayfa ${i + 1}: ${esc(alt)}"><img src="${src}" alt="" loading="lazy"></button>`).join('');
   function go(i) {
     cur = (i + spreads.length) % spreads.length;
     img.style.opacity = 0;
-    setTimeout(() => { img.src = spreads[cur][0]; img.alt = spreads[cur][1]; img.style.opacity = 1; }, 250);
+    setTimeout(() => { img.src = spreads[cur][0]; img.alt = spreads[cur][1]; img.style.opacity = 1; }, 220);
     counter.textContent = `${cur + 1} / ${spreads.length}`;
     strip.querySelectorAll('button').forEach((b, k) => b.setAttribute('aria-current', String(k === cur)));
-    const active = strip.children[cur]; if (active) active.scrollIntoView({ block: 'nearest', inline: 'center' });
+    const active = strip.children[cur];
+    if (active) strip.scrollTo({ left: active.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
   }
   img.src = spreads[0][0]; img.alt = spreads[0][1]; counter.textContent = `1 / ${spreads.length}`;
   strip.querySelectorAll('button').forEach((b, k) => { b.setAttribute('aria-current', String(k === 0)); b.onclick = () => go(k); });
   document.getElementById('prev').onclick = () => go(cur - 1);
   document.getElementById('next').onclick = () => go(cur + 1);
+  document.getElementById('zoom').onclick = () => openLightbox(spreads, cur);
+  swipe(frame, () => go(cur + 1), () => go(cur - 1));
+  frame.addEventListener('click', () => { if (frame.dataset.swiped) { delete frame.dataset.swiped; return; } openLightbox(spreads, cur); });
+  frame.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') go(cur - 1);
+    if (e.key === 'ArrowRight') go(cur + 1);
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(spreads, cur); }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   renderChrome();
   const page = document.body.dataset.page;
   if (AUDIENCES[page]) renderCollection(page);
+  if (page === 'home') {
+    // the story books, with their prices, just below the opening scene
+    const books = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir');
+    const g = document.getElementById('home-grid');
+    if (g) g.innerHTML = books.map(card).join('');
+  }
   if (page === 'urun') {
     // old urun.html#id links forward to the product's own page
     const p = currentProduct();
