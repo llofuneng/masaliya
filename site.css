@@ -448,3 +448,5 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* not-found state */
 .notfound { display: grid; justify-items: center; gap: 16px; text-align: center; padding-block: clamp(40px, 8vw, 100px); }
 .notfound .lede { text-align: center; }
+
+.price-table td.num small { font: 400 .78rem var(--f-body); color: var(--muted); letter-spacing: .04em; }

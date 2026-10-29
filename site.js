@@ -25,10 +25,10 @@ const OCCASIONS = {
 /* Prices in TL. null = not announced yet. */
 const PRICES = {
   kitap:  { hard: 2500, soft: 1500, digital: null },
-  boyama: { print: null, digital: null },
-  yapboz: { s: null, m: null, l: null }
+  boyama: { print: 600, digital: null },
+  yapboz: { s: null, m: 900, l: null }
 };
-const GIFT_BOX_PRICE = null;   // gift box add-on, TL; null shows "Fiyat yakında"
+const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 /* Masal Seti: the same hero across several products, priced together.
    The set price is the sum of the parts (printed coloring book, medium puzzle) minus the discount. */
