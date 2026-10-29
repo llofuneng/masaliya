@@ -250,13 +250,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .wa {
   position: fixed; z-index: 45; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--gold-pale);
-  background: rgba(20,11,9,.92); border: 1px solid var(--line-strong); border-radius: 999px; padding: 10px 18px 10px 12px;
+  background: rgba(20,11,9,.92); border: 1px solid var(--line-strong); border-radius: 999px; padding: 12px;
   box-shadow: 0 16px 40px -14px rgba(0,0,0,.9); font: 400 .74rem var(--f-body); letter-spacing: .14em; text-transform: uppercase;
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: border-color .2s, transform .2s;
 }
 .wa svg { width: 26px; height: 26px; color: var(--gold); flex: none; }
 .wa:hover { border-color: var(--gold); transform: translateY(-2px); }
-@media (max-width: 620px) { .wa span { display: none; } .wa { padding: 12px; } }
+.site-foot { padding-bottom: 96px; }   /* room so the round WhatsApp button never covers the footer */
 .toast { position: fixed; z-index: 90; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; background: var(--wood-2); color: var(--cream); border: 1px solid var(--line-strong); border-radius: 8px; padding: 12px 18px; font-size: .9rem; max-width: calc(100vw - 32px); box-shadow: 0 20px 50px -20px rgba(0,0,0,.9); }
 .foot-wa { display: inline-flex; align-items: center; gap: 10px; color: var(--gold-pale); text-decoration: none; font-size: .9rem; }
 .foot-wa svg { width: 22px; height: 22px; color: var(--gold); }
@@ -391,3 +391,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .vthumbs button:hover { opacity: .85; }
 .vthumbs button[aria-current="true"] { opacity: 1; border-color: var(--gold); }
 .spread::before { content: "Örnek kitap"; position: absolute; z-index: 2; top: 12px; right: 12px; font: 400 .66rem var(--f-body); letter-spacing: .2em; text-transform: uppercase; color: var(--gold-pale); background: rgba(20,11,9,.72); border: 1px solid var(--line-strong); border-radius: 999px; padding: 4px 11px; }
+
+/* options that have no price yet */
+.cover-opt.off { opacity: .45; cursor: not-allowed; }
+.cover-opt.off:hover { transform: none; }

@@ -286,7 +286,8 @@ function renderChrome() {
     // WhatsApp concierge, always at hand on inner pages
     const wa = document.createElement('a');
     wa.className = 'wa'; wa.href = waLink(); wa.target = WHATSAPP ? '_blank' : ''; wa.rel = 'noopener';
-    wa.innerHTML = `${WA_SVG}<span>Danışmanınıza yazın</span>`;
+    wa.setAttribute('aria-label', 'WhatsApp’tan danışmanınıza yazın'); wa.title = 'WhatsApp’tan danışmanınıza yazın';
+    wa.innerHTML = WA_SVG;
     document.body.appendChild(wa);
   }
   document.addEventListener('click', e => {
@@ -297,6 +298,13 @@ function renderChrome() {
     if (!t) { t = document.createElement('div'); t.id = 'wa-toast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
     t.textContent = 'WhatsApp hattımız çok yakında burada olacak.';
     t.hidden = false; clearTimeout(t._h); t._h = setTimeout(() => t.hidden = true, 3200);
+  });
+  // "Geri dön" returns to the page the visitor actually came from on this site
+  const back = document.getElementById('back');
+  if (back) back.addEventListener('click', e => {
+    let fromHere = false;
+    try { fromHere = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (err) {}
+    if (fromHere && history.length > 1) { e.preventDefault(); history.back(); }
   });
   const menu = document.createElement('div');
   menu.className = 'menu'; menu.id = 'menu'; menu.hidden = true;
@@ -377,9 +385,11 @@ function renderProduct() {
     const pr = PRICES[p.type] || {};
     const formats = FORMATS[p.type] || [];
     const orderable = p.status === 'hazir';
+    // options without a price can't be chosen yet; the first priced one starts selected
+    const firstPriced = (formats.find(([k]) => pr[k]) || [])[0];
     const options = formats.length ? `
         <div class="covers" role="radiogroup" aria-label="Seçenekler" style="--n:${formats.length}">
-          ${formats.map(([k, name, note], i) => `<label class="cover-opt"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${i === 0 ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
+          ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
         </div>` : '';
     const buy = orderable ? `
       <form id="buy" class="info" style="gap:18px">
@@ -437,29 +447,34 @@ function renderProduct() {
     if (nameIn) nameIn.addEventListener('input', () => { document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim()); });
     // Gift box and total
     const giftBox = document.getElementById('gift-box');
+    let giftWanted = false;   // what the customer chose, kept while a digital format hides the box
     function total() {
       const c = root.querySelector('input[name="cover"]:checked'), t = document.getElementById('total');
-      if (!c || !t) return;
+      if (!t || !giftBox) return;
       // the e-book has nothing to put in a box
-      const digital = c.value === 'digital';
-      if (!giftBox) return;
+      const digital = !!c && c.value === 'digital';
       document.getElementById('gift-wrap').hidden = digital;
-      if (digital) giftBox.checked = false;
+      giftBox.checked = !digital && giftWanted;
       document.getElementById('gift-note-wrap').hidden = !giftBox.checked;
-      if (!c.dataset.price) { t.textContent = 'Fiyat yakında'; return; }
+      if (!c || !c.dataset.price) { t.textContent = 'Fiyat yakında'; return; }
       const sum = +c.dataset.price + (giftBox.checked ? (GIFT_BOX_PRICE || 0) : 0);
       t.textContent = fmt(sum) + (giftBox.checked && !GIFT_BOX_PRICE ? ' + hediye kutusu' : '');
     }
-    if (giftBox) giftBox.addEventListener('change', total);
+    if (giftBox) giftBox.addEventListener('change', () => { giftWanted = giftBox.checked; total(); });
     root.querySelectorAll('input[name="cover"]').forEach(r => r.addEventListener('change', total));
     total();
     const buyF = document.getElementById('buy');
     if (buyF) buyF.addEventListener('submit', e => {
       e.preventDefault();
       const note = document.getElementById('buy-note');
-      const phone = document.getElementById('c-phone').value.replace(/\D/g, ''), mail = document.getElementById('c-email').value.trim();
-      if (phone.length < 10) { note.textContent = 'Lütfen telefon numaranızı yazın.'; return; }
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { note.textContent = 'Lütfen geçerli bir e-posta adresi yazın.'; return; }
+      const c = root.querySelector('input[name="cover"]:checked');
+      const name = nameIn ? nameIn.value.trim() : 'x';
+      const rawPhone = document.getElementById('c-phone').value.trim(), phone = rawPhone.replace(/\D/g, '');
+      const mail = document.getElementById('c-email').value.trim();
+      if (!c || !c.dataset.price) { note.textContent = 'Bu ürünün fiyatı yakında açıklanacak; şimdilik sipariş alamıyoruz.'; return; }
+      if (!name) { note.textContent = 'Lütfen kahramanın adını yazın.'; nameIn.focus(); return; }
+      if (!/^[\d\s()+-]+$/.test(rawPhone) || phone.length < 10 || phone.length > 13) { note.textContent = 'Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.'; document.getElementById('c-phone').focus(); return; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { note.textContent = 'Lütfen geçerli bir e-posta adresi yazın.'; document.getElementById('c-email').focus(); return; }
       note.textContent = 'Önizleme sürümü: telefon doğrulama, fotoğraf yükleme ve ödeme adımı site yayına alınırken bağlanacak.';
     });
     const intF = document.getElementById('interest');

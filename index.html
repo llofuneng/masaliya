@@ -144,12 +144,12 @@
     <a class="hot right" href="erkekler.html"><span>Erkek Çocukları</span></a>
   </div></div>
 
-  <a class="hero-label" href="kizlar.html" data-hero="0"><b>Kız Çocukları</b></a>
-  <a class="hero-label" href="erkekler.html" data-hero="1"><b>Erkek Çocukları</b></a>
-  <a class="hero-label" href="yetiskinler.html" data-hero="2"><b>Yetişkinler</b></a>
-  <a class="hero-hit" href="kizlar.html" data-hit="0" aria-label="Kız Çocukları"></a>
-  <a class="hero-hit" href="erkekler.html" data-hit="1" aria-label="Erkek Çocukları"></a>
-  <a class="hero-hit" href="yetiskinler.html" data-hit="2" aria-label="Yetişkinler"></a>
+  <a class="hero-label" href="kizlar.html" data-hero="0" tabindex="-1" aria-hidden="true"><b>Kız Çocukları</b></a>
+  <a class="hero-label" href="erkekler.html" data-hero="1" tabindex="-1" aria-hidden="true"><b>Erkek Çocukları</b></a>
+  <a class="hero-label" href="yetiskinler.html" data-hero="2" tabindex="-1" aria-hidden="true"><b>Yetişkinler</b></a>
+  <a class="hero-hit" href="kizlar.html" data-hit="0" tabindex="-1" aria-hidden="true"></a>
+  <a class="hero-hit" href="erkekler.html" data-hit="1" tabindex="-1" aria-hidden="true"></a>
+  <a class="hero-hit" href="yetiskinler.html" data-hit="2" tabindex="-1" aria-hidden="true"></a>
 
   <div class="frame" aria-hidden="true">
     <i><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 22V1h21"/><path d="M6 14V6h8"/><circle cx="10" cy="10" r="1.6" fill="currentColor"/></svg></i>
@@ -184,7 +184,6 @@
     <span class="hint" id="hint">ya da kitaba dokunun</span>
     <div class="after">
       <a class="btn ghost adults" href="yetiskinler.html">Yetişkinler için</a>
-      <button class="btn ghost" id="again" type="button">↺ Kitabı kapat ve yeniden aç</button>
     </div>
   </div>
 </section>
@@ -208,7 +207,11 @@
   let book = null;
 
   /* ---------- Open / close flow ---------- */
-  function done() { intro.classList.remove('playing'); intro.classList.add('opened'); }
+  function done() {
+    intro.classList.remove('playing'); intro.classList.add('opened');
+    // remember the open book, so "back" from a collection returns to it
+    try { if (location.hash !== '#sec') history.replaceState(null, '', '#sec'); } catch (e) {}
+  }
   function open() {
     if (intro.classList.contains('opened') || intro.classList.contains('playing')) return;
     if (mode === 'film') {
@@ -220,14 +223,7 @@
     if (mode === '3d' && book) { intro.classList.add('playing'); book.open(done); return; }
     done();
   }
-  function again() {
-    intro.classList.remove('opened');
-    if (mode === 'film') { film.pause(); film.currentTime = 0; setTimeout(open, 60); }
-    else if (book) { intro.classList.add('playing'); book.close(() => { intro.classList.remove('playing'); setTimeout(open, 300); }); }
-    else setTimeout(open, 900);
-  }
   document.getElementById('open').addEventListener('click', open);
-  document.getElementById('again').addEventListener('click', again);
   const seal = document.getElementById('seal');
   seal.addEventListener('click', open);
   seal.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
@@ -619,7 +615,13 @@
         h.card.localToWorld(tmp); tmp.project(camera);
         h.label.style.left = `${(tmp.x + 1) / 2 * rect.width}px`;
         h.label.style.top = `${(1 - tmp.y) / 2 * rect.height}px`;
-        h.label.style.opacity = lp; h.label.classList.toggle('on', lp > .8);
+        h.label.style.opacity = lp;
+        const lon = lp > .8;
+        if (h.label.classList.contains('on') !== lon) {
+          h.label.classList.toggle('on', lon);
+          h.label.tabIndex = lon ? 0 : -1;
+          h.label.setAttribute('aria-hidden', String(!lon));
+        }
         // keep the invisible link over the card's outline on screen
         let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
         for (const [cx, cy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
