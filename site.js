@@ -396,7 +396,14 @@ function renderProduct() {
         </div>` : '';
     const buy = orderable ? `
       <form id="buy" class="info" style="gap:18px">
-        ${p.hero ? `<label class="field" for="hero-name">Kahramanın adı<input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"></label>` : ''}
+        ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"></label>` : ''}
+        <div class="field"><span class="step">2 · Üç fotoğraf</span>
+          <div class="slots">
+            ${['Önden', 'Hafif yandan', 'Gülümserken'].map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><b>${i + 1} · ${t}</b></label>`).join('')}
+          </div>
+          <span class="slot-hint">Yüzün net göründüğü 3 fotoğraf seçin. Fotoğraflar yalnızca bu kitap için kullanılır.</span>
+        </div>
+        <span class="step">3 · Seçenekler</span>
         ${options}
         <label class="gift-opt" for="gift-box" id="gift-wrap">
           <input type="checkbox" id="gift-box">
@@ -406,6 +413,7 @@ function renderProduct() {
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
         <div class="total"><span>Toplam</span><strong id="total"></strong></div>
+        <span class="step">4 · İletişim</span>
         <div class="contact">
           <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
           <label class="field" for="c-email">E-posta<input id="c-email" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
@@ -447,7 +455,11 @@ function renderProduct() {
     }));
     // Live name
     const nameIn = document.getElementById('hero-name');
-    if (nameIn) nameIn.addEventListener('input', () => { document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim()); });
+    if (nameIn) {
+      const sync = () => { document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim()); try { sessionStorage.setItem('masaliya-hero', cap(nameIn.value.trim())); } catch (e) {} };
+      try { const saved = sessionStorage.getItem('masaliya-hero'); if (saved) { nameIn.value = saved; sync(); } } catch (e) {}
+      nameIn.addEventListener('input', sync);
+    }
     // Gift box and total
     const giftBox = document.getElementById('gift-box');
     let giftWanted = false;   // what the customer chose, kept while a digital format hides the box
@@ -466,6 +478,17 @@ function renderProduct() {
     if (giftBox) giftBox.addEventListener('change', () => { giftWanted = giftBox.checked; total(); });
     root.querySelectorAll('input[name="cover"]').forEach(r => r.addEventListener('change', total));
     total();
+    // three photo slots: preview each chosen photo
+    const slots = [...root.querySelectorAll('.slot')];
+    slots.forEach(slot => {
+      const input = slot.querySelector('input'), img = slot.querySelector('.slot-img');
+      input.addEventListener('change', () => {
+        const f = input.files[0];
+        const ok = !!f && f.type.startsWith('image/');
+        slot.classList.toggle('filled', ok);
+        img.style.backgroundImage = ok ? `url("${URL.createObjectURL(f)}")` : '';
+      });
+    });
     const buyF = document.getElementById('buy');
     if (buyF) buyF.addEventListener('submit', e => {
       e.preventDefault();
@@ -476,6 +499,8 @@ function renderProduct() {
       const mail = document.getElementById('c-email').value.trim();
       if (!c || !c.dataset.price) { note.textContent = 'Bu ürünün fiyatı yakında açıklanacak; şimdilik sipariş alamıyoruz.'; return; }
       if (!name) { note.textContent = 'Lütfen kahramanın adını yazın.'; nameIn.focus(); return; }
+      const photos = slots.filter(sl => sl.classList.contains('filled')).length;
+      if (photos < 3) { note.textContent = `Lütfen 3 fotoğrafın hepsini ekleyin (${photos}/3).`; return; }
       if (!/^[\d\s()+-]+$/.test(rawPhone) || phone.length < 10 || phone.length > 13) { note.textContent = 'Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.'; document.getElementById('c-phone').focus(); return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { note.textContent = 'Lütfen geçerli bir e-posta adresi yazın.'; document.getElementById('c-email').focus(); return; }
       note.textContent = 'Önizleme sürümü: telefon doğrulama, fotoğraf yükleme ve ödeme adımı site yayına alınırken bağlanacak.';

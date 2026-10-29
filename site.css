@@ -331,7 +331,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* Trial page: three photo slots, on-site result */
 .slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.slot { position: relative; display: grid; place-items: center; align-content: end; aspect-ratio: 3 / 4; border: 1px dashed var(--line-strong); border-radius: 10px; cursor: pointer; overflow: hidden; background: rgba(0,0,0,.2); transition: border-color .2s, background .2s; text-transform: none; letter-spacing: normal; }
+.slot { position: relative; display: grid; place-items: center; align-content: end; aspect-ratio: 3 / 4; border: 1px dashed var(--line-strong); border-radius: 2px; cursor: pointer; overflow: hidden; background: rgba(0,0,0,.2); transition: border-color .2s, background .2s; text-transform: none; letter-spacing: normal; }
 .slot:hover, .slot.over { border-color: var(--gold); background: rgba(226,181,107,.06); }
 .slot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2; }
 .slot-img { position: absolute; inset: 0; background: center / cover no-repeat; }
@@ -424,3 +424,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (max-width: 620px) { .grid.n1 .card { grid-template-columns: 1fr; } .grid.n1 .card .visual { grid-row: auto; } .grid.n2 { grid-template-columns: 1fr; } }
 .grid.n1 .card > :not(.visual) { grid-column: 2; }
 @media (max-width: 620px) { .grid.n1 .card > :not(.visual) { grid-column: auto; } }
+
+/* order form steps */
+#buy .step, #interest .step { font-size: .72rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
+#buy .field > .step { display: block; margin-bottom: 2px; }
+#buy .slots { margin-top: 6px; }
