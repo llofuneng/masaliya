@@ -26,7 +26,7 @@ const OCCASIONS = {
 const PRICES = {
   kitap:  { hard: 2500, soft: 1500, digital: null },
   boyama: { print: 600, digital: null },
-  yapboz: { s: null, m: 900, l: null }
+  yapboz: { std: 900 }
 };
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
@@ -35,7 +35,7 @@ const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 const SETS = [
   { id: 'tek', name: 'Yalnızca kitap', items: [], discount: 0 },
   { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: .10 },
-  { id: 'buyuk-masal-seti', name: 'Büyük Masal Seti', note: 'Kitap + boyama kitabı + yapboz', items: [['boyama', 'print'], ['yapboz', 'm']], discount: .15 }
+  { id: 'buyuk-masal-seti', name: 'Büyük Masal Seti', note: 'Kitap + boyama kitabı + yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: .15 }
 ];
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
@@ -48,11 +48,7 @@ const FORMATS = {
     ['print', 'Basılı Boyama Kitabı', 'Kalın, boyamaya uygun kâğıt'],
     ['digital', 'Dijital Boyama', 'PDF · evde dilediğiniz kadar yazdırın']
   ],
-  yapboz: [   // sizes to be announced
-    ['s', 'Küçük Boy', 'Ölçü yakında'],
-    ['m', 'Orta Boy', 'Ölçü yakında'],
-    ['l', 'Büyük Boy', 'Ölçü yakında']
-  ]
+  yapboz: []   // one size only: nothing to choose
 };
 
 /* WhatsApp concierge: put the number here in international format without "+", e.g. '905321234567'. */
@@ -414,6 +410,7 @@ function renderProduct() {
     const orderable = p.status === 'hazir';
     // options without a price can't be chosen yet; the first priced one starts selected
     const firstPriced = (formats.find(([k]) => pr[k]) || [])[0];
+    const singlePrice = formats.length ? null : Object.values(pr).find(Boolean) || null;
     const options = formats.length ? `
         <div class="covers" role="radiogroup" aria-label="Seçenekler" style="--n:${formats.length}">
           ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
@@ -508,8 +505,9 @@ function renderProduct() {
       // a set adds its parts and takes the discount off the whole; the PDF copy goes with printed books only
       const set = root.querySelector('input[name="set"]:checked'), pdf = document.getElementById('pdf-addon');
       if (pdf) { document.getElementById('pdf-wrap').hidden = digital; if (digital) pdf.checked = false; }
-      if (!c || !c.dataset.price) { t.textContent = 'Fiyat yakında'; return; }
-      let sum = +c.dataset.price;
+      const base = c ? +c.dataset.price : singlePrice;
+      if (!base) { t.textContent = 'Fiyat yakında'; return; }
+      let sum = base;
       if (set && set.dataset.extra) sum = Math.round((sum + +set.dataset.extra) * (1 - +set.dataset.discount));
       if (pdf && pdf.checked) sum += PDF_ADDON_PRICE || 0;
       sum += giftBox.checked ? (GIFT_BOX_PRICE || 0) : 0;
@@ -537,7 +535,7 @@ function renderProduct() {
       const name = nameIn ? nameIn.value.trim() : 'x';
       const rawPhone = document.getElementById('c-phone').value.trim(), phone = rawPhone.replace(/\D/g, '');
       const mail = document.getElementById('c-email').value.trim();
-      if (!c || !c.dataset.price) { note.textContent = 'Bu ürünün fiyatı yakında açıklanacak; şimdilik sipariş alamıyoruz.'; return; }
+      if (!(c ? c.dataset.price : singlePrice)) { note.textContent = 'Bu ürünün fiyatı yakında açıklanacak; şimdilik sipariş alamıyoruz.'; return; }
       if (!name) { note.textContent = 'Lütfen kahramanın adını yazın.'; nameIn.focus(); return; }
       const photos = slots.filter(sl => sl.classList.contains('filled')).length;
       if (photos < 3) { note.textContent = `Lütfen 3 fotoğrafın hepsini ekleyin (${photos}/3).`; return; }
