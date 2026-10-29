@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sipariş Takibi · Masaliya</title>
+<meta name="description" content="Masaliya siparişinizin hangi aşamada olduğunu görün.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap">
+<link rel="icon" href="img/favicon.png">
+<link rel="stylesheet" href="site.css">
+<script src="site.js" defer></script>
+</head>
+<body data-page="siparis">
+<header id="site-head"></header>
+<main>
+<section class="page-head"><div class="wrap">
+  <p class="eyebrow">Sipariş takibi</p>
+  <h1>Masalınız ne aşamada?</h1>
+  <p class="lede">Sipariş numaranızı ve e-posta adresinizi ya da telefonunuzu yazın; masalınızın atölyede hangi adımda olduğunu görün.</p>
+</div></section>
+<section class="sec"><div class="wrap track">
+  <div style="display:grid; gap:24px">
+    <form class="panel" id="track">
+      <label class="field" for="o-no">Sipariş numarası<input id="o-no" type="text" required placeholder="MSL-2026-0142" autocomplete="off"></label>
+      <label class="field" for="o-contact">E-posta veya telefon<input id="o-contact" type="text" required autocomplete="email" placeholder="ornek@mail.com ya da 05xx xxx xx xx"></label>
+      <button class="btn" type="submit">Siparişimi Göster</button>
+      <p class="form-note" id="o-note" aria-live="polite"></p>
+    </form>
+    <div class="panel summary">
+      <span class="example-tag">Örnek sipariş</span>
+      <dl>
+        <dt>Sipariş</dt><dd>MSL-2026-0142</dd>
+        <dt>Masal</dt><dd>Elif ve Deniz Kızı Krallığı</dd>
+        <dt>Kapak</dt><dd>Sert kapak · A4</dd>
+        <dt>Ekler</dt><dd>Hediye kutusu, not kartı</dd>
+      </dl>
+    </div>
+  </div>
+  <div>
+    <p class="eyebrow" style="margin-bottom:22px">Atölyedeki yolculuk · örnek</p>
+    <ol class="timeline">
+      <li class="done"><span class="dot">✓</span><div><b>Sipariş alındı</b><small>Ödemeniz onaylandı.</small></div></li>
+      <li class="done"><span class="dot">✓</span><div><b>Fotoğraflar alındı</b><small>Fotoğraflarınız güvenle saklanıyor, yalnızca bu kitap için kullanılacak.</small></div></li>
+      <li class="done"><span class="dot">✓</span><div><b>Resimler hazırlandı</b><small>Siparişten en geç 3 gün sonra.</small></div></li>
+      <li class="now"><span class="dot">✦</span><div><b>Önizleme onayınızı bekliyor</b><small>Bütün sayfaları inceleyin; değiştirmek istediğiniz bir şey varsa yazın.</small>
+        <div class="actions"><a class="btn" href="#onizleme">Önizlemeyi Aç</a><a class="btn ghost" href="#whatsapp">Değişiklik İste</a></div></div></li>
+      <li><span class="dot"></span><div><b>Baskıda</b><small>Dijital kitap bu adımda hemen gönderilir.</small></div></li>
+      <li><span class="dot"></span><div><b>Kargoda</b><small>Onaydan sonra en geç bir hafta içinde. Takip numaranız burada görünecek.</small></div></li>
+      <li><span class="dot"></span><div><b>Teslim edildi</b><small>Fotoğraflarınız sistemlerimizden silinir.</small></div></li>
+    </ol>
+  </div>
+</div></section>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('track').addEventListener('submit', e => {
+    e.preventDefault();
+    const v = document.getElementById('o-contact').value.trim(), note = document.getElementById('o-note');
+    const ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.replace(/\D/g, '').length >= 10;
+    if (!ok) { note.textContent = 'Lütfen siparişte kullandığınız e-posta adresini ya da telefon numarasını yazın.'; return; }
+    note.textContent = 'Önizleme sürümü: sipariş sistemi site yayına alınırken bağlanacak. Yandaki adımlar örnektir.';
+  });
+  document.querySelector('a[href="#onizleme"]').addEventListener('click', e => { e.preventDefault(); document.getElementById('o-note').textContent = 'Önizleme sürümü: gerçek siparişte burada kitabınızın bütün sayfaları açılacak.'; });
+});
+</script>
+</main>
+<footer id="site-foot"></footer>
+</body>
+</html>

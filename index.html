@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="img/favicon.png">
+<title>Masaliya</title>
+<meta name="description" content="Masaliya: değer verdiğiniz insanların yüzüyle resimlenen kişiye özel masal kitapları, boyama kitapları ve yapbozlar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+/* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
+   A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
+   girls, boys, adults. When media/intro.mp4 exists the generated film replaces the 3D book. */
+.intro { position: relative; min-height: 100svh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; isolation: isolate; background: var(--ink); }
+.intro-top, .stage-mid, .intro-bottom { pointer-events: none; }
+.intro a, .intro button, .intro .seal { pointer-events: auto; }
+/* everything inside the gold frame keeps clear of it */
+.intro > .wrap { padding-left: max(44px, env(safe-area-inset-left, 0px)); padding-right: max(44px, env(safe-area-inset-right, 0px)); max-width: none; }
+@media (max-width: 520px) { .intro > .wrap { padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); } }
+.intro-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-block: 34px 0; z-index: 5; }
+.lockup { grid-column: 2; display: grid; justify-items: center; gap: 8px; text-decoration: none; color: var(--gold-pale); }
+.lockup svg { width: 30px; height: 30px; display: block; filter: drop-shadow(0 0 10px rgba(226,181,107,.4)); }
+.lockup span { font: 500 .82rem/1 var(--f-display); letter-spacing: .5em; padding-left: .5em; }
+.menu-icon { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: 12px; background: none; border: 0; cursor: pointer; color: var(--gold-pale); font: 400 .7rem var(--f-body); letter-spacing: .26em; text-transform: uppercase; padding: 8px 0; }
+.menu-icon i { display: grid; gap: 5px; width: 24px; }
+.menu-icon i::before, .menu-icon i::after { content: ""; height: 1px; background: currentColor; }
+.menu-icon i::after { width: 70%; justify-self: end; }
+.menu-icon:hover { color: var(--gold); }
+@media (max-width: 520px) { .intro-top { padding-block: 26px 0; } .menu-icon span { display: none; } }
+.tag { align-self: start; text-align: center; font: italic 400 clamp(1.15rem, .9rem + .9vw, 1.7rem) var(--f-display); color: var(--gold-pale); text-shadow: 0 2px 18px rgba(0,0,0,.7); opacity: 0; transition: opacity 1s ease .8s; padding-top: 6px; }
+.opened .tag { opacity: 1; }
+@media (max-width: 520px) { .tag { display: none; } }
+
+/* Gold frame around the whole first screen, like a jewellery box */
+.frame { position: absolute; inset: 12px; z-index: 3; pointer-events: none; border: 1px solid rgba(226,181,107,.32); }
+.frame::before { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(226,181,107,.14); }
+.frame i { position: absolute; width: 34px; height: 34px; color: var(--gold); }
+.frame i svg { width: 100%; height: 100%; display: block; }
+.frame i:nth-child(1) { top: -1px; left: -1px; }
+.frame i:nth-child(2) { top: -1px; right: -1px; transform: scaleX(-1); }
+.frame i:nth-child(3) { bottom: -1px; left: -1px; transform: scaleY(-1); }
+.frame i:nth-child(4) { bottom: -1px; right: -1px; transform: scale(-1, -1); }
+@media (max-width: 520px) { .frame { inset: 8px; } .frame i { width: 24px; height: 24px; } }
+
+/* Headline over the closed book */
+.hero-copy { align-self: start; display: grid; justify-items: center; gap: 14px; text-align: center; padding-top: clamp(14px, 3svh, 34px); transition: opacity .9s ease, transform 1.2s ease; }
+.hero-copy .eyebrow { font-size: .72rem; letter-spacing: .34em; }
+.hero-copy h1 { font: 400 clamp(2.3rem, 1.4rem + 3.6vw, 4.6rem)/1 var(--f-display); letter-spacing: .01em; text-shadow: 0 4px 30px rgba(0,0,0,.6); }
+.hero-copy h1 em { font: 400 1.35em/0 var(--f-script); color: var(--gold-pale); padding-inline: .06em; text-shadow: 0 0 30px rgba(255,210,140,.55); }
+.hero-copy p { color: rgba(246,236,220,.78); max-width: 46ch; font-size: clamp(.92rem, .85rem + .3vw, 1.08rem); text-shadow: 0 2px 14px rgba(0,0,0,.8); }
+.opened .hero-copy, .playing .hero-copy { opacity: 0; transform: translateY(-24px); }
+
+/* Room background + 3D canvas */
+.scene { position: absolute; inset: 0; z-index: -2;
+  background:
+    radial-gradient(36% 30% at 50% 60%, rgba(255,206,140,.22), transparent 70%),
+    radial-gradient(60% 45% at 12% 8%, rgba(78,70,170,.38), transparent 70%),
+    radial-gradient(55% 45% at 90% 14%, rgba(170,40,90,.30), transparent 70%),
+    radial-gradient(60% 40% at 80% 85%, rgba(30,120,100,.16), transparent 70%),
+    radial-gradient(90% 55% at 50% 112%, rgba(120,24,48,.65), transparent 70%),
+    linear-gradient(180deg, #0b0a1d 0%, #150d24 42%, #220a16 100%); }
+#book3d { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; touch-action: pan-y; }
+
+/* Labels that follow the 3D heroes */
+.hero-label { position: absolute; z-index: 4; left: 0; top: 0; transform: translate(-50%, 10px); display: grid; justify-items: center; gap: 4px; text-align: center; text-decoration: none; color: var(--cream); opacity: 0; pointer-events: none; white-space: nowrap; will-change: transform, opacity; }
+.hero-label.on { pointer-events: auto; }
+.hero-label b { font: 500 clamp(1.1rem, .95rem + .9vw, 1.6rem)/1.1 var(--f-display); text-shadow: 0 2px 16px rgba(0,0,0,.9), 0 0 2px rgba(0,0,0,.8); }
+.hero-label small { font: 400 .64rem var(--f-body); letter-spacing: .22em; text-transform: uppercase; color: var(--gold-pale); text-shadow: 0 2px 10px rgba(0,0,0,.95); }
+.hero-label:hover b { color: var(--gold-pale); }
+@media (max-width: 560px) { .hero-label b { font-size: .95rem; } .hero-label small { display: none; } }
+.film-mode .hero-label, .no3d .hero-label { display: none; }
+/* invisible links laid exactly over each risen hero, so a tap on the symbol opens its section */
+.hero-hit { position: absolute; z-index: 4; left: 0; top: 0; width: 0; height: 0; border-radius: 999px 999px 10px 10px; pointer-events: none; -webkit-tap-highlight-color: transparent; }
+.hero-hit.on { pointer-events: auto; cursor: pointer; }
+.hero-hit:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.film-mode .hero-hit, .no3d .hero-hit { display: none; }
+/* phone: labels sit beside the heroes */
+.hero-label[data-side="r"] { transform: translate(0, -50%); justify-items: start; text-align: left; }
+.hero-label[data-side="l"] { transform: translate(-100%, -50%); justify-items: end; text-align: right; }
+.phone .hero-label b { font-size: 1.35rem; }
+
+
+/* Logo + doors fallback (no WebGL) */
+.stage-mid { display: grid; place-items: center; position: relative; }
+.stage-mid > * { grid-area: 1 / 1; }
+.seal, .doors { display: none; }
+.no3d .seal { display: grid; } .no3d #book3d { display: none; }
+.seal { justify-items: center; gap: 22px; color: var(--gold-pale); text-align: center; cursor: pointer; transition: transform 1.4s cubic-bezier(.6,.05,.25,1), opacity 1.1s ease; }
+.seal svg { width: clamp(90px, 14vw, 150px); height: auto; filter: drop-shadow(0 0 22px rgba(226,181,107,.55)); }
+.seal .word { font: 500 clamp(1.4rem, 1rem + 2vw, 2.4rem)/1 var(--f-display); letter-spacing: .5em; padding-left: .5em; }
+.no3d.opened .seal { transform: translateY(-30vh) scale(.5); opacity: 0; pointer-events: none; }
+.no3d .doors { display: grid; grid-template-columns: repeat(3, minmax(0, 190px)); gap: clamp(12px, 4vw, 56px); justify-content: center; width: 100%; visibility: hidden; }
+.no3d.opened .doors { visibility: visible; }
+.door { display: grid; justify-items: center; gap: 12px; text-decoration: none; color: var(--cream); text-align: center; opacity: 0; transform: translateY(60px) scale(.6); transition: opacity 1s ease, transform 1.3s cubic-bezier(.16,.84,.24,1); }
+.no3d.opened .door { opacity: 1; transform: none; }
+.no3d.opened .door:nth-child(2) { transition-delay: .15s; } .no3d.opened .door:nth-child(3) { transition-delay: .3s; }
+.door img { width: 100%; height: auto; filter: drop-shadow(0 0 30px rgba(255,214,140,.35)); }
+.door b { font: 500 clamp(1.05rem, 1rem + .8vw, 1.6rem)/1.1 var(--f-display); }
+.door small { font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+
+/* Film mode (when media/intro.mp4 exists) */
+.film-bg { position: absolute; inset: -40px; z-index: -2; background: var(--ink) center / cover no-repeat; filter: blur(40px) brightness(.45); display: none; }
+.film { position: absolute; inset: 0; z-index: -1; display: none; place-items: center; }
+.film-mode .film { display: grid; } .film-mode .film-bg { display: block; }
+.film-mode .scene, .film-mode #book3d, .film-mode .seal, .film-mode .doors { display: none; }
+.film-box { position: relative; width: min(100vw, calc(100svh * 16 / 9)); aspect-ratio: 16 / 9; max-width: 100%; }
+.film-box video { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+.film-box::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 120px 60px var(--ink); }
+.hot { position: absolute; top: 8%; bottom: 22%; width: 34%; display: grid; align-content: end; justify-items: center; text-decoration: none; color: var(--cream); opacity: 0; pointer-events: none; transition: opacity .9s ease; z-index: 2; }
+.hot.left { left: 4%; } .hot.right { right: 4%; }
+.hot span { font: 500 clamp(1.3rem, 1rem + 1.4vw, 2.2rem) var(--f-display); text-shadow: 0 2px 20px rgba(0,0,0,.8); }
+.hot small { font: 400 .7rem var(--f-body); letter-spacing: .24em; text-transform: uppercase; color: var(--gold-pale); text-shadow: 0 2px 12px rgba(0,0,0,.9); }
+.film-mode.opened .hot { opacity: 1; pointer-events: auto; }
+
+/* Bottom controls */
+.intro-bottom { display: grid; justify-items: center; gap: 10px; padding-block: 10px 30px; z-index: 5; transition: opacity .5s; }
+.intro-bottom .hint { font-size: .7rem; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
+.opened .open-btn, .opened .hint { display: none; }
+.after { display: none; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.opened .after { display: flex; }
+.after .adults { display: none; }
+.film-mode .after .adults { display: inline-flex; }
+.playing .intro-bottom { opacity: 0; }
+.playing .intro-bottom * { pointer-events: none; }
+
+.band { border-top: 1px solid var(--line); }
+.band .wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 34px; padding-block: 26px; color: var(--muted); font-size: .9rem; }
+.band span::before { content: "✦"; color: var(--gold); margin-right: .6em; font-size: .7em; }
+@media (prefers-reduced-motion: reduce) { .door, .seal { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<section class="intro" id="intro" aria-label="Masaliya">
+  <div class="scene" aria-hidden="true"></div>
+  <canvas id="book3d" role="img" aria-label="Üzerinde Masaliya logosu olan deri kapaklı kitap. Açmak için kitaba dokunun."></canvas>
+  <div class="film-bg" id="film-bg"></div>
+  <div class="film"><div class="film-box">
+    <video id="film" muted playsinline preload="auto" aria-label="Masaliya kitabı açılıyor, içinden masal kahramanları çıkıyor"></video>
+    <a class="hot left" href="kizlar.html"><span>Kız Çocukları</span></a>
+    <a class="hot right" href="erkekler.html"><span>Erkek Çocukları</span></a>
+  </div></div>
+
+  <a class="hero-label" href="kizlar.html" data-hero="0"><b>Kız Çocukları</b></a>
+  <a class="hero-label" href="erkekler.html" data-hero="1"><b>Erkek Çocukları</b></a>
+  <a class="hero-label" href="yetiskinler.html" data-hero="2"><b>Yetişkinler</b></a>
+  <a class="hero-hit" href="kizlar.html" data-hit="0" aria-label="Kız Çocukları"></a>
+  <a class="hero-hit" href="erkekler.html" data-hit="1" aria-label="Erkek Çocukları"></a>
+  <a class="hero-hit" href="yetiskinler.html" data-hit="2" aria-label="Yetişkinler"></a>
+
+  <div class="frame" aria-hidden="true">
+    <i><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 22V1h21"/><path d="M6 14V6h8"/><circle cx="10" cy="10" r="1.6" fill="currentColor"/></svg></i>
+    <i><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 22V1h21"/><path d="M6 14V6h8"/><circle cx="10" cy="10" r="1.6" fill="currentColor"/></svg></i>
+    <i><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 22V1h21"/><path d="M6 14V6h8"/><circle cx="10" cy="10" r="1.6" fill="currentColor"/></svg></i>
+    <i><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 22V1h21"/><path d="M6 14V6h8"/><circle cx="10" cy="10" r="1.6" fill="currentColor"/></svg></i>
+  </div>
+
+  <div class="wrap intro-top">
+    <a class="lockup" href="./" aria-label="Masaliya"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 58 V28 a14 14 0 0 1 28 0 V58" fill="none" stroke="currentColor" stroke-width="2"/><path d="M32 26 l1.3 5.2 5.2 1.3 -5.2 1.3 -1.3 5.2 -1.3 -5.2 -5.2 -1.3 5.2 -1.3z" fill="currentColor"/><path d="M12 58 H52" stroke="currentColor" stroke-width="2"/></svg><span>MASALİYA</span></a>
+    <button class="menu-icon" type="button" data-open-menu aria-label="Menü"><span>Menü</span><i></i></button>
+  </div>
+
+  <div class="wrap stage-mid">
+    <div class="hero-copy">
+      <h1>Herkesin bir <em>masalı</em> var</h1>
+      <p>Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan kitaplar.</p>
+    </div>
+    <div class="seal" id="seal" role="button" tabindex="0" aria-label="Masalı aç">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 58 V28 a14 14 0 0 1 28 0 V58" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M32 26 l1.3 5.2 5.2 1.3 -5.2 1.3 -1.3 5.2 -1.3 -5.2 -5.2 -1.3 5.2 -1.3z" fill="currentColor"/><path d="M12 58 H52" stroke="currentColor" stroke-width="1.4"/></svg>
+      <h1 class="word">MASALİYA</h1>
+    </div>
+    <nav class="doors" id="doors" aria-label="Koleksiyonlar">
+      <a class="door" href="kizlar.html"><img alt="" data-hero-img="0"><b>Kız Çocukları</b></a>
+      <a class="door" href="erkekler.html"><img alt="" data-hero-img="1"><b>Erkek Çocukları</b></a>
+      <a class="door" href="yetiskinler.html"><img alt="" data-hero-img="2"><b>Yetişkinler</b></a>
+    </nav>
+  </div>
+
+  <div class="wrap intro-bottom">
+    <button class="btn open-btn" id="open" type="button">Masalı Aç</button>
+    <span class="hint" id="hint">ya da kitaba dokunun</span>
+    <div class="after">
+      <a class="btn ghost adults" href="yetiskinler.html">Yetişkinler için</a>
+      <button class="btn ghost" id="again" type="button">↺ Kitabı kapat ve yeniden aç</button>
+    </div>
+  </div>
+</section>
+
+<div class="band"><div class="wrap">
+  <span>Değer verdiğiniz insanların yüzüyle resimlenir</span>
+  <span>Sert kapak, yumuşak kapak ya da dijital</span>
+  <span>Baskıdan önce tam önizleme</span>
+  <span>Fotoğraflar teslimden sonra silinir</span>
+</div></div>
+<footer id="site-foot"></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="site.js"></script>
+<script>
+(() => {
+  const intro = document.getElementById('intro');
+  const film = document.getElementById('film');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let mode = '3d';
+  let book = null;
+
+  /* ---------- Open / close flow ---------- */
+  function done() { intro.classList.remove('playing'); intro.classList.add('opened'); }
+  function open() {
+    if (intro.classList.contains('opened') || intro.classList.contains('playing')) return;
+    if (mode === 'film') {
+      if (reduce) { if (film.duration) film.currentTime = film.duration; return done(); }
+      intro.classList.add('playing'); film.currentTime = 0;
+      film.play().catch(() => { if (film.duration) film.currentTime = film.duration; done(); });
+      return;
+    }
+    if (mode === '3d' && book) { intro.classList.add('playing'); book.open(done); return; }
+    done();
+  }
+  function again() {
+    intro.classList.remove('opened');
+    if (mode === 'film') { film.pause(); film.currentTime = 0; setTimeout(open, 60); }
+    else if (book) { intro.classList.add('playing'); book.close(() => { intro.classList.remove('playing'); setTimeout(open, 300); }); }
+    else setTimeout(open, 900);
+  }
+  document.getElementById('open').addEventListener('click', open);
+  document.getElementById('again').addEventListener('click', again);
+  const seal = document.getElementById('seal');
+  seal.addEventListener('click', open);
+  seal.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  film.addEventListener('ended', done);
+  film.addEventListener('click', () => {
+    if (intro.classList.contains('playing')) { film.pause(); if (film.duration) film.currentTime = film.duration; done(); } else open();
+  });
+
+  fetch('media/intro.mp4', { method: 'HEAD' }).then(r => {
+    if (!r.ok || intro.classList.contains('opened') || intro.classList.contains('playing')) return;
+    mode = 'film'; if (book) book.stop();
+    intro.classList.add('film-mode');
+    film.poster = 'media/intro-start.jpg'; film.src = 'media/intro.mp4';
+    document.getElementById('film-bg').style.backgroundImage = 'url("media/intro-start.jpg")';
+  }).catch(() => {});
+
+  try { book = makeBook(document.getElementById('book3d'), open); } catch (e) { console.warn(e); book = null; }
+  // coming back from a collection page: show the open book with the three heroes straight away
+  if (location.hash === '#sec') { if (book) book.jumpOpen(); done(); }
+  if (!book) {
+    mode = 'logo'; intro.classList.add('no3d'); document.getElementById('hint').textContent = 'ya da logoya dokunun';
+    // the fallback doors use the same artwork as the 3D heroes
+    document.querySelectorAll('[data-hero-img]').forEach(img => { img.src = drawHeroCard(HEROES[+img.dataset.heroImg]).toDataURL(); });
+  }
+
+  /* ---------- The 3D book ---------- */
+  function makeBook(canvas, onPick) {
+    if (!window.THREE) return null;
+    const T = THREE;
+    let renderer;
+    try { renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return null; }
+    if (!renderer.getContext()) return null;
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.toneMapping = T.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = T.PCFSoftShadowMap;
+
+    const scene = new T.Scene();
+    const camera = new T.PerspectiveCamera(32, 1, .1, 100);
+    const W = 2.1, D = 2.97, CT = .05, PT = .26, PW = W - .07, PD = D - .1;
+
+    /* --- canvas texture helpers --- */
+    const mk = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); return c; };
+    const tex = (c, srgb) => { const t = new T.CanvasTexture(c); if (srgb) t.encoding = T.sRGBEncoding; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    function grain(ctx, w, h, base, light, dark, n) {
+      ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < n; i++) { ctx.fillStyle = rnd() < .5 ? light : dark; const r = 1 + rnd() * 3.4; ctx.fillRect(rnd() * w, rnd() * h, r, r * (.6 + rnd() * .8)); }
+    }
+    const archPath = new Path2D('M18 58 V28 a14 14 0 0 1 28 0 V58');
+    const starPath = new Path2D('M32 26 l1.3 5.2 5.2 1.3 -5.2 1.3 -1.3 5.2 -1.3 -5.2 -5.2 -1.3 5.2 -1.3z');
+    const basePath = new Path2D('M12 58 H52');
+    function spaced(ctx, text, cx, y, gap) {
+      const ws = [...text].map(ch => ctx.measureText(ch).width);
+      let x = cx - (ws.reduce((a, b) => a + b, 0) + gap * (ws.length - 1)) / 2;
+      [...text].forEach((ch, i) => { ctx.fillText(ch, x, y); x += ws[i] + gap; });
+    }
+    function star4(ctx, x, y, r) { ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r * .22, y - r * .22); ctx.lineTo(x + r, y); ctx.lineTo(x + r * .22, y + r * .22); ctx.lineTo(x, y + r); ctx.lineTo(x - r * .22, y + r * .22); ctx.lineTo(x - r, y); ctx.lineTo(x - r * .22, y - r * .22); ctx.closePath(); ctx.fill(); }
+    function corner(ctx, x, y, sx, sy) {
+      // a small fleuron tucked into each corner of the frame
+      ctx.save(); ctx.translate(x, y); ctx.scale(sx, sy); ctx.lineWidth = 3.2;
+      ctx.beginPath(); ctx.moveTo(0, 120); ctx.quadraticCurveTo(0, 0, 120, 0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(18, 92); ctx.quadraticCurveTo(22, 22, 92, 18); ctx.stroke();
+      ctx.beginPath(); ctx.arc(34, 34, 9, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(40, 40); ctx.quadraticCurveTo(70, 46, 64, 70); ctx.quadraticCurveTo(48, 54, 40, 40); ctx.fill();
+      ctx.restore();
+    }
+    function drawCover(ctx, w, h, ink) {
+      ctx.save(); ctx.strokeStyle = ink; ctx.fillStyle = ink;
+      [[0, 0, 1, 1], [w, 0, -1, 1], [0, h, 1, -1], [w, h, -1, -1]].forEach(([x, y, sx, sy]) => {
+        ctx.save(); ctx.translate(x, y); ctx.scale(sx, sy);
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(132, 0); ctx.quadraticCurveTo(40, 40, 0, 132); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      });
+      ctx.lineWidth = 6; ctx.strokeRect(56, 56, w - 112, h - 112);
+      ctx.lineWidth = 2.2; ctx.strokeRect(80, 80, w - 160, h - 160);
+      corner(ctx, 92, 92, 1, 1); corner(ctx, w - 92, 92, -1, 1); corner(ctx, 92, h - 92, 1, -1); corner(ctx, w - 92, h - 92, -1, -1);
+      const s = 6.6, ox = w / 2 - 32 * s, oy = h * .29 - 6 * s;
+      ctx.save(); ctx.translate(ox, oy); ctx.scale(s, s); ctx.lineWidth = 1.5; ctx.stroke(archPath); ctx.stroke(basePath); ctx.fill(starPath); ctx.restore();
+      [[w / 2 - 190, h * .27, 10], [w / 2 + 196, h * .25, 13], [w / 2 - 150, h * .17, 7], [w / 2 + 150, h * .16, 8], [w / 2, h * .135, 11]].forEach(([x, y, r]) => star4(ctx, x, y, r));
+      ctx.font = '500 76px "Cormorant Garamond", Garamond, serif';
+      spaced(ctx, 'MASALİYA', w / 2, h * .29 + 52 * s + 120, 30);
+      ctx.font = 'italic 400 44px "Cormorant Garamond", Garamond, serif';
+      spaced(ctx, 'kişiye özel masallar', w / 2, h * .29 + 52 * s + 205, 4);
+      ctx.restore();
+    }
+    const CW = 1024, CH = 1448;
+    function coverMaps() {
+      seed = 7;
+      const color = mk(CW, CH, (c, w, h) => {
+        grain(c, w, h, '#6b1124', 'rgba(190,70,90,.12)', 'rgba(25,0,6,.3)', 40000);
+        const g = c.createRadialGradient(w * .45, h * .38, h * .05, w / 2, h / 2, h * .78);
+        g.addColorStop(0, 'rgba(255,120,120,.10)'); g.addColorStop(1, 'rgba(10,0,4,.6)');
+        c.fillStyle = g; c.fillRect(0, 0, w, h);
+        drawCover(c, w, h, '#f0c77c');
+      });
+      seed = 7;
+      const bump = mk(CW, CH, (c, w, h) => { grain(c, w, h, '#808080', 'rgba(255,255,255,.35)', 'rgba(0,0,0,.35)', 40000); drawCover(c, w, h, '#383838'); });
+      const rough = mk(CW, CH, (c, w, h) => { c.fillStyle = 'rgb(0,175,0)'; c.fillRect(0, 0, w, h); drawCover(c, w, h, 'rgb(0,55,0)'); });
+      const metal = mk(CW, CH, (c, w, h) => { c.fillStyle = '#000'; c.fillRect(0, 0, w, h); drawCover(c, w, h, 'rgb(0,0,255)'); });
+      return { map: tex(color, true), bumpMap: tex(bump), roughnessMap: tex(rough), metalnessMap: tex(metal) };
+    }
+    function plainLeather() {
+      seed = 11;
+      const color = mk(512, 512, (c, w, h) => grain(c, w, h, '#5e0e1f', 'rgba(190,70,90,.12)', 'rgba(25,0,6,.32)', 16000));
+      seed = 11;
+      const bump = mk(512, 512, (c, w, h) => grain(c, w, h, '#808080', 'rgba(255,255,255,.35)', 'rgba(0,0,0,.35)', 16000));
+      return { map: tex(color, true), bumpMap: tex(bump) };
+    }
+    // watercolour night-sky spread painted across the open pages
+    function pagePainting(side) {
+      seed = side === 'L' ? 23 : 29;
+      return tex(mk(1024, 1448, (c, w, h) => {
+        const sky = c.createLinearGradient(0, 0, 0, h);
+        sky.addColorStop(0, '#1d2260'); sky.addColorStop(.38, '#5a3d8c'); sky.addColorStop(.62, '#d77f86'); sky.addColorStop(.8, '#f5c189'); sky.addColorStop(1, '#f7e2b8');
+        c.fillStyle = sky; c.fillRect(0, 0, w, h);
+        for (let i = 0; i < 70; i++) {
+          const x = rnd() * w, y = rnd() * h * .8, r = 60 + rnd() * 160;
+          const col = ['120,90,200', '230,120,150', '90,120,220', '255,190,140'][Math.floor(rnd() * 4)];
+          const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${col},.16)`); g.addColorStop(1, `rgba(${col},0)`);
+          c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2);
+        }
+        for (let i = 0; i < 140; i++) { c.fillStyle = `rgba(255,245,220,${.4 + rnd() * .6})`; c.beginPath(); c.arc(rnd() * w, rnd() * h * .55, .8 + rnd() * 2.4, 0, 6.283); c.fill(); }
+        c.fillStyle = '#fff3d6';
+        for (let i = 0; i < 9; i++) star4(c, 120 + rnd() * (w - 240), 80 + rnd() * h * .4, 8 + rnd() * 14);
+        if (side === 'R') {
+          // crescent moon and the sea
+          const mx = w * .64, my = h * .2;
+          const mg = c.createRadialGradient(mx, my, 0, mx, my, 260); mg.addColorStop(0, 'rgba(255,240,200,.55)'); mg.addColorStop(1, 'rgba(255,240,200,0)');
+          c.fillStyle = mg; c.fillRect(mx - 260, my - 260, 520, 520);
+          c.fillStyle = '#fff1cf'; c.beginPath(); c.arc(mx, my, 96, 0, 6.283); c.fill();
+          c.fillStyle = '#3a3277'; c.beginPath(); c.arc(mx + 42, my - 26, 84, 0, 6.283); c.fill();
+          [['#2f7fa6', .74], ['#2a6a95', .8], ['#1f557e', .87], ['#173f63', .94]].forEach(([col, y0], i) => {
+            c.fillStyle = col; c.beginPath(); c.moveTo(0, h);
+            for (let x = 0; x <= w; x += 16) c.lineTo(x, h * y0 + Math.sin(x / 70 + i * 1.7) * 14 + Math.sin(x / 23 + i) * 4);
+            c.lineTo(w, h); c.closePath(); c.fill();
+            c.strokeStyle = 'rgba(255,240,210,.35)'; c.lineWidth = 2; c.beginPath();
+            for (let x = 0; x <= w; x += 16) c.lineTo(x, h * y0 + Math.sin(x / 70 + i * 1.7) * 14 + Math.sin(x / 23 + i) * 4);
+            c.stroke();
+          });
+        } else {
+          // hills and a fairy-tale castle
+          c.fillStyle = '#7a4a86'; c.beginPath(); c.moveTo(0, h * .82); c.quadraticCurveTo(w * .3, h * .7, w * .62, h * .8); c.quadraticCurveTo(w * .85, h * .86, w, h * .78); c.lineTo(w, h); c.lineTo(0, h); c.fill();
+          c.fillStyle = '#4a2a63';
+          const cx = w * .5, base = h * .78;
+          [[-150, 230, 70], [-60, 330, 80], [40, 280, 70], [130, 200, 60]].forEach(([dx, th, tw]) => {
+            c.fillRect(cx + dx, base - th, tw, th);
+            c.beginPath(); c.moveTo(cx + dx - 12, base - th); c.lineTo(cx + dx + tw / 2, base - th - tw * 1.3); c.lineTo(cx + dx + tw + 12, base - th); c.fill();
+          });
+          c.fillRect(cx - 160, base - 150, 360, 150);
+          c.fillStyle = '#ffd98a';
+          [[-40, 260], [55, 220], [-125, 190], [150, 150], [-10, 120], [80, 110]].forEach(([dx, dy]) => c.fillRect(cx + dx, base - dy, 14, 22));
+          c.fillStyle = '#5b3a74'; c.beginPath(); c.moveTo(0, h); c.lineTo(0, h * .9); c.quadraticCurveTo(w * .5, h * .84, w, h * .92); c.lineTo(w, h); c.fill();
+        }
+        // paper grain and the shadow of the gutter
+        for (let i = 0; i < 7000; i++) { c.fillStyle = `rgba(255,240,210,${rnd() * .05})`; c.fillRect(rnd() * w, rnd() * h, 2, 1); }
+        const g = c.createLinearGradient(0, 0, w * .22, 0); g.addColorStop(0, 'rgba(20,8,20,.55)'); g.addColorStop(1, 'rgba(20,8,20,0)');
+        c.fillStyle = g; c.fillRect(0, 0, w, h);
+      }), true);
+    }
+    const edgeTex = tex(mk(64, 256, (c, w, h) => {
+      c.fillStyle = '#d9ab5a'; c.fillRect(0, 0, w, h);
+      for (let y = 0; y < h; y += 2) { c.fillStyle = `rgba(${y % 4 ? '255,236,180' : '120,80,30'},${.22 + Math.random() * .2})`; c.fillRect(0, y, w, 1); }
+    }), true);
+
+    /* --- warm environment for the gold to reflect --- */
+    const envC = mk(512, 256, (c, w, h) => {
+      const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#2a1610'); g.addColorStop(.5, '#3a1d12'); g.addColorStop(1, '#0c0605');
+      c.fillStyle = g; c.fillRect(0, 0, w, h);
+      [[90, 70, 40], [250, 55, 60], [400, 80, 38], [330, 110, 26], [470, 60, 30]].forEach(([x, y, r]) => {
+        const rg = c.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(255,228,170,1)'); rg.addColorStop(1, 'rgba(255,200,120,0)');
+        c.fillStyle = rg; c.fillRect(x - r, y - r, r * 2, r * 2);
+      });
+    });
+    const envT = new T.CanvasTexture(envC); envT.encoding = T.sRGBEncoding;
+    scene.environment = new T.PMREMGenerator(renderer).fromEquirectangular(envT).texture;
+
+    /* --- materials --- */
+    const leatherCover = new T.MeshStandardMaterial({ ...coverMaps(), roughness: 1, metalness: 1, bumpScale: .012, envMapIntensity: 1.3 });
+    const leather = new T.MeshStandardMaterial({ ...plainLeather(), roughness: .72, metalness: 0, bumpScale: .01 });
+    const endpaper = new T.MeshStandardMaterial({ color: 0x2b1240, roughness: .9 });
+    const goldEdge = new T.MeshStandardMaterial({ map: edgeTex, roughness: .35, metalness: .9, envMapIntensity: 1.5 });
+    const goldMetal = new T.MeshStandardMaterial({ color: 0xe6bd6e, roughness: .28, metalness: 1, envMapIntensity: 1.8 });
+    const pageR = new T.MeshStandardMaterial({ map: pagePainting('R'), roughness: .9 });
+    const pageL = new T.MeshStandardMaterial({ map: pagePainting('L'), roughness: .9 });
+    pageL.map.center.set(.5, .5); pageL.map.rotation = Math.PI;   // the left page lies face-up only after the turn
+    pageR.emissive = new T.Color(0xffffff); pageR.emissiveMap = pageR.map; pageR.emissiveIntensity = 0;
+    pageL.emissive = new T.Color(0xffffff); pageL.emissiveMap = pageL.map; pageL.emissiveIntensity = 0;
+
+    /* --- the book --- */
+    const bookG = new T.Group(); scene.add(bookG);
+    const back = new T.Mesh(new T.BoxGeometry(W, CT, D), leather); back.position.y = CT / 2; bookG.add(back);
+    const right = new T.Mesh(new T.BoxGeometry(PW, PT / 2, PD), [goldEdge, goldEdge, pageR, goldEdge, goldEdge, goldEdge]);
+    right.position.set(.035, CT + PT / 4, 0); bookG.add(right);
+    const spine = new T.Mesh(new T.CylinderGeometry(PT / 2 + CT, PT / 2 + CT, D, 24, 1, false, Math.PI, Math.PI), leather);
+    spine.rotation.x = Math.PI / 2; spine.position.set(-W / 2, CT + PT / 2, 0); bookG.add(spine);
+    const hinge = new T.Group(); hinge.position.set(-W / 2, CT + PT / 2, 0); bookG.add(hinge);
+    const front = new T.Mesh(new T.BoxGeometry(W, CT, D), [leather, leather, leatherCover, endpaper, leather, leather]);
+    front.position.set(W / 2, PT / 2 + CT / 2, 0); hinge.add(front);
+    const left = new T.Mesh(new T.BoxGeometry(PW, PT / 2, PD), [goldEdge, goldEdge, goldEdge, pageL, goldEdge, goldEdge]);
+    left.position.set(W / 2 + .035, PT / 4, 0); hinge.add(left);
+    // two silk ribbons spilling out of the pages
+    [[.42, 0x08392f, .08], [.6, 0x7a4f18, -.12]].forEach(([x, col, rot]) => {
+      const rib = new T.Mesh(new T.BoxGeometry(.09, .006, .5), new T.MeshStandardMaterial({ color: new T.Color(col).convertSRGBToLinear(), roughness: .45, metalness: .1 }));
+      rib.position.set(x, .006, D / 2 + .2); rib.rotation.y = rot; bookG.add(rib);
+      const tip = new T.Mesh(new T.ConeGeometry(.064, .1, 3), rib.material); tip.rotation.set(Math.PI / 2, 0, 0);
+      tip.position.set(x + Math.sin(rot) * .27, .006, D / 2 + .2 + Math.cos(rot) * .26); tip.scale.y = .1; bookG.add(tip);
+    });
+    bookG.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    bookG.rotation.y = -.05;
+    hinge.name = 'hinge'; spine.name = 'spine';
+
+    // a candle in a brass holder beside the book
+    const brass = new T.Mesh(new T.CylinderGeometry(.3, .36, .07, 40), goldMetal); brass.position.set(3.0, .035, -.8); scene.add(brass);
+    const wax = new T.Mesh(new T.CylinderGeometry(.15, .15, 1.05, 32), new T.MeshStandardMaterial({ color: 0xf3e4c4, roughness: .55, emissive: 0xffb060, emissiveIntensity: .08 }));
+    wax.position.set(3.0, .07 + .525, -.8); wax.castShadow = true; scene.add(wax);
+    const flameT = tex(mk(64, 128, (c, w, h) => { const g = c.createRadialGradient(w / 2, h * .65, 2, w / 2, h * .62, h * .5); g.addColorStop(0, 'rgba(255,255,235,1)'); g.addColorStop(.35, 'rgba(255,200,110,.9)'); g.addColorStop(1, 'rgba(255,140,60,0)'); c.fillStyle = g; c.beginPath(); c.ellipse(w / 2, h * .6, w * .42, h * .42, 0, 0, 6.283); c.fill(); }));
+    const flame = new T.Sprite(new T.SpriteMaterial({ map: flameT, transparent: true, depthWrite: false, blending: T.AdditiveBlending }));
+    flame.scale.set(.2, .42, 1); flame.position.set(3.0, 1.12 + .18, -.8); scene.add(flame);
+
+    /* --- table, contact shadow --- */
+    seed = 3;
+    const woodT = tex(mk(512, 512, (c, w, h) => { c.fillStyle = '#1f0c0b'; c.fillRect(0, 0, w, h); for (let i = 0; i < 220; i++) { c.fillStyle = `rgba(${rnd() < .5 ? '90,40,30' : '5,2,2'},${rnd() * .22})`; c.fillRect(0, rnd() * h, w, 1 + rnd() * 3); } }), true);
+    woodT.wrapS = woodT.wrapT = T.RepeatWrapping; woodT.repeat.set(4, 4);
+    const fade = tex(mk(256, 256, (c, w, h) => { const g = c.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2); g.addColorStop(0, '#fff'); g.addColorStop(.3, '#9a9a9a'); g.addColorStop(.62, '#000'); c.fillStyle = g; c.fillRect(0, 0, w, h); }));
+    const table = new T.Mesh(new T.PlaneGeometry(26, 26), new T.MeshStandardMaterial({ map: woodT, alphaMap: fade, transparent: true, roughness: .24, metalness: .25, envMapIntensity: .7 }));
+    table.rotation.x = -Math.PI / 2; table.receiveShadow = true; scene.add(table);
+    const contactT = tex(mk(256, 256, (c, w, h) => { const g = c.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(0,0,0,.85)'); g.addColorStop(.6, 'rgba(0,0,0,.45)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, w, h); }));
+    const contact = new T.Mesh(new T.PlaneGeometry(W * 1.7, D * 1.45), new T.MeshBasicMaterial({ map: contactT, transparent: true, depthWrite: false, opacity: .75 }));
+    contact.rotation.x = -Math.PI / 2; contact.position.y = .004; scene.add(contact);
+
+    /* --- light --- */
+    scene.add(new T.HemisphereLight(0xffd9a8, 0x1a0806, .28));
+    const key = new T.SpotLight(0xffd6a6, 2.1, 40, .62, .75, 1.1);
+    key.position.set(-3.2, 7.5, 3.6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -.0004; key.shadow.radius = 6;
+    scene.add(key, key.target);
+    const rim = new T.PointLight(0x9a7cff, .9, 14); rim.position.set(4, 2.6, -3); scene.add(rim);
+    const candle = new T.PointLight(0xffb36a, 1.3, 9); candle.position.set(3.0, 1.5, -.8); scene.add(candle);
+    const candle2 = new T.PointLight(0xffc98a, .5, 10); candle2.position.set(-3.5, 1.6, 1.2); scene.add(candle2);
+    // a beam of display light falling on the closed book
+    const showMat = new T.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide, uniforms: { uOpacity: { value: 1 } },
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+      fragmentShader: 'varying vec2 vUv; uniform float uOpacity; void main(){ float a = (.35 + .65 * vUv.y) * smoothstep(0.0, .25, vUv.y) * smoothstep(1.0, .8, vUv.y); gl_FragColor = vec4(1.0, .86, .64, a * .09 * uOpacity); }'
+    });
+    const show = new T.Mesh(new T.CylinderGeometry(.35, 2.3, 7.5, 48, 1, true), showMat); show.position.set(0, 3.75, -.1); scene.add(show);
+    // coloured bokeh far behind, like lights in an evening hall
+    const bokehT = (() => { const c = mk(128, 128, (x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(255,255,255,.75)'); g.addColorStop(.62, 'rgba(255,255,255,.45)'); g.addColorStop(.72, 'rgba(255,255,255,.12)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }); return new T.CanvasTexture(c); })();
+    const bokeh = [];
+    [0xff6f8e, 0x7b8cff, 0x45d6b0, 0xffd27f].forEach((col, ci) => {
+      for (let i = 0; i < 10; i++) {
+        const sp = new T.Sprite(new T.SpriteMaterial({ map: bokehT, color: col, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: .1 }));
+        const sz = .5 + Math.random() * 1.6; sp.scale.set(sz, sz, 1);
+        sp.position.set((Math.random() - .5) * 26, .5 + Math.random() * 10, -8 - Math.random() * 9);
+        sp.userData = { v: .04 + Math.random() * .1, p: Math.random() * 6.28, o: .08 + Math.random() * .16 };
+        scene.add(sp); bokeh.push(sp);
+      }
+    });
+    const inner = new T.PointLight(0xffc874, 0, 7, 1.6); inner.position.set(0, CT + PT + .5, 0); scene.add(inner);
+
+    /* --- glow, beam, sparks --- */
+    const radial = (stops) => tex(mk(256, 256, (c, w, h) => { const g = c.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); stops.forEach(([o, col]) => g.addColorStop(o, col)); c.fillStyle = g; c.fillRect(0, 0, w, h); }));
+    const glowT = radial([[0, 'rgba(255,240,200,1)'], [.25, 'rgba(255,214,140,.5)'], [1, 'rgba(255,190,110,0)']]);
+    const glow = new T.Sprite(new T.SpriteMaterial({ map: glowT, transparent: true, opacity: 0, depthWrite: false, depthTest: false, blending: T.AdditiveBlending }));
+    glow.visible = false;
+    const beamMat = new T.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide,
+      uniforms: { uOpacity: { value: 0 }, uTime: { value: 0 } },
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+      fragmentShader: 'varying vec2 vUv; uniform float uOpacity; uniform float uTime; void main(){ float h = pow(1.0 - vUv.y, 2.0) * smoothstep(0.0, .22, vUv.y); float rays = .6 + .4 * sin(vUv.x * 62.83 + uTime * .6) * sin(vUv.x * 31.4 - uTime * .4); gl_FragColor = vec4(vec3(1.0, .83, .58), h * rays * uOpacity * .26); }'
+    });
+    const beam = new T.Mesh(new T.CylinderGeometry(2.2, 1.1, 5.5, 48, 1, true), beamMat);
+    beam.position.set(0, CT + PT + 2.75, -.2); scene.add(beam);
+    const sparkT = radial([[0, 'rgba(255,245,215,1)'], [.3, 'rgba(255,215,140,.7)'], [1, 'rgba(255,200,120,0)']]);
+    function particles(n, size, spread) {
+      const g = new T.BufferGeometry(), p = new Float32Array(n * 3), v = new Float32Array(n);
+      for (let i = 0; i < n; i++) { p[i * 3] = (Math.random() - .5) * spread[0]; p[i * 3 + 1] = Math.random() * spread[1]; p[i * 3 + 2] = (Math.random() - .5) * spread[2]; v[i] = .2 + Math.random() * .6; }
+      g.setAttribute('position', new T.BufferAttribute(p, 3));
+      const pts = new T.Points(g, new T.PointsMaterial({ map: sparkT, size, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: 0 }));
+      pts.userData.v = v; scene.add(pts); return pts;
+    }
+    const dust = particles(160, .05, [12, 6, 8]); dust.material.opacity = .55;
+    const sparks = particles(320, .085, [3.6, 5, 2.4]);
+
+    /* --- the three heroes, growing out of the pages --- */
+    const HW = 1.25, HH = HW * 704 / 512;
+    const heroGlowT = radial([[0, 'rgba(255,225,160,.75)'], [.4, 'rgba(255,200,120,.25)'], [1, 'rgba(255,190,110,0)']]);
+    const heroes = HEROES.map((h, i) => {
+      const g = new T.Group();
+      const card = new T.Mesh(new T.PlaneGeometry(HW, HH), new T.MeshBasicMaterial({ map: tex(drawHeroCard(h), true), transparent: true, alphaTest: .02, side: T.DoubleSide, toneMapped: false }));
+      const halo = new T.Sprite(new T.SpriteMaterial({ map: heroGlowT, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: .8 }));
+      halo.scale.set(HW * 2.4, HW * 2.4, 1); halo.position.z = -.05;
+      g.add(halo, card); g.visible = false; scene.add(g);
+      const hit = document.querySelector(`.hero-hit[data-hit="${i}"]`);
+      return { g, card, halo, i, hover: 0, label: document.querySelector(`.hero-label[data-hero="${i}"]`), hit, href: h.href };
+    });
+
+    /* --- camera --- */
+    const shots = {
+      closed: { pos: new T.Vector3(0, 5.3, 6.6), look: new T.Vector3(0, .55, .1) },
+      open: { pos: new T.Vector3(0, 5.9, 9.6), look: new T.Vector3(0, 1.6, -.2) },
+      // phone held upright: the book fills the width, the heroes climb the screen above it
+      closedTall: { pos: new T.Vector3(0, 8.6, 9.4), look: new T.Vector3(0, 1.05, .2) },
+      openTall: { pos: new T.Vector3(0, 6.5, 14.8), look: new T.Vector3(0, 2.6, -.3) }
+    };
+    // zig-zag "staircase" of heroes for upright phones: [x, y, z, label side]
+    const TALL_SPOTS = [[-.62, 5.05, -.4, 'r'], [.62, 3.6, -.35, 'l'], [-.62, 2.15, -.3, 'r']];
+    let aspect = 1;
+    const isPhone = () => aspect < .8;
+    function shot(s) { const k = aspect < 1.05 && !isPhone() ? Math.min(s === shots.open ? 2.0 : 2.25, 1.22 / aspect) : 1; return { pos: s.pos.clone().multiplyScalar(k), look: s.look.clone() }; }
+    function resize() { const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); aspect = w / h; camera.aspect = aspect; camera.updateProjectionMatrix(); }
+
+    /* --- timeline: seconds since the open began --- */
+    const END = 3.9;
+    const clamp = v => Math.max(0, Math.min(1, v));
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const outBack = t => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+    let tl = 0, dir = 0, onDone = null, hover = 0, hoverT = 0, running = true, hovered = null;
+    const ray = new T.Raycaster(), mouse = new T.Vector2(-9, -9), clock = new T.Clock(), tmp = new T.Vector3();
+    const bookParts = [front, right, back, spine, left];
+
+    function frame() {
+      if (!running) return;
+      const dt = Math.min(clock.getDelta(), .1), t = clock.elapsedTime;
+      if (dir) {
+        tl += dir * dt * (dir < 0 ? 1.7 : 1);
+        if ((dir > 0 && tl >= END) || (dir < 0 && tl <= 0)) { tl = dir > 0 ? END : 0; dir = 0; const f = onDone; onDone = null; f && f(); }
+      }
+      hover += (hoverT - hover) * Math.min(1, dt * 6);
+      const e = ease(clamp(tl / 2.1));
+      const lift = (1 - e) * hover * .16;
+      hinge.rotation.z = e * Math.PI + lift;
+      // on an upright phone the open book shrinks a little so it stays inside the frame
+      const bs = isPhone() ? 1 - .26 * e : 1;
+      bookG.scale.setScalar(bs);
+      bookG.position.x = e * W / 2 * bs;
+      showMat.uniforms.uOpacity.value = 1 - clamp(e * 1.5);
+      brass.visible = wax.visible = flame.visible = !isPhone();
+      flame.scale.set(.2 + Math.sin(t * 17) * .012, .42 + Math.sin(t * 11.3) * .03 + Math.sin(t * 23) * .015, 1);
+      bokeh.forEach(sp => { const u = sp.userData; sp.position.y += u.v * dt * .35; sp.position.x += Math.sin(t * .2 + u.p) * dt * .06; if (sp.position.y > 11) sp.position.y = -.5; sp.material.opacity = u.o * (.7 + .3 * Math.sin(t * .8 + u.p)); });
+      spine.visible = e < .5;
+      contact.scale.set((1 + e) * bs, bs, 1);
+      const lightUp = clamp((e - .15) / .55), peek = (1 - e) * hover;
+      pageR.emissiveIntensity = .22 * lightUp + .15 * peek;
+      pageL.emissiveIntensity = .22 * lightUp;
+      inner.intensity = .7 * lightUp + .6 * peek;
+      glow.material.opacity = .45 * lightUp + .12 * peek;
+      glow.scale.setScalar(4.6 + Math.sin(t * 1.3) * .2);
+      beamMat.uniforms.uOpacity.value = clamp((e - .35) / .5); beamMat.uniforms.uTime.value = t;
+      sparks.material.opacity = clamp((e - .3) / .4);
+      candle.intensity = 1.3 + Math.sin(t * 7.1) * .1 + Math.sin(t * 13.7) * .06;
+      for (const [pts, speed, top, isSpark] of [[dust, .08, 6, false], [sparks, .9, 5, true]]) {
+        const a = pts.geometry.attributes.position.array, v = pts.userData.v;
+        for (let i = 0; i < v.length; i++) {
+          a[i * 3 + 1] += v[i] * speed * dt * (isSpark ? (.4 + e) : 1);
+          a[i * 3] += Math.sin(t * .7 + i) * dt * .05;
+          if (a[i * 3 + 1] > top) { a[i * 3 + 1] = isSpark ? CT + PT * .5 : 0; a[i * 3] = (Math.random() - .5) * (isSpark ? 3.6 : 12); a[i * 3 + 2] = (Math.random() - .5) * (isSpark ? 2.4 : 8); }
+        }
+        pts.geometry.attributes.position.needsUpdate = true;
+      }
+      // camera
+      const phone = isPhone();
+      const ce = ease(clamp(tl / 3.2)), a = shot(phone ? shots.closedTall : shots.closed), b = shot(phone ? shots.openTall : shots.open);
+      camera.position.lerpVectors(a.pos, b.pos, ce);
+      camera.position.x += Math.sin(t * .23) * .12 * (1 - ce * .6);
+      camera.position.y += Math.sin(t * .31) * .05;
+      camera.lookAt(a.look.clone().lerp(b.look, ce));
+      camera.updateMatrixWorld();
+      // heroes rise out of the gutter, each a little after the other
+      const tall = aspect < 1.05, spread = tall ? 1.5 : 1.85, sc = phone ? 1 : tall ? .78 : 1;
+      intro.classList.toggle('phone', phone);
+      const rect = canvas.getBoundingClientRect();
+      heroes.forEach(h => {
+        const p = clamp((tl - 1.35 - h.i * .22) / 1.5), r = outBack(p);
+        h.g.visible = p > 0;
+        const spot = phone ? TALL_SPOTS[h.i] : null;
+        const fx = spot ? spot[0] : (h.i - 1) * spread, fy = spot ? spot[1] : (h.i === 1 ? 2.75 : 2.45) * (tall ? 1.05 : 1), fz = spot ? spot[2] : h.i === 1 ? -.55 : -.35;
+        h.g.position.set(fx * r, -.95 + (fy + .95) * r + (p === 1 ? Math.sin(t * 1.1 + h.i * 1.7) * .05 : 0), -.1 + (fz + .1) * r);
+        h.hover += ((hovered === h ? 1 : 0) - h.hover) * Math.min(1, dt * 8);
+        h.g.scale.setScalar(sc * (.35 + .65 * r) * (1 + h.hover * .07));
+        h.g.quaternion.copy(camera.quaternion);
+        h.halo.material.opacity = .55 + .45 * h.hover;
+        // label under the card, or beside it on a phone
+        const lp = clamp((tl - 2.4 - h.i * .22) / .6);
+        if (spot) tmp.set((spot[3] === 'r' ? 1 : -1) * (HW / 2 + .1), 0, 0); else tmp.set(0, -HH / 2, 0);
+        h.label.dataset.side = spot ? spot[3] : '';
+        h.card.localToWorld(tmp); tmp.project(camera);
+        h.label.style.left = `${(tmp.x + 1) / 2 * rect.width}px`;
+        h.label.style.top = `${(1 - tmp.y) / 2 * rect.height}px`;
+        h.label.style.opacity = lp; h.label.classList.toggle('on', lp > .8);
+        // keep the invisible link over the card's outline on screen
+        let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+        for (const [cx, cy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+          tmp.set(cx * HW / 2, cy * HH / 2, 0); h.card.localToWorld(tmp); tmp.project(camera);
+          const sx = (tmp.x + 1) / 2 * rect.width, sy = (1 - tmp.y) / 2 * rect.height;
+          x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy);
+        }
+        Object.assign(h.hit.style, { left: `${x0}px`, top: `${y0}px`, width: `${x1 - x0}px`, height: `${y1 - y0}px` });
+        h.hit.classList.toggle('on', tl >= END - .3);
+      });
+      // pointer: hover the closed book, or a risen hero
+      ray.setFromCamera(mouse, camera);
+      if (tl === 0 && !dir) {
+        hoverT = ray.intersectObjects(bookParts, false).length ? 1 : 0; hovered = null;
+        canvas.style.cursor = hoverT ? 'pointer' : 'default';
+      } else {
+        hoverT = 0;
+        hovered = heroes.find(h => h.hit.matches(':hover')) || null;
+        canvas.style.cursor = 'default';
+      }
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+    }
+
+    function setMouse(e) { const r = canvas.getBoundingClientRect(); mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); }
+    canvas.addEventListener('pointermove', setMouse);
+    canvas.addEventListener('pointerleave', () => mouse.set(-9, -9));
+    canvas.addEventListener('click', e => {
+      setMouse(e); camera.updateMatrixWorld(); ray.setFromCamera(mouse, camera);
+      if (tl === 0 && !dir) { if (ray.intersectObjects(bookParts, false).length) onPick(); return; }
+    });
+
+    resize(); addEventListener('resize', resize);
+    new IntersectionObserver(([en]) => { const was = running; running = en.isIntersecting; if (running && !was) { clock.getDelta(); frame(); } }).observe(canvas);
+    document.fonts.load('500 76px "Cormorant Garamond"', 'MASALİYA').then(() => document.fonts.load('italic 400 44px "Cormorant Garamond"', 'kişiye özel masallar')).then(() => {
+      Object.assign(leatherCover, coverMaps()); leatherCover.needsUpdate = true;
+    }).catch(() => {});
+    frame();
+
+    return {
+      open(cb) { if (reduce) { tl = END; cb && cb(); return; } dir = 1; onDone = cb; },
+      close(cb) { if (reduce) { tl = 0; cb && cb(); return; } dir = -1; onDone = cb; },
+      stop() { running = false; heroes.forEach(h => h.label.style.opacity = 0); },
+      jumpOpen() { tl = END; dir = 0; }
+    };
+  }
+})();
+</script>
+
+</body>
+</html>
