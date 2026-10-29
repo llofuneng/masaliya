@@ -444,3 +444,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .pdf-opt > span { display: grid; gap: 2px; }
 .pdf-opt em { font: italic 500 1.05rem var(--f-display); color: var(--gold-pale); white-space: nowrap; }
 .set-opt.off, .pdf-opt.off { opacity: .5; cursor: not-allowed; }
+
+/* not-found state */
+.notfound { display: grid; justify-items: center; gap: 16px; text-align: center; padding-block: clamp(40px, 8vw, 100px); }
+.notfound .lede { text-align: center; }

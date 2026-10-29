@@ -266,10 +266,17 @@ function drawHeroCard(h, W = 512, H = 704) {
 }
 
 
+/* ---------- Which product this page shows ----------
+   Each product has its own page (e.g. dua.html, built by tools/build-pages.js) that names it in
+   <body data-product>. The old urun.html#id addresses still work and forward to the new page. */
+const productId = () => document.body.dataset.product || location.hash.slice(1);
+const currentProduct = () => PRODUCTS.find(x => x.id === productId());
+const productHref = p => `${p.id}.html`;
+
 /* ---------- Back button target ---------- */
 function backHref() {
   if (document.body.dataset.page === 'urun') {
-    const p = PRODUCTS.find(x => x.id === location.hash.slice(1)) || PRODUCTS[0];
+    const p = currentProduct() || PRODUCTS[0];
     return `${AUDIENCES[p.aud].page}#${p.aud === 'yetiskin' ? p.occ : TYPES[p.type].tab}`;
   }
   if (AUDIENCES[document.body.dataset.page]) return 'urunler.html';   // a collection: back to the three choices
@@ -346,7 +353,7 @@ function card(p) {
   const visualClass = p.icon ? 'visual icon' : p.paper ? 'visual paper' : 'visual';
   const visual = p.icon ? ICONS[p.icon] : `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
-  return `<a class="card${p.type === 'kitap' && !p.icon ? ' book' : ''}" href="urun.html#${p.id}">
+  return `<a class="card${p.type === 'kitap' && !p.icon ? ' book' : ''}" href="${productHref(p)}">
     <div class="${visualClass}">${p.status === 'yakinda' ? '<span class="badge">Yakında</span>' : ''}${visual}</div>
     <div class="meta"><span>${kind}</span>${p.age ? `<span>${p.age}</span>` : ''}</div>
     <h3>${fullTitle(p)}</h3>
@@ -381,9 +388,16 @@ function renderCollection(aud) {
 function renderProduct() {
   const root = document.getElementById('product');
   function show() {
-    const p = PRODUCTS.find(x => x.id === location.hash.slice(1)) || PRODUCTS[0];
+    const p = currentProduct();
+    if (!p) {
+      // an address we don't know: say so instead of quietly showing another book
+      document.title = 'Bulunamadı · Masaliya';
+      root.innerHTML = `<div class="notfound"><p class="eyebrow">Sayfa bulunamadı</p><h1>Bu masal rafta yok</h1><p class="lede">Aradığınız ürün kaldırılmış ya da adresi değişmiş olabilir.</p><a class="btn" href="urunler.html">Ürünlerimize göz atın</a></div>`;
+      document.getElementById('inside').hidden = true; document.getElementById('related').innerHTML = '';
+      return;
+    }
     const a = AUDIENCES[p.aud];
-    document.title = `${p.hero ? p.hero + ' ' : ''}${p.title} · Masaliya`;
+    if (!document.body.dataset.product) document.title = `${p.hero ? p.hero + ' ' : ''}${p.title} · Masaliya`;
     const crumbs = document.getElementById('crumbs');
     crumbs.innerHTML = `<a href="${a.page}">${a.name}</a> · ${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].name}`;
 
@@ -543,7 +557,7 @@ function renderProduct() {
     document.getElementById('related').innerHTML = rel.map(card).join('');
     scrollTo(0, 0);
   }
-  addEventListener('hashchange', () => { show(); const b = document.getElementById('back'); if (b) b.href = backHref(); });
+  addEventListener('hashchange', () => { if (document.body.dataset.product) return; show(); const b = document.getElementById('back'); if (b) b.href = backHref(); });
   show();
 }
 
@@ -571,5 +585,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderChrome();
   const page = document.body.dataset.page;
   if (AUDIENCES[page]) renderCollection(page);
-  if (page === 'urun') renderProduct();
+  if (page === 'urun') {
+    // old urun.html#id links forward to the product's own page
+    const p = currentProduct();
+    if (!document.body.dataset.product && p) { location.replace(productHref(p)); return; }
+    renderProduct();
+  }
 });
