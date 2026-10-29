@@ -429,3 +429,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 #buy .step, #interest .step { font-size: .72rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
 #buy .field > .step { display: block; margin-bottom: 2px; }
 #buy .slots { margin-top: 6px; }
+
+/* Masal Seti and the PDF add-on */
+.sets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .sets { grid-template-columns: 1fr; } }
+.set-opt, .pdf-opt { position: relative; display: grid; gap: 3px; align-content: start; padding: 14px 16px; border: 1px solid var(--line-strong); border-radius: 2px; cursor: pointer; background: linear-gradient(170deg, var(--wood-2), var(--wood)); transition: border-color .2s, box-shadow .2s; }
+.set-opt input, .pdf-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.set-opt:has(input:checked), .pdf-opt:has(input:checked) { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.set-opt:has(input:focus-visible), .pdf-opt:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
+.set-opt b, .pdf-opt b { font: 500 1.2rem var(--f-display); }
+.set-opt small, .pdf-opt small { color: var(--muted); font-size: .84rem; }
+.set-opt span { font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.pdf-opt { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.pdf-opt > span { display: grid; gap: 2px; }
+.pdf-opt em { font: italic 500 1.05rem var(--f-display); color: var(--gold-pale); white-space: nowrap; }
+.set-opt.off, .pdf-opt.off { opacity: .5; cursor: not-allowed; }

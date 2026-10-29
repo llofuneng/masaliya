@@ -28,7 +28,15 @@ const PRICES = {
   boyama: { print: null, digital: null },
   yapboz: { s: null, m: null, l: null }
 };
-const GIFT_BOX_PRICE = null;
+const GIFT_BOX_PRICE = null;   // gift box add-on, TL; null shows "Fiyat yakında"
+const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
+/* Masal Seti: the same hero across several products, priced together.
+   The set price is the sum of the parts (printed coloring book, medium puzzle) minus the discount. */
+const SETS = [
+  { id: 'tek', name: 'Yalnızca kitap', items: [], discount: 0 },
+  { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: .10 },
+  { id: 'buyuk-masal-seti', name: 'Büyük Masal Seti', note: 'Kitap + boyama kitabı + yapboz', items: [['boyama', 'print'], ['yapboz', 'm']], discount: .15 }
+];
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
   kitap: [
@@ -45,7 +53,7 @@ const FORMATS = {
     ['m', 'Orta Boy', 'Ölçü yakında'],
     ['l', 'Büyük Boy', 'Ölçü yakında']
   ]
-};   // gift box add-on, TL; null shows "Fiyat yakında"
+};
 
 /* WhatsApp concierge: put the number here in international format without "+", e.g. '905321234567'. */
 const WHATSAPP = '';
@@ -405,6 +413,16 @@ function renderProduct() {
         </div>
         <span class="step">3 · Seçenekler</span>
         ${options}
+        ${p.type === 'kitap' ? `
+        <div class="sets" role="radiogroup" aria-label="Set">
+          ${SETS.map((st, i) => {
+            const parts = st.items.map(([t, f]) => (PRICES[t] || {})[f]);
+            const ready = parts.every(Boolean);
+            return `<label class="set-opt${ready ? '' : ' off'}"><input type="radio" name="set" value="${st.id}" data-discount="${st.discount}" data-extra="${ready ? parts.reduce((a, b) => a + b, 0) : ''}"${i === 0 ? ' checked' : ''}${ready ? '' : ' disabled'}>
+              <b>${st.name}</b>${st.note ? `<small>${st.note}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
+          }).join('')}
+        </div>
+        <label class="pdf-opt${PDF_ADDON_PRICE ? '' : ' off'}" for="pdf-addon" id="pdf-wrap"><input type="checkbox" id="pdf-addon"${PDF_ADDON_PRICE ? '' : ' disabled'}><span><b>+ Dijital kopya (PDF)</b><small>Basılı kitabın yanında tablet ve telefon için</small></span><em>${PDF_ADDON_PRICE ? '+ ' + fmt(PDF_ADDON_PRICE) : 'Fiyat yakında'}</em></label>` : ''}
         <label class="gift-opt" for="gift-box" id="gift-wrap">
           <input type="checkbox" id="gift-box">
           <span class="gift-art" aria-hidden="true">${GIFT_SVG}</span>
@@ -471,12 +489,18 @@ function renderProduct() {
       document.getElementById('gift-wrap').hidden = digital;
       giftBox.checked = !digital && giftWanted;
       document.getElementById('gift-note-wrap').hidden = !giftBox.checked;
+      // a set adds its parts and takes the discount off the whole; the PDF copy goes with printed books only
+      const set = root.querySelector('input[name="set"]:checked'), pdf = document.getElementById('pdf-addon');
+      if (pdf) { document.getElementById('pdf-wrap').hidden = digital; if (digital) pdf.checked = false; }
       if (!c || !c.dataset.price) { t.textContent = 'Fiyat yakında'; return; }
-      const sum = +c.dataset.price + (giftBox.checked ? (GIFT_BOX_PRICE || 0) : 0);
+      let sum = +c.dataset.price;
+      if (set && set.dataset.extra) sum = Math.round((sum + +set.dataset.extra) * (1 - +set.dataset.discount));
+      if (pdf && pdf.checked) sum += PDF_ADDON_PRICE || 0;
+      sum += giftBox.checked ? (GIFT_BOX_PRICE || 0) : 0;
       t.textContent = fmt(sum) + (giftBox.checked && !GIFT_BOX_PRICE ? ' + hediye kutusu' : '');
     }
     if (giftBox) giftBox.addEventListener('change', () => { giftWanted = giftBox.checked; total(); });
-    root.querySelectorAll('input[name="cover"]').forEach(r => r.addEventListener('change', total));
+    root.querySelectorAll('input[name="cover"], input[name="set"], #pdf-addon').forEach(r => r.addEventListener('change', total));
     total();
     // three photo slots: preview each chosen photo
     const slots = [...root.querySelectorAll('.slot')];
