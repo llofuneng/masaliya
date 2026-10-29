@@ -59,57 +59,57 @@ const FORMATS = {
 const WHATSAPP = '';
 
 const SPREADS_DUA = [
-  ['img/dua-s1.jpg', 'Dua tozlu Masallar Kitabı’nı buluyor'],
-  ['img/dua-s2.jpg', 'Masal Diyarı’nda konuşan kedi Mürekkep'],
-  ['img/dua-s3.jpg', 'Bulutların üstündeki ip köprüde küçük şövalye Aras'],
-  ['img/dua-s4.jpg', 'Yalnız dev Toprak ile paylaşılan simit'],
-  ['img/dua-s5.jpg', 'Yüz yıldır kapıyı bekleyen taş aslan'],
-  ['img/dua-s6.jpg', 'Sihirli Kütüphane’de altın sayfalar'],
-  ['img/dua-s7.jpg', 'Dua okul kütüphanesinde ilk cümleyi yazıyor']
+  ['img/sihirli-kutuphane-s1.jpg', 'Dua tozlu Masallar Kitabı’nı buluyor'],
+  ['img/sihirli-kutuphane-s2.jpg', 'Masal Diyarı’nda konuşan kedi Mürekkep'],
+  ['img/sihirli-kutuphane-s3.jpg', 'Bulutların üstündeki ip köprüde küçük şövalye Aras'],
+  ['img/sihirli-kutuphane-s4.jpg', 'Yalnız dev Toprak ile paylaşılan simit'],
+  ['img/sihirli-kutuphane-s5.jpg', 'Yüz yıldır kapıyı bekleyen taş aslan'],
+  ['img/sihirli-kutuphane-s6.jpg', 'Sihirli Kütüphane’de altın sayfalar'],
+  ['img/sihirli-kutuphane-s7.jpg', 'Dua okul kütüphanesinde ilk cümleyi yazıyor']
 ];
 // coloring books: single portrait pages
 const PAGES_BOYAMA_LAVIN = [
-  ['img/boyama-lavin-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
-  ['img/boyama-lavin-p02.jpg', 'Dalgaları çiz'],
-  ['img/boyama-lavin-p03.jpg', 'Kumsalda deniz kabuğu'],
-  ['img/boyama-lavin-p04.jpg', 'Labirent'],
-  ['img/boyama-lavin-p05.jpg', 'Mira ile ilk karşılaşma'],
-  ['img/boyama-lavin-p06.jpg', 'Kaç tane?'],
-  ['img/boyama-lavin-p07.jpg', 'Yengeç ve ilk inci'],
-  ['img/boyama-lavin-p08.jpg', 'Eşini bul'],
-  ['img/boyama-lavin-p09.jpg', 'Bilge kaplumbağa'],
-  ['img/boyama-lavin-p10.jpg', 'Hangisi farklı?'],
-  ['img/boyama-lavin-p11.jpg', 'Parlayan balıklar'],
-  ['img/boyama-lavin-p12.jpg', 'Noktaları birleştir'],
-  ['img/boyama-lavin-p13.jpg', 'Mağarada üçüncü inci'],
-  ['img/boyama-lavin-p14.jpg', 'Kendi resmini çiz'],
-  ['img/boyama-lavin-p15.jpg', 'Deniz Kızı Krallığı’nda şenlik']
+  ['img/deniz-kizi-kralligi-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
+  ['img/deniz-kizi-kralligi-boyama-p02.jpg', 'Dalgaları çiz'],
+  ['img/deniz-kizi-kralligi-boyama-p03.jpg', 'Kumsalda deniz kabuğu'],
+  ['img/deniz-kizi-kralligi-boyama-p04.jpg', 'Labirent'],
+  ['img/deniz-kizi-kralligi-boyama-p05.jpg', 'Mira ile ilk karşılaşma'],
+  ['img/deniz-kizi-kralligi-boyama-p06.jpg', 'Kaç tane?'],
+  ['img/deniz-kizi-kralligi-boyama-p07.jpg', 'Yengeç ve ilk inci'],
+  ['img/deniz-kizi-kralligi-boyama-p08.jpg', 'Eşini bul'],
+  ['img/deniz-kizi-kralligi-boyama-p09.jpg', 'Bilge kaplumbağa'],
+  ['img/deniz-kizi-kralligi-boyama-p10.jpg', 'Hangisi farklı?'],
+  ['img/deniz-kizi-kralligi-boyama-p11.jpg', 'Parlayan balıklar'],
+  ['img/deniz-kizi-kralligi-boyama-p12.jpg', 'Noktaları birleştir'],
+  ['img/deniz-kizi-kralligi-boyama-p13.jpg', 'Mağarada üçüncü inci'],
+  ['img/deniz-kizi-kralligi-boyama-p14.jpg', 'Kendi resmini çiz'],
+  ['img/deniz-kizi-kralligi-boyama-p15.jpg', 'Deniz Kızı Krallığı’nda şenlik']
 ];
 const PAGES_BOYAMA_DUA = [
-  ['img/boyama-dua-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
-  ['img/boyama-dua-p02.jpg', 'Şifreli mesaj'],
-  ['img/boyama-dua-p03.jpg', 'Masallar Kitabı açılıyor'],
-  ['img/boyama-dua-p04.jpg', 'Kelime avı'],
-  ['img/boyama-dua-p05.jpg', 'Konuşan kedi Mürekkep'],
-  ['img/boyama-dua-p06.jpg', 'Harfli labirent'],
-  ['img/boyama-dua-p07.jpg', 'Bulutların üstündeki köprü'],
-  ['img/boyama-dua-p08.jpg', 'Bilmeceler'],
-  ['img/boyama-dua-p09.jpg', 'Dev Toprak'],
-  ['img/boyama-dua-p10.jpg', 'Sihirli kareler'],
-  ['img/boyama-dua-p11.jpg', 'Taş aslan'],
-  ['img/boyama-dua-p12.jpg', 'Masal bulmacası'],
-  ['img/boyama-dua-p13.jpg', 'Sihirli Kütüphane'],
-  ['img/boyama-dua-p14.jpg', 'Bir sonraki masalı sen yaz'],
-  ['img/boyama-dua-p15.jpg', 'Cevaplar']
+  ['img/sihirli-kutuphane-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
+  ['img/sihirli-kutuphane-boyama-p02.jpg', 'Şifreli mesaj'],
+  ['img/sihirli-kutuphane-boyama-p03.jpg', 'Masallar Kitabı açılıyor'],
+  ['img/sihirli-kutuphane-boyama-p04.jpg', 'Kelime avı'],
+  ['img/sihirli-kutuphane-boyama-p05.jpg', 'Konuşan kedi Mürekkep'],
+  ['img/sihirli-kutuphane-boyama-p06.jpg', 'Harfli labirent'],
+  ['img/sihirli-kutuphane-boyama-p07.jpg', 'Bulutların üstündeki köprü'],
+  ['img/sihirli-kutuphane-boyama-p08.jpg', 'Bilmeceler'],
+  ['img/sihirli-kutuphane-boyama-p09.jpg', 'Dev Toprak'],
+  ['img/sihirli-kutuphane-boyama-p10.jpg', 'Sihirli kareler'],
+  ['img/sihirli-kutuphane-boyama-p11.jpg', 'Taş aslan'],
+  ['img/sihirli-kutuphane-boyama-p12.jpg', 'Masal bulmacası'],
+  ['img/sihirli-kutuphane-boyama-p13.jpg', 'Sihirli Kütüphane'],
+  ['img/sihirli-kutuphane-boyama-p14.jpg', 'Bir sonraki masalı sen yaz'],
+  ['img/sihirli-kutuphane-boyama-p15.jpg', 'Cevaplar']
 ];
 const SPREADS_LAVIN = [
-  ['img/lavin-s1.jpg', 'Lavin kumsalda deniz kabuğunu kulağına tutuyor'],
-  ['img/lavin-s2.jpg', 'Deniz kızı Mira dalgaların arasından çıkıyor'],
-  ['img/lavin-s3.jpg', 'Yan yan yürüyen yengeç ilk inciyi veriyor'],
-  ['img/lavin-s4.jpg', 'Bilge kaplumbağa ikinci inciyi sırtında taşıyor'],
-  ['img/lavin-s5.jpg', 'Parlayan balıklar mağaranın yolunu gösteriyor'],
-  ['img/lavin-s6.jpg', 'Lavin ve Mira el ele üçüncü inciyi buluyor'],
-  ['img/lavin-s7.jpg', 'Deniz Kızı Krallığı’nda şenlik']
+  ['img/deniz-kizi-kralligi-s1.jpg', 'Lavin kumsalda deniz kabuğunu kulağına tutuyor'],
+  ['img/deniz-kizi-kralligi-s2.jpg', 'Deniz kızı Mira dalgaların arasından çıkıyor'],
+  ['img/deniz-kizi-kralligi-s3.jpg', 'Yan yan yürüyen yengeç ilk inciyi veriyor'],
+  ['img/deniz-kizi-kralligi-s4.jpg', 'Bilge kaplumbağa ikinci inciyi sırtında taşıyor'],
+  ['img/deniz-kizi-kralligi-s5.jpg', 'Parlayan balıklar mağaranın yolunu gösteriyor'],
+  ['img/deniz-kizi-kralligi-s6.jpg', 'Lavin ve Mira el ele üçüncü inciyi buluyor'],
+  ['img/deniz-kizi-kralligi-s7.jpg', 'Deniz Kızı Krallığı’nda şenlik']
 ];
 
 /* Line icons for products without artwork yet (adults' collection) */
@@ -123,35 +123,35 @@ const ICONS = {
 
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list) */
 const PRODUCTS = [
-  { id: 'dua', aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
-    img: 'img/dua-cover.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
+  { id: 'sihirli-kutuphane', aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+    img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
-    extra: [['img/dua-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/dua-son.jpg', 'Hediye sayfası'], ['img/dua-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
-  { id: 'lavin', aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
-    img: 'img/lavin-cover.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
+    extra: [['img/sihirli-kutuphane-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/sihirli-kutuphane-son.jpg', 'Hediye sayfası'], ['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
+  { id: 'deniz-kizi-kralligi', aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
+    img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
-    extra: [['img/lavin-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/lavin-son.jpg', 'Hediye sayfası']], spreads: SPREADS_LAVIN },
-  { id: 'efe', aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Efe', title: 've Kayıp Ay Işığı', age: '4–9 yaş',
-    img: 'img/efe-cover.jpg', alt: 'Efe ve Kayıp Ay Işığı kapağı: astronot kaskıyla gülümseyen çocuk',
+    extra: [['img/deniz-kizi-kralligi-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/deniz-kizi-kralligi-son.jpg', 'Hediye sayfası']], spreads: SPREADS_LAVIN },
+  { id: 'kayip-ay-isigi', aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Efe', title: 've Kayıp Ay Işığı', age: '4–9 yaş',
+    img: 'img/kayip-ay-isigi-kapak.jpg', alt: 'Efe ve Kayıp Ay Işığı kapağı: astronot kaskıyla gülümseyen çocuk',
     desc: 'Bir gece Ay’ın ışığı kaybolur. Kahramanımız kaskını takar, yıldızların arasından geçerek Ay ışığını yeniden yakmaya gider.' },
 
-  { id: 'boyama-lavin', aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
-    img: 'img/boyama-lavin-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
+  { id: 'deniz-kizi-kralligi-boyama', aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
+    img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
     desc: 'Masalın kahramanı sensin, renkleri de sen seç! 8 boyama sayfası ve 7 etkinlik: dalgalar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
-    extra: [['img/boyama-lavin-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/boyama-lavin-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_LAVIN },
-  { id: 'boyama-dua', aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
-    img: 'img/boyama-dua-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
+    extra: [['img/deniz-kizi-kralligi-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/deniz-kizi-kralligi-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_LAVIN },
+  { id: 'sihirli-kutuphane-boyama', aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+    img: 'img/sihirli-kutuphane-boyama-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
     desc: 'Masalın kahramanı sensin, renkleri de sen seç! 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
-    extra: [['img/boyama-dua-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/boyama-dua-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
-  { id: 'boyama-efe', aud: 'erkek', type: 'boyama', status: 'yakinda', title: 'Kayıp Ay Işığı Boyama Kitabı', age: '4–9 yaş',
-    img: 'img/boyama-efe.jpg', alt: 'Kayıp Ay Işığı kapağının boyama sayfası hâli', paper: true,
+    extra: [['img/sihirli-kutuphane-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/sihirli-kutuphane-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
+  { id: 'kayip-ay-isigi-boyama', aud: 'erkek', type: 'boyama', status: 'yakinda', title: 'Kayıp Ay Işığı Boyama Kitabı', age: '4–9 yaş',
+    img: 'img/kayip-ay-isigi-boyama.jpg', alt: 'Kayıp Ay Işığı kapağının boyama sayfası hâli', paper: true,
     desc: 'Yıldızlar, Ay ve astronot kaskı. Kendi uzay yolculuğunu kendi renkleriyle boyar.' },
 
-  { id: 'yapboz-dua', aud: 'kiz', type: 'yapboz', status: 'yakinda', title: 'Sihirli Kütüphane Yapbozu', age: '6+ yaş',
-    img: 'img/yapboz-dua.jpg', alt: 'Sihirli Kütüphane kapağından yapılmış yapboz örneği',
+  { id: 'sihirli-kutuphane-yapboz', aud: 'kiz', type: 'yapboz', status: 'yakinda', title: 'Sihirli Kütüphane Yapbozu', age: '6+ yaş',
+    img: 'img/sihirli-kutuphane-yapboz.jpg', alt: 'Sihirli Kütüphane kapağından yapılmış yapboz örneği',
     desc: 'Kitabın kapağı, parça parça birleştirilen bir yapboza dönüşür. Tamamlandığında karşısında kendi yüzü vardır.' },
-  { id: 'yapboz-efe', aud: 'erkek', type: 'yapboz', status: 'yakinda', title: 'Kayıp Ay Işığı Yapbozu', age: '5+ yaş',
-    img: 'img/yapboz-efe.jpg', alt: 'Kayıp Ay Işığı kapağından yapılmış yapboz örneği',
+  { id: 'kayip-ay-isigi-yapboz', aud: 'erkek', type: 'yapboz', status: 'yakinda', title: 'Kayıp Ay Işığı Yapbozu', age: '5+ yaş',
+    img: 'img/kayip-ay-isigi-yapboz.jpg', alt: 'Kayıp Ay Işığı kapağından yapılmış yapboz örneği',
     desc: 'Astronot kahramanımızın kapağı, birlikte kurulan bir yapboz olur.' },
 
   { id: 'bizim-masalimiz', aud: 'yetiskin', occ: 'ciftler', type: 'kitap', status: 'yakinda', icon: 'ciftler', title: 'Bizim Masalımız',
@@ -270,7 +270,9 @@ function drawHeroCard(h, W = 512, H = 704) {
    Each product has its own page (e.g. dua.html, built by tools/build-pages.js) that names it in
    <body data-product>. The old urun.html#id addresses still work and forward to the new page. */
 const productId = () => document.body.dataset.product || location.hash.slice(1);
-const currentProduct = () => PRODUCTS.find(x => x.id === productId());
+// addresses used before products were named after their stories
+const OLD_IDS = { dua: 'sihirli-kutuphane', lavin: 'deniz-kizi-kralligi', efe: 'kayip-ay-isigi', 'boyama-lavin': 'deniz-kizi-kralligi-boyama', 'boyama-dua': 'sihirli-kutuphane-boyama', 'boyama-efe': 'kayip-ay-isigi-boyama', 'yapboz-dua': 'sihirli-kutuphane-yapboz', 'yapboz-efe': 'kayip-ay-isigi-yapboz' };
+const currentProduct = () => { const id = productId(); return PRODUCTS.find(x => x.id === (OLD_IDS[id] || id)); };
 const productHref = p => `${p.id}.html`;
 
 /* ---------- Back button target ---------- */
