@@ -122,22 +122,22 @@ const PRODUCTS = [
   { id: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
     img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
-    extra: [['img/sihirli-kutuphane-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/sihirli-kutuphane-son.jpg', 'Hediye sayfası'], ['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
+    extra: [['img/sihirli-kutuphane-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/sihirli-kutuphane-son.jpg', 'Hediye eden kişinin sayfası'], ['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
   { id: 'deniz-kizi-kralligi', coverTitle: { box: [.03, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
-    extra: [['img/deniz-kizi-kralligi-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/deniz-kizi-kralligi-son.jpg', 'Hediye sayfası']], spreads: SPREADS_LAVIN },
+    extra: [['img/deniz-kizi-kralligi-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/deniz-kizi-kralligi-son.jpg', 'Hediye eden kişinin sayfası']], spreads: SPREADS_LAVIN },
   { id: 'kayip-ay-isigi', coverTitle: { box: [.03, .31], sub: 've Kayıp Ay Işığı' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Efe', title: 've Kayıp Ay Işığı', age: '4–9 yaş',
     img: 'img/kayip-ay-isigi-kapak.jpg', alt: 'Efe ve Kayıp Ay Işığı kapağı: astronot kaskıyla gülümseyen çocuk',
     desc: 'Bir gece Ay’ın ışığı kaybolur. Kahramanımız kaskını takar, yıldızların arasından geçerek Ay ışığını yeniden yakmaya gider.' },
 
   { id: 'deniz-kizi-kralligi-boyama', coverTitle: { box: [.03, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
-    desc: 'Masalın kahramanı sensin, renkleri de sen seç! 8 boyama sayfası ve 7 etkinlik: dalgalar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
+    desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: dalgalar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
     extra: [['img/deniz-kizi-kralligi-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/deniz-kizi-kralligi-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_LAVIN },
   { id: 'sihirli-kutuphane-boyama', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
     img: 'img/sihirli-kutuphane-boyama-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
-    desc: 'Masalın kahramanı sensin, renkleri de sen seç! 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
+    desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/sihirli-kutuphane-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/sihirli-kutuphane-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
   { id: 'kayip-ay-isigi-boyama', aud: 'erkek', type: 'boyama', status: 'yakinda', title: 'Kayıp Ay Işığı Boyama Kitabı', age: '4–9 yaş',
     img: 'img/kayip-ay-isigi-boyama.jpg', alt: 'Kayıp Ay Işığı kapağının boyama sayfası hâli', paper: true,
@@ -179,9 +179,10 @@ const isCurrent = (h, cur) => h === cur || (h === 'urunler.html' && IN_PRODUCTS.
 const WA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/><path d="M9 8.6c.3 2.6 2.4 4.9 5.2 5.6l1-1.1 1.7.8-.4 1.6c-3.8.2-7.5-3.4-7.6-7.4l1.6-.4.8 1.7z" fill="currentColor" stroke="none"/></svg>';
 function waLink(text) { return WHATSAPP ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text || 'Merhaba Masaliya, bilgi almak istiyorum.')}` : '#whatsapp'; }
 
+const thumb = src => src.replace('img/', 'img/t/');
 const fmt = n => n.toLocaleString('tr-TR') + ' TL';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const cap = s => s ? s.charAt(0).toLocaleUpperCase('tr-TR') + s.slice(1) : s;
+const cap = s => s ? s.split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ') : s;
 const here = () => location.pathname.split('/').pop() || 'index.html';
 
 function fullTitle(p, name) {
@@ -325,14 +326,29 @@ function renderChrome() {
   const menu = document.createElement('div');
   menu.className = 'menu'; menu.id = 'menu'; menu.hidden = true;
   menu.setAttribute('role', 'dialog'); menu.setAttribute('aria-label', 'Menü');
+  const mark = h => (isCurrent(h, cur) && h !== 'urunler.html') || h === cur ? ' aria-current="page"' : '';
   menu.innerHTML = `<button class="btn ghost close" type="button" data-close-menu>Kapat</button>
-    <nav><a href="./"><small>Masaliya</small>Ana Sayfa</a>${NAV_ALL.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav>`;
+    <nav><a href="./"${cur === 'index.html' || cur === '' ? ' aria-current="page"' : ''}>Ana Sayfa</a>
+      <a href="urunler.html"${mark('urunler.html')}>Ürünlerimiz</a>
+      <div class="menu-sub">${Object.values(AUDIENCES).map(a => `<a href="${a.page}"${a.page === cur ? ' aria-current="page"' : ''}>${a.name}</a>`).join('')}</div>
+      ${NAV_ALL.slice(1).map(([h, t]) => `<a href="${h}"${mark(h)}>${t}</a>`).join('')}</nav>`;
   document.body.appendChild(menu);
+  let opener = null;
+  const closeMenu = () => { if (menu.hidden) return; menu.hidden = true; document.body.style.overflow = ''; if (opener) opener.focus(); };
   document.addEventListener('click', e => {
-    if (e.target.closest('[data-open-menu]')) { menu.hidden = false; menu.querySelector('a').focus(); }
-    if (e.target.closest('[data-close-menu]') || (e.target.closest('#menu a'))) menu.hidden = true;
+    const o = e.target.closest('[data-open-menu]');
+    if (o) { opener = o; menu.hidden = false; document.body.style.overflow = 'hidden'; menu.querySelector('nav a').focus(); }
+    if (e.target.closest('[data-close-menu]') || (e.target.closest('#menu a'))) closeMenu();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') menu.hidden = true; });
+  document.addEventListener('keydown', e => {
+    if (menu.hidden) return;
+    if (e.key === 'Escape') closeMenu();
+    if (e.key === 'Tab') {   // keep keyboard focus inside the open menu
+      const f = [...menu.querySelectorAll('a, button')], first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
 
   const foot = document.getElementById('site-foot');
   if (foot) {
@@ -355,7 +371,7 @@ function card(p) {
   return `<a class="card${p.type === 'kitap' && !p.icon ? ' book' : ''}" href="${productHref(p)}">
     <div class="${visualClass}">${p.status === 'yakinda' ? '<span class="badge">Yakında</span>' : ''}${visual}</div>
     <div class="meta"><span>${kind}</span>${p.age ? `<span>${p.age}</span>` : ''}</div>
-    <h3>${fullTitle(p)}</h3>
+    <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.desc)}</p>
     <p class="price">${priceLine(p)}</p>
   </a>`;
@@ -364,6 +380,20 @@ function card(p) {
 /* ---------- Collection page (kizlar / erkekler / yetiskinler) ---------- */
 function renderCollection(aud) {
   const tabsEl = document.getElementById('tabs'), grid = document.getElementById('grid');
+  if (!PRODUCTS.some(p => p.aud === aud && p.status === 'hazir')) {
+    tabsEl.hidden = true;
+    grid.className = 'waitlist';
+    grid.innerHTML = `<div class="panel">
+        <p class="eyebrow">Atölyede hazırlanıyor</p>
+        <h2>Yetişkinler için masallar çok yakında</h2>
+        <p class="lede">Çiftler, büyükanne ve büyükbabalar, bütün aile ve doğum günleri için kişiye özel kitaplar ve yapbozlar hazırlıyoruz. İlk kitaplar hazır olduğunda size haber verelim.</p>
+        <ul class="chips">${Object.values(OCCASIONS).map(o => `<li>${o}</li>`).join('')}</ul>
+        <form class="inline-form" id="wait"><label for="wait-email" hidden>E-posta</label><input id="wait-email" type="email" required placeholder="E-posta adresiniz"><button class="btn" type="submit">Haber Ver</button></form>
+        <p class="form-note" id="wait-note" aria-live="polite"></p>
+      </div>`;
+    document.getElementById('wait').addEventListener('submit', e => { e.preventDefault(); document.getElementById('wait-note').textContent = 'Önizleme sürümü: haber listesi site yayına alınırken bağlanacak.'; });
+    return;
+  }
   const isAdult = aud === 'yetiskin';
   const filters = isAdult
     ? [['hepsi', 'Hepsi'], ...Object.entries(OCCASIONS)]
@@ -462,7 +492,7 @@ function renderProduct() {
     const gallery = p.icon
       ? `<div class="gallery"><div class="main" style="display:grid;place-items:center;background:radial-gradient(80% 60% at 50% 35%, rgba(141,46,61,.75), #24090f 75%);border-radius:200px 200px 8px 8px"><span style="width:34%;color:var(--gold)">${ICONS[p.icon]}</span></div></div>`
       : `<div class="gallery"><div class="main"${p.paper ? ' style="background:#f6f1e6"' : ''}><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
-         ${shots.length > 1 ? `<div class="thumbs">${shots.map((s, i) => `<button type="button" data-shot="${i}" aria-current="${i === 0}" aria-label="${esc(s[1])}"><img src="${s[0]}" alt=""></button>`).join('')}</div>` : ''}</div>`;
+         ${shots.length > 1 ? `<div class="thumbs">${shots.map((s, i) => `<button type="button" data-shot="${i}" aria-current="${i === 0}" aria-label="${esc(s[1])}"><img src="${thumb(s[0])}" alt=""></button>`).join('')}</div>` : ''}</div>`;
 
     const pr = PRICES[p.type] || {};
     const formats = FORMATS[p.type] || [];
@@ -673,7 +703,7 @@ function setupViewer(spreads) {
   const img = document.getElementById('spread-img'), counter = document.getElementById('counter'), strip = document.getElementById('vthumbs');
   const frame = document.getElementById('spread');
   // every page as a thumbnail, so the whole book can be seen at a glance
-  strip.innerHTML = spreads.map(([src, alt], i) => `<button type="button" data-i="${i}" aria-label="Sayfa ${i + 1}: ${esc(alt)}"><img src="${src}" alt="" loading="lazy"></button>`).join('');
+  strip.innerHTML = spreads.map(([src, alt], i) => `<button type="button" data-i="${i}" aria-label="Sayfa ${i + 1}: ${esc(alt)}"><img src="${thumb(src)}" alt="" loading="lazy"></button>`).join('');
   function go(i) {
     cur = (i + spreads.length) % spreads.length;
     img.style.opacity = 0;

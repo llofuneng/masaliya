@@ -496,3 +496,32 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .buybar.away { transform: translateY(110%); }
   body:has(.buybar:not(.away)) .wa { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* tap targets of at least 44px on phones */
+.back, .menu-btn { min-height: 44px; }
+.menu-btn { border-radius: 1px; }
+.site-foot nav a { display: inline-block; padding-block: 12px; }
+#crumbs a { display: inline-block; padding-block: 10px; }
+@media (max-width: 620px) { .vthumbs button { width: 88px; } .vthumbs.portrait button { width: 56px; } }
+
+/* menu: the three collections under Ürünlerimiz, the page you're on marked */
+.menu nav a[aria-current="page"] { color: var(--gold-pale); font-style: italic; }
+.menu-sub { display: grid; gap: 0; margin: -4px 0 8px; }
+.menu-sub a { font-size: clamp(1.15rem, 1rem + .8vw, 1.45rem) !important; color: var(--muted) !important; }
+.menu-sub a[aria-current="page"] { color: var(--gold-pale) !important; }
+.menu nav { max-height: calc(100svh - 120px); overflow-y: auto; }
+
+/* product type under card titles */
+.card h3 .t-kind { display: block; margin-top: 4px; font: 400 .72rem var(--f-body); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+
+/* adults: a single waiting list */
+.waitlist { max-width: 760px; margin-inline: auto; }
+.waitlist .panel { text-align: center; justify-items: center; padding: clamp(28px, 5vw, 56px); }
+.waitlist h2 { font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.6rem); }
+.waitlist .lede { text-align: center; }
+.chips { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.chips li { border: 1px solid var(--line-strong); padding: 6px 14px; font-size: .86rem; color: var(--gold-pale); border-radius: 1px; }
+.waitlist .inline-form { justify-content: center; width: 100%; max-width: 520px; }
+.menu { background: var(--ink); }
+.menu-sub a { padding-block: 9px; line-height: 1.2 !important; }
+.inline-form input { border-radius: 1px; }

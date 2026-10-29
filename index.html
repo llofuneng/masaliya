@@ -32,7 +32,7 @@
 .lockup { grid-column: 2; display: grid; justify-items: center; gap: 8px; text-decoration: none; color: var(--gold-pale); }
 .lockup svg { width: 30px; height: 30px; display: block; filter: drop-shadow(0 0 10px rgba(226,181,107,.4)); }
 .lockup span { font: 500 .82rem/1 var(--f-display); letter-spacing: .5em; padding-left: .5em; }
-.menu-icon { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: 12px; background: none; border: 0; cursor: pointer; color: var(--gold-pale); font: 400 .7rem var(--f-body); letter-spacing: .26em; text-transform: uppercase; padding: 8px 0; }
+.menu-icon { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: 12px; background: none; border: 0; cursor: pointer; color: var(--gold-pale); font: 400 .7rem var(--f-body); letter-spacing: .26em; text-transform: uppercase; min-height: 44px; min-width: 44px; justify-content: flex-end; padding: 0; }
 .menu-icon i { display: grid; gap: 5px; width: 24px; }
 .menu-icon i::before, .menu-icon i::after { content: ""; height: 1px; background: currentColor; }
 .menu-icon i::after { width: 70%; justify-self: end; }
@@ -250,10 +250,11 @@
 </div></div>
 <footer id="site-foot"></footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+<script src="site.js" defer></script>
 <script>
-(() => {
+// runs after the deferred three.js and site.js
+addEventListener('DOMContentLoaded', () => {
   const intro = document.getElementById('intro');
   const film = document.getElementById('film');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -773,7 +774,7 @@
       }
     };
   }
-})();
+});
 </script>
 
 </body>
