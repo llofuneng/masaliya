@@ -193,19 +193,19 @@ function priceLine(p) {
 
 /* ---------- Gold paper-cut heroes: girls, boys, adults (home page 3D scene, Ürünlerimiz page) ---------- */
 const HEROES = [
-  { href: 'kizlar.html', jewel: ['#d0506c', '#6a1830', '#22060f'], parts: [
+  { href: 'kizlar.html', jewel: ['#7d3442', '#521a26', '#24090f'], parts: [
     ['c', 60, 31, 7.5], ['p', 'M66 27 l-5 -3.5 v7z M66 27 l5 -3.5 v7z'], ['c', 60, 47, 14],
     ['p', 'M46 44 q-5 18 3 28 q3 -8 5 -18z M74 44 q5 18 -3 28 q-3 -8 -5 -18z'], ['r', 56, 58, 8, 8],
     ['p', 'M47 66 h26 l16 58 q-29 8 -58 0z'], ['p', 'M48 70 q-10 14 -12 30 l5 1 q4 -14 11 -24z'], ['p', 'M72 70 l18 -16 4 4 -16 18z'],
     ['s', 'M91 55 l7 -17', 2.4], ['p', 'M99 30 l2.4 5.6 6 .6 -4.6 4 1.4 6 -5.2 -3.2 -5.2 3.2 1.4 -6 -4.6 -4 6 -.6z'],
     ['r', 51, 124, 6, 18], ['r', 63, 124, 6, 18], ['e', 53, 143, 6, 3], ['e', 67, 143, 6, 3]] },
-  { href: 'erkekler.html', jewel: ['#5866d8', '#222a78', '#0a0b2a'], parts: [
+  { href: 'erkekler.html', jewel: ['#3c4a73', '#232c4d', '#0d1020'], parts: [
     ['p', 'M49 66 q-22 26 -30 66 q18 -6 40 -8z'], ['c', 60, 46, 14],
     ['p', 'M45 42 q2 -14 16 -15 q4 -6 9 -2 q-1 3 -3 4 q8 3 8 13 q-6 -6 -14 -6 q-8 0 -16 6z'], ['r', 56, 57, 8, 8],
     ['p', 'M47 65 h26 l3 50 h-32z'], ['p', 'M44 112 h32 v5 h-32z'], ['p', 'M48 70 q-8 14 -8 30 l5 0 q1 -14 8 -24z'],
     ['p', 'M72 70 l16 -12 4 4 -15 15z'], ['s', 'M89 59 l14 -30', 3.2], ['p', 'M84 56 l12 6 -1.6 3 -12 -6z'],
     ['r', 50, 117, 7, 25], ['r', 63, 117, 7, 25], ['e', 52, 143, 6.5, 3], ['e', 68, 143, 6.5, 3]] },
-  { href: 'yetiskinler.html', jewel: ['#2fa48a', '#11544a', '#041a16'], parts: [
+  { href: 'yetiskinler.html', jewel: ['#3a6458', '#1f3f37', '#0a1a17'], parts: [
     // a family: two grown-ups with a child between them, hand in hand, a star above
     ['p', 'M61 18 l2.4 5.6 6 .6 -4.6 4 1.4 6 -5.2 -3.2 -5.2 3.2 1.4 -6 -4.6 -4 6 -.6z'],
     ['c', 33, 37, 4.5], ['c', 33, 50, 10], ['p', 'M23 48 q-4 14 3 22 q2 -8 3 -14z M43 48 q4 14 -3 22 q-2 -8 -3 -14z'], ['r', 30.5, 59, 5, 6],
@@ -229,16 +229,18 @@ function drawHeroCard(h, W = 512, H = 704) {
   g.addColorStop(0, h.jewel[0]); g.addColorStop(.45, h.jewel[1]); g.addColorStop(1, h.jewel[2]);
   x.fillStyle = g; x.fillRect(0, 0, W, H);
   let s = 5; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(255,236,200,${.25 + r() * .6})`; x.beginPath(); x.arc(r() * W, r() * H * .7, .6 + r() * 1.8, 0, 6.283); x.fill(); }
-  const halo = x.createRadialGradient(W / 2, H * .55, 0, W / 2, H * .55, W * .55);
-  halo.addColorStop(0, 'rgba(255,225,160,.55)'); halo.addColorStop(1, 'rgba(255,225,160,0)');
-  x.fillStyle = halo; x.fillRect(0, 0, W, H);
+  // velvet nap: fine dark and light fibres, a few faint stars
+  for (let i = 0; i < 2600; i++) { x.fillStyle = r() < .5 ? 'rgba(255,240,220,.025)' : 'rgba(0,0,0,.08)'; x.fillRect(r() * W, r() * H, 1 + r() * 2, 1); }
+  for (let i = 0; i < 26; i++) { x.fillStyle = `rgba(240,215,170,${.15 + r() * .3})`; x.beginPath(); x.arc(r() * W, r() * H * .6, .5 + r() * 1.1, 0, 6.283); x.fill(); }
+  const vign = x.createRadialGradient(W / 2, H * .5, W * .2, W / 2, H * .5, H * .75);
+  vign.addColorStop(0, 'rgba(0,0,0,0)'); vign.addColorStop(1, 'rgba(0,0,0,.45)');
+  x.fillStyle = vign; x.fillRect(0, 0, W, H);
   // the figure in gold
   const k = 3.15, ox = W / 2 - 60 * k, oy = H - m - 160 * k - 18;
   x.translate(ox, oy); x.scale(k, k);
-  const gold = x.createLinearGradient(0, 10, 0, 150); gold.addColorStop(0, '#fff3d2'); gold.addColorStop(.5, '#ecc173'); gold.addColorStop(1, '#b37a33');
+  const gold = x.createLinearGradient(0, 10, 0, 150); gold.addColorStop(0, '#f1dcae'); gold.addColorStop(.5, '#d4a960'); gold.addColorStop(1, '#a1742f');
   x.fillStyle = gold; x.strokeStyle = gold; x.lineCap = 'round';
-  x.shadowColor = 'rgba(255,215,140,.7)'; x.shadowBlur = 6;
+  x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 3; x.shadowOffsetY = 1.5;   // pressed foil, not a glow
   for (const p of h.parts) {
     if (p[0] === 'c') { x.beginPath(); x.arc(p[1], p[2], p[3], 0, 6.283); x.fill(); }
     else if (p[0] === 'e') { x.beginPath(); x.ellipse(p[1], p[2], p[3], p[4], 0, 0, 6.283); x.fill(); }
@@ -248,10 +250,10 @@ function drawHeroCard(h, W = 512, H = 704) {
   }
   x.restore();
   // double gold frame
-  x.strokeStyle = '#efc87d'; x.lineWidth = 7; x.stroke(arch);
+  x.strokeStyle = '#cfa461'; x.lineWidth = 4; x.stroke(arch);
   const inner = new Path2D(); const m2 = m + 16, R2 = (W - 2 * m2) / 2;
   inner.moveTo(m2, H - m2); inner.lineTo(m2, m2 + R2); inner.arc(W / 2, m2 + R2, R2, Math.PI, 0); inner.lineTo(W - m2, H - m2); inner.closePath();
-  x.lineWidth = 2; x.strokeStyle = 'rgba(239,200,125,.7)'; x.stroke(inner);
+  x.lineWidth = 1.5; x.strokeStyle = 'rgba(207,164,97,.55)'; x.stroke(inner);
   return c;
 }
 
@@ -360,6 +362,7 @@ function renderCollection(aud) {
     const list = isAdult
       ? items.filter(p => key === 'hepsi' || p.occ === key)
       : items.filter(p => TYPES[p.type].tab === key);
+    grid.className = `grid${list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : ''}`;
     grid.innerHTML = list.length ? list.map(card).join('') : '<p class="empty">Bu bölüm için yeni ürünler hazırlanıyor.</p>';
   }
   addEventListener('hashchange', show);
