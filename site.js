@@ -94,6 +94,23 @@ const PAGES_BOYAMA_DINO = [
   ['img/dinozorlarin-dogum-gunu-boyama-p14.jpg', 'Kendi resmini çiz'],
   ['img/dinozorlarin-dogum-gunu-boyama-p15.jpg', 'Evde, elinde parlayan yaprak']
 ];
+const PAGES_BOYAMA_BUZ = [
+  ['img/buz-satosunun-sirri-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
+  ['img/buz-satosunun-sirri-boyama-p02.jpg', 'Şifreli mesaj'],
+  ['img/buz-satosunun-sirri-boyama-p03.jpg', 'Kartopu ve Fındık ile tanışma'],
+  ['img/buz-satosunun-sirri-boyama-p04.jpg', 'Kelime avı'],
+  ['img/buz-satosunun-sirri-boyama-p05.jpg', 'Şatonun avlusunda'],
+  ['img/buz-satosunun-sirri-boyama-p06.jpg', 'Harfli labirent'],
+  ['img/buz-satosunun-sirri-boyama-p07.jpg', 'Donmuş bahçedeki minik kuş'],
+  ['img/buz-satosunun-sirri-boyama-p08.jpg', 'Bilmeceler'],
+  ['img/buz-satosunun-sirri-boyama-p09.jpg', 'Buz Kraliçesi’nin taht salonu'],
+  ['img/buz-satosunun-sirri-boyama-p10.jpg', 'Sihirli kareler'],
+  ['img/buz-satosunun-sirri-boyama-p11.jpg', 'Kuzey ışıkları altında şenlik'],
+  ['img/buz-satosunun-sirri-boyama-p12.jpg', 'Masal bulmacası'],
+  ['img/buz-satosunun-sirri-boyama-p13.jpg', 'Evde, elinde kar küresi'],
+  ['img/buz-satosunun-sirri-boyama-p14.jpg', 'Bir sonraki masalı sen yaz'],
+  ['img/buz-satosunun-sirri-boyama-p15.jpg', 'Cevaplar']
+];
 const PAGES_BOYAMA_DUA = [
   ['img/sihirli-kutuphane-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
   ['img/sihirli-kutuphane-boyama-p02.jpg', 'Şifreli mesaj'],
@@ -121,6 +138,15 @@ const SPREADS_LAVIN = [
   ['img/deniz-kizi-kralligi-s7.jpg', 'Deniz Kızı Krallığı’nda şenlik']
 ];
 
+const SPREADS_BUZ = [
+  ['img/buz-satosunun-sirri-s1.jpg', 'Erva Ülkü kar küresini sallıyor, oda kar taneleriyle doluyor'],
+  ['img/buz-satosunun-sirri-s2.jpg', 'Burnunu kaybeden kardan adam Kartopu ve geyik yavrusu Fındık'],
+  ['img/buz-satosunun-sirri-s3.jpg', 'Fındık’a uzatılan elma ve açılan ikinci kapı'],
+  ['img/buz-satosunun-sirri-s4.jpg', 'Donmuş bahçede atkıya sarılan minik kuş'],
+  ['img/buz-satosunun-sirri-s5.jpg', 'Buz Kraliçesi’nin taht salonunda parlayan buz taşları'],
+  ['img/buz-satosunun-sirri-s6.jpg', 'Kuzey ışıkları altında şatoda şenlik'],
+  ['img/buz-satosunun-sirri-s7.jpg', 'Evde, kar küresindeki minik şato']
+];
 const SPREADS_DINO = [
   ['img/dinozorlarin-dogum-gunu-s1.jpg', 'Hızır Ali dinozor kitabını açıyor, küçük yeşil dinozor göz kırpıyor'],
   ['img/dinozorlarin-dogum-gunu-s2.jpg', 'Yemyeşil ormanda küçük dinozor Fıstık ile tanışma'],
@@ -142,6 +168,10 @@ const PRODUCTS = [
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
     extra: [['img/deniz-kizi-kralligi-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/deniz-kizi-kralligi-son.jpg', 'Hediye eden kişinin sayfası'], ['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
+  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .24], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Erva Ülkü', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
+    img: 'img/buz-satosunun-sirri-kapak.jpg', alt: 'Erva Ülkü ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
+    desc: 'Karlı bir akşam, masadaki kar küresi sallanınca kahramanımız kendini kapıları anahtarla açılmayan bir buz şatosunun önünde bulur. Burnunu kaybeden kardan adam Kartopu ve hep aç geyik yavrusu Fındık ile her kapının ardında bir sır bekler. Karşılık beklemeden yapılan küçük iyiliklerin büyük gücünü anlatan sıcacık bir kış masalı.',
+    extra: [['img/buz-satosunun-sirri-arka.jpg', 'Arka kapak']], spreads: SPREADS_BUZ },
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '2–7 yaş',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
@@ -155,6 +185,10 @@ const PRODUCTS = [
     img: 'img/sihirli-kutuphane-boyama-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/sihirli-kutuphane-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/sihirli-kutuphane-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
+  { id: 'buz-satosunun-sirri-boyama', book: 'buz-satosunun-sirri', coverTitle: { box: [0, .24], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Erva Ülkü', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
+    img: 'img/buz-satosunun-sirri-boyama-kapak.jpg', alt: 'Erva Ülkü ve Buz Şatosunun Sırrı boyama ve etkinlik kitabının kapağı',
+    desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
+    extra: [['img/buz-satosunun-sirri-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/buz-satosunun-sirri-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_BUZ },
   { id: 'dinozorlarin-dogum-gunu-boyama', book: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'boyama', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '3–7 yaş',
     img: 'img/dinozorlarin-dogum-gunu-boyama-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: yollar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
@@ -563,7 +597,7 @@ function renderProduct() {
 
     const inner = p.spreads || p.pages;
     // what is in it, and when it arrives if ordered today
-    const content = p.spreads ? `${p.spreads.length} çift sayfa masal, ithaf ve hediye sayfası`
+    const content = p.spreads ? `${p.spreads.length} çift sayfa masal${(p.extra || []).some(([src]) => src.includes('-ithaf')) ? ', ithaf ve hediye sayfası' : ''}`
       : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : '';
     const specs = orderable ? `<dl class="specs">
         <div><dt>Boyut</dt><dd>A4 · 21 × 29,7 cm</dd></div>
