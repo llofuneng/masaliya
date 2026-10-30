@@ -178,9 +178,14 @@ const PRODUCTS = [
     img: 'img/kayip-ay-isigi-boyama.jpg', alt: 'Kayıp Ay Işığı kapağının boyama sayfası hâli', paper: true,
     desc: 'Yıldızlar, Ay ve astronot kaskı. Kendi uzay yolculuğunu kendi renkleriyle boyar.' },
 
-  { id: 'sihirli-kutuphane-yapboz', aud: 'kiz', type: 'yapboz', status: 'yakinda', title: 'Sihirli Kütüphane Yapbozu', age: '6+ yaş',
-    img: 'img/sihirli-kutuphane-yapboz.jpg', alt: 'Sihirli Kütüphane kapağından yapılmış yapboz örneği',
-    desc: 'Kitabın kapağı, parça parça birleştirilen bir yapboza dönüşür. Tamamlandığında karşısında kendi yüzü vardır.' },
+  { id: 'sihirli-kutuphane-yapboz', aud: 'kiz', type: 'yapboz', status: 'hazir', title: 'Sihirli Kütüphane Yapbozu', age: '6+ yaş',
+    img: 'img/sihirli-kutuphane-yapboz.jpg', alt: 'Sihirli Kütüphane yapbozu: kütüphanede parlayan kitap tutan kız ve kedi, parça çizgileriyle',
+    desc: 'Kitabın kapağındaki sahne yazısız hâliyle yapboz olur: uçan sayfalar, kedi Mürekkep ve ışık saçan kitap. Son parça yerine oturduğunda karşısında kendi yüzü vardır.',
+    extra: [['img/sihirli-kutuphane-yapboz-resim.jpg', 'Yapbozun resmi, bütün hâliyle']] },
+  { id: 'dinozorlarin-dogum-gunu-yapboz', aud: 'erkek', type: 'yapboz', status: 'hazir', title: 'Dinozorların Doğum Günü Yapbozu', age: '4+ yaş',
+    img: 'img/dinozorlarin-dogum-gunu-yapboz.jpg', alt: 'Dinozorların Doğum Günü yapbozu: pasta tutan çocuk ve yavru dinozorlar, parça çizgileriyle',
+    desc: 'Kitabın kapağındaki sahne yazısız hâliyle yapboz olur: Koca Dede, yavru dinozorlar ve meyveli pasta. Son parça yerine oturduğunda karşısında kendi yüzü vardır.',
+    extra: [['img/dinozorlarin-dogum-gunu-yapboz-resim.jpg', 'Yapbozun resmi, bütün hâliyle']] },
   { id: 'kayip-ay-isigi-yapboz', aud: 'erkek', type: 'yapboz', status: 'yakinda', title: 'Kayıp Ay Işığı Yapbozu', age: '5+ yaş',
     img: 'img/kayip-ay-isigi-yapboz.jpg', alt: 'Kayıp Ay Işığı kapağından yapılmış yapboz örneği',
     desc: 'Astronot kahramanımızın kapağı, birlikte kurulan bir yapboz olur.' },
@@ -526,7 +531,7 @@ function renderProduct() {
     const shots = p.img ? [[p.img, p.alt], ...(p.extra || [])] : [];
     const gallery = p.icon
       ? `<div class="gallery"><div class="main" style="display:grid;place-items:center;background:radial-gradient(80% 60% at 50% 35%, rgba(141,46,61,.75), #24090f 75%);border-radius:200px 200px 8px 8px"><span style="width:34%;color:var(--gold)">${ICONS[p.icon]}</span></div></div>`
-      : `<div class="gallery"><div class="main"${p.paper ? ' style="background:#f6f1e6"' : ''}><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
+      : `<div class="gallery"><div class="main${p.type === 'yapboz' ? ' puzzle' : ''}"${p.paper ? ' style="background:#f6f1e6"' : ''}><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
          ${shots.length > 1 ? `<div class="thumbs">${shots.map((s, i) => `<button type="button" data-shot="${i}" aria-current="${i === 0}" aria-label="${esc(s[1])}"><img src="${thumb(s[0])}" alt=""></button>`).join('')}</div>` : ''}</div>`;
 
     const pr = PRICES[p.type] || {};
@@ -595,7 +600,7 @@ function renderProduct() {
         <div><dt>Boyut</dt><dd>${p.type === 'yapboz' ? 'Tek boy' : 'A4 · 21 × 29,7 cm'}</dd></div>
         ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
         <div><dt>Önizleme</dt><dd>bugün sipariş verirseniz en geç ${trDate(inDays(3))}</dd></div>
-        <div><dt>Teslim</dt><dd>dijital onayınızla hemen, basılı onaydan sonra en geç 7 günde kargoda</dd></div>
+        <div><dt>Teslim</dt><dd>${p.type === 'yapboz' ? 'onayınızdan sonra en geç 7 günde kargoda' : 'dijital onayınızla hemen, basılı onaydan sonra en geç 7 günde kargoda'}</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
       <div class="p-gallery">${gallery}</div>
