@@ -10,8 +10,7 @@ const AUDIENCES = {
 /* Product types for the children's collections */
 const TYPES = {
   kitap:  { tab: 'kitaplar', name: 'Kitaplar',         one: 'Masal kitabı' },
-  boyama: { tab: 'boyama',   name: 'Boyama Kitapları', one: 'Boyama kitabı' },
-  yapboz: { tab: 'yapboz',   name: 'Yapbozlar',        one: 'Yapboz' }
+  boyama: { tab: 'boyama',   name: 'Boyama Kitapları', one: 'Boyama kitabı' }
 };
 
 /* Occasions for the adults' collection */
@@ -25,17 +24,15 @@ const OCCASIONS = {
 /* Prices in TL. null = not announced yet. */
 const PRICES = {
   kitap:  { hard: 2500, soft: 1500, digital: null },
-  boyama: { print: 600, digital: null },
-  yapboz: { std: 900 }
+  boyama: { print: 600, digital: null }
 };
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 /* Masal Seti: the same hero across several products, priced together.
-   The set price is the sum of the parts (printed coloring book, medium puzzle) minus the discount. */
+   The set price is the sum of the parts (the printed coloring book) minus the discount. */
 const SETS = [
   { id: 'tek', name: 'Yalnızca kitap', items: [], discount: 0 },
-  { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: .10 },
-  { id: 'buyuk-masal-seti', name: 'Büyük Masal Seti', note: 'Kitap + boyama kitabı + yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: .15 }
+  { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: .10 }
 ];
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
@@ -47,8 +44,7 @@ const FORMATS = {
   boyama: [
     ['print', 'Basılı Boyama Kitabı', 'Kalın, boyamaya uygun kâğıt'],
     ['digital', 'Dijital Boyama', 'PDF · evde dilediğiniz kadar yazdırın']
-  ],
-  yapboz: []   // one size only: nothing to choose
+  ]
 };
 
 /* WhatsApp concierge: put the number here in international format without "+", e.g. '905321234567'. */
@@ -135,7 +131,8 @@ const SPREADS_DINO = [
   ['img/dinozorlarin-dogum-gunu-s7.jpg', 'Evde, elinde ışıl ışıl parlayan yaprak']
 ];
 
-/* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list) */
+/* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list).
+   book: a coloring book is sold only with its story book, as a Masal Seti */
 const PRODUCTS = [
   { id: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
     img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
@@ -150,31 +147,18 @@ const PRODUCTS = [
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
     extra: [['img/dinozorlarin-dogum-gunu-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/dinozorlarin-dogum-gunu-son.jpg', 'Hediye eden kişinin sayfası'], ['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
 
-  { id: 'deniz-kizi-kralligi-boyama', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
+  { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: dalgalar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
     extra: [['img/deniz-kizi-kralligi-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/deniz-kizi-kralligi-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_LAVIN },
-  { id: 'sihirli-kutuphane-boyama', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+  { id: 'sihirli-kutuphane-boyama', book: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
     img: 'img/sihirli-kutuphane-boyama-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/sihirli-kutuphane-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/sihirli-kutuphane-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
-  { id: 'dinozorlarin-dogum-gunu-boyama', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'boyama', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '3–7 yaş',
+  { id: 'dinozorlarin-dogum-gunu-boyama', book: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'boyama', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '3–7 yaş',
     img: 'img/dinozorlarin-dogum-gunu-boyama-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: yollar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
-    extra: [['img/dinozorlarin-dogum-gunu-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/dinozorlarin-dogum-gunu-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DINO },
-
-  { id: 'sihirli-kutuphane-yapboz', aud: 'kiz', type: 'yapboz', status: 'hazir', title: 'Sihirli Kütüphane Yapbozu', age: '6+ yaş',
-    img: 'img/sihirli-kutuphane-yapboz.jpg', alt: 'Sihirli Kütüphane yapbozu: kütüphanede parlayan kitap tutan kız ve kedi, parça çizgileriyle',
-    desc: 'Kitabın kapağındaki sahne yazısız hâliyle yapboz olur: uçan sayfalar, kedi Mürekkep ve ışık saçan kitap. Son parça yerine oturduğunda karşısında kendi yüzü vardır.',
-    extra: [['img/sihirli-kutuphane-yapboz-resim.jpg', 'Yapbozun resmi, bütün hâliyle']] },
-  { id: 'deniz-kizi-kralligi-yapboz', aud: 'kiz', type: 'yapboz', status: 'hazir', title: 'Deniz Kızı Krallığı Yapbozu', age: '3+ yaş',
-    img: 'img/deniz-kizi-kralligi-yapboz.jpg', alt: 'Deniz Kızı Krallığı yapbozu: parlayan deniz kabuğu tutan kız ve deniz kızı, parça çizgileriyle',
-    desc: 'Kitabın kapağındaki sahne yazısız hâliyle yapboz olur: pembe şato, deniz kızı Mira ve ışıl ışıl deniz kabuğu. Son parça yerine oturduğunda karşısında kendi yüzü vardır.',
-    extra: [['img/deniz-kizi-kralligi-yapboz-resim.jpg', 'Yapbozun resmi, bütün hâliyle']] },
-  { id: 'dinozorlarin-dogum-gunu-yapboz', aud: 'erkek', type: 'yapboz', status: 'hazir', title: 'Dinozorların Doğum Günü Yapbozu', age: '4+ yaş',
-    img: 'img/dinozorlarin-dogum-gunu-yapboz.jpg', alt: 'Dinozorların Doğum Günü yapbozu: pasta tutan çocuk ve yavru dinozorlar, parça çizgileriyle',
-    desc: 'Kitabın kapağındaki sahne yazısız hâliyle yapboz olur: Koca Dede, yavru dinozorlar ve meyveli pasta. Son parça yerine oturduğunda karşısında kendi yüzü vardır.',
-    extra: [['img/dinozorlarin-dogum-gunu-yapboz-resim.jpg', 'Yapbozun resmi, bütün hâliyle']] }
+    extra: [['img/dinozorlarin-dogum-gunu-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/dinozorlarin-dogum-gunu-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DINO }
 ];
 
 const GIFT_SVG = '<svg viewBox="0 0 64 64"><rect x="10" y="26" width="44" height="30" rx="2" fill="#6b1d2a" stroke="#e2b56b" stroke-width="1.2"/><rect x="7" y="19" width="50" height="9" rx="1.5" fill="#7d2534" stroke="#e2b56b" stroke-width="1.2"/><rect x="29" y="19" width="6" height="37" fill="#e2b56b"/><path d="M32 19c-6-9-15-8-13-2 1 3 7 3 13 2zM32 19c6-9 15-8 13-2-1 3-7 3-13 2z" fill="none" stroke="#e2b56b" stroke-width="1.6"/><circle cx="32" cy="40" r="6" fill="#8d2e3d" stroke="#f4dfb3" stroke-width="1"/><path d="M29.6 42.6V39a2.4 2.4 0 0 1 4.8 0v3.6" fill="none" stroke="#f4dfb3" stroke-width=".9"/></svg>';
@@ -204,6 +188,7 @@ function fullTitle(p, name) {
 }
 function priceLine(p) {
   if (p.status !== 'hazir') return 'Yakında';
+  if (p.book) return 'Yalnızca masal kitabıyla, Masal Seti içinde';
   const pr = PRICES[p.type];
   if (p.type === 'kitap' && pr && pr.hard) return `Sert kapak ${fmt(pr.hard)}${pr.soft ? ` · yumuşak kapak ${fmt(pr.soft)}` : ''}`;
   const known = pr ? Object.values(pr).filter(Boolean) : [];
@@ -282,7 +267,7 @@ function drawHeroCard(h, W = 512, H = 704) {
    <body data-product>. The old urun.html#id addresses still work and forward to the new page. */
 const productId = () => document.body.dataset.product || location.hash.slice(1);
 // addresses used before products were named after their stories
-const OLD_IDS = { dua: 'sihirli-kutuphane', lavin: 'deniz-kizi-kralligi', 'boyama-lavin': 'deniz-kizi-kralligi-boyama', 'boyama-dua': 'sihirli-kutuphane-boyama', 'yapboz-dua': 'sihirli-kutuphane-yapboz' };
+const OLD_IDS = { dua: 'sihirli-kutuphane', lavin: 'deniz-kizi-kralligi', 'boyama-lavin': 'deniz-kizi-kralligi-boyama', 'boyama-dua': 'sihirli-kutuphane-boyama' };
 const currentProduct = () => { const id = productId(); return PRODUCTS.find(x => x.id === (OLD_IDS[id] || id)); };
 const productHref = p => `${p.id}.html`;
 
@@ -370,7 +355,7 @@ function renderChrome() {
       <a class="brand" href="./">${ARCH_SVG}<span>MASALİYA</span></a>
       <nav aria-label="Alt menü">${NAV_ALL.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav>
       <a class="foot-wa" href="${waLink()}"${WHATSAPP ? ' target="_blank" rel="noopener"' : ''}>${WA_SVG} WhatsApp’tan özel danışmanınıza yazın</a>
-      <p>Kişiye özel masal kitapları, boyama kitapları ve yapbozlar · masaliya.com</p>
+      <p>Kişiye özel masal kitapları · masaliya.com</p>
       <p>© 2026 Masaliya</p>
     </div>`;
   }
@@ -398,7 +383,7 @@ function renderCollection(aud) {
     grid.innerHTML = `<div class="panel">
         <p class="eyebrow">Atölyede hazırlanıyor</p>
         <h2>Yetişkinler için masallar çok yakında</h2>
-        <p class="lede">Çiftler, büyükanne ve büyükbabalar, bütün aile ve doğum günleri için kişiye özel kitaplar ve yapbozlar hazırlıyoruz. İlk kitaplar hazır olduğunda size haber verelim.</p>
+        <p class="lede">Çiftler, büyükanne ve büyükbabalar, bütün aile ve doğum günleri için kişiye özel kitaplar hazırlıyoruz. İlk kitaplar hazır olduğunda size haber verelim.</p>
         <ul class="chips">${Object.values(OCCASIONS).map(o => `<li>${o}</li>`).join('')}</ul>
         <form class="inline-form" id="wait"><label for="wait-email" hidden>E-posta</label><input id="wait-email" type="email" required placeholder="E-posta adresiniz"><button class="btn" type="submit">Haber Ver</button></form>
         <p class="form-note" id="wait-note" aria-live="polite"></p>
@@ -501,12 +486,13 @@ function renderProduct() {
     crumbs.innerHTML = `<a href="${a.page}">${a.name}</a> · ${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].name}`;
 
     const shots = p.img ? [[p.img, p.alt], ...(p.extra || [])] : [];
-    const gallery = `<div class="gallery"><div class="main${p.type === 'yapboz' ? ' puzzle' : ''}"><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
+    const gallery = `<div class="gallery"><div class="main"><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
          ${shots.length > 1 ? `<div class="thumbs">${shots.map((s, i) => `<button type="button" data-shot="${i}" aria-current="${i === 0}" aria-label="${esc(s[1])}"><img src="${thumb(s[0])}" alt=""></button>`).join('')}</div>` : ''}</div>`;
 
     const pr = PRICES[p.type] || {};
     const formats = FORMATS[p.type] || [];
-    const orderable = p.status === 'hazir';
+    const book = p.book && PRODUCTS.find(x => x.id === p.book);
+    const orderable = p.status === 'hazir' && !book;
     // options without a price can't be chosen yet; the first priced one starts selected
     const firstPriced = (formats.find(([k]) => pr[k]) || [])[0];
     const singlePrice = formats.length ? null : Object.values(pr).find(Boolean) || null;
@@ -514,6 +500,9 @@ function renderProduct() {
         <div class="covers" role="radiogroup" aria-label="Seçenekler" style="--n:${formats.length}">
           ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
         </div>` : '';
+    const coloring = PRODUCTS.find(x => x.book === p.id);
+    const askedSet = new URLSearchParams(location.search).get('set');
+    const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
     const buy = orderable ? `
       <form id="buy" class="info" style="gap:18px">
         ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
@@ -530,11 +519,11 @@ function renderProduct() {
         ${options}
         ${p.type === 'kitap' ? `
         <div class="sets" role="radiogroup" aria-label="Set">
-          ${SETS.map((st, i) => {
+          ${SETS.map(st => {
             const parts = st.items.map(([t, f]) => (PRICES[t] || {})[f]);
             const ready = parts.every(Boolean);
-            return `<label class="set-opt${ready ? '' : ' off'}"><input type="radio" name="set" value="${st.id}" data-discount="${st.discount}" data-extra="${ready ? parts.reduce((a, b) => a + b, 0) : ''}"${i === 0 ? ' checked' : ''}${ready ? '' : ' disabled'}>
-              <b>${st.name}</b>${st.note ? `<small>${st.note}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
+            return `<label class="set-opt${ready ? '' : ' off'}"><input type="radio" name="set" value="${st.id}" data-discount="${st.discount}" data-extra="${ready ? parts.reduce((a, b) => a + b, 0) : ''}"${st.id === wantSet ? ' checked' : ''}${ready ? '' : ' disabled'}>
+              <b>${st.name}</b>${st.note ? `<small>${st.note}${coloring && st.items.length ? ` · <a href="${productHref(coloring)}">sayfalarına bakın</a>` : ''}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
           }).join('')}
         </div>
         <label class="pdf-opt${PDF_ADDON_PRICE ? '' : ' off'}" for="pdf-addon" id="pdf-wrap"><input type="checkbox" id="pdf-addon"${PDF_ADDON_PRICE ? '' : ' disabled'}><span><b>+ Dijital kopya (PDF)</b><small>Basılı kitabın yanında tablet ve telefon için</small></span><em>${PDF_ADDON_PRICE ? '+ ' + fmt(PDF_ADDON_PRICE) : 'Fiyat yakında'}</em></label>` : ''}
@@ -554,6 +543,16 @@ function renderProduct() {
         <button class="btn" type="submit">Siparişi gönder</button>
         <p class="form-note" id="buy-note" aria-live="polite"></p>
       </form>`
+      : book ? (() => {
+        const set = SETS.find(st => st.id === 'masal-seti');
+        const setPrice = k => fmt(Math.round((PRICES.kitap[k] + PRICES.boyama.print) * (1 - set.discount)));
+        return `
+      <div class="info addon">
+        <p class="eyebrow">${set.name}</p>
+        <p class="desc">Bu boyama kitabı tek başına satılmaz. <a href="${productHref(book)}">${fullTitle(book)}</a> kitabıyla birlikte, aynı kahramanla hazırlanır.</p>
+        <p class="set-price">Kitap + boyama kitabı · sert kapak ${setPrice('hard')} · yumuşak kapak ${setPrice('soft')}</p>
+        <a class="btn" href="${productHref(book)}?set=${set.id}#buy">${set.name}’ni oluştur</a>
+      </div>`; })()
       : `
       <form id="interest" class="info" style="gap:14px">
         ${options}
@@ -565,19 +564,19 @@ function renderProduct() {
     const inner = p.spreads || p.pages;
     // what is in it, and when it arrives if ordered today
     const content = p.spreads ? `${p.spreads.length} çift sayfa masal, ithaf ve hediye sayfası`
-      : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : p.type === 'yapboz' ? 'Kapaktaki sahne, yapboz olarak' : '';
+      : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : '';
     const specs = orderable ? `<dl class="specs">
-        <div><dt>Boyut</dt><dd>${p.type === 'yapboz' ? 'Tek boy' : 'A4 · 21 × 29,7 cm'}</dd></div>
+        <div><dt>Boyut</dt><dd>A4 · 21 × 29,7 cm</dd></div>
         ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
         <div><dt>Önizleme</dt><dd>bugün sipariş verirseniz en geç ${trDate(inDays(3))}</dd></div>
-        <div><dt>Teslim</dt><dd>${p.type === 'yapboz' ? 'onayınızdan sonra en geç 7 günde kargoda' : 'dijital onayınızla hemen, basılı onaydan sonra en geç 7 günde kargoda'}</dd></div>
+        <div><dt>Teslim</dt><dd>dijital onayınızla hemen, basılı onaydan sonra en geç 7 günde kargoda</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
       <div class="p-gallery">${gallery}</div>
       <div class="p-head">
         <p class="eyebrow" id="crumbs-inline">${a.name}</p>
         <h1 id="p-title">${fullTitle(p)}</h1>
-        <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span>${p.age ? `<span>${p.age}</span>` : ''}<span>${p.status === 'hazir' ? (p.type === 'yapboz' ? 'Tek boy' : 'A4') : 'Yakında'}</span></div>
+        <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span>${p.age ? `<span>${p.age}</span>` : ''}<span>${p.status === 'hazir' ? 'A4' : 'Yakında'}</span></div>
         <p class="desc">${esc(p.desc)}</p>
         ${specs}
       </div>
@@ -591,7 +590,7 @@ function renderProduct() {
       <div class="p-buy info">
         ${buy}
         <div class="assure"><ul>
-          <li>${p.type === 'yapboz' ? 'En geç 3 gün içinde tasarımı size gönderir' : 'En geç 3 gün içinde bütün sayfaları size gönderir'}, onayınızı bekleriz.</li>
+          <li>En geç 3 gün içinde bütün sayfaları size gönderir, onayınızı bekleriz.</li>
           <li>Dijital sürüm onayınızın hemen ardından gönderilir; basılı ürün en geç bir hafta içinde kargoda.</li>
           <li>Fotoğraflar yalnızca bu ürün için kullanılır, teslimden sonra silinir.</li>
           ${p.type === 'kitap' ? '<li>Sesli masal: kitaptaki QR kodu okutun, masalı anlatıcımızın sesinden dinleyin.</li>' : ''}
