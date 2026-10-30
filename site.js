@@ -81,6 +81,23 @@ const PAGES_BOYAMA_LAVIN = [
   ['img/deniz-kizi-kralligi-boyama-p14.jpg', 'Kendi resmini çiz'],
   ['img/deniz-kizi-kralligi-boyama-p15.jpg', 'Deniz Kızı Krallığı’nda şenlik']
 ];
+const PAGES_BOYAMA_DINO = [
+  ['img/dinozorlarin-dogum-gunu-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p02.jpg', 'Yolları çiz'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p03.jpg', 'Kitaptan çıkan küçük dinozor'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p04.jpg', 'Labirent'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p05.jpg', 'Fıstık ile ilk karşılaşma'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p06.jpg', 'Kaç tane?'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p07.jpg', 'Ağacın tepesindeki meyveler'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p08.jpg', 'Eşini bul'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p09.jpg', 'Kanatlı dinozor Rüzgâr ile uçuş'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p10.jpg', 'Hangisi farklı?'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p11.jpg', 'Minik ile yapraktan bir hediye'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p12.jpg', 'Noktaları birleştir'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p13.jpg', 'Koca Dede’nin doğum günü'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p14.jpg', 'Kendi resmini çiz'],
+  ['img/dinozorlarin-dogum-gunu-boyama-p15.jpg', 'Evde, elinde parlayan yaprak']
+];
 const PAGES_BOYAMA_DUA = [
   ['img/sihirli-kutuphane-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
   ['img/sihirli-kutuphane-boyama-p02.jpg', 'Şifreli mesaj'],
@@ -108,6 +125,16 @@ const SPREADS_LAVIN = [
   ['img/deniz-kizi-kralligi-s7.jpg', 'Deniz Kızı Krallığı’nda şenlik']
 ];
 
+const SPREADS_DINO = [
+  ['img/dinozorlarin-dogum-gunu-s1.jpg', 'Hızır Ali dinozor kitabını açıyor, küçük yeşil dinozor göz kırpıyor'],
+  ['img/dinozorlarin-dogum-gunu-s2.jpg', 'Yemyeşil ormanda küçük dinozor Fıstık ile tanışma'],
+  ['img/dinozorlarin-dogum-gunu-s3.jpg', 'Sırtı dikenli dinozorun üstünden meyve toplamak'],
+  ['img/dinozorlarin-dogum-gunu-s4.jpg', 'Kanatlı dinozor Rüzgâr ile vadinin üstünde uçuş'],
+  ['img/dinozorlarin-dogum-gunu-s5.jpg', 'En küçük dinozor Minik ile yapraktan bir hediye'],
+  ['img/dinozorlarin-dogum-gunu-s6.jpg', 'Koca Dede’ye sürpriz doğum günü partisi'],
+  ['img/dinozorlarin-dogum-gunu-s7.jpg', 'Evde, elinde ışıl ışıl parlayan yaprak']
+];
+
 /* Line icons for products without artwork yet (adults' collection) */
 const ICONS = {
   ciftler: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="19" cy="26" r="10"/><circle cx="29" cy="26" r="10"/><path d="M24 8l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="currentColor" stroke="none"/></svg>',
@@ -127,6 +154,10 @@ const PRODUCTS = [
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
     extra: [['img/deniz-kizi-kralligi-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/deniz-kizi-kralligi-son.jpg', 'Hediye eden kişinin sayfası']], spreads: SPREADS_LAVIN },
+  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '2–7 yaş',
+    img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
+    desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
+    extra: [['img/dinozorlarin-dogum-gunu-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/dinozorlarin-dogum-gunu-son.jpg', 'Hediye eden kişinin sayfası'], ['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
   { id: 'kayip-ay-isigi', coverTitle: { box: [.03, .31], sub: 've Kayıp Ay Işığı' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Efe', title: 've Kayıp Ay Işığı', age: '4–9 yaş',
     img: 'img/kayip-ay-isigi-kapak.jpg', alt: 'Efe ve Kayıp Ay Işığı kapağı: astronot kaskıyla gülümseyen çocuk',
     desc: 'Bir gece Ay’ın ışığı kaybolur. Kahramanımız kaskını takar, yıldızların arasından geçerek Ay ışığını yeniden yakmaya gider.' },
@@ -139,6 +170,10 @@ const PRODUCTS = [
     img: 'img/sihirli-kutuphane-boyama-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/sihirli-kutuphane-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/sihirli-kutuphane-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
+  { id: 'dinozorlarin-dogum-gunu-boyama', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'boyama', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '3–7 yaş',
+    img: 'img/dinozorlarin-dogum-gunu-boyama-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü boyama ve etkinlik kitabının kapağı',
+    desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: yollar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
+    extra: [['img/dinozorlarin-dogum-gunu-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/dinozorlarin-dogum-gunu-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DINO },
   { id: 'kayip-ay-isigi-boyama', aud: 'erkek', type: 'boyama', status: 'yakinda', title: 'Kayıp Ay Işığı Boyama Kitabı', age: '4–9 yaş',
     img: 'img/kayip-ay-isigi-boyama.jpg', alt: 'Kayıp Ay Işığı kapağının boyama sayfası hâli', paper: true,
     desc: 'Yıldızlar, Ay ve astronot kaskı. Kendi uzay yolculuğunu kendi renkleriyle boyar.' },
@@ -735,7 +770,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // the story books, with their prices, just below the opening scene
     const books = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir');
     const g = document.getElementById('home-grid');
-    if (g) g.innerHTML = books.map(card).join('');
+    if (g) {
+      g.innerHTML = books.map(card).join('');
+      if (books.length === 4) g.classList.add('n2');   // two by two, so no book is left alone on a row
+    }
   }
   if (page === 'urun') {
     // old urun.html#id links forward to the product's own page
