@@ -135,15 +135,6 @@ const SPREADS_DINO = [
   ['img/dinozorlarin-dogum-gunu-s7.jpg', 'Evde, elinde ışıl ışıl parlayan yaprak']
 ];
 
-/* Line icons for products without artwork yet (adults' collection) */
-const ICONS = {
-  ciftler: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="19" cy="26" r="10"/><circle cx="29" cy="26" r="10"/><path d="M24 8l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="currentColor" stroke="none"/></svg>',
-  buyukler: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="15" cy="27" r="7"/><circle cx="33" cy="27" r="7"/><path d="M22 27q2-3 4 0M8 25l-3-5M40 25l3-5"/></svg>',
-  aile: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M10 42V22a14 14 0 0 1 28 0v20"/><path d="M6 42h36"/><circle cx="20" cy="30" r="2.5"/><circle cx="28" cy="30" r="2.5"/><circle cx="24" cy="36" r="1.8"/></svg>',
-  'dogum-gunu': '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="18" y="20" width="12" height="20" rx="1"/><path d="M24 20v-4"/><path d="M24 8c3 3 3 6 0 8-3-2-3-5 0-8z" fill="currentColor" stroke="none"/><path d="M10 42h28"/></svg>',
-  yapboz: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M10 10h11a4 4 0 1 1 6 0h11v11a4 4 0 1 0 0 6v11H27a4 4 0 1 0-6 0H10V27a4 4 0 1 1 0-6z"/></svg>'
-};
-
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list) */
 const PRODUCTS = [
   { id: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
@@ -158,9 +149,6 @@ const PRODUCTS = [
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
     extra: [['img/dinozorlarin-dogum-gunu-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/dinozorlarin-dogum-gunu-son.jpg', 'Hediye eden kişinin sayfası'], ['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
-  { id: 'kayip-ay-isigi', coverTitle: { box: [.03, .31], sub: 've Kayıp Ay Işığı' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Efe', title: 've Kayıp Ay Işığı', age: '4–9 yaş',
-    img: 'img/kayip-ay-isigi-kapak.jpg', alt: 'Efe ve Kayıp Ay Işığı kapağı: astronot kaskıyla gülümseyen çocuk',
-    desc: 'Bir gece Ay’ın ışığı kaybolur. Kahramanımız kaskını takar, yıldızların arasından geçerek Ay ışığını yeniden yakmaya gider.' },
 
   { id: 'deniz-kizi-kralligi-boyama', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
@@ -174,9 +162,6 @@ const PRODUCTS = [
     img: 'img/dinozorlarin-dogum-gunu-boyama-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: yollar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
     extra: [['img/dinozorlarin-dogum-gunu-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/dinozorlarin-dogum-gunu-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DINO },
-  { id: 'kayip-ay-isigi-boyama', aud: 'erkek', type: 'boyama', status: 'yakinda', title: 'Kayıp Ay Işığı Boyama Kitabı', age: '4–9 yaş',
-    img: 'img/kayip-ay-isigi-boyama.jpg', alt: 'Kayıp Ay Işığı kapağının boyama sayfası hâli', paper: true,
-    desc: 'Yıldızlar, Ay ve astronot kaskı. Kendi uzay yolculuğunu kendi renkleriyle boyar.' },
 
   { id: 'sihirli-kutuphane-yapboz', aud: 'kiz', type: 'yapboz', status: 'hazir', title: 'Sihirli Kütüphane Yapbozu', age: '6+ yaş',
     img: 'img/sihirli-kutuphane-yapboz.jpg', alt: 'Sihirli Kütüphane yapbozu: kütüphanede parlayan kitap tutan kız ve kedi, parça çizgileriyle',
@@ -189,23 +174,7 @@ const PRODUCTS = [
   { id: 'dinozorlarin-dogum-gunu-yapboz', aud: 'erkek', type: 'yapboz', status: 'hazir', title: 'Dinozorların Doğum Günü Yapbozu', age: '4+ yaş',
     img: 'img/dinozorlarin-dogum-gunu-yapboz.jpg', alt: 'Dinozorların Doğum Günü yapbozu: pasta tutan çocuk ve yavru dinozorlar, parça çizgileriyle',
     desc: 'Kitabın kapağındaki sahne yazısız hâliyle yapboz olur: Koca Dede, yavru dinozorlar ve meyveli pasta. Son parça yerine oturduğunda karşısında kendi yüzü vardır.',
-    extra: [['img/dinozorlarin-dogum-gunu-yapboz-resim.jpg', 'Yapbozun resmi, bütün hâliyle']] },
-  { id: 'kayip-ay-isigi-yapboz', aud: 'erkek', type: 'yapboz', status: 'yakinda', title: 'Kayıp Ay Işığı Yapbozu', age: '5+ yaş',
-    img: 'img/kayip-ay-isigi-yapboz.jpg', alt: 'Kayıp Ay Işığı kapağından yapılmış yapboz örneği',
-    desc: 'Astronot kahramanımızın kapağı, birlikte kurulan bir yapboz olur.' },
-
-  { id: 'bizim-masalimiz', aud: 'yetiskin', occ: 'ciftler', type: 'kitap', status: 'yakinda', icon: 'ciftler', title: 'Bizim Masalımız',
-    desc: 'Tanıştığınız günden bugüne, ikinizin hikâyesi resimli bir masal kitabında. Yıl dönümü, sevgililer günü ya da evlilik teklifi için.' },
-  { id: 'cift-yapbozu', aud: 'yetiskin', occ: 'ciftler', type: 'yapboz', status: 'yakinda', icon: 'yapboz', title: 'İkimizin Yapbozu',
-    desc: 'Birlikte resmedildiğiniz masal sahnesi, birlikte kurulacak bir yapboz.' },
-  { id: 'buyukanne', aud: 'yetiskin', occ: 'buyukler', type: 'kitap', status: 'yakinda', icon: 'buyukler', title: 'Anneannem, Babaannem',
-    desc: 'Torunların gözünden büyükannenin masalı. Bayramda, doğum gününde ya da sadece “seni seviyoruz” demek için.' },
-  { id: 'dede', aud: 'yetiskin', occ: 'buyukler', type: 'kitap', status: 'yakinda', icon: 'buyukler', title: 'Dedemin Masalı',
-    desc: 'Dedenin anlattığı hikâyeler, bu kez onun kahraman olduğu bir kitapta.' },
-  { id: 'aile-masali', aud: 'yetiskin', occ: 'aile', type: 'kitap', status: 'yakinda', icon: 'aile', title: 'Bizim Ailemizin Masalı',
-    desc: 'Anne, baba, kardeşler ve evin kedisi: bütün aile aynı masalda.' },
-  { id: 'dogum-gunu', aud: 'yetiskin', occ: 'dogum-gunu', type: 'kitap', status: 'yakinda', icon: 'dogum-gunu', title: 'Doğum Günü Masalı',
-    desc: 'Sevdiğiniz kişinin yaşı kadar mum, hayatı kadar hikâye. Her yaşa uygun bir doğum günü hediyesi.' }
+    extra: [['img/dinozorlarin-dogum-gunu-yapboz-resim.jpg', 'Yapbozun resmi, bütün hâliyle']] }
 ];
 
 const GIFT_SVG = '<svg viewBox="0 0 64 64"><rect x="10" y="26" width="44" height="30" rx="2" fill="#6b1d2a" stroke="#e2b56b" stroke-width="1.2"/><rect x="7" y="19" width="50" height="9" rx="1.5" fill="#7d2534" stroke="#e2b56b" stroke-width="1.2"/><rect x="29" y="19" width="6" height="37" fill="#e2b56b"/><path d="M32 19c-6-9-15-8-13-2 1 3 7 3 13 2zM32 19c6-9 15-8 13-2-1 3-7 3-13 2z" fill="none" stroke="#e2b56b" stroke-width="1.6"/><circle cx="32" cy="40" r="6" fill="#8d2e3d" stroke="#f4dfb3" stroke-width="1"/><path d="M29.6 42.6V39a2.4 2.4 0 0 1 4.8 0v3.6" fill="none" stroke="#f4dfb3" stroke-width=".9"/></svg>';
@@ -313,7 +282,7 @@ function drawHeroCard(h, W = 512, H = 704) {
    <body data-product>. The old urun.html#id addresses still work and forward to the new page. */
 const productId = () => document.body.dataset.product || location.hash.slice(1);
 // addresses used before products were named after their stories
-const OLD_IDS = { dua: 'sihirli-kutuphane', lavin: 'deniz-kizi-kralligi', efe: 'kayip-ay-isigi', 'boyama-lavin': 'deniz-kizi-kralligi-boyama', 'boyama-dua': 'sihirli-kutuphane-boyama', 'boyama-efe': 'kayip-ay-isigi-boyama', 'yapboz-dua': 'sihirli-kutuphane-yapboz', 'yapboz-efe': 'kayip-ay-isigi-yapboz' };
+const OLD_IDS = { dua: 'sihirli-kutuphane', lavin: 'deniz-kizi-kralligi', 'boyama-lavin': 'deniz-kizi-kralligi-boyama', 'boyama-dua': 'sihirli-kutuphane-boyama', 'yapboz-dua': 'sihirli-kutuphane-yapboz' };
 const currentProduct = () => { const id = productId(); return PRODUCTS.find(x => x.id === (OLD_IDS[id] || id)); };
 const productHref = p => `${p.id}.html`;
 
@@ -409,11 +378,10 @@ function renderChrome() {
 
 /* ---------- Product card ---------- */
 function card(p) {
-  const visualClass = p.icon ? 'visual icon' : p.paper ? 'visual paper' : 'visual';
-  const visual = p.icon ? ICONS[p.icon] : `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
+  const visual = `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
-  return `<a class="card${p.type === 'kitap' && !p.icon ? ' book' : ''}" href="${productHref(p)}">
-    <div class="${visualClass}">${p.status === 'yakinda' ? '<span class="badge">Yakında</span>' : ''}${visual}</div>
+  return `<a class="card${p.type === 'kitap' ? ' book' : ''}" href="${productHref(p)}">
+    <div class="visual">${p.status === 'yakinda' ? '<span class="badge">Yakında</span>' : ''}${visual}</div>
     <div class="meta"><span>${kind}</span>${p.age ? `<span>${p.age}</span>` : ''}</div>
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.desc)}</p>
@@ -533,9 +501,7 @@ function renderProduct() {
     crumbs.innerHTML = `<a href="${a.page}">${a.name}</a> · ${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].name}`;
 
     const shots = p.img ? [[p.img, p.alt], ...(p.extra || [])] : [];
-    const gallery = p.icon
-      ? `<div class="gallery"><div class="main" style="display:grid;place-items:center;background:radial-gradient(80% 60% at 50% 35%, rgba(141,46,61,.75), #24090f 75%);border-radius:200px 200px 8px 8px"><span style="width:34%;color:var(--gold)">${ICONS[p.icon]}</span></div></div>`
-      : `<div class="gallery"><div class="main${p.type === 'yapboz' ? ' puzzle' : ''}"${p.paper ? ' style="background:#f6f1e6"' : ''}><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
+    const gallery = `<div class="gallery"><div class="main${p.type === 'yapboz' ? ' puzzle' : ''}"><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
          ${shots.length > 1 ? `<div class="thumbs">${shots.map((s, i) => `<button type="button" data-shot="${i}" aria-current="${i === 0}" aria-label="${esc(s[1])}"><img src="${thumb(s[0])}" alt=""></button>`).join('')}</div>` : ''}</div>`;
 
     const pr = PRICES[p.type] || {};
