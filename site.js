@@ -196,7 +196,7 @@ const PRODUCTS = [
 ];
 
 const GIFT_SVG = '<svg viewBox="0 0 64 64"><rect x="10" y="26" width="44" height="30" rx="2" fill="#6b1d2a" stroke="#e2b56b" stroke-width="1.2"/><rect x="7" y="19" width="50" height="9" rx="1.5" fill="#7d2534" stroke="#e2b56b" stroke-width="1.2"/><rect x="29" y="19" width="6" height="37" fill="#e2b56b"/><path d="M32 19c-6-9-15-8-13-2 1 3 7 3 13 2zM32 19c6-9 15-8 13-2-1 3-7 3-13 2z" fill="none" stroke="#e2b56b" stroke-width="1.6"/><circle cx="32" cy="40" r="6" fill="#8d2e3d" stroke="#f4dfb3" stroke-width="1"/><path d="M29.6 42.6V39a2.4 2.4 0 0 1 4.8 0v3.6" fill="none" stroke="#f4dfb3" stroke-width=".9"/></svg>';
-const ARCH_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 58 V28 a14 14 0 0 1 28 0 V58" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M32 26 l1.3 5.2 5.2 1.3 -5.2 1.3 -1.3 5.2 -1.3 -5.2 -5.2 -1.3 5.2 -1.3z" fill="currentColor"/><path d="M12 58 H52" stroke="currentColor" stroke-width="2.2"/></svg>';
+const ARCH_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46 V28 a12 12 0 0 1 24 0 V46" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M32 25.5 l1.17 3.33 3.33 1.17 -3.33 1.17 -1.17 3.33 -1.17 -3.33 -3.33 -1.17 3.33 -1.17z" fill="currentColor"/><path d="M8 50 q12 -5 24 2 q12 -7 24 -2 M8 50 v6 q12 -5 24 2 q12 -7 24 -2 v-6 M32 52 v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>';
 
 const NAV = [
   ['urunler.html', 'Ürünlerimiz'],
