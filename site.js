@@ -23,7 +23,7 @@ const OCCASIONS = {
 
 /* Prices in TL. null = not announced yet. */
 const PRICES = {
-  kitap:  { hard: 2500, soft: 1500, digital: null },
+  kitap:  { hard: 2900, soft: 1500, digital: null },
   boyama: { print: 600, digital: null }
 };
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
