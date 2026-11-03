@@ -211,6 +211,8 @@ const WA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 function waLink(text) { return WHATSAPP ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text || 'Merhaba Masaliya, bilgi almak istiyorum.')}` : '#whatsapp'; }
 
 const thumb = src => src.replace('img/', 'img/t/');
+// phones get the medium copy of a page (img/m/); zooming in always shows the full size
+const pageSrc = src => matchMedia('(max-width: 760px)').matches ? src.replace('img/', 'img/m/') : src;
 const fmt = n => n.toLocaleString('tr-TR') + ' TL';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const cap = s => s ? s.split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ') : s;
@@ -568,7 +570,7 @@ function renderProduct() {
           <span class="gift-price">${GIFT_BOX_PRICE ? '+ ' + fmt(GIFT_BOX_PRICE) : 'Fiyat yakında'}</span>
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
-        <div class="total"><span>Toplam</span><strong id="total"></strong></div>
+        <div class="total"><span>Toplam <small>kargo ücretsiz</small></span><strong id="total"></strong></div>
         <span class="step">4 · İletişim</span>
         <div class="contact">
           <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
@@ -597,13 +599,15 @@ function renderProduct() {
 
     const inner = p.spreads || p.pages;
     // what is in it, and when it arrives if ordered today
-    const content = p.spreads ? `${p.spreads.length} çift sayfa masal${(p.extra || []).some(([src]) => src.includes('-ithaf')) ? ', ithaf ve hediye sayfası' : ''}`
+    const dedication = (p.extra || []).some(([src]) => src.includes('-ithaf'));
+    const content = p.spreads ? `${p.spreads.length} çift sayfa masal${dedication ? ', ithaf ve hediye sayfası' : ''} · ${p.spreads.length * 2 + (dedication ? 2 : 0)} iç sayfa ve kapak`
       : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : '';
     const specs = orderable ? `<dl class="specs">
         <div><dt>Boyut</dt><dd>A4 · 21 × 29,7 cm</dd></div>
         ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
+        ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>sert kapak: 2 mm mukavva, sıvama cilt</dd></div>' : ''}
         <div><dt>Önizleme</dt><dd>bugün sipariş verirseniz en geç ${trDate(inDays(3))}</dd></div>
-        <div><dt>Teslim</dt><dd>dijital onayınızla hemen, basılı onaydan sonra en geç 7 günde kargoda</dd></div>
+        <div><dt>Teslim</dt><dd>dijital onayınızla hemen, basılı onaydan sonra en geç 7 günde kargoda · kargo ücretsiz</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
       <div class="p-gallery">${gallery}</div>
@@ -625,7 +629,7 @@ function renderProduct() {
         ${buy}
         <div class="assure"><ul>
           <li>En geç 3 gün içinde bütün sayfaları size gönderir, onayınızı bekleriz.</li>
-          <li>Dijital sürüm onayınızın hemen ardından gönderilir; basılı ürün en geç bir hafta içinde kargoda.</li>
+          <li>Dijital sürüm onayınızın hemen ardından gönderilir; basılı ürün en geç bir hafta içinde ücretsiz kargoyla yola çıkar.</li>
           <li>Fotoğraflar yalnızca bu ürün için kullanılır, teslimden sonra silinir.</li>
           ${p.type === 'kitap' ? '<li>Sesli masal: kitaptaki QR kodu okutun, masalı anlatıcımızın sesinden dinleyin.</li>' : ''}
           <li><a href="gizlilik.html">Gizlilik sözümüzü okuyun</a></li>
@@ -750,13 +754,13 @@ function setupViewer(spreads) {
   function go(i) {
     cur = (i + spreads.length) % spreads.length;
     img.style.opacity = 0;
-    setTimeout(() => { img.src = spreads[cur][0]; img.alt = spreads[cur][1]; img.style.opacity = 1; }, 220);
+    setTimeout(() => { img.src = pageSrc(spreads[cur][0]); img.alt = spreads[cur][1]; img.style.opacity = 1; }, 220);
     counter.textContent = `${cur + 1} / ${spreads.length}`;
     strip.querySelectorAll('button').forEach((b, k) => b.setAttribute('aria-current', String(k === cur)));
     const active = strip.children[cur];
     if (active) strip.scrollTo({ left: active.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
   }
-  img.src = spreads[0][0]; img.alt = spreads[0][1]; counter.textContent = `1 / ${spreads.length}`;
+  img.src = pageSrc(spreads[0][0]); img.alt = spreads[0][1]; counter.textContent = `1 / ${spreads.length}`;
   strip.querySelectorAll('button').forEach((b, k) => { b.setAttribute('aria-current', String(k === 0)); b.onclick = () => go(k); });
   document.getElementById('prev').onclick = () => go(cur - 1);
   document.getElementById('next').onclick = () => go(cur + 1);
