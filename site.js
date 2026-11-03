@@ -24,7 +24,7 @@ const OCCASIONS = {
 /* Prices in TL. null = not announced yet. */
 const PRICES = {
   kitap:  { hard: 2900, soft: 1500, digital: null },
-  boyama: { print: 600, digital: null }
+  boyama: { print: 1000, digital: null }
 };
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
@@ -557,7 +557,7 @@ function renderProduct() {
             const parts = st.items.map(([t, f]) => (PRICES[t] || {})[f]);
             const ready = parts.every(Boolean);
             return `<label class="set-opt${ready ? '' : ' off'}"><input type="radio" name="set" value="${st.id}" data-discount="${st.discount}" data-extra="${ready ? parts.reduce((a, b) => a + b, 0) : ''}"${st.id === wantSet ? ' checked' : ''}${ready ? '' : ' disabled'}>
-              <b>${st.name}</b>${st.note ? `<small>${st.note}${coloring && st.items.length ? ` · <a href="${productHref(coloring)}">sayfalarına bakın</a>` : ''}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
+              <b>${st.name}</b>${st.note ? `<small>${st.note}${coloring && st.items.length ? ` · <a href="${productHref(coloring)}">sayfalarına bakın</a>` : ''}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ready && st.items.length ? `+ ${fmt(parts.reduce((a, b) => a + b, 0))}` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
           }).join('')}
         </div>
         <label class="pdf-opt${PDF_ADDON_PRICE ? '' : ' off'}" for="pdf-addon" id="pdf-wrap"><input type="checkbox" id="pdf-addon"${PDF_ADDON_PRICE ? '' : ' disabled'}><span><b>+ Dijital kopya (PDF)</b><small>Basılı kitabın yanında tablet ve telefon için</small></span><em>${PDF_ADDON_PRICE ? '+ ' + fmt(PDF_ADDON_PRICE) : 'Fiyat yakında'}</em></label>` : ''}
