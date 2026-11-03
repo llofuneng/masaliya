@@ -23,7 +23,7 @@ const OCCASIONS = {
 
 /* Prices in TL. null = not announced yet. */
 const PRICES = {
-  kitap:  { hard: 2900, soft: 1500, digital: null },
+  kitap:  { hard: 2900, soft: 1700, digital: 900 },
   boyama: { print: 1000, digital: null }
 };
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
@@ -560,7 +560,7 @@ function renderProduct() {
               <b>${st.name}</b>${st.note ? `<small>${st.note}${coloring && st.items.length ? ` · <a href="${productHref(coloring)}">sayfalarına bakın</a>` : ''}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ready && st.items.length ? `+ ${fmt(parts.reduce((a, b) => a + b, 0))}` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
           }).join('')}
         </div>
-        <label class="pdf-opt${PDF_ADDON_PRICE ? '' : ' off'}" for="pdf-addon" id="pdf-wrap"><input type="checkbox" id="pdf-addon"${PDF_ADDON_PRICE ? '' : ' disabled'}><span><b>+ Dijital kopya (PDF)</b><small>Basılı kitabın yanında tablet ve telefon için</small></span><em>${PDF_ADDON_PRICE ? '+ ' + fmt(PDF_ADDON_PRICE) : 'Fiyat yakında'}</em></label>` : ''}
+        ${PDF_ADDON_PRICE ? `<label class="pdf-opt${PDF_ADDON_PRICE ? '' : ' off'}" for="pdf-addon" id="pdf-wrap"><input type="checkbox" id="pdf-addon"${PDF_ADDON_PRICE ? '' : ' disabled'}><span><b>+ Dijital kopya (PDF)</b><small>Basılı kitabın yanında tablet ve telefon için</small></span><em>${PDF_ADDON_PRICE ? '+ ' + fmt(PDF_ADDON_PRICE) : 'Fiyat yakında'}</em></label>` : ''}` : ''}
         <label class="gift-opt" for="gift-box" id="gift-wrap">
           <input type="checkbox" id="gift-box">
           <span class="gift-art" aria-hidden="true">${GIFT_SVG}</span>
