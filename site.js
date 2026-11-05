@@ -42,7 +42,7 @@ const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
   kitap: [
-    ['hard', 'Sert Kapak', 'A4 · hediye için önerilir'],
+    ['hard', 'Sert Kapak', '21 × 28 cm · sayfalar düz açılır'],
     ['digital', 'Dijital Kitap', 'PDF · e-postanıza gelir']
   ],
   boyama: [
@@ -608,9 +608,9 @@ function renderProduct() {
     const content = p.spreads ? `${p.spreads.length} çift sayfa masal · ${p.spreads.length * 2} iç sayfa ve kapak`
       : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : '';
     const specs = orderable ? `<dl class="specs">
-        <div><dt>Boyut</dt><dd>A4 · 21 × 29,7 cm</dd></div>
+        <div><dt>Boyut</dt><dd>${p.type === 'kitap' ? '21 × 28 cm' : 'A4 · 21 × 29,7 cm'}</dd></div>
         ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
-        ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>sert kapak: 2 mm mukavva, sıvama cilt</dd></div>' : ''}
+        ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>laminasyonlu sert kapak · lay-flat cilt: sayfalar tamamen düz açılır, çift sayfa resimler ortada kaybolmaz</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm fotoğraf kâğıdı: canlı, solmayan renkler</dd></div>' : ''}
         <div><dt>Tasarım</dt><dd>5 iş günü · bugün sipariş verirseniz en geç ${trDate(inWorkDays(5))} önizlemeniz hazır</dd></div>
         <div><dt>Baskı</dt><dd>onayınızdan sonra 5 iş günü, ardından ücretsiz kargo · dijital kitap onayınızla hemen</dd></div>
       </dl>` : '';
@@ -619,7 +619,7 @@ function renderProduct() {
       <div class="p-head">
         <p class="eyebrow" id="crumbs-inline">${a.name}</p>
         <h1 id="p-title">${fullTitle(p)}</h1>
-        <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span>${p.age ? `<span>${p.age}</span>` : ''}<span>${p.status === 'hazir' ? 'A4' : 'Yakında'}</span></div>
+        <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span>${p.age ? `<span>${p.age}</span>` : ''}<span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
         <p class="desc">${esc(p.desc)}</p>
         ${specs}
       </div>
