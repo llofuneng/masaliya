@@ -48,7 +48,7 @@ for (const p of PRODUCTS) {
 }
 
 // sitemap for search engines
-const pages = ['', 'urunler', 'kizlar', 'erkekler', 'yetiskinler', 'nasil', 'sss', 'gizlilik', 'mesafeli-satis', 'kvkk', ...PRODUCTS.map(p => p.id)];
+const pages = ['', 'urunler', 'kizlar', 'erkekler', ...(AUDIENCES.yetiskin.hidden ? [] : ['yetiskinler']), 'nasil', 'sss', 'gizlilik', 'mesafeli-satis', 'kvkk', ...PRODUCTS.map(p => p.id)];
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(u => `  <url><loc>${SITE}/${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 

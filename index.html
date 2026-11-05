@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611051215">
+<link rel="stylesheet" href="site.css?v=202611051218">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -117,7 +117,7 @@
 .seal svg { width: clamp(90px, 14vw, 150px); height: auto; filter: drop-shadow(0 0 22px rgba(226,181,107,.55)); }
 .seal .word { font: 500 clamp(1.4rem, 1rem + 2vw, 2.4rem)/1 var(--f-display); letter-spacing: .5em; padding-left: .5em; }
 .no3d.opened .seal { transform: translateY(-30vh) scale(.5); opacity: 0; pointer-events: none; }
-.no3d .doors { display: grid; grid-template-columns: repeat(3, minmax(0, 190px)); gap: clamp(12px, 4vw, 56px); justify-content: center; width: 100%; visibility: hidden; }
+.no3d .doors { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 190px); gap: clamp(12px, 4vw, 56px); justify-content: center; width: 100%; visibility: hidden; }
 .no3d.opened .doors { visibility: visible; }
 .door { display: grid; justify-items: center; gap: 12px; text-decoration: none; color: var(--cream); text-align: center; opacity: 0; transform: translateY(60px) scale(.6); transition: opacity 1s ease, transform 1.3s cubic-bezier(.16,.84,.24,1); }
 .no3d.opened .door { opacity: 1; transform: none; }
@@ -183,10 +183,10 @@
 
   <a class="hero-label" href="kizlar.html" data-hero="0" tabindex="-1" aria-hidden="true"><b>Kız Çocukları</b></a>
   <a class="hero-label" href="erkekler.html" data-hero="1" tabindex="-1" aria-hidden="true"><b>Erkek Çocukları</b></a>
-  <a class="hero-label" href="yetiskinler.html" data-hero="2" tabindex="-1" aria-hidden="true"><b>Yetişkinler</b></a>
+  <a class="hero-label" href="yetiskinler.html" data-aud="yetiskin" data-hero="2" tabindex="-1" aria-hidden="true"><b>Yetişkinler</b></a>
   <a class="hero-hit" href="kizlar.html" data-hit="0" tabindex="-1" aria-hidden="true"></a>
   <a class="hero-hit" href="erkekler.html" data-hit="1" tabindex="-1" aria-hidden="true"></a>
-  <a class="hero-hit" href="yetiskinler.html" data-hit="2" tabindex="-1" aria-hidden="true"></a>
+  <a class="hero-hit" href="yetiskinler.html" data-aud="yetiskin" data-hit="2" tabindex="-1" aria-hidden="true"></a>
 
   <div class="frame" aria-hidden="true">
     <i><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 22V1h21"/><path d="M6 14V6h8"/><circle cx="10" cy="10" r="1.6" fill="currentColor"/></svg></i>
@@ -213,7 +213,7 @@
     <nav class="doors" id="doors" aria-label="Koleksiyonlar">
       <a class="door" href="kizlar.html"><img alt="" data-hero-img="0"><b>Kız Çocukları</b></a>
       <a class="door" href="erkekler.html"><img alt="" data-hero-img="1"><b>Erkek Çocukları</b></a>
-      <a class="door" href="yetiskinler.html"><img alt="" data-hero-img="2"><b>Yetişkinler</b></a>
+      <a class="door" href="yetiskinler.html" data-aud="yetiskin"><img alt="" data-hero-img="2"><b>Yetişkinler</b></a>
     </nav>
   </div>
 
@@ -221,7 +221,7 @@
     <button class="btn open-btn" id="open" type="button">Masalı Aç</button>
     <span class="hint" id="hint">ya da kitaba dokunun</span>
     <div class="after">
-      <a class="btn ghost adults" href="yetiskinler.html">Yetişkinler için</a>
+      <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
   </div>
 </section>
@@ -251,7 +251,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611051215" defer></script>
+<script src="site.js?v=202611051218" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -604,7 +604,8 @@ addEventListener('DOMContentLoaded', () => {
     /* --- the three heroes, growing out of the pages --- */
     const HW = 1.25, HH = HW * 704 / 512;
     const heroGlowT = radial([[0, 'rgba(255,225,160,.75)'], [.4, 'rgba(255,200,120,.25)'], [1, 'rgba(255,190,110,0)']]);
-    const heroes = HEROES.map((h, i) => {
+    const shown = shownHeroes(), n = shown.length;
+    const heroes = shown.map((h, i) => {
       const g = new T.Group();
       const card = new T.Mesh(new T.PlaneGeometry(HW, HH), new T.MeshBasicMaterial({ map: tex(drawHeroCard(h), true), transparent: true, alphaTest: .02, side: T.DoubleSide, toneMapped: false }));
       const halo = new T.Sprite(new T.SpriteMaterial({ map: heroGlowT, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: .8 }));
@@ -623,7 +624,7 @@ addEventListener('DOMContentLoaded', () => {
       openTall: { pos: new T.Vector3(0, 6.5, 14.8), look: new T.Vector3(0, 2.6, -.3) }
     };
     // zig-zag "staircase" of heroes for upright phones: [x, y, z, label side]
-    const TALL_SPOTS = [[-.62, 5.05, -.4, 'r'], [.62, 3.6, -.35, 'l'], [-.62, 2.15, -.3, 'r']];
+    const TALL_SPOTS = n === 2 ? [[-.62, 4.5, -.4, 'r'], [.62, 2.9, -.35, 'l']] : [[-.62, 5.05, -.4, 'r'], [.62, 3.6, -.35, 'l'], [-.62, 2.15, -.3, 'r']];
     let aspect = 1;
     const isPhone = () => aspect < .8;
     function shot(s) { const k = aspect < 1.05 && !isPhone() ? Math.min(s === shots.open ? 2.0 : 2.25, 1.22 / aspect) : 1; return { pos: s.pos.clone().multiplyScalar(k), look: s.look.clone() }; }
@@ -701,7 +702,9 @@ addEventListener('DOMContentLoaded', () => {
         const p = clamp((tl - 1.35 - h.i * .22) / 1.5), r = outBack(p);
         h.g.visible = p > 0;
         const spot = phone ? TALL_SPOTS[h.i] : null;
-        const fx = spot ? spot[0] : (h.i - 1) * spread, fy = spot ? spot[1] : (h.i === 1 ? 2.75 : 2.45) * (tall ? 1.05 : 1), fz = spot ? spot[2] : h.i === 1 ? -.55 : -.35;
+        // side by side, centred; with three the middle one stands a little higher and further back
+        const mid = n === 3 && h.i === 1;
+        const fx = spot ? spot[0] : (h.i - (n - 1) / 2) * spread, fy = spot ? spot[1] : (mid ? 2.75 : 2.45) * (tall ? 1.05 : 1), fz = spot ? spot[2] : mid ? -.55 : -.35;
         h.g.position.set(fx * r, -.95 + (fy + .95) * r + (p === 1 ? Math.sin(t * 1.1 + h.i * 1.7) * .05 : 0), -.1 + (fz + .1) * r);
         h.hover += ((hovered === h ? 1 : 0) - h.hover) * Math.min(1, dt * 8);
         h.g.scale.setScalar(sc * (.35 + .65 * r) * (1 + h.hover * .07));

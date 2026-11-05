@@ -7,7 +7,8 @@ const VER = (document.currentScript && new URL(document.currentScript.src).searc
 const AUDIENCES = {
   kiz:      { page: 'kizlar.html',      name: 'Kız Çocukları',   short: 'Kızlar' },
   erkek:    { page: 'erkekler.html',    name: 'Erkek Çocukları', short: 'Erkekler' },
-  yetiskin: { page: 'yetiskinler.html', name: 'Yetişkinler',     short: 'Yetişkinler' }
+  // hidden: kept but not shown anywhere until there are books for adults; set to false to bring it back
+  yetiskin: { page: 'yetiskinler.html', name: 'Yetişkinler',     short: 'Yetişkinler', hidden: true }
 };
 
 /* Product types for the children's collections */
@@ -244,6 +245,8 @@ function priceLine(p) {
 }
 
 /* ---------- Gold paper-cut heroes: girls, boys, adults (home page 3D scene, Ürünlerimiz page) ---------- */
+// the heroes on the home page and on Ürünlerimiz, without hidden collections
+const shownHeroes = () => HEROES.filter(h => !(h.aud && AUDIENCES[h.aud].hidden));
 const HEROES = [
   { href: 'kizlar.html', jewel: ['#7d3442', '#521a26', '#24090f'], parts: [
     ['c', 60, 31, 7.5], ['p', 'M66 27 l-5 -3.5 v7z M66 27 l5 -3.5 v7z'], ['c', 60, 47, 14],
@@ -257,7 +260,7 @@ const HEROES = [
     ['p', 'M47 65 h26 l3 50 h-32z'], ['p', 'M44 112 h32 v5 h-32z'], ['p', 'M48 70 q-8 14 -8 30 l5 0 q1 -14 8 -24z'],
     ['p', 'M72 70 l16 -12 4 4 -15 15z'], ['s', 'M89 59 l14 -30', 3.2], ['p', 'M84 56 l12 6 -1.6 3 -12 -6z'],
     ['r', 50, 117, 7, 25], ['r', 63, 117, 7, 25], ['e', 52, 143, 6.5, 3], ['e', 68, 143, 6.5, 3]] },
-  { href: 'yetiskinler.html', jewel: ['#3a6458', '#1f3f37', '#0a1a17'], parts: [
+  { href: 'yetiskinler.html', aud: 'yetiskin', jewel: ['#3a6458', '#1f3f37', '#0a1a17'], parts: [
     // a family: two grown-ups with a child between them, hand in hand, a star above
     ['p', 'M61 18 l2.4 5.6 6 .6 -4.6 4 1.4 6 -5.2 -3.2 -5.2 3.2 1.4 -6 -4.6 -4 6 -.6z'],
     ['c', 33, 37, 4.5], ['c', 33, 50, 10], ['p', 'M23 48 q-4 14 3 22 q2 -8 3 -14z M43 48 q4 14 -3 22 q-2 -8 -3 -14z'], ['r', 30.5, 59, 5, 6],
@@ -376,7 +379,7 @@ function renderChrome() {
   menu.innerHTML = `<button class="btn ghost close" type="button" data-close-menu>Kapat</button>
     <nav><a href="./"${cur === 'index.html' || cur === '' ? ' aria-current="page"' : ''}>Ana Sayfa</a>
       <a href="urunler.html"${mark('urunler.html')}>Ürünlerimiz</a>
-      <div class="menu-sub">${Object.values(AUDIENCES).map(a => `<a href="${a.page}"${a.page === cur ? ' aria-current="page"' : ''}>${a.name}</a>`).join('')}</div>
+      <div class="menu-sub">${Object.values(AUDIENCES).filter(a => !a.hidden).map(a => `<a href="${a.page}"${a.page === cur ? ' aria-current="page"' : ''}>${a.name}</a>`).join('')}</div>
       ${NAV_ALL.slice(1).map(([h, t]) => `<a href="${h}"${mark(h)}>${t}</a>`).join('')}</nav>`;
   document.body.appendChild(menu);
   let opener = null;
@@ -858,6 +861,7 @@ function setupViewer(spreads) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-aud]').forEach(el => { if (AUDIENCES[el.dataset.aud] && AUDIENCES[el.dataset.aud].hidden) el.remove(); });
   renderChrome();
   const page = document.body.dataset.page;
   if (AUDIENCES[page]) renderCollection(page);
