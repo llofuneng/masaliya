@@ -16,7 +16,7 @@
    The catalogue below is written by tools/build-pages.js from site.js: don't edit it by hand. */
 
 /* CATALOG:START */
-const CATALOG = {"books":{"sihirli-kutuphane":{"title":"ve Sihirli Kütüphane","hero":"Dua"},"deniz-kizi-kralligi":{"title":"ve Deniz Kızı Krallığı","hero":"Lavin"},"buz-satosunun-sirri":{"title":"ve Buz Şatosunun Sırrı","hero":"Erva Ülkü"},"dinozorlarin-dogum-gunu":{"title":"ve Dinozorların Doğum Günü","hero":"Hızır Ali"}},"prices":{"kitap":{"hard":2900,"digital":900},"boyama":{"print":1000,"digital":null},"yapboz":{"std":900}},"sets":[{"id":"tek","name":"Yalnızca kitap","items":[],"discount":0},{"id":"masal-seti","name":"Masal Seti","items":[["boyama","print"]],"discount":0.1},{"id":"yapboz-seti","name":"Yapboz Seti","items":[["yapboz","std"]],"discount":0.1},{"id":"super-set","name":"Süper Set","items":[["boyama","print"],["yapboz","std"]],"discount":0.15}],"giftBox":300,"covers":{"hard":"Sert kapak","digital":"Dijital kitap (PDF)"}};
+const CATALOG = {"books":{"sihirli-kutuphane":{"title":"ve Sihirli Kütüphane","hero":"Dua"},"deniz-kizi-kralligi":{"title":"ve Deniz Kızı Krallığı","hero":"Lavin"},"buz-satosunun-sirri":{"title":"ve Buz Şatosunun Sırrı","hero":"Erva Ülkü"},"dinozorlarin-dogum-gunu":{"title":"ve Dinozorların Doğum Günü","hero":"Hızır Ali"}},"prices":{"kitap":{"hard":2900,"digital":900},"boyama":{"print":590,"digital":null},"yapboz":{"std":640}},"sets":[{"id":"tek","name":"Yalnızca kitap","items":[],"discount":0},{"id":"masal-seti","name":"Masal Seti","items":[["boyama","print"]],"discount":0},{"id":"yapboz-seti","name":"Yapboz Seti","items":[["yapboz","std"]],"discount":0},{"id":"super-set","name":"Süper Set","items":[["boyama","print"],["yapboz","std"]],"discount":0}],"giftBox":300,"covers":{"hard":"Sert kapak","digital":"Dijital kitap (PDF)"}};
 /* CATALOG:END */
 
 const PART_NAMES = { boyama: 'boyama kitabı', yapboz: 'ahşap yapboz' };
@@ -54,6 +54,7 @@ async function createOrder(req, env) {
   const hero = String(o.hero || '').trim().slice(0, 32);
   const phone = String(o.phone || '').trim(), email = String(o.email || '').trim();
   if (!book || !set || !coverPrice) return json({ error: 'Seçtiğiniz kitap ya da seçenek bulunamadı.' }, 400);
+  if (o.cover === 'digital' && set.items.length) return json({ error: 'Dijital kitap setle birlikte sipariş edilemez.' }, 400);
   if (!hero) return json({ error: 'Kahramanın adı eksik.' }, 400);
   if (!/^[\d\s()+-]{10,20}$/.test(phone)) return json({ error: 'Telefon numarası geçersiz.' }, 400);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'E-posta adresi geçersiz.' }, 400);

@@ -27,18 +27,19 @@ const OCCASIONS = {
 /* Prices in TL. null = not announced yet. */
 const PRICES = {
   kitap:  { hard: 2900, digital: 900 },
-  boyama: { print: 1000, digital: null },
-  yapboz: { std: 900 }    // wooden, 35 pieces; only with a book
+  boyama: { print: 590, digital: null },   // only with a book
+  yapboz: { std: 640 }    // wooden, 35 pieces; only with a book
 };
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 /* Sets: the same hero across several products, priced together.
-   The set price is the book plus its parts (coloring book, wooden puzzle) minus the discount. */
+   The set price is the book plus its parts (coloring book, wooden puzzle), minus the discount if any.
+   Sets go with the printed book only. */
 const SETS = [
   { id: 'tek', name: 'Yalnızca kitap', items: [], discount: 0 },
-  { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: .10 },
-  { id: 'yapboz-seti', name: 'Yapboz Seti', note: 'Kitap + ahşap yapboz, 35 parça', items: [['yapboz', 'std']], discount: .10 },
-  { id: 'super-set', name: 'Süper Set', note: 'Kitap + boyama kitabı + ahşap yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: .15 }
+  { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: 0 },
+  { id: 'yapboz-seti', name: 'Yapboz Seti', note: 'Kitap + ahşap yapboz, 35 parça', items: [['yapboz', 'std']], discount: 0 },
+  { id: 'super-set', name: 'Süper Set', note: 'Kitap + boyama kitabı + ahşap yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: 0 }
 ];
 const PHOTO_SLOTS = ['Önden', 'Hafif yandan', 'Gülümserken'];
 const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır.' };
@@ -691,7 +692,14 @@ function renderProduct() {
       if (!t || !giftBox) return;
       // the e-book has nothing to put in a box
       const digital = !!c && c.value === 'digital';
-      // a set adds its parts and takes the discount off the whole; the PDF copy goes with printed books only
+      // the e-book comes alone: sets go with the printed book only
+      const setsBox = root.querySelector('.sets'), addons = root.querySelector('.addons');
+      if (setsBox) {
+        setsBox.hidden = digital; if (addons) addons.hidden = digital;
+        const tek = setsBox.querySelector('input[value="tek"]');
+        if (digital && tek && !tek.checked) tek.checked = true;
+      }
+      // a set adds its parts (and takes off any discount); the PDF copy goes with printed books only
       const set = root.querySelector('input[name="set"]:checked'), pdf = document.getElementById('pdf-addon');
       const nothingToShip = digital && !(set && +set.dataset.extra > 0);
       document.getElementById('gift-wrap').hidden = nothingToShip;
