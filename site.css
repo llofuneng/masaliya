@@ -529,3 +529,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* small note under the order total */
 .total span small { display: block; font-size: .78rem; letter-spacing: .04em; color: var(--muted); }
+
+/* what the sets add: coloring book and wooden puzzle */
+.addons { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.addon-card { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 2px; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; text-decoration: none; }
+.addon-card:hover, .addon-card:focus-visible { border-color: var(--gold); }
+.addon-card img { width: 64px; aspect-ratio: 3 / 4; object-fit: cover; display: block; }
+.addon-card b { display: block; font-weight: 500; color: var(--cream); }
+.addon-card small { display: block; color: var(--muted); font-size: .82rem; line-height: 1.45; }

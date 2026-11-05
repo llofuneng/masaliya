@@ -23,22 +23,26 @@ const OCCASIONS = {
 
 /* Prices in TL. null = not announced yet. */
 const PRICES = {
-  kitap:  { hard: 2900, soft: 1700, digital: 900 },
-  boyama: { print: 1000, digital: null }
+  kitap:  { hard: 2900, digital: 900 },
+  boyama: { print: 1000, digital: null },
+  yapboz: { std: 900 }    // wooden, 35 pieces; only with a book
 };
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
-/* Masal Seti: the same hero across several products, priced together.
-   The set price is the sum of the parts (the printed coloring book) minus the discount. */
+/* Sets: the same hero across several products, priced together.
+   The set price is the book plus its parts (coloring book, wooden puzzle) minus the discount. */
 const SETS = [
   { id: 'tek', name: 'Yalnızca kitap', items: [], discount: 0 },
-  { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: .10 }
+  { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: .10 },
+  { id: 'yapboz-seti', name: 'Yapboz Seti', note: 'Kitap + ahşap yapboz, 35 parça', items: [['yapboz', 'std']], discount: .10 },
+  { id: 'super-set', name: 'Süper Set', note: 'Kitap + boyama kitabı + ahşap yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: .15 }
 ];
+const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır.' };
+const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
   kitap: [
     ['hard', 'Sert Kapak', 'A4 · hediye için önerilir'],
-    ['soft', 'Yumuşak Kapak', 'A4 · 21 × 29,7 cm'],
     ['digital', 'Dijital Kitap', 'PDF · e-postanıza gelir']
   ],
   boyama: [
@@ -163,11 +167,11 @@ const PRODUCTS = [
   { id: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
     img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
-    extra: [['img/sihirli-kutuphane-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/sihirli-kutuphane-son.jpg', 'Hediye eden kişinin sayfası'], ['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
+    extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
   { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
-    extra: [['img/deniz-kizi-kralligi-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/deniz-kizi-kralligi-son.jpg', 'Hediye eden kişinin sayfası'], ['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
+    extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
   { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .24], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Erva Ülkü', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
     img: 'img/buz-satosunun-sirri-kapak.jpg', alt: 'Erva Ülkü ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
     desc: 'Karlı bir akşam, masadaki kar küresi sallanınca kahramanımız kendini kapıları anahtarla açılmayan bir buz şatosunun önünde bulur. Burnunu kaybeden kardan adam Kartopu ve hep aç geyik yavrusu Fındık ile her kapının ardında bir sır bekler. Karşılık beklemeden yapılan küçük iyiliklerin büyük gücünü anlatan sıcacık bir kış masalı.',
@@ -175,7 +179,7 @@ const PRODUCTS = [
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '2–7 yaş',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
-    extra: [['img/dinozorlarin-dogum-gunu-ithaf.jpg', 'Kişisel ithaf sayfası'], ['img/dinozorlarin-dogum-gunu-son.jpg', 'Hediye eden kişinin sayfası'], ['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
+    extra: [['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
 
   { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
@@ -226,7 +230,7 @@ function priceLine(p) {
   if (p.status !== 'hazir') return 'Yakında';
   if (p.book) return 'Yalnızca masal kitabıyla, Masal Seti içinde';
   const pr = PRICES[p.type];
-  if (p.type === 'kitap' && pr && pr.hard) return `Sert kapak ${fmt(pr.hard)}${pr.soft ? ` · yumuşak kapak ${fmt(pr.soft)}` : ''}`;
+  if (p.type === 'kitap' && pr && pr.hard) return `Sert kapak ${fmt(pr.hard)}${pr.digital ? ` · dijital ${fmt(pr.digital)}` : ''}`;
   const known = pr ? Object.values(pr).filter(Boolean) : [];
   return known.length ? fmt(Math.min(...known)) : 'Fiyat yakında';
 }
@@ -542,9 +546,6 @@ function renderProduct() {
     const buy = orderable ? `
       <form id="buy" class="info" style="gap:18px">
         ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
-        ${p.type === 'kitap' ? `
-        <label class="field" for="ithaf">İthaf · isteğe bağlı<textarea id="ithaf" rows="2" maxlength="160" placeholder="Bu kitap, cesur ve iyi kalpli ${p.hero} için yazıldı."></textarea><small class="hint">Kitabın ilk sayfasına yazılır. Boş bırakırsanız bu cümleyi kullanırız.</small></label>
-        <label class="field" for="giver">Hediye eden · isteğe bağlı<input id="giver" type="text" maxlength="60" autocomplete="off" placeholder="Anneannen ve deden"><small class="hint">Kitabın son sayfasındaki hediye sayfasına yazılır.</small></label>` : ''}
         <div class="field"><span class="step">2 · Üç fotoğraf</span>
           <div class="slots">
             ${['Önden', 'Hafif yandan', 'Gülümserken'].map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><b>${i + 1} · ${t}</b></label>`).join('')}
@@ -559,8 +560,12 @@ function renderProduct() {
             const parts = st.items.map(([t, f]) => (PRICES[t] || {})[f]);
             const ready = parts.every(Boolean);
             return `<label class="set-opt${ready ? '' : ' off'}"><input type="radio" name="set" value="${st.id}" data-discount="${st.discount}" data-extra="${ready ? parts.reduce((a, b) => a + b, 0) : ''}"${st.id === wantSet ? ' checked' : ''}${ready ? '' : ' disabled'}>
-              <b>${st.name}</b>${st.note ? `<small>${st.note}${coloring && st.items.length ? ` · <a href="${productHref(coloring)}">sayfalarına bakın</a>` : ''}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ready && st.items.length ? `+ ${fmt(parts.reduce((a, b) => a + b, 0))}` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
+              <b>${st.name}</b>${st.note ? `<small>${st.note}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ready && st.items.length ? `+ ${fmt(parts.reduce((a, b) => a + b, 0))}` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
           }).join('')}
+        </div>
+        <div class="addons">
+          ${coloring ? `<a class="addon-card" href="${productHref(coloring)}"><img src="${thumb(coloring.img)}" alt="" loading="lazy"><span><b>Boyama kitabı</b><small>${coloring.pages.length} sayfa boyama ve etkinlik, aynı kahramanla · sayfalarına bakın</small></span></a>` : ''}
+          <button type="button" class="addon-card" id="puzzle-look"><img src="${thumb(puzzleImg(p))}" alt="" loading="lazy"><span><b>Ahşap yapboz</b><small>${esc(PUZZLE.desc)} · büyüt</small></span></button>
         </div>
         ${PDF_ADDON_PRICE ? `<label class="pdf-opt${PDF_ADDON_PRICE ? '' : ' off'}" for="pdf-addon" id="pdf-wrap"><input type="checkbox" id="pdf-addon"${PDF_ADDON_PRICE ? '' : ' disabled'}><span><b>+ Dijital kopya (PDF)</b><small>Basılı kitabın yanında tablet ve telefon için</small></span><em>${PDF_ADDON_PRICE ? '+ ' + fmt(PDF_ADDON_PRICE) : 'Fiyat yakında'}</em></label>` : ''}` : ''}
         <label class="gift-opt" for="gift-box" id="gift-wrap">
@@ -580,13 +585,13 @@ function renderProduct() {
         <p class="form-note" id="buy-note" aria-live="polite"></p>
       </form>`
       : book ? (() => {
-        const set = SETS.find(st => st.id === 'masal-seti');
-        const setPrice = k => fmt(Math.round((PRICES.kitap[k] + PRICES.boyama.print) * (1 - set.discount)));
+        const set = SETS.find(st => st.id === 'masal-seti'), sup = SETS.find(st => st.id === 'super-set');
+        const setPrice = st => fmt(Math.round((PRICES.kitap.hard + st.items.reduce((a, [t, f]) => a + PRICES[t][f], 0)) * (1 - st.discount)));
         return `
       <div class="info addon">
         <p class="eyebrow">${set.name}</p>
         <p class="desc">Bu boyama kitabı tek başına satılmaz. <a href="${productHref(book)}">${fullTitle(book)}</a> kitabıyla birlikte, aynı kahramanla hazırlanır.</p>
-        <p class="set-price">Kitap + boyama kitabı · sert kapak ${setPrice('hard')} · yumuşak kapak ${setPrice('soft')}</p>
+        <p class="set-price">${set.name}: kitap + boyama kitabı · ${setPrice(set)}<br>${sup.name}: kitap + boyama kitabı + ahşap yapboz · ${setPrice(sup)}</p>
         <a class="btn" href="${productHref(book)}?set=${set.id}#buy">${set.name}’ni oluştur</a>
       </div>`; })()
       : `
@@ -599,8 +604,7 @@ function renderProduct() {
 
     const inner = p.spreads || p.pages;
     // what is in it, and when it arrives if ordered today
-    const dedication = (p.extra || []).some(([src]) => src.includes('-ithaf'));
-    const content = p.spreads ? `${p.spreads.length} çift sayfa masal${dedication ? ', ithaf ve hediye sayfası' : ''} · ${p.spreads.length * 2 + (dedication ? 2 : 0)} iç sayfa ve kapak`
+    const content = p.spreads ? `${p.spreads.length} çift sayfa masal · ${p.spreads.length * 2} iç sayfa ve kapak`
       : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : '';
     const specs = orderable ? `<dl class="specs">
         <div><dt>Boyut</dt><dd>A4 · 21 × 29,7 cm</dd></div>
@@ -659,11 +663,9 @@ function renderProduct() {
       Promise.all([img.decode(), document.fonts.load('italic 500 40px "Cormorant Garamond"', n)]).then(() => drawCoverName(coverCanvas, img, p, n)).catch(() => {});
     }
     if (nameIn) {
-      const ithaf = document.getElementById('ithaf');
       const sync = () => {
         const n = cap(nameIn.value.trim());
         document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim());
-        if (ithaf) ithaf.placeholder = `Bu kitap, cesur ve iyi kalpli ${n || p.hero} için yazıldı.`;
         clearTimeout(coverTimer); coverTimer = setTimeout(paintCover, 200);
         try { sessionStorage.setItem('masaliya-hero', n); } catch (e) {}
       };
@@ -678,11 +680,12 @@ function renderProduct() {
       if (!t || !giftBox) return;
       // the e-book has nothing to put in a box
       const digital = !!c && c.value === 'digital';
-      document.getElementById('gift-wrap').hidden = digital;
-      giftBox.checked = !digital && giftWanted;
-      document.getElementById('gift-note-wrap').hidden = !giftBox.checked;
       // a set adds its parts and takes the discount off the whole; the PDF copy goes with printed books only
       const set = root.querySelector('input[name="set"]:checked'), pdf = document.getElementById('pdf-addon');
+      const nothingToShip = digital && !(set && +set.dataset.extra > 0);
+      document.getElementById('gift-wrap').hidden = nothingToShip;
+      giftBox.checked = !nothingToShip && giftWanted;
+      document.getElementById('gift-note-wrap').hidden = !giftBox.checked;
       if (pdf) { document.getElementById('pdf-wrap').hidden = digital; if (digital) pdf.checked = false; }
       const base = c ? +c.dataset.price : singlePrice;
       if (!base) { t.textContent = 'Fiyat yakında'; const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = 'Fiyat yakında'; return; }
@@ -695,6 +698,8 @@ function renderProduct() {
     }
     if (giftBox) giftBox.addEventListener('change', () => { giftWanted = giftBox.checked; total(); });
     root.querySelectorAll('input[name="cover"], input[name="set"], #pdf-addon').forEach(r => r.addEventListener('change', total));
+    const puzzleLook = document.getElementById('puzzle-look');
+    if (puzzleLook) puzzleLook.addEventListener('click', () => openLightbox([[puzzleImg(p), `${p.title.replace(/^ve /, '')} · ahşap yapboz, ${PUZZLE.pieces} parça`]], 0));
     total();
     // three photo slots: preview each chosen photo
     const slots = [...root.querySelectorAll('.slot')];
