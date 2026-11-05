@@ -10,11 +10,11 @@ const ROOT = path.join(__dirname, '..');
 const SITE = 'https://masaliya.com';
 
 // read the catalogue straight from site.js
-const code = fs.readFileSync(path.join(ROOT, 'site.js'), 'utf8') + '\n;this.__cat = { PRODUCTS, AUDIENCES, TYPES, OCCASIONS };';
+const code = fs.readFileSync(path.join(ROOT, 'site.js'), 'utf8') + '\n;this.__cat = { PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, SETS, GIFT_BOX_PRICE, FORMATS };';
 const ctx = { document: { addEventListener() {} }, location: {}, addEventListener() {} };
 vm.createContext(ctx);
 vm.runInContext(code, ctx);
-const { PRODUCTS, AUDIENCES, TYPES, OCCASIONS } = ctx.__cat;
+const { PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, SETS, GIFT_BOX_PRICE, FORMATS } = ctx.__cat;
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const clip = (s, n) => (s.length <= n ? s : s.slice(0, s.lastIndexOf(' ', n - 1)) + '…');
@@ -48,8 +48,22 @@ for (const p of PRODUCTS) {
 }
 
 // sitemap for search engines
-const pages = ['', 'urunler', 'kizlar', 'erkekler', 'yetiskinler', 'nasil', 'sss', 'gizlilik', ...PRODUCTS.map(p => p.id)];
+const pages = ['', 'urunler', 'kizlar', 'erkekler', 'yetiskinler', 'nasil', 'sss', 'gizlilik', 'mesafeli-satis', 'kvkk', ...PRODUCTS.map(p => p.id)];
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(u => `  <url><loc>${SITE}/${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 
-console.log(`wrote ${written.length} product pages and sitemap.xml`);
+// the order server prices orders itself: give it the same catalogue
+const WORKER = path.join(ROOT, 'worker', 'masaliya-siparis.js');
+const catalog = {
+  books: Object.fromEntries(PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir').map(p => [p.id, { title: p.title, hero: p.hero }])),
+  prices: PRICES,
+  sets: SETS.map(({ id, name, items, discount }) => ({ id, name, items, discount })),
+  giftBox: GIFT_BOX_PRICE,
+  covers: Object.fromEntries(FORMATS.kitap.map(([k, name]) => [k, k === 'digital' ? 'Dijital kitap (PDF)' : name.charAt(0) + name.slice(1).toLocaleLowerCase('tr-TR')]))
+};
+const w = fs.readFileSync(WORKER, 'utf8');
+const w2 = w.replace(/\/\* CATALOG:START \*\/[\s\S]*?\/\* CATALOG:END \*\//, `/* CATALOG:START */\nconst CATALOG = ${JSON.stringify(catalog)};\n/* CATALOG:END */`);
+if (w2 === w && !w.includes(JSON.stringify(catalog))) throw new Error('worker catalogue markers not found');
+fs.writeFileSync(WORKER, w2);
+
+console.log(`wrote ${written.length} product pages, sitemap.xml and the order server catalogue`);

@@ -1,6 +1,9 @@
 /* Masaliya shared script: header, footer, menu, product catalogue and page renderers.
    To add a product, add one entry to PRODUCTS below; it appears in its collection and gets its own page. */
 
+// the ?v= stamp this file was loaded with, passed on to the files it loads itself
+const VER = (document.currentScript && new URL(document.currentScript.src).searchParams.get('v')) || '';
+
 const AUDIENCES = {
   kiz:      { page: 'kizlar.html',      name: 'Kız Çocukları',   short: 'Kızlar' },
   erkek:    { page: 'erkekler.html',    name: 'Erkek Çocukları', short: 'Erkekler' },
@@ -37,6 +40,7 @@ const SETS = [
   { id: 'yapboz-seti', name: 'Yapboz Seti', note: 'Kitap + ahşap yapboz, 35 parça', items: [['yapboz', 'std']], discount: .10 },
   { id: 'super-set', name: 'Süper Set', note: 'Kitap + boyama kitabı + ahşap yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: .15 }
 ];
+const PHOTO_SLOTS = ['Önden', 'Hafif yandan', 'Gülümserken'];
 const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır.' };
 const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
@@ -53,6 +57,9 @@ const FORMATS = {
 
 /* WhatsApp concierge: put the number here in international format without "+", e.g. '905321234567'. */
 const WHATSAPP = '';
+
+/* The order server (Cloudflare Worker, see worker/). Empty = orders can't be sent yet. */
+const ORDER_API = '';
 
 const SPREADS_DUA = [
   ['img/sihirli-kutuphane-s1.jpg', 'Dua tozlu Masallar Kitabı’nı buluyor'],
@@ -393,7 +400,7 @@ function renderChrome() {
     foot.className = 'site-foot';
     foot.innerHTML = `<div class="wrap">
       <a class="brand" href="./">${ARCH_SVG}<span>MASALİYA</span></a>
-      <nav aria-label="Alt menü">${NAV_ALL.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav>
+      <nav aria-label="Alt menü">${[...NAV_ALL, ['mesafeli-satis.html', 'Satış Sözleşmesi'], ['kvkk.html', 'KVKK']].map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav>
       <a class="foot-wa" href="${waLink()}"${WHATSAPP ? ' target="_blank" rel="noopener"' : ''}>${WA_SVG} WhatsApp’tan özel danışmanınıza yazın</a>
       <p>Kişiye özel masal kitapları · masaliya.com</p>
       <p>© 2026 Masaliya</p>
@@ -549,9 +556,10 @@ function renderProduct() {
         ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
         <div class="field"><span class="step">2 · Üç fotoğraf</span>
           <div class="slots">
-            ${['Önden', 'Hafif yandan', 'Gülümserken'].map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><b>${i + 1} · ${t}</b></label>`).join('')}
+            ${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}
           </div>
-          <span class="slot-hint">Yüzün net göründüğü 3 fotoğraf seçin. Fotoğraflar yalnızca bu kitap için kullanılır.</span>
+          <ul class="slot-msgs" id="slot-msgs" aria-live="polite"></ul>
+          <span class="slot-hint">Yüzün net göründüğü, yakından çekilmiş 3 fotoğraf seçin: önden, biraz yandan ve gülümserken. Fotoğrafları seçtiğiniz anda cihazınızda kontrol ediyoruz; uygun olmayanları size söyleriz. Fotoğraflar yalnızca bu kitap için kullanılır.</span>
         </div>
         <span class="step">3 · Seçenekler</span>
         ${options}
@@ -582,7 +590,9 @@ function renderProduct() {
           <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
           <label class="field" for="c-email">E-posta<input id="c-email" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
         </div>
-        <button class="btn" type="submit">Siparişi gönder</button>
+        <label class="consent" for="ok-terms"><input type="checkbox" id="ok-terms"><span><a href="mesafeli-satis.html" target="_blank">Ön Bilgilendirme Formu</a>’nu ve <a href="mesafeli-satis.html#sozlesme" target="_blank">Mesafeli Satış Sözleşmesi</a>’ni okudum, onaylıyorum.</span></label>
+        <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için işlenmesine ve hizmet sağlayıcılar aracılığıyla yurt dışına aktarılmasına <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a> kapsamında açık rıza veriyorum.</span></label>
+        <button class="btn" type="submit" id="pay-btn">Ödemeye geç</button>
         <p class="form-note" id="buy-note" aria-live="polite"></p>
       </form>`
       : book ? (() => {
@@ -702,33 +712,92 @@ function renderProduct() {
     const puzzleLook = document.getElementById('puzzle-look');
     if (puzzleLook) puzzleLook.addEventListener('click', () => openLightbox([[puzzleImg(p), `${p.title.replace(/^ve /, '')} · ahşap yapboz, ${PUZZLE.pieces} parça`]], 0));
     total();
-    // three photo slots: preview each chosen photo
+    // three photo slots: each photo is checked on the visitor's device as soon as it is chosen
     const slots = [...root.querySelectorAll('.slot')];
-    slots.forEach(slot => {
+    const checked = [];   // per slot: { level, messages, blob, accepted }
+    const msgs = document.getElementById('slot-msgs');
+    let checker = null;
+    const loadChecker = () => (checker = checker || import(`./photo-check.js?v=${VER}`));
+    function showMessages() {
+      if (!msgs) return;
+      msgs.innerHTML = slots.map((sl, i) => {
+        const r = checked[i];
+        if (!r || !r.messages.length) return '';
+        const buttons = r.level === 'warn' && !r.accepted ? `<span class="msg-actions"><button type="button" data-use="${i}">Yine de bu fotoğrafı kullan</button><button type="button" data-pick="${i}">Başka fotoğraf seç</button></span>`
+          : r.level === 'bad' ? `<span class="msg-actions"><button type="button" data-pick="${i}">Başka fotoğraf seç</button></span>` : '';
+        return `<li class="${r.level}${r.accepted ? ' accepted' : ''}"><b>${i + 1} · ${PHOTO_SLOTS[i]}</b> ${r.messages.map(esc).join(' ')}${r.accepted ? ' <em>Bu fotoğraf kullanılacak.</em>' : ''}${buttons}</li>`;
+      }).join('');
+    }
+    if (msgs) msgs.addEventListener('click', e => {
+      const use = e.target.closest('[data-use]'), pick = e.target.closest('[data-pick]');
+      if (use) { const i = +use.dataset.use; checked[i].accepted = true; slots[i].dataset.state = 'ok'; showMessages(); }
+      if (pick) slots[+pick.dataset.pick].querySelector('input').click();
+    });
+    slots.forEach((slot, i) => {
       const input = slot.querySelector('input'), img = slot.querySelector('.slot-img');
-      input.addEventListener('change', () => {
+      // start loading the face checker as soon as someone reaches for a photo
+      ['pointerdown', 'focus'].forEach(ev => input.addEventListener(ev, () => loadChecker().then(m => m.warmUp()).catch(() => {}), { once: true }));
+      input.addEventListener('change', async () => {
         const f = input.files[0];
-        const ok = !!f && f.type.startsWith('image/');
-        slot.classList.toggle('filled', ok);
-        img.style.backgroundImage = ok ? `url("${URL.createObjectURL(f)}")` : '';
+        if (!f) return;
+        slot.classList.add('filled');
+        img.style.backgroundImage = `url("${URL.createObjectURL(f)}")`;
+        slot.dataset.state = 'checking';
+        checked[i] = { level: 'checking', messages: ['Fotoğraf kontrol ediliyor…'] };
+        showMessages();
+        let r;
+        try { r = await (await loadChecker()).checkPhoto(f, i); }
+        catch (err) { r = { level: 'ok', messages: ['Otomatik kontrol yapılamadı; fotoğrafı biz kontrol edeceğiz.'], blob: f }; }
+        if (input.files[0] !== f) return;   // another photo was chosen meanwhile
+        checked[i] = r;
+        slot.dataset.state = r.level;
+        if (r.level === 'bad') input.value = '';
+        showMessages();
       });
     });
     const buyF = document.getElementById('buy');
-    if (buyF) buyF.addEventListener('submit', e => {
+    if (buyF) buyF.addEventListener('submit', async e => {
       e.preventDefault();
-      const note = document.getElementById('buy-note');
-      const c = root.querySelector('input[name="cover"]:checked');
-      const name = nameIn ? nameIn.value.trim() : 'x';
+      const note = document.getElementById('buy-note'), payBtn = document.getElementById('pay-btn');
+      const c = root.querySelector('input[name="cover"]:checked'), set = root.querySelector('input[name="set"]:checked');
+      const name = nameIn ? nameIn.value.trim() : '';
       const rawPhone = document.getElementById('c-phone').value.trim(), phone = rawPhone.replace(/\D/g, '');
       const mail = document.getElementById('c-email').value.trim();
-      if (!(c ? c.dataset.price : singlePrice)) { note.textContent = 'Bu ürünün fiyatı yakında açıklanacak; şimdilik sipariş alamıyoruz.'; return; }
-      if (!name) { note.textContent = 'Lütfen kahramanın adını yazın.'; nameIn.focus(); return; }
-      const photos = slots.filter(sl => sl.classList.contains('filled')).length;
-      if (photos < 3) { note.textContent = `Lütfen 3 fotoğrafın hepsini ekleyin (${photos}/3).`; return; }
-      if (!/^[\d\s()+-]+$/.test(rawPhone) || phone.length < 10 || phone.length > 13) { note.textContent = 'Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.'; document.getElementById('c-phone').focus(); return; }
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { note.textContent = 'Lütfen geçerli bir e-posta adresi yazın.'; document.getElementById('c-email').focus(); return; }
-      note.textContent = 'Önizleme sürümü: telefon doğrulama, fotoğraf yükleme ve ödeme adımı site yayına alınırken bağlanacak.';
+      const say = (text, focus) => { note.textContent = text; if (focus) focus.focus(); };
+      if (!(c ? c.dataset.price : singlePrice)) return say('Bu ürünün fiyatı yakında açıklanacak; şimdilik sipariş alamıyoruz.');
+      if (nameIn && !name) return say('Lütfen kahramanın adını yazın.', nameIn);
+      if (checked.some(r => r && r.level === 'checking')) return say('Fotoğraflar kontrol ediliyor, birkaç saniye bekleyin.');
+      const missing = slots.map((sl, k) => k).filter(k => !checked[k] || !(checked[k].level === 'ok' || checked[k].accepted));
+      if (missing.length) return say(`Lütfen 3 fotoğrafın hepsini uygun fotoğraflarla tamamlayın: ${missing.map(k => `${k + 1} · ${PHOTO_SLOTS[k]}`).join(', ')}.`, slots[missing[0]].querySelector('input'));
+      if (!/^[\d\s()+-]+$/.test(rawPhone) || phone.length < 10 || phone.length > 13) return say('Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.', document.getElementById('c-phone'));
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return say('Lütfen geçerli bir e-posta adresi yazın.', document.getElementById('c-email'));
+      if (!document.getElementById('ok-terms').checked) return say('Devam etmek için Ön Bilgilendirme Formu’nu ve Mesafeli Satış Sözleşmesi’ni onaylayın.', document.getElementById('ok-terms'));
+      if (!document.getElementById('ok-kvkk').checked) return say('Fotoğrafları kitabınız için kullanabilmemiz için açık rızanız gerekiyor.', document.getElementById('ok-kvkk'));
+      if (!ORDER_API) return say('Ödeme sistemi birkaç gün içinde açılıyor. Şimdilik sipariş alamıyoruz.');
+
+      const gift = document.getElementById('gift-box');
+      const order = {
+        product: p.id, hero: cap(name), cover: c ? c.value : '', set: set ? set.value : 'tek',
+        giftBox: !!(gift && gift.checked && !document.getElementById('gift-wrap').hidden),
+        giftNote: (document.getElementById('gift-note') || {}).value || '',
+        phone: rawPhone, email: mail, consentTerms: true, consentKvkk: true
+      };
+      const data = new FormData();
+      data.append('order', JSON.stringify(order));
+      checked.forEach((r, k) => data.append(`photo${k + 1}`, r.blob, `foto-${k + 1}.jpg`));
+      payBtn.disabled = true; say('Fotoğraflarınız yükleniyor, ardından ödeme sayfasına geçeceksiniz…');
+      try {
+        const res = await fetch(ORDER_API + '/api/order', { method: 'POST', body: data });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out.url) throw new Error(out.error || 'Sipariş oluşturulamadı.');
+        location.href = out.url;
+      } catch (err) {
+        payBtn.disabled = false;
+        say(`${err.message} Lütfen tekrar deneyin; sorun sürerse bize yazın.`);
+      }
     });
+    if (buyF && new URLSearchParams(location.search).get('odeme') === 'iptal')
+      document.getElementById('buy-note').textContent = 'Ödeme tamamlanmadı. Siparişinizi tamamlamak için fotoğrafları yeniden seçip tekrar deneyin.';
     const intF = document.getElementById('interest');
     if (intF) intF.addEventListener('submit', e => { e.preventDefault(); document.getElementById('int-note').textContent = 'Önizleme sürümü: haber listesi site yayına alınırken bağlanacak.'; });
 

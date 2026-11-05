@@ -17,8 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
 <link rel="icon" href="img/favicon.png">
-<link rel="stylesheet" href="site.css?v=202611051107">
-<script src="site.js?v=202611051107" defer></script>
+<link rel="stylesheet" href="site.css?v=202611051205">
+<script src="site.js?v=202611051205" defer></script>
 </head>
 <body data-page="siparis">
 <header id="site-head"></header>
@@ -31,7 +31,7 @@
 <section class="sec"><div class="wrap track">
   <div style="display:grid; gap:24px">
     <form class="panel" id="track">
-      <label class="field" for="o-no">Sipariş numarası<input id="o-no" type="text" required placeholder="MSL-2026-0142" autocomplete="off"></label>
+      <label class="field" for="o-no">Sipariş numarası<input id="o-no" type="text" required placeholder="MSL-7K3F9Q" autocomplete="off"></label>
       <label class="field" for="o-contact">E-posta veya telefon<input id="o-contact" type="text" required autocomplete="email" placeholder="ornek@mail.com ya da 05xx xxx xx xx"></label>
       <button class="btn" type="submit">Siparişimi Göster</button>
       <p class="form-note" id="o-note" aria-live="polite"></p>
@@ -39,7 +39,7 @@
     <div class="panel summary">
       <span class="example-tag">Örnek sipariş</span>
       <dl>
-        <dt>Sipariş</dt><dd>MSL-2026-0142</dd>
+        <dt>Sipariş</dt><dd>MSL-7K3F9Q</dd>
         <dt>Masal</dt><dd>Elif ve Deniz Kızı Krallığı</dd>
         <dt>Kapak</dt><dd>Sert kapak · 21 × 28 cm</dd>
         <dt>Ekler</dt><dd>Hediye kutusu, not kartı</dd>
@@ -67,7 +67,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const v = document.getElementById('o-contact').value.trim(), note = document.getElementById('o-note');
     const ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.replace(/\D/g, '').length >= 10;
     if (!ok) { note.textContent = 'Lütfen siparişte kullandığınız e-posta adresini ya da telefon numarasını yazın.'; return; }
-    note.textContent = 'Önizleme sürümü: sipariş sistemi site yayına alınırken bağlanacak. Yandaki adımlar örnektir.';
+    const no = document.getElementById('o-no').value.trim().toUpperCase();
+    if (!ORDER_API) { note.textContent = 'Sipariş sistemi birkaç gün içinde açılıyor. Yandaki adımlar örnektir.'; return; }
+    note.textContent = 'Sipariş aranıyor…';
+    fetch(`${ORDER_API}/api/status?siparis=${encodeURIComponent(no)}&iletisim=${encodeURIComponent(v)}`)
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) { note.textContent = d.error || 'Bu bilgilerle bir sipariş bulunamadı.'; return; }
+        const state = d.status === 'odendi' ? 'Ödemeniz alındı, masalınız atölyede hazırlanıyor. Önizleme hazır olduğunda size yazacağız.' : 'Bu siparişin ödemesi tamamlanmamış.';
+        note.textContent = `${d.id} · ${d.title} (${d.contents}). ${state}`;
+      })
+      .catch(() => { note.textContent = 'Şu anda sipariş bilgisine ulaşılamıyor, lütfen biraz sonra tekrar deneyin.'; });
   });
   document.querySelector('a[href="#onizleme"]').addEventListener('click', e => { e.preventDefault(); document.getElementById('o-note').textContent = 'Önizleme sürümü: gerçek siparişte burada kitabınızın bütün sayfaları açılacak.'; });
 });

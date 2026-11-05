@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teşekkürler · Masaliya</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Siparişiniz alındı.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
+<link rel="icon" href="img/favicon.png">
+<link rel="stylesheet" href="site.css?v=202611051205">
+<script src="site.js?v=202611051205" defer></script>
+</head>
+<body data-page="tesekkurler">
+<header id="site-head"></header>
+<main>
+<section class="page-head"><div class="wrap">
+  <p class="eyebrow">Teşekkürler</p>
+  <h1>Masalınız atölyeye ulaştı</h1>
+  <p class="lede" id="ty-no">Siparişiniz alındı.</p>
+</div></section>
+<section class="sec"><div class="wrap" style="max-width: 760px">
+  <ol class="timeline">
+    <li class="done"><span class="dot">✓</span><div><b>Ödemeniz alındı</b><small>Ödeme makbuzu e-posta adresinize gönderildi.</small></div></li>
+    <li class="done"><span class="dot">✓</span><div><b>Fotoğraflarınız güvende</b><small>Yalnızca bu kitap için kullanılır, teslimden sonra silinir.</small></div></li>
+    <li class="now"><span class="dot">✦</span><div><b>Tasarım · 5 iş günü</b><small>Bütün sayfaların önizlemesini size gönderiyoruz. Değiştirmek istediğiniz bir şey olursa birlikte düzeltiyoruz.</small></div></li>
+    <li><span class="dot"></span><div><b>Baskı · 5 iş günü</b><small>Onayınızdan sonra basılır, ücretsiz kargoyla yola çıkar. Dijital kitap onayınızla hemen e-postanıza gelir.</small></div></li>
+  </ol>
+  <p style="margin-top:28px"><a class="btn ghost" href="siparis.html">Sipariş takibi</a></p>
+</div></section>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const no = (new URLSearchParams(location.search).get('siparis') || '').toUpperCase();
+  if (/^MSL-[A-Z0-9]{6}$/.test(no)) document.getElementById('ty-no').textContent = `Sipariş numaranız ${no}. Bu numarayla siparişinizi takip edebilirsiniz.`;
+});
+</script>
+</main>
+<footer id="site-foot"></footer>
+</body>
+</html>

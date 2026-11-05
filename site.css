@@ -537,3 +537,48 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .addon-card img { width: 64px; aspect-ratio: 3 / 4; object-fit: cover; display: block; }
 .addon-card b { display: block; font-weight: 500; color: var(--cream); }
 .addon-card small { display: block; color: var(--muted); font-size: .82rem; line-height: 1.45; }
+
+/* photo checks: each slot shows whether its photo can be used */
+.slot-state { position: absolute; top: 8px; right: 8px; z-index: 1; width: 26px; height: 26px; border-radius: 50%; display: none; place-items: center; font: 600 .9rem var(--f-body); }
+.slot[data-state] .slot-state { display: grid; }
+.slot[data-state="checking"] .slot-state { border: 2px solid rgba(255,255,255,.35); border-top-color: var(--gold-pale); animation: spin .9s linear infinite; }
+.slot[data-state="ok"] { border-color: #5fa37a; border-style: solid; }
+.slot[data-state="ok"] .slot-state { background: #3f8a5e; color: #fff; }
+.slot[data-state="ok"] .slot-state::after { content: "✓"; }
+.slot[data-state="warn"] { border-color: #d9a441; border-style: solid; }
+.slot[data-state="warn"] .slot-state { background: #c98f24; color: #1a0f08; }
+.slot[data-state="warn"] .slot-state::after { content: "!"; }
+.slot[data-state="bad"] { border-color: #d0574d; border-style: solid; }
+.slot[data-state="bad"] .slot-state { background: #b8443a; color: #fff; }
+.slot[data-state="bad"] .slot-state::after { content: "✕"; }
+.slot[data-state="bad"] .slot-img { filter: grayscale(.7) brightness(.55); }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .slot[data-state="checking"] .slot-state { animation: none; } }
+.slot-msgs { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; text-transform: none; letter-spacing: normal; }
+.slot-msgs:empty { display: none; }
+.slot-msgs li { padding: 10px 12px; border-left: 3px solid var(--line-strong); background: rgba(255,255,255,.03); font-size: .88rem; line-height: 1.5; color: var(--cream); }
+.slot-msgs li b { display: block; font-weight: 500; letter-spacing: .04em; color: var(--gold-pale); margin-bottom: 2px; }
+.slot-msgs li.bad { border-left-color: #d0574d; }
+.slot-msgs li.warn { border-left-color: #d9a441; }
+.slot-msgs li.accepted, .slot-msgs li.ok { border-left-color: #5fa37a; }
+.slot-msgs li em { color: #8fc4a6; font-style: normal; }
+.msg-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.msg-actions button { font: 500 .78rem var(--f-body); letter-spacing: .06em; padding: 8px 12px; min-height: 36px; border-radius: 2px; cursor: pointer; background: transparent; color: var(--gold-pale); border: 1px solid var(--line-strong); }
+.msg-actions button:hover, .msg-actions button:focus-visible { border-color: var(--gold); }
+
+/* consent boxes before payment */
+.consent { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; font-size: .86rem; line-height: 1.5; color: var(--muted); cursor: pointer; }
+.consent input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--gold); }
+.consent a { color: var(--gold-pale); text-decoration: underline; text-underline-offset: 2px; }
+#pay-btn[disabled] { opacity: .6; cursor: progress; }
+
+/* legal pages */
+.legal { max-width: 760px; display: grid; gap: 12px; }
+.legal h2 { margin-top: 24px; font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem); }
+.legal h3 { margin-top: 12px; font: 500 1.1rem var(--f-body); color: var(--gold-pale); }
+.legal p { color: var(--cream); line-height: 1.7; }
+.legal a { color: var(--gold-pale); text-decoration: underline; text-underline-offset: 2px; }
+.legal-seller { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 6px 0 10px; }
+.legal-seller dt { color: var(--muted); }
+.legal-seller mark { background: rgba(226,181,107,.18); color: var(--gold-pale); padding: 0 4px; }
+.legal-draft { margin-top: 10px; color: var(--gold); font-size: .9rem; }
