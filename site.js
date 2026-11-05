@@ -610,7 +610,7 @@ function renderProduct() {
     const specs = orderable ? `<dl class="specs">
         <div><dt>Boyut</dt><dd>${p.type === 'kitap' ? '21 × 28 cm' : 'A4 · 21 × 29,7 cm'}</dd></div>
         ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
-        ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>laminasyonlu sert kapak · lay-flat cilt: sayfalar tamamen düz açılır, çift sayfa resimler ortada kaybolmaz</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm fotoğraf kâğıdı: canlı, solmayan renkler</dd></div>' : ''}
+        ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>laminasyonlu, sert MDF kapak · lay-flat cilt: sayfalar tamamen düz açılır, çift sayfa resimler ortada kaybolmaz</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm albüm kâğıdı, gerçek fotoğraf kâğıdı: canlı, solmayan renkler</dd></div>' : ''}
         <div><dt>Tasarım</dt><dd>5 iş günü · bugün sipariş verirseniz en geç ${trDate(inWorkDays(5))} önizlemeniz hazır</dd></div>
         <div><dt>Baskı</dt><dd>onayınızdan sonra 5 iş günü, ardından ücretsiz kargo · dijital kitap onayınızla hemen</dd></div>
       </dl>` : '';
