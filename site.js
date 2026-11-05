@@ -452,7 +452,8 @@ function renderCollection(aud) {
 
 /* ---------- Product page helpers ---------- */
 const trDate = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
-const inDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return d; };
+// n working days from today, skipping Saturdays and Sundays
+const inWorkDays = n => { const d = new Date(); while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; };
 
 // a cover with the visitor's name set in place of the sample hero's name
 function drawCoverName(canvas, img, p, name) {
@@ -610,8 +611,8 @@ function renderProduct() {
         <div><dt>Boyut</dt><dd>A4 · 21 × 29,7 cm</dd></div>
         ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
         ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>sert kapak: 2 mm mukavva, sıvama cilt</dd></div>' : ''}
-        <div><dt>Önizleme</dt><dd>bugün sipariş verirseniz en geç ${trDate(inDays(3))}</dd></div>
-        <div><dt>Teslim</dt><dd>dijital onayınızla hemen, basılı onaydan sonra en geç 7 günde kargoda · kargo ücretsiz</dd></div>
+        <div><dt>Tasarım</dt><dd>5 iş günü · bugün sipariş verirseniz en geç ${trDate(inWorkDays(5))} önizlemeniz hazır</dd></div>
+        <div><dt>Baskı</dt><dd>onayınızdan sonra 5 iş günü, ardından ücretsiz kargo · dijital kitap onayınızla hemen</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
       <div class="p-gallery">${gallery}</div>
@@ -632,8 +633,8 @@ function renderProduct() {
       <div class="p-buy info">
         ${buy}
         <div class="assure"><ul>
-          <li>En geç 3 gün içinde bütün sayfaları size gönderir, onayınızı bekleriz.</li>
-          <li>Dijital sürüm onayınızın hemen ardından gönderilir; basılı ürün en geç bir hafta içinde ücretsiz kargoyla yola çıkar.</li>
+          <li>Tasarım 5 iş günü: bütün sayfaları size gönderir, onayınızı bekleriz.</li>
+          <li>Baskı onayınızdan sonra 5 iş günü; ardından ücretsiz kargoyla yola çıkar. Dijital sürüm onayınızın hemen ardından gönderilir.</li>
           <li>Fotoğraflar yalnızca bu ürün için kullanılır, teslimden sonra silinir.</li>
           ${p.type === 'kitap' ? '<li>Sesli masal: kitaptaki QR kodu okutun, masalı anlatıcımızın sesinden dinleyin.</li>' : ''}
           <li><a href="gizlilik.html">Gizlilik sözümüzü okuyun</a></li>
