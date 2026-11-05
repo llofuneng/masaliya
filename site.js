@@ -588,7 +588,7 @@ function renderProduct() {
           <span class="gift-price">${GIFT_BOX_PRICE ? '+ ' + fmt(GIFT_BOX_PRICE) : 'Fiyat yakında'}</span>
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
-        <div class="total"><span>Toplam <small>kargo ücretsiz</small></span><strong id="total"></strong></div>
+        <div class="total"><span>Toplam <small>kargo ücretsiz · yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
         <span class="step">4 · İletişim</span>
         <div class="contact">
           <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
@@ -626,7 +626,7 @@ function renderProduct() {
         ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
         ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>laminasyonlu, sert MDF kapak · lay-flat cilt: sayfalar tamamen düz açılır, çift sayfa resimler ortada kaybolmaz</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm albüm kâğıdı, gerçek fotoğraf kâğıdı: canlı, solmayan renkler</dd></div>' : ''}
         <div><dt>Tasarım</dt><dd>5 iş günü · bugün sipariş verirseniz en geç ${trDate(inWorkDays(5))} önizlemeniz hazır</dd></div>
-        <div><dt>Baskı</dt><dd>onayınızdan sonra 5 iş günü, ardından ücretsiz kargo · dijital kitap onayınızla hemen</dd></div>
+        <div><dt>Baskı</dt><dd>onayınızdan sonra 5 iş günü, ardından ücretsiz kargo · dijital kitap onayınızla hemen</dd></div><div><dt>Gönderim</dt><dd>yalnızca Türkiye içindeki adreslere</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
       <div class="p-gallery">${gallery}</div>
