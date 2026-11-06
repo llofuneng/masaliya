@@ -487,9 +487,14 @@ function renderCollection(aud) {
 }
 
 /* ---------- Cart page ---------- */
+const ILLER = ['Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara', 'Antalya', 'Ardahan', 'Artvin', 'Aydın', 'Balıkesir', 'Bartın', 'Batman', 'Bayburt', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa', 'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Düzce', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 'Eskişehir', 'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari', 'Hatay', 'Iğdır', 'Isparta', 'İstanbul', 'İzmir', 'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kilis', 'Kırıkkale', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya', 'Manisa', 'Mardin', 'Mersin', 'Muğla', 'Muş', 'Nevşehir', 'Niğde', 'Ordu', 'Osmaniye', 'Rize', 'Sakarya', 'Samsun', 'Şanlıurfa', 'Siirt', 'Sinop', 'Şırnak', 'Sivas', 'Tekirdağ', 'Tokat', 'Trabzon', 'Tunceli', 'Uşak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak'];
+const DRAFT_KEY = 'masaliya-teslimat', FIELDS = ['c-name', 'c-il', 'c-ilce', 'c-adres', 'c-posta', 'c-phone', 'c-email'];
+
 function renderCart() {
   const root = document.getElementById('cart');
   if (!root) return;
+  let draft = {};
+  try { draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY)) || {}; } catch (e) {}
   function show(msg) {
     const items = cart.all();
     if (!items.length) {
@@ -497,6 +502,7 @@ function renderCart() {
       return;
     }
     const total = items.reduce((a, it) => a + it.price.total, 0);
+    const ships = items.some(it => it.cover !== 'digital');
     root.innerHTML = `<div class="cart-grid">
       <ul class="cart-items">${items.map(it => `<li>
         <img src="${thumb(it.img)}" alt="">
@@ -506,6 +512,16 @@ function renderCart() {
       </ul>
       <form class="panel cart-pay" id="pay">
         <div class="total"><span>Toplam <small>${items.length} kitap · kargo ücretsiz · yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
+        ${ships ? `<span class="step">Teslimat adresi</span>
+        <label class="field" for="c-name">Alıcının adı soyadı<input id="c-name" autocomplete="shipping name" maxlength="80"></label>
+        <div class="field-row">
+          <label class="field" for="c-il">İl<input id="c-il" list="iller" autocomplete="shipping address-level1" maxlength="40"></label>
+          <label class="field" for="c-ilce">İlçe<input id="c-ilce" autocomplete="shipping address-level2" maxlength="40"></label>
+        </div>
+        <datalist id="iller">${ILLER.map(i => `<option value="${i}">`).join('')}</datalist>
+        <label class="field" for="c-adres">Açık adres<textarea id="c-adres" rows="3" autocomplete="shipping street-address" maxlength="300" placeholder="Mahalle, sokak, bina ve daire numarası"></textarea></label>
+        <label class="field" for="c-posta">Posta kodu (isteğe bağlı)<input id="c-posta" inputmode="numeric" autocomplete="shipping postal-code" maxlength="5"></label>` : `<span class="step">Ad soyad</span>
+        <label class="field" for="c-name">Adınız soyadınız<input id="c-name" autocomplete="name" maxlength="80"></label>`}
         <span class="step">İletişim</span>
         <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
         <label class="field" for="c-email">E-posta<input id="c-email" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
@@ -515,20 +531,32 @@ function renderCart() {
         <a class="link" href="urunler.html">+ Başka bir masal ekle</a>
       </form>
     </div>`;
+    const form = document.getElementById('pay');
+    FIELDS.forEach(k => { const el = document.getElementById(k); if (el && draft[k]) el.value = draft[k]; });
+    form.addEventListener('input', e => { if (FIELDS.includes(e.target.id)) { draft[e.target.id] = e.target.value; try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (err) {} } });
     root.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => { cart.remove(b.dataset.remove); show(); }));
-    document.getElementById('pay').addEventListener('submit', async e => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       const note = document.getElementById('pay-note'), btn = document.getElementById('pay-btn');
       const rawPhone = document.getElementById('c-phone').value.trim(), phone = rawPhone.replace(/\D/g, '');
       const mail = document.getElementById('c-email').value.trim();
       const say = (t, focus) => { note.textContent = t; if (focus) focus.focus(); };
+      const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      const name = val('c-name'), address = ships ? { il: val('c-il'), ilce: val('c-ilce'), adres: val('c-adres'), posta: val('c-posta') } : null;
+      if (name.length < 3 || !/\s/.test(name)) return say(ships ? 'Lütfen alıcının adını ve soyadını yazın.' : 'Lütfen adınızı ve soyadınızı yazın.', document.getElementById('c-name'));
+      if (ships) {
+        if (address.il.length < 3) return say('Lütfen ili yazın.', document.getElementById('c-il'));
+        if (address.ilce.length < 2) return say('Lütfen ilçeyi yazın.', document.getElementById('c-ilce'));
+        if (address.adres.length < 10) return say('Lütfen açık adresi mahalle, sokak, bina ve daire numarasıyla yazın.', document.getElementById('c-adres'));
+        if (address.posta && !/^\d{5}$/.test(address.posta)) return say('Posta kodu 5 rakamdan oluşur. Bilmiyorsanız boş bırakabilirsiniz.', document.getElementById('c-posta'));
+      }
       if (!/^[\d\s()+-]+$/.test(rawPhone) || phone.length < 10 || phone.length > 13) return say('Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.', document.getElementById('c-phone'));
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return say('Lütfen geçerli bir e-posta adresi yazın.', document.getElementById('c-email'));
       if (!document.getElementById('ok-terms').checked) return say('Devam etmek için Ön Bilgilendirme Formu’nu ve Mesafeli Satış Sözleşmesi’ni onaylayın.', document.getElementById('ok-terms'));
       btn.disabled = true; say('Ödeme sayfası hazırlanıyor…');
       try {
         const res = await fetch(ORDER_API + '/api/order', { method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ items: items.map(it => it.id), phone: rawPhone, email: mail, consentTerms: true }) });
+          body: JSON.stringify({ items: items.map(it => it.id), name, address, phone: rawPhone, email: mail, consentTerms: true }) });
         const out = await res.json().catch(() => ({}));
         if (res.status === 409 && out.missing) { out.missing.forEach(id => cart.remove(id)); show(out.error); return; }
         if (!res.ok || !out.url) throw new Error(out.error || 'Sipariş oluşturulamadı.');
@@ -942,7 +970,7 @@ function setupViewer(spreads) {
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.body.dataset.page === 'sepet') renderCart();
-  if (document.body.dataset.page === 'tesekkurler' && /siparis=MSL-/.test(location.search)) cart.clear();
+  if (document.body.dataset.page === 'tesekkurler' && /siparis=MSL-/.test(location.search)) { cart.clear(); try { sessionStorage.removeItem(DRAFT_KEY); } catch (e) {} }
   document.querySelectorAll('[data-aud]').forEach(el => { if (AUDIENCES[el.dataset.aud] && AUDIENCES[el.dataset.aud].hidden) el.remove(); });
   renderChrome();
   cart.badge();

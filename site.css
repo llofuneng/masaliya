@@ -644,3 +644,4 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .cart-remove { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 14px; min-height: 40px; background: transparent; border: 1px solid var(--line-strong); border-radius: 2px; color: var(--cream); font: 500 .78rem var(--f-body); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
 .cart-remove span { color: #e07a6e; font-size: .95rem; }
 .cart-remove:hover, .cart-remove:focus-visible { border-color: #d0574d; color: #fff; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

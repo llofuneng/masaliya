@@ -91,15 +91,26 @@ async function createOrder(req, env) {
   if (!/^[\d\s()+-]{10,20}$/.test(phone)) return json({ error: 'Telefon numarası geçersiz.' }, 400);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'E-posta adresi geçersiz.' }, 400);
   if (o.consentTerms !== true) return json({ error: 'Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi onayı eksik.' }, 400);
+  const name = String(o.name || '').trim().slice(0, 80);
+  if (name.length < 3) return json({ error: 'Ad soyad eksik.' }, 400);
   const items = await Promise.all(ids.map(id => /^KTP-[A-Z0-9]{8}$/.test(id) ? getJson(env, `items/${id}/kitap.json`) : null));
   const missing = ids.filter((id, i) => !items[i] || items[i].status === 'odendi');
   if (missing.length) return json({ error: 'Sepetinizdeki bazı kitapların süresi dolmuş. Lütfen onları yeniden ekleyin.', missing }, 409);
 
+  const ships = items.some(it => it.ships);
+  let shipping = null;
+  if (ships) {
+    // the delivery address is written on our site; the payment page only asks for the card
+    const a = o.address || {}, f = k => String(a[k] || '').trim();
+    shipping = { name, line1: f('adres').slice(0, 300), city: f('ilce').slice(0, 40), state: f('il').slice(0, 40), postal_code: f('posta').slice(0, 5), country: 'TR' };
+    if (shipping.line1.length < 10 || shipping.city.length < 2 || shipping.state.length < 3) return json({ error: 'Teslimat adresi eksik: il, ilçe ve açık adres gerekli.' }, 400);
+    if (shipping.postal_code && !/^\d{5}$/.test(shipping.postal_code)) return json({ error: 'Posta kodu 5 rakamdan oluşur.' }, 400);
+  }
   const total = items.reduce((a, it) => a + it.price.total, 0);
   const boxes = items.filter(it => it.giftBox).length;
   const order = {
     id: newId('MSL-', 6), status: 'odeme-bekleniyor', created: new Date().toISOString(),
-    items, ships: items.some(it => it.ships), price: { total }, contact: { phone, email }
+    items, ships, shipping, price: { total }, contact: { name, phone, email }
   };
   await saveOrder(env, order);
 
@@ -109,7 +120,6 @@ async function createOrder(req, env) {
     mode: 'payment', locale: 'tr', client_reference_id: order.id, customer_email: email,
     success_url: `${site}/tesekkurler.html?siparis=${order.id}`,
     cancel_url: `${site}/sepet.html?odeme=iptal`,
-    'phone_number_collection[enabled]': 'true',
     'metadata[siparis]': order.id, 'metadata[kitaplar]': summary.slice(0, 480), 'metadata[telefon]': phone,
     'payment_intent_data[description]': `${order.id} · ${items.length} kitap · ${summary}`.slice(0, 990),
     'payment_intent_data[metadata][siparis]': order.id
@@ -129,7 +139,12 @@ async function createOrder(req, env) {
     p.set(`line_items[${n}][price_data][unit_amount]`, String(CATALOG.giftBox * 100));
     p.set(`line_items[${n}][price_data][product_data][name]`, 'Hediye kutusu');
   }
-  if (order.ships) p.set('shipping_address_collection[allowed_countries][0]', 'TR');
+  if (shipping) {
+    // shown with the payment in Stripe too
+    p.set('payment_intent_data[shipping][name]', shipping.name);
+    p.set('payment_intent_data[shipping][phone]', phone);
+    for (const k of ['line1', 'city', 'state', 'postal_code', 'country']) if (shipping[k]) p.set(`payment_intent_data[shipping][address][${k}]`, shipping[k]);
+  }
   const session = await stripe(env, 'checkout/sessions', p);
   order.stripeSession = session.id;
   await saveOrder(env, order);
@@ -151,8 +166,8 @@ async function stripeEvent(req, env) {
     order.status = 'odendi';
     order.paid = new Date().toISOString();
     order.amountPaid = s.amount_total / 100;
-    order.contact = { ...order.contact, name: cust.name || '', email: cust.email || order.contact.email, phone: cust.phone || order.contact.phone };
-    order.shipping = ship ? { name: ship.name, ...ship.address } : null;
+    order.contact = { ...order.contact, name: order.contact.name || cust.name || '', email: order.contact.email || cust.email || '' };
+    if (!order.shipping && ship) order.shipping = { name: ship.name, ...ship.address };
     await saveOrder(env, order);
     // the books in this order are paid: the clean-up leaves them alone
     await Promise.all(order.items.map(async it => {
