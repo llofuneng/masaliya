@@ -648,3 +648,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .cart-remove span { color: #e07a6e; font-size: .95rem; }
 .cart-remove:hover, .cart-remove:focus-visible { border-color: #d0574d; color: #fff; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* preview on the order tracking page */
+.pv { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; gap: 14px; }
+.pv h3 { font: 500 1.2rem var(--f-display); margin: 6px 0 0; }
+.pv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pv-page { padding: 0; border: 1px solid var(--line-strong); background: none; cursor: zoom-in; }
+.pv-page.wide { grid-column: 1 / -1; }
+.pv-page img { display: block; width: 100%; height: auto; }
+.pv-pdf { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--line-strong); color: var(--gold-pale); }
+.pv-help, .pv-state { color: var(--cream); line-height: 1.6; margin: 0; }
+.pv-state.ok { color: var(--gold); }
+.pv-note { margin: 0; padding: 8px 14px; border-left: 2px solid var(--gold); color: var(--muted); white-space: pre-line; }
+.pv-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#pv-form { display: grid; gap: 12px; }

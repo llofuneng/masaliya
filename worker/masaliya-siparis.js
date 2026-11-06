@@ -36,6 +36,7 @@ const STAGES = {
   teslim:   { admin: 'Teslim edildi', title: 'Teslim edildi', text: `İyi okumalar! Fotoğraflarınız ${PHOTO_DAYS} gün içinde sistemlerimizden silinir.` }
 };
 const stagesFor = o => o.ships ? ['tasarim', 'onizleme', 'baski', 'kargo', 'teslim'] : ['tasarim', 'onizleme', 'teslim'];
+const MAX_PREVIEW = 25 * 1024 * 1024, PREVIEW_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
 const stageTitle = (o, k) => !o.ships && k === 'teslim' ? 'E-postanıza gönderildi' : STAGES[k].title;
 
 export default {
@@ -47,11 +48,16 @@ export default {
       if (req.method === 'POST' && url.pathname === '/api/order') return cors(env, await createOrder(req, env));
       if (req.method === 'POST' && url.pathname === '/api/stripe') return await stripeEvent(req, env);
       if (req.method === 'GET' && url.pathname === '/api/status') return cors(env, await orderStatus(url, env));
+      if (req.method === 'POST' && url.pathname === '/api/onay') return cors(env, await customerReview(req, url, env));
+      const pv = url.pathname.match(/^\/api\/onizleme\/(MSL-[A-Z0-9]{6})\/([A-Z0-9-]+\.(?:jpg|png|webp|pdf))$/);
+      if (req.method === 'GET' && pv) return await previewFile(pv[1], pv[2], url, env);
       if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env);
       const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
       if (req.method === 'GET' && m) return await adminOrder(m[1], m[2], m[3], url, env);
       const s = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})\/asama$/);
       if (req.method === 'POST' && s) return await setStage(s[1], req, url, env);
+      const up = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})\/onizleme$/);
+      if (req.method === 'POST' && up) return await uploadPreview(up[1], req, url, env);
       return new Response('Not found', { status: 404 });
     } catch (err) {
       console.log('error', err && err.stack || err);
@@ -200,17 +206,92 @@ async function stripeEvent(req, env) {
 /* ---------- order tracking on the site: order number + e-mail or phone ---------- */
 async function orderStatus(url, env) {
   const order = await loadOrder(env, (url.searchParams.get('siparis') || '').toUpperCase());
-  const who = (url.searchParams.get('iletisim') || '').trim().toLowerCase();
+  const who = (url.searchParams.get('iletisim') || '').trim().toLowerCase(), key = url.searchParams.get('k') || '';
   const digits = s => String(s || '').replace(/\D/g, '').slice(-10);
-  if (!order || !order.items || !who || !(who === order.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(order.contact.phone))))
+  if (!order || !order.items || !((key && key === await ctoken(env, order.id)) || (who && (who === order.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(order.contact.phone))))))
     return json({ error: 'Bu bilgilerle bir sipariş bulunamadı.' }, 404);
-  const h = order.history || {};
+  const h = order.history || {}, k = await ctoken(env, order.id), api = new URL(url.origin);
+  const previews = order.items.filter(it => (order.previews || {})[it.id]).map(it => ({ title: it.title,
+    files: order.previews[it.id].map(f => ({ name: f.name, pdf: f.type === 'pdf', url: `${api.origin}/api/onizleme/${order.id}/${f.file}?k=${k}` })) }));
   return json({
     id: order.id, status: order.status, stage: order.stage || null, ships: !!order.ships,
     books: order.items.map(it => ({ title: it.title, contents: `${it.setName} · ${it.contents}` })),
     stages: order.status === 'odendi' ? stagesFor(order).map(k => ({ key: k, title: stageTitle(order, k), text: STAGES[k].text, date: h[k] || null })) : [],
-    cargo: order.cargo || null, preview: order.preview || null, created: order.created, paid: order.paid || null
+    cargo: order.cargo || null, created: order.created, paid: order.paid || null,
+    k, previews, review: order.review || null, revisions: order.revisions || []
   });
+}
+
+/* ---------- the customer looks at the preview and approves it or asks for changes ---------- */
+async function customerReview(req, url, env) {
+  let b;
+  try { b = await req.json(); } catch (e) { return json({ error: 'İstek okunamadı.' }, 400); }
+  const o = await loadOrder(env, String(b.siparis || '').toUpperCase());
+  if (!o || !o.items || b.k !== await ctoken(env, o.id)) return json({ error: 'Sipariş bulunamadı.' }, 404);
+  if (o.stage !== 'onizleme' || !o.previews || !o.review || o.review.state !== 'bekliyor') return json({ error: 'Bu önizleme için yanıtınız zaten alındı.' }, 409);
+  const now = new Date().toISOString();
+  if (b.karar === 'onay') {
+    o.review = { state: 'onay', date: now, round: o.previewRound };
+    o.approved = now;
+    if (o.ships) { o.stage = 'baski'; o.history = { ...(o.history || {}), baski: now }; }
+  } else if (b.karar === 'duzeltme') {
+    const text = String(b.not || '').trim().slice(0, 2000);
+    if (text.length < 3) return json({ error: 'Lütfen neyi değiştirmemizi istediğinizi yazın.' }, 400);
+    o.review = { state: 'duzeltme', date: now, round: o.previewRound };
+    o.revisions = [...(o.revisions || []), { date: now, round: o.previewRound, text }];
+  } else return json({ error: 'İstek okunamadı.' }, 400);
+  await saveOrder(env, o);
+  const t = await token(env, o.id);
+  await mailOwnerNote(env, o.review.state === 'onay' ? `${o.id} · müşteri önizlemeyi onayladı` : `${o.id} · müşteri düzeltme istedi`,
+    `<p>${o.review.state === 'onay' ? `Müşteri önizlemeyi onayladı.${o.ships ? ' Sipariş “Baskıda” aşamasına geçti.' : ' Dijital kitabı gönderip “Gönderildi”ye basın.'}` : `Müşterinin düzeltme isteği:</p><blockquote style="border-left:3px solid #7a2434;margin:0;padding:4px 12px">${esc(o.revisions.at(-1).text).replace(/\n/g, '<br>')}</blockquote><p>`}</p><p><a href="${url.origin}/admin/${o.id}?t=${t}">Siparişi aç</a></p>`);
+  return json({ ok: true, review: o.review, stage: o.stage });
+}
+
+async function previewFile(id, file, url, env) {
+  const o = await loadOrder(env, id);
+  const k = url.searchParams.get('k'), t = url.searchParams.get('t');
+  if (!o || !((k && k === await ctoken(env, id)) || (t && t === await token(env, id)))) return new Response('Bulunamadı', { status: 404 });
+  const f = Object.values(o.previews || {}).flat().find(x => x.file === file);
+  const obj = f && await env.PHOTOS.get(`orders/${id}/onizleme/${file}`);
+  if (!obj) return new Response('Bulunamadı', { status: 404 });
+  const type = Object.keys(PREVIEW_TYPES).find(m => PREVIEW_TYPES[m] === f.type);
+  return new Response(obj.body, { headers: { 'content-type': type, 'cache-control': 'private, max-age=3600', 'content-disposition': `inline; filename="${id}-${file}"`, 'access-control-allow-origin': env.SITE_URL || 'https://masaliya.com' } });
+}
+
+/* the owner uploads the preview pages of each book: a new upload for a book replaces its earlier pages */
+async function uploadPreview(id, req, url, env) {
+  const t = url.searchParams.get('t');
+  if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
+  const o = await loadOrder(env, id);
+  if (!o || !o.items || o.status !== 'odendi') return new Response('Sipariş bulunamadı', { status: 404 });
+  const back = note => Response.redirect(`${url.origin}/admin/${id}?t=${t}${note ? '&not=' + encodeURIComponent(note) : ''}`, 303);
+  const form = await req.formData();
+  const round = (o.previewRound || 0) + 1;
+  const previews = { ...(o.previews || {}) };
+  let added = 0;
+  for (const it of o.items) {
+    const files = form.getAll('f-' + it.id).filter(f => f && typeof f !== 'string' && f.size > 0);
+    if (!files.length) continue;
+    if (files.some(f => !PREVIEW_TYPES[f.type] || f.size > MAX_PREVIEW)) return back('Yalnızca JPG, PNG, WEBP ya da PDF; her dosya en fazla 25 MB.');
+    files.sort((a, b) => a.name.localeCompare(b.name, 'tr', { numeric: true }));
+    const old = previews[it.id] || [];
+    if (old.length) await env.PHOTOS.delete(old.map(f => `orders/${id}/onizleme/${f.file}`));
+    previews[it.id] = [];
+    for (const [n, f] of files.entries()) {
+      const file = `${it.id}-${round}-${n + 1}.${PREVIEW_TYPES[f.type]}`;
+      await env.PHOTOS.put(`orders/${id}/onizleme/${file}`, f.stream(), { httpMetadata: { contentType: f.type } });
+      previews[it.id].push({ file, name: f.name.slice(0, 80), type: PREVIEW_TYPES[f.type] });
+    }
+    added += files.length;
+  }
+  if (!added) return back('Dosya seçilmedi.');
+  const now = new Date().toISOString();
+  o.previews = previews; o.previewRound = round;
+  o.review = { state: 'bekliyor', date: now, round };
+  o.stage = 'onizleme'; o.history = { ...(o.history || {}), onizleme: now };
+  await saveOrder(env, o);
+  await mailCustomer(env, o, 'onizleme');
+  return back(`Önizleme yüklendi (${added} dosya). Müşteri sayfasında görüyor.`);
 }
 
 /* ---------- owner pages: all orders, and one order with its photos ---------- */
@@ -224,7 +305,7 @@ async function adminList(url, env) {
     cursor = page.truncated ? page.cursor : null;
   } while (cursor);
   orders.sort((a, b) => b.created.localeCompare(a.created));
-  const rows = await Promise.all(orders.map(async o => `<tr class="${o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td>${o.status === 'odendi' ? `<b>${STAGES[o.stage || 'tasarim'].admin}</b>` : 'Ödeme bekleniyor'}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td></tr>`));
+  const rows = await Promise.all(orders.map(async o => `<tr class="${o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td>${o.status === 'odendi' ? `<b>${STAGES[o.stage || 'tasarim'].admin}</b>${o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">Düzeltme istendi</b>' : o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}` : 'Ödeme bekleniyor'}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td></tr>`));
   return page('Siparişler', `<h1>Siparişler</h1><p>${orders.filter(o => o.status === 'odendi').length} ödenmiş sipariş. Ödenmeyenler ${UNPAID_DAYS} gün sonra silinir.</p>
     <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>Aşama</th><th>Müşteri</th></tr>${rows.join('')}</table>`);
 }
@@ -240,7 +321,7 @@ async function adminOrder(id, itemId, photo, url, env) {
     if (!obj) return new Response('Fotoğraf bulunamadı', { status: 404 });
     return new Response(obj.body, { headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, no-store', 'content-disposition': `inline; filename="${id}-${itemId}-foto-${photo}.jpg"` } });
   }
-  return page(o.id, stagePanel(o, t, url.searchParams.get('not')) + orderHtml(o, url.origin, t));
+  return page(o.id, stagePanel(o, t, url.searchParams.get('not')) + await previewPanel(o, t, url.origin, env) + orderHtml(o, url.origin, t));
 }
 
 // the owner's buttons that move a paid order to its next step
@@ -250,9 +331,32 @@ function stagePanel(o, t, note) {
   return `<form class="stage" method="post" action="/admin/${o.id}/asama?t=${t}">
     <p>Şu anki aşama: <b>${STAGES[cur].admin}</b>${h[cur] ? ` · ${date(h[cur])}` : ''}${note ? ` <span class="note">${esc(note)}</span>` : ''}</p>
     <div class="steps">${stagesFor(o).map(k => `<button name="asama" value="${k}"${k === cur ? ' class="cur" disabled' : ''}>${!o.ships && k === 'teslim' ? 'Gönderildi' : STAGES[k].admin}${h[k] && k !== cur ? ' ✓' : ''}</button>`).join('')}</div>
-    <label>Önizleme linki (isteğe bağlı, müşteri takip sayfasında görür)<input name="onizleme" value="${esc(o.preview || '')}" placeholder="https://…"></label>
     ${o.ships ? `<div class="two"><label>Kargo firması<input name="firma" value="${esc(c.firm || '')}" placeholder="Yurtiçi Kargo"></label><label>Takip numarası<input name="takip" value="${esc(c.no || '')}"></label></div>` : ''}
     <small>“Kargoda” için takip numarası gerekli. Yanlış bir düğmeye bastıysanız doğru aşamaya basmanız yeterli.${o.photosDeleted ? ` Fotoğraflar ${date(o.photosDeleted)} tarihinde silindi.` : (h.teslim ? ` Fotoğraflar teslimden ${PHOTO_DAYS} gün sonra kendiliğinden silinir.` : '')}</small>
+  </form>`;
+}
+
+async function previewPanel(o, t, origin, env) {
+  if (o.status !== 'odendi') return '';
+  const r = o.review, link = `${env.SITE_URL || 'https://masaliya.com'}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`;
+  const state = !r ? 'Henüz önizleme yüklenmedi.'
+    : r.state === 'bekliyor' ? `<b>Müşterinin yanıtı bekleniyor</b> · ${r.round}. önizleme, ${date(r.date)}`
+    : r.state === 'onay' ? `<b style="color:#2e7d32">Müşteri onayladı ✓</b> · ${date(r.date)}`
+    : `<b style="color:#b0412e">Müşteri düzeltme istedi</b> · ${date(r.date)}`;
+  const revs = (o.revisions || []).slice().reverse().map(v => `<li><small>${date(v.date)} · ${v.round}. önizleme için</small><br>${esc(v.text).replace(/\n/g, '<br>')}</li>`).join('');
+  const books = o.items.map(it => {
+    const files = (o.previews || {})[it.id] || [];
+    return `<div class="pv-book"><b>${esc(it.title)}</b>
+      ${files.length ? `<div class="pv-files">${files.map(f => { const src = `${origin}/api/onizleme/${o.id}/${f.file}?t=${t}`; return f.type === 'pdf' ? `<a class="pdf" href="${src}" target="_blank">PDF · ${esc(f.name)}</a>` : `<a href="${src}" target="_blank"><img src="${src}" alt="${esc(f.name)}" loading="lazy"></a>`; }).join('')}</div>` : ''}
+      <label>${files.length ? 'Yeni sürümü yükle (eskisinin yerine geçer)' : 'Sayfaları seçin'} · JPG, PNG ya da PDF, birden fazla dosya seçilebilir<input type="file" name="f-${it.id}" multiple accept="image/jpeg,image/png,image/webp,application/pdf"></label></div>`;
+  }).join('');
+  return `<form class="stage preview" method="post" enctype="multipart/form-data" action="/admin/${o.id}/onizleme?t=${t}">
+    <p>Önizleme: ${state}</p>
+    ${revs ? `<ul class="revs">${revs}</ul>` : ''}
+    ${books}
+    <button class="upload">Önizlemeyi yükle ve müşteriye göster</button>
+    <label>Müşterinin önizleme linki (WhatsApp’tan gönderebilirsiniz)<input readonly value="${link}" onclick="this.select()"></label>
+    <small>Dosyalar ad sırasına göre gösterilir (01-kapak.jpg, 02-sayfa.jpg …). Yükleyince sipariş “Önizleme gönderildi” aşamasına geçer; müşteri onaylayınca basılı siparişler kendiliğinden “Baskıda”ya geçer.</small>
   </form>`;
 }
 
@@ -263,9 +367,6 @@ async function setStage(id, req, url, env) {
   if (!o || !o.items || o.status !== 'odendi') return new Response('Sipariş bulunamadı', { status: 404 });
   const f = await req.formData(), stage = String(f.get('asama') || '');
   const back = note => Response.redirect(`${url.origin}/admin/${id}?t=${t}${note ? '&not=' + encodeURIComponent(note) : ''}`, 303);
-  const preview = String(f.get('onizleme') || '').trim().slice(0, 500);
-  if (preview && !/^https:\/\//.test(preview)) return back('Önizleme linki https:// ile başlamalı.');
-  o.preview = preview || null;
   if (o.ships) {
     const firm = String(f.get('firma') || '').trim().slice(0, 40), no = String(f.get('takip') || '').trim().slice(0, 40);
     o.cargo = firm || no ? { firm, no } : null;
@@ -314,16 +415,26 @@ async function mailOwner(env, o, origin) {
   if (!res.ok) console.log('mail failed', res.status, await res.text());
 }
 
+// short notes to the owner (the customer approved the preview or asked for changes)
+async function mailOwnerNote(env, subject, body) {
+  if (!env.RESEND_API_KEY || !env.OWNER_EMAIL) return;
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST', headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ from: env.MAIL_FROM || 'Masaliya <onboarding@resend.dev>', to: [env.OWNER_EMAIL], subject, html: `<div style="font-family:Arial,sans-serif;font-size:15px;color:#222">${body}</div>` })
+  });
+  if (!res.ok) console.log('mail failed', res.status, await res.text());
+}
+
 /* ---------- e-mails to the customer: only once our own domain is verified in Resend and
    MAIL_FROM (e.g. "Masaliya <siparis@masaliya.com>") is set; until then nothing is sent ---------- */
 async function mailCustomer(env, o, stage) {
   if (!env.RESEND_API_KEY || !env.MAIL_FROM || !o.contact.email) return;
   const site = env.SITE_URL || 'https://masaliya.com';
   const books = o.items.map(it => `<li>${esc(it.title)} <small>(${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''})</small></li>`).join('');
-  const c = o.cargo || {};
+  const c = o.cargo || {}, link = `${site}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`;
   const lines = {
     tasarim: `<p>Siparişiniz alındı, teşekkür ederiz. Masalınız atölyemizde hazırlanmaya başladı.</p><ul>${books}</ul><p>Toplam: <b>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</b></p>${o.shipping ? `<p>Teslimat adresi: ${esc([o.shipping.name, o.shipping.line1, o.shipping.city, o.shipping.state].filter(Boolean).join(', '))}</p>` : ''}<p>Ödemeden sonra 5 iş günü içinde bütün sayfaların önizlemesini göndereceğiz.</p><p><a href="${site}/mesafeli-satis.html">Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi</a></p>`,
-    onizleme: `<p>Kitabınızın önizlemesi hazır.</p>${o.preview ? `<p><a href="${esc(o.preview)}">Önizlemeyi açın</a></p>` : ''}<p>Değiştirmek istediğiniz bir şey varsa bu e-postaya yanıt verin; her şey yolundaysa onayınızı yazmanız yeterli.</p>`,
+    onizleme: `<p>Kitabınızın önizlemesi hazır.</p><p><a href="${link}">Önizlemeyi açın</a></p><p>Bütün sayfaları inceleyin; her şey yolundaysa “Onaylıyorum”a, değiştirmek istediğiniz bir şey varsa “Düzeltme istiyorum”a basın.</p>`,
     baski: `<p>Onayınız için teşekkürler. Kitabınız baskıda; 5 iş günü içinde kargoya verilecek.</p>`,
     kargo: `<p>Kitabınız yola çıktı.</p><p>${esc(c.firm)} · takip numarası: <b>${esc(c.no)}</b></p>`,
     teslim: o.ships ? `<p>Kitabınız teslim edildi. İyi okumalar!</p>` : `<p>Dijital kitabınız e-postanıza gönderildi. İyi okumalar!</p>`
@@ -331,7 +442,7 @@ async function mailCustomer(env, o, stage) {
   const subject = { tasarim: `Siparişiniz alındı · ${o.id}`, onizleme: `Önizlemeniz hazır · ${o.id}`, baski: `Kitabınız baskıda · ${o.id}`, kargo: `Kitabınız kargoda · ${o.id}`, teslim: `Masalınız size ulaştı · ${o.id}` }[stage];
   const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#2a1a16;max-width:560px">
     <p>Merhaba${o.contact.name ? ' ' + esc(o.contact.name.split(' ')[0]) : ''},</p>${lines[stage]}
-    <p><a href="${site}/siparis.html?siparis=${o.id}">Siparişinizi takip edin</a> · sipariş numaranız ${o.id}</p><p>Masaliya</p></div>`;
+    <p><a href="${link}">Siparişinizi takip edin</a> · sipariş numaranız ${o.id}</p><p>Masaliya</p></div>`;
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST', headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
     body: JSON.stringify({ from: env.MAIL_FROM, to: [o.contact.email], reply_to: env.OWNER_EMAIL || undefined, subject, html })
@@ -354,7 +465,7 @@ async function removeUnpaid(env) {
         if (x.status !== 'odendi' && Date.parse(x.created) < limit) {
           await env.PHOTOS.delete(photos(dir).concat(obj.key));
         } else if (file === '/siparis.json' && x.items && x.stage === 'teslim' && !x.photosDeleted && x.history && Date.parse(x.history.teslim) < Date.now() - PHOTO_DAYS * 864e5) {
-          await env.PHOTOS.delete(x.items.flatMap(it => photos(`items/${it.id}`)));
+          await env.PHOTOS.delete(x.items.flatMap(it => photos(`items/${it.id}`)).concat(Object.values(x.previews || {}).flat().map(f => `${dir}/onizleme/${f.file}`)));
           x.photosDeleted = new Date().toISOString();
           await putJson(env, obj.key, x);
         }
@@ -391,6 +502,8 @@ async function hmac(secret, text) {
 }
 // a per-order key for the owner's links, so photos can't be opened by guessing the order number
 const token = async (env, id) => (await hmac(env.ADMIN_KEY || env.STRIPE_WEBHOOK_SECRET || 'masaliya', 'order:' + id)).slice(0, 24);
+// the customer's key for their own order page (preview and approval), sent in their links
+const ctoken = async (env, id) => (await hmac(env.ADMIN_KEY || env.STRIPE_WEBHOOK_SECRET || 'masaliya', 'musteri:' + id)).slice(0, 20);
 
 function newId(prefix, n) {
   const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(n));
@@ -412,4 +525,4 @@ function cors(env, res) {
 const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const date = iso => new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 const page = (title, body) => new Response(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)} · Masaliya</title>
-<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });

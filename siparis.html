@@ -17,8 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
 <link rel="icon" href="img/favicon.png">
-<link rel="stylesheet" href="site.css?v=202611061220">
-<script src="site.js?v=202611061220" defer></script>
+<link rel="stylesheet" href="site.css?v=202611061224">
+<script src="site.js?v=202611061224" defer></script>
 </head>
 <body data-page="siparis">
 <header id="site-head"></header>
@@ -57,12 +57,14 @@
       <li><span class="dot"></span><div><b>Kargoda</b><small>Onaydan sonra 5 iş günü içinde basılır. Takip numaranız burada görünecek.</small></div></li>
       <li><span class="dot"></span><div><b>Teslim edildi</b><small>Fotoğraflarınız sistemlerimizden silinir.</small></div></li>
     </ol>
+    <div id="o-preview"></div>
   </div>
 </div></section>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const $ = id => document.getElementById(id), note = $('o-note');
-  const q = new URLSearchParams(location.search).get('siparis');
+  const params = new URLSearchParams(location.search), q = params.get('siparis');
+  let key = params.get('k') || '', current = null;
   if (q) $('o-no').value = q.toUpperCase();
   const day = iso => new Date(iso).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
   const show = d => {
@@ -77,23 +79,72 @@ document.addEventListener('DOMContentLoaded', () => {
     $('o-steps').innerHTML = steps.map((s, i) => {
       const k = i - 1, state = k < cur ? 'done' : k === cur ? (s.key === 'teslim' ? 'done' : 'now') : '';
       let extra = '';
-      if (s.key === 'onizleme' && d.preview && k <= cur) extra = `<div class="actions"><a class="btn" href="${esc(d.preview)}" target="_blank" rel="noopener">Önizlemeyi aç</a></div>`;
+      if (s.key === 'onizleme' && d.previews.length && k <= cur) extra = `<div class="actions"><a class="btn ghost" href="#o-preview">Önizlemeyi aç</a></div>`;
       if (s.key === 'kargo' && d.cargo && d.cargo.no && k <= cur) extra = `<small>${esc(d.cargo.firm)} · takip numarası <strong>${esc(d.cargo.no)}</strong></small>`;
       return `<li class="${state}"><span class="dot">${state === 'done' ? '✓' : state === 'now' ? '✦' : ''}</span><div><b>${esc(s.title)}</b>${s.date && state ? `<small>${day(s.date)}</small>` : ''}${state === 'now' || !state ? `<small>${esc(s.text)}</small>` : ''}${extra}</div></li>`;
     }).join('');
     note.textContent = '';
+    current = d; key = d.k || key;
+    showPreview(d);
   };
+  // the pages of the preview, and the customer's answer
+  const showPreview = d => {
+    const box = $('o-preview');
+    if (!d.previews || !d.previews.length) { box.innerHTML = ''; return; }
+    const r = d.review || {}, open = d.stage === 'onizleme' && r.state === 'bekliyor';
+    const last = d.revisions.length ? d.revisions[d.revisions.length - 1] : null;
+    box.innerHTML = `<section class="pv" id="pv">
+      <p class="eyebrow">Önizleme</p>
+      ${d.previews.map((b, i) => `<h3>${esc(b.title)}</h3><div class="pv-grid">${b.files.map((f, j) => f.pdf
+        ? `<a class="pv-pdf" href="${f.url}" target="_blank" rel="noopener">PDF’i aç<small>${esc(f.name)}</small></a>`
+        : `<button type="button" class="pv-page" data-b="${i}" data-p="${j}"><img src="${f.url}" alt="${esc(b.title)} · ${j + 1}" loading="lazy"></button>`).join('')}</div>`).join('')}
+      ${r.state === 'onay' ? `<p class="pv-state ok">✓ Onayınız alındı · ${day(r.date)}. Teşekkür ederiz!</p>`
+      : r.state === 'duzeltme' ? `<p class="pv-state">Düzeltme isteğiniz alındı · ${day(r.date)}. Yeni önizlemeyi hazırlayıp size haber vereceğiz.</p>${last ? `<blockquote class="pv-note">${esc(last.text)}</blockquote>` : ''}`
+      : open ? `<p class="pv-help">Lütfen bütün sayfaları dikkatle inceleyin: kahramanın yüzü, adının yazılışı ve resimler. Onayınızdan sonra ${d.ships ? 'kitabınız baskıya gönderilir' : 'dijital kitabınız hazırlanır'} ve değişiklik yapılamaz.</p>
+        <div class="pv-actions"><button type="button" class="btn" id="pv-ok">Onaylıyorum</button><button type="button" class="btn ghost" id="pv-fix">Düzeltme istiyorum</button></div>
+        <form id="pv-form" hidden><label class="field" for="pv-text">Neyi değiştirelim?<textarea id="pv-text" rows="4" maxlength="2000" placeholder="Örneğin: 5. sayfada saçları biraz daha uzun olsun; kapakta ismin yazılışı Elif değil Elıf."></textarea></label><button class="btn" type="submit">Gönder</button></form>
+        <p class="form-note" id="pv-note" aria-live="polite"></p>` : ''}
+    </section>`;
+    // double-page spreads take the whole row
+    box.querySelectorAll('.pv-page img').forEach(img => { const wide = () => img.parentNode.classList.toggle('wide', img.naturalWidth > img.naturalHeight); img.complete ? wide() : img.addEventListener('load', wide); });
+    box.querySelectorAll('.pv-page').forEach(btn => btn.addEventListener('click', () => {
+      const b = d.previews[+btn.dataset.b];
+      openLightbox(b.files.filter(f => !f.pdf).map((f, j) => [f.url, `${b.title} · ${j + 1}`]), b.files.filter(f => !f.pdf).indexOf(b.files[+btn.dataset.p]));
+    }));
+    if (!open) return;
+    const pvNote = $('pv-note');
+    const send = (karar, not) => {
+      pvNote.textContent = 'Gönderiliyor…';
+      return fetch(`${ORDER_API}/api/onay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ siparis: d.id, k: key, karar, not }) })
+        .then(r => r.json().then(x => ({ ok: r.ok, x })))
+        .then(({ ok, x }) => { if (!ok) { pvNote.textContent = x.error || 'Gönderilemedi, lütfen tekrar deneyin.'; return; } load(); })
+        .catch(() => { pvNote.textContent = 'Gönderilemedi, lütfen biraz sonra tekrar deneyin.'; });
+    };
+    $('pv-ok').addEventListener('click', () => { if (confirm(`Önizlemeyi onaylıyor musunuz? Onaydan sonra ${d.ships ? 'kitap baskıya gönderilir' : 'dijital kitap hazırlanır'} ve değişiklik yapılamaz.`)) send('onay'); });
+    $('pv-fix').addEventListener('click', () => { $('pv-form').hidden = false; $('pv-text').focus(); });
+    $('pv-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const text = $('pv-text').value.trim();
+      if (text.length < 3) { pvNote.textContent = 'Lütfen neyi değiştirmemizi istediğinizi yazın.'; $('pv-text').focus(); return; }
+      send('duzeltme', text);
+    });
+  };
+  const load = (who) => {
+    const no = $('o-no').value.trim().toUpperCase();
+    note.textContent = 'Sipariş aranıyor…';
+    const auth = who ? `iletisim=${encodeURIComponent(who)}` : `k=${encodeURIComponent(key)}`;
+    fetch(`${ORDER_API}/api/status?siparis=${encodeURIComponent(no)}&${auth}`)
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => { if (!ok) { note.textContent = d.error || 'Bu bilgilerle bir sipariş bulunamadı.'; return; } show(d); if (location.hash === '#o-preview' || (d.stage === 'onizleme' && params.get('k'))) { const pv = $('pv'); if (pv) pv.scrollIntoView({ block: 'start' }); } })
+      .catch(() => { note.textContent = 'Şu anda sipariş bilgisine ulaşılamıyor, lütfen biraz sonra tekrar deneyin.'; });
+  };
+  if (q && key) load();
   $('track').addEventListener('submit', e => {
     e.preventDefault();
     const v = $('o-contact').value.trim();
     const ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.replace(/\D/g, '').length >= 10;
     if (!ok) { note.textContent = 'Lütfen siparişte kullandığınız e-posta adresini ya da telefon numarasını yazın.'; return; }
-    const no = $('o-no').value.trim().toUpperCase();
-    note.textContent = 'Sipariş aranıyor…';
-    fetch(`${ORDER_API}/api/status?siparis=${encodeURIComponent(no)}&iletisim=${encodeURIComponent(v)}`)
-      .then(r => r.json().then(d => ({ ok: r.ok, d })))
-      .then(({ ok, d }) => { if (!ok) { note.textContent = d.error || 'Bu bilgilerle bir sipariş bulunamadı.'; return; } show(d); })
-      .catch(() => { note.textContent = 'Şu anda sipariş bilgisine ulaşılamıyor, lütfen biraz sonra tekrar deneyin.'; });
+    load(v);
   });
   const pv = document.querySelector('a[href="#onizleme"]');
   if (pv) pv.addEventListener('click', e => { e.preventDefault(); note.textContent = 'Örnek: gerçek siparişinizde önizleme hazır olduğunda burada açılır.'; });
