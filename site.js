@@ -43,7 +43,7 @@ const SETS = [
   { id: 'super-set', name: 'Süper Set', note: 'Kitap + boyama kitabı + ahşap yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: 0 }
 ];
 const PHOTO_SLOTS = ['Önden', 'Hafif yandan', 'Gülümserken'];
-const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır.' };
+const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır. 3 yaşından küçük çocuklar için uygun değildir.' };
 const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {

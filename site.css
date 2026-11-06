@@ -581,6 +581,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .legal-seller { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 6px 0 10px; }
 .legal-seller dt { color: var(--muted); }
 .legal-seller mark { background: rgba(226,181,107,.18); color: var(--gold-pale); padding: 0 4px; }
+.legal ul, .legal ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; color: var(--cream); line-height: 1.7; }
+.legal-date { color: var(--muted); font-size: .9rem; }
 .legal-draft { margin-top: 10px; color: var(--gold); font-size: .9rem; }
 
 /* product page: a short description up top, the book's details under the button */
