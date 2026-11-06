@@ -539,6 +539,7 @@ function renderCart() {
     });
   }
   show(new URLSearchParams(location.search).get('odeme') === 'iptal' ? 'Ödeme tamamlanmadı. Kitaplarınız sepette duruyor; istediğiniz zaman tekrar deneyebilirsiniz.' : '');
+  if (location.hash === '#odeme') { const f = document.getElementById('pay'); if (f) { f.scrollIntoView({ block: 'center' }); document.getElementById('c-phone').focus({ preventScroll: true }); } }
 }
 
 /* ---------- Product page helpers ---------- */
@@ -881,13 +882,8 @@ function renderProduct() {
         const out = await res.json().catch(() => ({}));
         if (!res.ok || !out.id) throw new Error(out.error || 'Kitap sepete eklenemedi.');
         cart.add({ ...out, img: p.img });
-        if (goPay) { location.href = 'sepet.html'; return; }
-        // ready for the next book: same story for another child, or another story
-        if (nameIn) { nameIn.value = ''; nameIn.dispatchEvent(new Event('input')); }
-        slots.forEach((sl, k) => { delete sl.dataset.state; sl.classList.remove('filled'); sl.querySelector('.slot-img').style.backgroundImage = ''; sl.querySelector('input').value = ''; checked[k] = undefined; });
-        showMessages();
-        btns.forEach(b => { b.disabled = false; });
-        say(`<b>${esc(out.title)}</b> sepetinize eklendi. <a href="sepet.html">Sepete git</a> ya da başka bir çocuk için aynı masalı hazırlayın, <a href="urunler.html">başka bir masal seçin</a>.`);
+        // both buttons open the cart; "Ödemeye geç" goes straight to the payment form there
+        location.href = goPay ? 'sepet.html#odeme' : 'sepet.html';
       } catch (err) {
         btns.forEach(b => { b.disabled = false; });
         say(`${esc(err.message)} Lütfen tekrar deneyin; sorun sürerse bize yazın.`);
