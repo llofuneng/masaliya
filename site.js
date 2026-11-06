@@ -61,7 +61,7 @@ const FORMATS = {
 const WHATSAPP = '';
 
 /* The order server (Cloudflare Worker, see worker/). Empty = orders can't be sent yet. */
-const ORDER_API = '';
+const ORDER_API = 'https://masaliya-siparis.llo-fun-eng.workers.dev';
 
 const SPREADS_DUA = [
   ['img/sihirli-kutuphane-s1.jpg', 'Dua tozlu Masallar Kitabı’nı buluyor'],
