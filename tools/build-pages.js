@@ -10,11 +10,11 @@ const ROOT = path.join(__dirname, '..');
 const SITE = 'https://masaliya.com';
 
 // read the catalogue straight from site.js
-const code = fs.readFileSync(path.join(ROOT, 'site.js'), 'utf8') + '\n;this.__cat = { SELL, PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, SETS, GIFT_BOX_PRICE, FORMATS };';
+const code = fs.readFileSync(path.join(ROOT, 'site.js'), 'utf8') + '\n;this.__cat = { SELL, PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, ALL_SETS, GIFT_BOX_PRICE, FORMATS };';
 const ctx = { document: { addEventListener() {} }, location: {}, addEventListener() {} };
 vm.createContext(ctx);
 vm.runInContext(code, ctx);
-const { SELL, PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, SETS, GIFT_BOX_PRICE, FORMATS } = ctx.__cat;
+const { SELL, PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, ALL_SETS, GIFT_BOX_PRICE, FORMATS } = ctx.__cat;
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const clip = (s, n) => (s.length <= n ? s : s.slice(0, s.lastIndexOf(' ', n - 1)) + '…');
@@ -57,7 +57,8 @@ const WORKER = path.join(ROOT, 'worker', 'masaliya-siparis.js');
 const catalog = {
   books: Object.fromEntries(PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir').map(p => [p.id, { title: p.title, hero: p.hero }])),
   prices: PRICES,
-  sets: SETS.map(({ id, name, items, discount }) => ({ id, name, items, discount })),
+  // every set, also the ones switched off on the site: switching them back on then needs no new server code
+  sets: ALL_SETS.map(({ id, name, items, discount }) => ({ id, name, items, discount })),
   giftBox: GIFT_BOX_PRICE,
   covers: Object.fromEntries(FORMATS.kitap.map(([k, name]) => [k, k === 'digital' ? 'Dijital kitap (PDF)' : name.charAt(0) + name.slice(1).toLocaleLowerCase('tr-TR')]))
 };

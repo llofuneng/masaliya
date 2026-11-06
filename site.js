@@ -36,7 +36,7 @@ const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 /* ON SALE NOW. Only the story books are ready. Switch boyama (coloring books) or yapboz (wooden
    puzzle) to true and they come back by themselves: the sets on the book pages, the coloring pages,
    the lists, the price table and the texts that mention them. After switching, run
-   node tools/build-pages.js: it also updates worker/masaliya-siparis.js, which then goes into Cloudflare. */
+   node tools/build-pages.js (the order server already knows every set, so Cloudflare needs nothing). */
 const SELL = { boyama: false, yapboz: false };
 const onSale = p => p.type !== 'boyama' || SELL.boyama;
 
