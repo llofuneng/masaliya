@@ -60,6 +60,28 @@ const FORMATS = {
 /* WhatsApp concierge: put the number here in international format without "+", e.g. '905321234567'. */
 const WHATSAPP = '';
 
+/* The cart: the books put in it, kept in this browser (localStorage). The photos are already on the
+   order server; here we keep only what the cart page shows. Books not paid within 3 days are deleted
+   there, so they are dropped here too. */
+const CART_KEY = 'masaliya-sepet', CART_DAYS = 3;
+const cart = {
+  all() {
+    let items = [];
+    try { items = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) {}
+    const fresh = items.filter(it => Date.now() - it.added < CART_DAYS * 864e5 - 36e5);
+    if (fresh.length !== items.length) cart.save(fresh);
+    return fresh;
+  },
+  save(items) { try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) {} cart.badge(); },
+  add(item) { cart.save([...cart.all(), { ...item, added: Date.now() }]); },
+  remove(id) { cart.save(cart.all().filter(it => it.id !== id)); },
+  clear() { cart.save([]); },
+  badge() {
+    const n = cart.all().length;
+    document.querySelectorAll('[data-cart-count]').forEach(el => { el.textContent = n; el.hidden = !n; });
+  }
+};
+
 /* The order server (Cloudflare Worker, see worker/). Empty = orders can't be sent yet. */
 const ORDER_API = 'https://masaliya-siparis.llo-fun-eng.workers.dev';
 
@@ -209,6 +231,7 @@ const PRODUCTS = [
 ];
 
 const GIFT_SVG = '<svg viewBox="0 0 64 64"><rect x="10" y="26" width="44" height="30" rx="2" fill="#6b1d2a" stroke="#e2b56b" stroke-width="1.2"/><rect x="7" y="19" width="50" height="9" rx="1.5" fill="#7d2534" stroke="#e2b56b" stroke-width="1.2"/><rect x="29" y="19" width="6" height="37" fill="#e2b56b"/><path d="M32 19c-6-9-15-8-13-2 1 3 7 3 13 2zM32 19c6-9 15-8 13-2-1 3-7 3-13 2z" fill="none" stroke="#e2b56b" stroke-width="1.6"/><circle cx="32" cy="40" r="6" fill="#8d2e3d" stroke="#f4dfb3" stroke-width="1"/><path d="M29.6 42.6V39a2.4 2.4 0 0 1 4.8 0v3.6" fill="none" stroke="#f4dfb3" stroke-width=".9"/></svg>';
+const CART_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>';
 const ARCH_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46 V28 a12 12 0 0 1 24 0 V46" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M32 25.5 l1.17 3.33 3.33 1.17 -3.33 1.17 -1.17 3.33 -1.17 -3.33 -3.33 -1.17 3.33 -1.17z" fill="currentColor"/><path d="M8 50 q12 -5 24 2 q12 -7 24 -2 M8 50 v6 q12 -5 24 2 q12 -7 24 -2 v-6 M32 52 v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>';
 
 const NAV = [
@@ -345,6 +368,7 @@ function renderChrome() {
       </div>
       <nav class="nav" aria-label="Ana menü">${NAV.map(([h, t]) => `<a href="${h}"${isCurrent(h, cur) ? ' aria-current="page"' : ''}>${t}</a>`).join('')}</nav>
       <div class="head-right">
+        <a class="cart-link" href="sepet.html" aria-label="Sepetim">${CART_SVG}<span class="cart-count" data-cart-count hidden></span></a>
         <a class="btn head-cta" href="urunler.html">Masalını Seç</a>
         <button class="menu-btn" type="button" data-open-menu>Menü</button>
       </div>
@@ -380,7 +404,8 @@ function renderChrome() {
     <nav><a href="./"${cur === 'index.html' || cur === '' ? ' aria-current="page"' : ''}>Ana Sayfa</a>
       <a href="urunler.html"${mark('urunler.html')}>Ürünlerimiz</a>
       <div class="menu-sub">${Object.values(AUDIENCES).filter(a => !a.hidden).map(a => `<a href="${a.page}"${a.page === cur ? ' aria-current="page"' : ''}>${a.name}</a>`).join('')}</div>
-      ${NAV_ALL.slice(1).map(([h, t]) => `<a href="${h}"${mark(h)}>${t}</a>`).join('')}</nav>`;
+      ${NAV_ALL.slice(1).map(([h, t]) => `<a href="${h}"${mark(h)}>${t}</a>`).join('')}
+      <a href="sepet.html"${cur === 'sepet.html' ? ' aria-current="page"' : ''}>Sepetim <span class="cart-count" data-cart-count hidden></span></a></nav>`;
   document.body.appendChild(menu);
   let opener = null;
   const closeMenu = () => { if (menu.hidden) return; menu.hidden = true; document.body.style.overflow = ''; if (opener) opener.focus(); };
@@ -459,6 +484,61 @@ function renderCollection(aud) {
   }
   addEventListener('hashchange', show);
   show();
+}
+
+/* ---------- Cart page ---------- */
+function renderCart() {
+  const root = document.getElementById('cart');
+  if (!root) return;
+  function show(msg) {
+    const items = cart.all();
+    if (!items.length) {
+      root.innerHTML = `<div class="panel cart-empty"><p class="lede">Sepetiniz boş.</p><a class="btn" href="urunler.html">Masalını seç</a></div>`;
+      return;
+    }
+    const total = items.reduce((a, it) => a + it.price.total, 0);
+    root.innerHTML = `<div class="cart-grid">
+      <ul class="cart-items">${items.map(it => `<li>
+        <img src="${thumb(it.img)}" alt="">
+        <div><b>${esc(it.title)}</b><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>
+          <button type="button" class="link" data-remove="${it.id}">Sepetten çıkar</button></div>
+        <span class="cart-price">${fmt(it.price.total)}</span></li>`).join('')}
+      </ul>
+      <form class="panel cart-pay" id="pay">
+        <div class="total"><span>Toplam <small>${items.length} kitap · kargo ücretsiz · yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
+        <span class="step">İletişim</span>
+        <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
+        <label class="field" for="c-email">E-posta<input id="c-email" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
+        <label class="consent" for="ok-terms"><input type="checkbox" id="ok-terms"><span><a href="mesafeli-satis.html" target="_blank">Ön Bilgilendirme Formu</a>’nu ve <a href="mesafeli-satis.html#sozlesme" target="_blank">Mesafeli Satış Sözleşmesi</a>’ni okudum, onaylıyorum.</span></label>
+        <button class="btn" type="submit" id="pay-btn">Ödemeye geç</button>
+        <p class="form-note" id="pay-note" aria-live="polite">${msg || ''}</p>
+        <a class="link" href="urunler.html">+ Başka bir masal ekle</a>
+      </form>
+    </div>`;
+    root.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => { cart.remove(b.dataset.remove); show(); }));
+    document.getElementById('pay').addEventListener('submit', async e => {
+      e.preventDefault();
+      const note = document.getElementById('pay-note'), btn = document.getElementById('pay-btn');
+      const rawPhone = document.getElementById('c-phone').value.trim(), phone = rawPhone.replace(/\D/g, '');
+      const mail = document.getElementById('c-email').value.trim();
+      const say = (t, focus) => { note.textContent = t; if (focus) focus.focus(); };
+      if (!/^[\d\s()+-]+$/.test(rawPhone) || phone.length < 10 || phone.length > 13) return say('Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.', document.getElementById('c-phone'));
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return say('Lütfen geçerli bir e-posta adresi yazın.', document.getElementById('c-email'));
+      if (!document.getElementById('ok-terms').checked) return say('Devam etmek için Ön Bilgilendirme Formu’nu ve Mesafeli Satış Sözleşmesi’ni onaylayın.', document.getElementById('ok-terms'));
+      btn.disabled = true; say('Ödeme sayfası hazırlanıyor…');
+      try {
+        const res = await fetch(ORDER_API + '/api/order', { method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ items: items.map(it => it.id), phone: rawPhone, email: mail, consentTerms: true }) });
+        const out = await res.json().catch(() => ({}));
+        if (res.status === 409 && out.missing) { out.missing.forEach(id => cart.remove(id)); show(out.error); return; }
+        if (!res.ok || !out.url) throw new Error(out.error || 'Sipariş oluşturulamadı.');
+        location.href = out.url;
+      } catch (err) {
+        btn.disabled = false; say(`${err.message} Lütfen tekrar deneyin; sorun sürerse bize yazın.`);
+      }
+    });
+  }
+  show(new URLSearchParams(location.search).get('odeme') === 'iptal' ? 'Ödeme tamamlanmadı. Kitaplarınız sepette duruyor; istediğiniz zaman tekrar deneyebilirsiniz.' : '');
 }
 
 /* ---------- Product page helpers ---------- */
@@ -589,14 +669,11 @@ function renderProduct() {
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
         <div class="total"><span>Toplam <small>kargo ücretsiz · yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
-        <span class="step">4 · İletişim</span>
-        <div class="contact">
-          <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
-          <label class="field" for="c-email">E-posta<input id="c-email" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
-        </div>
-        <label class="consent" for="ok-terms"><input type="checkbox" id="ok-terms"><span><a href="mesafeli-satis.html" target="_blank">Ön Bilgilendirme Formu</a>’nu ve <a href="mesafeli-satis.html#sozlesme" target="_blank">Mesafeli Satış Sözleşmesi</a>’ni okudum, onaylıyorum.</span></label>
         <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için işlenmesine ve hizmet sağlayıcılar aracılığıyla yurt dışına aktarılmasına <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a> kapsamında açık rıza veriyorum.</span></label>
-        <button class="btn" type="submit" id="pay-btn">Ödemeye geç</button>
+        <div class="buy-actions">
+          <button class="btn ghost" type="submit" value="sepet" id="cart-btn">Sepete ekle</button>
+          <button class="btn" type="submit" value="ode" id="pay-btn">Ödemeye geç</button>
+        </div>
         <p class="form-note" id="buy-note" aria-live="polite"></p>
       </form>`
       : book ? (() => {
@@ -634,8 +711,8 @@ function renderProduct() {
         <p class="eyebrow" id="crumbs-inline">${a.name}</p>
         <h1 id="p-title">${fullTitle(p)}</h1>
         <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span>${p.age ? `<span>${p.age}</span>` : ''}<span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
-        <p class="desc">${esc(p.desc)}</p>
-        ${specs}
+        <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
+        <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
       </div>
       ${inner ? `<section class="p-viewer" id="inside" aria-label="Kitabın içinden">
         <p class="eyebrow">Kitabın içinden · bütün sayfalar</p>
@@ -646,6 +723,7 @@ function renderProduct() {
       </section>` : ''}
       <div class="p-buy info">
         ${buy}
+        ${specs ? `<div class="about"><p class="eyebrow">Kitap hakkında</p>${specs}</div>` : ''}
         <div class="assure"><ul>
           <li>Tasarım 5 iş günü: bütün sayfaları size gönderir, onayınızı bekleriz.</li>
           <li>Baskı onayınızdan sonra 5 iş günü; ardından ücretsiz kargoyla yola çıkar. Dijital sürüm onayınızın hemen ardından gönderilir.</li>
@@ -657,6 +735,12 @@ function renderProduct() {
     </div>
     ${orderable ? `<div class="buybar" id="buybar"><span><small>Toplam</small><b id="buybar-total"></b></span><a class="btn" href="#buy">Masalını oluştur</a></div>` : ''}`;
 
+    // the description shows three lines; the rest opens on request
+    const desc = document.getElementById('p-desc'), more = document.getElementById('desc-more');
+    if (desc && more) {
+      more.hidden = desc.scrollHeight <= desc.clientHeight + 2;
+      more.addEventListener('click', () => { const open = desc.classList.toggle('clamp'); more.textContent = open ? 'Devamını oku' : 'Daha az'; });
+    }
     // Gallery thumbs
     root.querySelectorAll('[data-shot]').forEach(b => b.addEventListener('click', () => {
       const s = shots[+b.dataset.shot], m = document.getElementById('g-main');
@@ -769,46 +853,46 @@ function renderProduct() {
     const buyF = document.getElementById('buy');
     if (buyF) buyF.addEventListener('submit', async e => {
       e.preventDefault();
-      const note = document.getElementById('buy-note'), payBtn = document.getElementById('pay-btn');
+      const goPay = !e.submitter || e.submitter.value !== 'sepet';
+      const note = document.getElementById('buy-note'), btns = [...buyF.querySelectorAll('.buy-actions button')];
       const c = root.querySelector('input[name="cover"]:checked'), set = root.querySelector('input[name="set"]:checked');
       const name = nameIn ? nameIn.value.trim() : '';
-      const rawPhone = document.getElementById('c-phone').value.trim(), phone = rawPhone.replace(/\D/g, '');
-      const mail = document.getElementById('c-email').value.trim();
-      const say = (text, focus) => { note.textContent = text; if (focus) focus.focus(); };
+      const say = (html, focus) => { note.innerHTML = html; if (focus) focus.focus(); };
       if (!(c ? c.dataset.price : singlePrice)) return say('Bu ürünün fiyatı yakında açıklanacak; şimdilik sipariş alamıyoruz.');
       if (nameIn && !name) return say('Lütfen kahramanın adını yazın.', nameIn);
       if (checked.some(r => r && r.level === 'checking')) return say('Fotoğraflar kontrol ediliyor, birkaç saniye bekleyin.');
       const missing = slots.map((sl, k) => k).filter(k => !checked[k] || !(checked[k].level === 'ok' || checked[k].accepted));
       if (missing.length) return say(`Lütfen 3 fotoğrafın hepsini uygun fotoğraflarla tamamlayın: ${missing.map(k => `${k + 1} · ${PHOTO_SLOTS[k]}`).join(', ')}.`, slots[missing[0]].querySelector('input'));
-      if (!/^[\d\s()+-]+$/.test(rawPhone) || phone.length < 10 || phone.length > 13) return say('Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.', document.getElementById('c-phone'));
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return say('Lütfen geçerli bir e-posta adresi yazın.', document.getElementById('c-email'));
-      if (!document.getElementById('ok-terms').checked) return say('Devam etmek için Ön Bilgilendirme Formu’nu ve Mesafeli Satış Sözleşmesi’ni onaylayın.', document.getElementById('ok-terms'));
       if (!document.getElementById('ok-kvkk').checked) return say('Fotoğrafları kitabınız için kullanabilmemiz için açık rızanız gerekiyor.', document.getElementById('ok-kvkk'));
       if (!ORDER_API) return say('Ödeme sistemi birkaç gün içinde açılıyor. Şimdilik sipariş alamıyoruz.');
 
       const gift = document.getElementById('gift-box');
-      const order = {
+      const item = {
         product: p.id, hero: cap(name), cover: c ? c.value : '', set: set ? set.value : 'tek',
         giftBox: !!(gift && gift.checked && !document.getElementById('gift-wrap').hidden),
-        giftNote: (document.getElementById('gift-note') || {}).value || '',
-        phone: rawPhone, email: mail, consentTerms: true, consentKvkk: true
+        giftNote: (document.getElementById('gift-note') || {}).value || '', consentKvkk: true
       };
       const data = new FormData();
-      data.append('order', JSON.stringify(order));
+      data.append('item', JSON.stringify(item));
       checked.forEach((r, k) => data.append(`photo${k + 1}`, r.blob, `foto-${k + 1}.jpg`));
-      payBtn.disabled = true; say('Fotoğraflarınız yükleniyor, ardından ödeme sayfasına geçeceksiniz…');
+      btns.forEach(b => { b.disabled = true; }); say('Fotoğraflarınız yükleniyor…');
       try {
-        const res = await fetch(ORDER_API + '/api/order', { method: 'POST', body: data });
+        const res = await fetch(ORDER_API + '/api/item', { method: 'POST', body: data });
         const out = await res.json().catch(() => ({}));
-        if (!res.ok || !out.url) throw new Error(out.error || 'Sipariş oluşturulamadı.');
-        location.href = out.url;
+        if (!res.ok || !out.id) throw new Error(out.error || 'Kitap sepete eklenemedi.');
+        cart.add({ ...out, img: p.img });
+        if (goPay) { location.href = 'sepet.html'; return; }
+        // ready for the next book: same story for another child, or another story
+        if (nameIn) { nameIn.value = ''; nameIn.dispatchEvent(new Event('input')); }
+        slots.forEach((sl, k) => { delete sl.dataset.state; sl.classList.remove('filled'); sl.querySelector('.slot-img').style.backgroundImage = ''; sl.querySelector('input').value = ''; checked[k] = undefined; });
+        showMessages();
+        btns.forEach(b => { b.disabled = false; });
+        say(`<b>${esc(out.title)}</b> sepetinize eklendi. <a href="sepet.html">Sepete git</a> ya da başka bir çocuk için aynı masalı hazırlayın, <a href="urunler.html">başka bir masal seçin</a>.`);
       } catch (err) {
-        payBtn.disabled = false;
-        say(`${err.message} Lütfen tekrar deneyin; sorun sürerse bize yazın.`);
+        btns.forEach(b => { b.disabled = false; });
+        say(`${esc(err.message)} Lütfen tekrar deneyin; sorun sürerse bize yazın.`);
       }
     });
-    if (buyF && new URLSearchParams(location.search).get('odeme') === 'iptal')
-      document.getElementById('buy-note').textContent = 'Ödeme tamamlanmadı. Siparişinizi tamamlamak için fotoğrafları yeniden seçip tekrar deneyin.';
     const intF = document.getElementById('interest');
     if (intF) intF.addEventListener('submit', e => { e.preventDefault(); document.getElementById('int-note').textContent = 'Önizleme sürümü: haber listesi site yayına alınırken bağlanacak.'; });
 
@@ -861,8 +945,11 @@ function setupViewer(spreads) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (document.body.dataset.page === 'sepet') renderCart();
+  if (document.body.dataset.page === 'tesekkurler' && /siparis=MSL-/.test(location.search)) cart.clear();
   document.querySelectorAll('[data-aud]').forEach(el => { if (AUDIENCES[el.dataset.aud] && AUDIENCES[el.dataset.aud].hidden) el.remove(); });
   renderChrome();
+  cart.badge();
   const page = document.body.dataset.page;
   if (AUDIENCES[page]) renderCollection(page);
   if (page === 'home') {

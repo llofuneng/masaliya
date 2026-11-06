@@ -1,8 +1,9 @@
 /* Masaliya order server: a Cloudflare Worker.
-   It takes an order from the site (book, options, contacts and three photos), keeps the photos in a
-   private R2 bucket, works out the price itself and sends the customer to a Stripe payment page.
-   When Stripe reports the payment, the order is marked paid and the owner gets an e-mail with the
-   order and links to the photos. Unpaid orders and their photos are deleted after 3 days.
+   The site puts each book in the cart here (book, options and three photos, kept in a private R2
+   bucket), then sends the whole cart with the contacts for payment. The price is worked out here,
+   and the customer goes to a Stripe payment page. When Stripe reports the payment, the order is
+   marked paid and the owner gets an e-mail with the order and links to the photos. Cart items and
+   orders that are not paid within 3 days are deleted with their photos.
 
    Settings (Cloudflare → Worker → Settings → Variables and Secrets), see worker/KURULUM.md:
      STRIPE_SECRET_KEY      Stripe secret key (sk_live_… or sk_test_…)
@@ -22,18 +23,20 @@ const CATALOG = {"books":{"sihirli-kutuphane":{"title":"ve Sihirli Kütüphane",
 const PART_NAMES = { boyama: 'boyama kitabı', yapboz: 'ahşap yapboz' };
 const UNPAID_DAYS = 3;
 const MAX_PHOTO = 12 * 1024 * 1024;
+const MAX_ITEMS = 10;
 
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     try {
       if (req.method === 'OPTIONS') return cors(env, new Response(null, { status: 204 }));
+      if (req.method === 'POST' && url.pathname === '/api/item') return cors(env, await addItem(req, env));
       if (req.method === 'POST' && url.pathname === '/api/order') return cors(env, await createOrder(req, env));
       if (req.method === 'POST' && url.pathname === '/api/stripe') return await stripeEvent(req, env);
       if (req.method === 'GET' && url.pathname === '/api/status') return cors(env, await orderStatus(url, env));
       if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env);
-      const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/foto-([123])\.jpg)?$/);
-      if (req.method === 'GET' && m) return await adminOrder(m[1], m[2], url, env);
+      const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
+      if (req.method === 'GET' && m) return await adminOrder(m[1], m[2], m[3], url, env);
       return new Response('Not found', { status: 404 });
     } catch (err) {
       console.log('error', err && err.stack || err);
@@ -43,22 +46,19 @@ export default {
   async scheduled(event, env) { await removeUnpaid(env); }
 };
 
-/* ---------- the order from the site ---------- */
-async function createOrder(req, env) {
+/* ---------- one book into the cart: options and three photos ---------- */
+async function addItem(req, env) {
   const form = await req.formData();
   let o;
-  try { o = JSON.parse(form.get('order') || '{}'); } catch (e) { return json({ error: 'Sipariş bilgileri okunamadı.' }, 400); }
+  try { o = JSON.parse(form.get('item') || '{}'); } catch (e) { return json({ error: 'Kitap bilgileri okunamadı.' }, 400); }
   const book = CATALOG.books[o.product];
   const set = CATALOG.sets.find(s => s.id === o.set);
   const coverPrice = CATALOG.prices.kitap[o.cover];
   const hero = String(o.hero || '').trim().slice(0, 32);
-  const phone = String(o.phone || '').trim(), email = String(o.email || '').trim();
   if (!book || !set || !coverPrice) return json({ error: 'Seçtiğiniz kitap ya da seçenek bulunamadı.' }, 400);
   if (o.cover === 'digital' && set.items.length) return json({ error: 'Dijital kitap setle birlikte sipariş edilemez.' }, 400);
   if (!hero) return json({ error: 'Kahramanın adı eksik.' }, 400);
-  if (!/^[\d\s()+-]{10,20}$/.test(phone)) return json({ error: 'Telefon numarası geçersiz.' }, 400);
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'E-posta adresi geçersiz.' }, 400);
-  if (o.consentTerms !== true || o.consentKvkk !== true) return json({ error: 'Sözleşme ve açık rıza onayı eksik.' }, 400);
+  if (o.consentKvkk !== true) return json({ error: 'Fotoğraflar için açık rıza gerekiyor.' }, 400);
   const photos = [1, 2, 3].map(n => form.get('photo' + n));
   if (photos.some(f => !f || typeof f === 'string' || !/^image\//.test(f.type) || f.size > MAX_PHOTO || f.size < 1000)) return json({ error: 'Üç fotoğrafın üçü de gerekli (en fazla 12 MB).' }, 400);
 
@@ -67,49 +67,73 @@ async function createOrder(req, env) {
   const setPrice = Math.round((coverPrice + parts.reduce((a, b) => a + b, 0)) * (1 - set.discount));
   const ships = o.cover !== 'digital' || set.items.length > 0;
   const giftBox = !!o.giftBox && ships;
-  const total = setPrice + (giftBox ? CATALOG.giftBox : 0);
-
-  const id = newId();
-  const title = `${hero} ${book.title}`;
-  const what = [CATALOG.covers[o.cover], ...set.items.map(([t]) => PART_NAMES[t])].join(' + ');
-  const order = {
-    id, status: 'odeme-bekleniyor', created: new Date().toISOString(),
-    product: o.product, title, hero, cover: o.cover, set: set.id, setName: set.name, contents: what,
-    giftBox, giftNote: giftBox ? String(o.giftNote || '').slice(0, 240) : '',
-    price: { set: setPrice, giftBox: giftBox ? CATALOG.giftBox : 0, total },
-    contact: { phone, email }, ships
+  const item = {
+    id: newId('KTP-', 8), status: 'sepette', created: new Date().toISOString(),
+    product: o.product, title: `${hero} ${book.title}`, hero, cover: o.cover, set: set.id, setName: set.name,
+    contents: [CATALOG.covers[o.cover], ...set.items.map(([t]) => PART_NAMES[t])].join(' + '),
+    giftBox, giftNote: giftBox ? String(o.giftNote || '').slice(0, 240) : '', ships,
+    price: { set: setPrice, giftBox: giftBox ? CATALOG.giftBox : 0, total: setPrice + (giftBox ? CATALOG.giftBox : 0) }
   };
-  await Promise.all(photos.map((f, i) => env.PHOTOS.put(`orders/${id}/foto-${i + 1}.jpg`, f.stream(), { httpMetadata: { contentType: f.type } })));
-  await save(env, order);
+  await Promise.all(photos.map((f, i) => env.PHOTOS.put(`items/${item.id}/foto-${i + 1}.jpg`, f.stream(), { httpMetadata: { contentType: f.type } })));
+  await putJson(env, `items/${item.id}/kitap.json`, item);
+  return json(publicItem(item));
+}
+const publicItem = it => ({ id: it.id, product: it.product, title: it.title, contents: it.contents, setName: it.setName, cover: it.cover, giftBox: it.giftBox, giftNote: it.giftNote, price: it.price });
 
-  // Stripe payment page
+/* ---------- the cart to the payment page ---------- */
+async function createOrder(req, env) {
+  let o;
+  try { o = await req.json(); } catch (e) { return json({ error: 'Sipariş bilgileri okunamadı.' }, 400); }
+  const ids = [...new Set(Array.isArray(o.items) ? o.items : [])].slice(0, MAX_ITEMS + 1);
+  const phone = String(o.phone || '').trim(), email = String(o.email || '').trim();
+  if (!ids.length) return json({ error: 'Sepetiniz boş.' }, 400);
+  if (ids.length > MAX_ITEMS) return json({ error: `Bir siparişte en fazla ${MAX_ITEMS} kitap olabilir.` }, 400);
+  if (!/^[\d\s()+-]{10,20}$/.test(phone)) return json({ error: 'Telefon numarası geçersiz.' }, 400);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'E-posta adresi geçersiz.' }, 400);
+  if (o.consentTerms !== true) return json({ error: 'Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi onayı eksik.' }, 400);
+  const items = await Promise.all(ids.map(id => /^KTP-[A-Z0-9]{8}$/.test(id) ? getJson(env, `items/${id}/kitap.json`) : null));
+  const missing = ids.filter((id, i) => !items[i] || items[i].status === 'odendi');
+  if (missing.length) return json({ error: 'Sepetinizdeki bazı kitapların süresi dolmuş. Lütfen onları yeniden ekleyin.', missing }, 409);
+
+  const total = items.reduce((a, it) => a + it.price.total, 0);
+  const boxes = items.filter(it => it.giftBox).length;
+  const order = {
+    id: newId('MSL-', 6), status: 'odeme-bekleniyor', created: new Date().toISOString(),
+    items, ships: items.some(it => it.ships), price: { total }, contact: { phone, email }
+  };
+  await saveOrder(env, order);
+
   const site = env.SITE_URL || 'https://masaliya.com';
+  const summary = items.map(it => `${it.title} (${it.setName})`).join('; ');
   const p = new URLSearchParams({
-    mode: 'payment', locale: 'tr', client_reference_id: id, customer_email: email,
-    success_url: `${site}/tesekkurler.html?siparis=${id}`,
-    cancel_url: `${site}/${o.product}.html?odeme=iptal`,
+    mode: 'payment', locale: 'tr', client_reference_id: order.id, customer_email: email,
+    success_url: `${site}/tesekkurler.html?siparis=${order.id}`,
+    cancel_url: `${site}/sepet.html?odeme=iptal`,
     'phone_number_collection[enabled]': 'true',
-    'metadata[siparis]': id, 'metadata[kitap]': title, 'metadata[icerik]': what, 'metadata[set]': set.name,
-    'metadata[hediye_kutusu]': giftBox ? 'evet' : 'hayır', 'metadata[telefon]': phone,
-    'payment_intent_data[description]': `${id} · ${title} · ${set.name}`,
-    'payment_intent_data[metadata][siparis]': id,
-    'line_items[0][quantity]': '1',
-    'line_items[0][price_data][currency]': 'try',
-    'line_items[0][price_data][unit_amount]': String(setPrice * 100),
-    'line_items[0][price_data][product_data][name]': `${title} · ${set.name}`,
-    'line_items[0][price_data][product_data][description]': what
+    'metadata[siparis]': order.id, 'metadata[kitaplar]': summary.slice(0, 480), 'metadata[telefon]': phone,
+    'payment_intent_data[description]': `${order.id} · ${items.length} kitap · ${summary}`.slice(0, 990),
+    'payment_intent_data[metadata][siparis]': order.id
   });
-  if (giftBox) {
-    p.set('line_items[1][quantity]', '1');
-    p.set('line_items[1][price_data][currency]', 'try');
-    p.set('line_items[1][price_data][unit_amount]', String(CATALOG.giftBox * 100));
-    p.set('line_items[1][price_data][product_data][name]', 'Hediye kutusu');
+  let n = 0;
+  for (const it of items) {
+    p.set(`line_items[${n}][quantity]`, '1');
+    p.set(`line_items[${n}][price_data][currency]`, 'try');
+    p.set(`line_items[${n}][price_data][unit_amount]`, String(it.price.set * 100));
+    p.set(`line_items[${n}][price_data][product_data][name]`, `${it.title} · ${it.setName}`);
+    p.set(`line_items[${n}][price_data][product_data][description]`, it.contents);
+    n++;
   }
-  if (ships) p.set('shipping_address_collection[allowed_countries][0]', 'TR');
+  if (boxes) {
+    p.set(`line_items[${n}][quantity]`, String(boxes));
+    p.set(`line_items[${n}][price_data][currency]`, 'try');
+    p.set(`line_items[${n}][price_data][unit_amount]`, String(CATALOG.giftBox * 100));
+    p.set(`line_items[${n}][price_data][product_data][name]`, 'Hediye kutusu');
+  }
+  if (order.ships) p.set('shipping_address_collection[allowed_countries][0]', 'TR');
   const session = await stripe(env, 'checkout/sessions', p);
   order.stripeSession = session.id;
-  await save(env, order);
-  return json({ id, url: session.url });
+  await saveOrder(env, order);
+  return json({ id: order.id, url: session.url });
 }
 
 /* ---------- Stripe tells us about the payment ---------- */
@@ -120,7 +144,7 @@ async function stripeEvent(req, env) {
   if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
     const s = event.data.object;
     if (s.payment_status !== 'paid') return new Response('ok');
-    const order = await load(env, s.client_reference_id);
+    const order = await loadOrder(env, s.client_reference_id);
     if (!order || order.status === 'odendi') return new Response('ok');
     const ship = (s.collected_information && s.collected_information.shipping_details) || s.shipping_details || null;
     const cust = s.customer_details || {};
@@ -129,7 +153,12 @@ async function stripeEvent(req, env) {
     order.amountPaid = s.amount_total / 100;
     order.contact = { ...order.contact, name: cust.name || '', email: cust.email || order.contact.email, phone: cust.phone || order.contact.phone };
     order.shipping = ship ? { name: ship.name, ...ship.address } : null;
-    await save(env, order);
+    await saveOrder(env, order);
+    // the books in this order are paid: the clean-up leaves them alone
+    await Promise.all(order.items.map(async it => {
+      const cur = await getJson(env, `items/${it.id}/kitap.json`);
+      if (cur) await putJson(env, `items/${it.id}/kitap.json`, { ...cur, status: 'odendi', order: order.id });
+    }));
     await mailOwner(env, order, new URL(req.url).origin);
   }
   return new Response('ok');
@@ -137,12 +166,12 @@ async function stripeEvent(req, env) {
 
 /* ---------- order tracking on the site: order number + e-mail or phone ---------- */
 async function orderStatus(url, env) {
-  const order = await load(env, (url.searchParams.get('siparis') || '').toUpperCase());
+  const order = await loadOrder(env, (url.searchParams.get('siparis') || '').toUpperCase());
   const who = (url.searchParams.get('iletisim') || '').trim().toLowerCase();
   const digits = s => String(s || '').replace(/\D/g, '').slice(-10);
   if (!order || !who || !(who === order.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(order.contact.phone))))
     return json({ error: 'Bu bilgilerle bir sipariş bulunamadı.' }, 404);
-  return json({ id: order.id, status: order.status, title: order.title, contents: order.contents, created: order.created, paid: order.paid || null });
+  return json({ id: order.id, status: order.status, title: order.items.map(it => it.title).join(', '), contents: order.items.map(it => it.setName).join(', '), created: order.created, paid: order.paid || null });
 }
 
 /* ---------- owner pages: all orders, and one order with its photos ---------- */
@@ -152,72 +181,80 @@ async function adminList(url, env) {
   let cursor;
   do {
     const page = await env.PHOTOS.list({ prefix: 'orders/', cursor });
-    for (const o of page.objects) if (o.key.endsWith('/siparis.json')) orders.push(JSON.parse(await (await env.PHOTOS.get(o.key)).text()));
+    for (const o of page.objects) if (o.key.endsWith('/siparis.json')) orders.push(await getJson(env, o.key));
     cursor = page.truncated ? page.cursor : null;
   } while (cursor);
   orders.sort((a, b) => b.created.localeCompare(a.created));
-  const rows = await Promise.all(orders.map(async o => `<tr class="${o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${esc(o.title)}<br><small>${esc(o.setName)} · ${esc(o.contents)}${o.giftBox ? ' · hediye kutusu' : ''}</small></td><td>${o.price.total.toLocaleString('tr-TR')} TL</td><td>${o.status === 'odendi' ? 'Ödendi' : 'Ödeme bekleniyor'}</td><td>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td></tr>`));
+  const rows = await Promise.all(orders.map(async o => `<tr class="${o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td>${o.status === 'odendi' ? 'Ödendi' : 'Ödeme bekleniyor'}</td><td>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td></tr>`));
   return page('Siparişler', `<h1>Siparişler</h1><p>${orders.filter(o => o.status === 'odendi').length} ödenmiş sipariş. Ödenmeyenler ${UNPAID_DAYS} gün sonra silinir.</p>
-    <table><tr><th>No</th><th>Tarih</th><th>Kitap</th><th>Tutar</th><th>Durum</th><th>İletişim</th></tr>${rows.join('')}</table>`);
+    <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>Durum</th><th>İletişim</th></tr>${rows.join('')}</table>`);
 }
 
-async function adminOrder(id, photo, url, env) {
-  if (url.searchParams.get('t') !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
-  if (photo) {
-    const obj = await env.PHOTOS.get(`orders/${id}/foto-${photo}.jpg`);
-    if (!obj) return new Response('Fotoğraf bulunamadı', { status: 404 });
-    return new Response(obj.body, { headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, no-store', 'content-disposition': `inline; filename="${id}-foto-${photo}.jpg"` } });
-  }
-  const o = await load(env, id);
+async function adminOrder(id, itemId, photo, url, env) {
+  const t = url.searchParams.get('t');
+  if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
+  const o = await loadOrder(env, id);
   if (!o) return new Response('Sipariş bulunamadı', { status: 404 });
-  return page(o.id, orderHtml(o, url.origin, url.searchParams.get('t')));
+  if (photo) {
+    if (!o.items.some(it => it.id === itemId)) return new Response('Fotoğraf bulunamadı', { status: 404 });
+    const obj = await env.PHOTOS.get(`items/${itemId}/foto-${photo}.jpg`);
+    if (!obj) return new Response('Fotoğraf bulunamadı', { status: 404 });
+    return new Response(obj.body, { headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, no-store', 'content-disposition': `inline; filename="${id}-${itemId}-foto-${photo}.jpg"` } });
+  }
+  return page(o.id, orderHtml(o, url.origin, t));
 }
 
 function orderHtml(o, origin, t) {
   const a = o.shipping;
+  const items = o.items.map((it, k) => `
+    <h2>${k + 1}. ${esc(it.title)}</h2>
+    <table>
+      <tr><th>Set</th><td>${esc(it.setName)} · ${esc(it.contents)}</td></tr>
+      <tr><th>Hediye kutusu</th><td>${it.giftBox ? 'Evet' + (it.giftNote ? ` · not: “${esc(it.giftNote)}”` : '') : 'Hayır'}</td></tr>
+      <tr><th>Tutar</th><td>${it.price.total.toLocaleString('tr-TR')} TL</td></tr>
+    </table>
+    <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(it.hero)} · fotoğraf ${n}"></a>`; }).join('')}</div>`).join('');
   return `<h1>${o.id} · ${o.status === 'odendi' ? 'Ödendi' : 'Ödeme bekleniyor'}</h1>
     <table>
-      <tr><th>Kitap</th><td>${esc(o.title)}</td></tr>
-      <tr><th>Set</th><td>${esc(o.setName)} · ${esc(o.contents)}</td></tr>
-      <tr><th>Hediye kutusu</th><td>${o.giftBox ? 'Evet' + (o.giftNote ? ` · not: “${esc(o.giftNote)}”` : '') : 'Hayır'}</td></tr>
-      <tr><th>Tutar</th><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td></tr>
+      <tr><th>Tutar</th><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL · ${o.items.length} kitap</td></tr>
       <tr><th>Tarih</th><td>${date(o.created)}${o.paid ? ` · ödendi ${date(o.paid)}` : ''}</td></tr>
       <tr><th>İletişim</th><td>${esc(o.contact.name || '')} ${esc(o.contact.phone)} · ${esc(o.contact.email)}</td></tr>
       <tr><th>Adres</th><td>${a ? esc([a.name, a.line1, a.line2, `${a.postal_code || ''} ${a.city || ''}`, a.state, a.country].filter(Boolean).join(', ')) : (o.ships ? '—' : 'Dijital, kargo yok')}</td></tr>
-    </table>
-    <div class="photos">${[1, 2, 3].map(n => `<a href="${origin}/admin/${o.id}/foto-${n}.jpg?t=${t}"><img src="${origin}/admin/${o.id}/foto-${n}.jpg?t=${t}" alt="Fotoğraf ${n}"></a>`).join('')}</div>`;
+    </table>${items}`;
 }
 
 async function mailOwner(env, o, origin) {
   if (!env.RESEND_API_KEY || !env.OWNER_EMAIL) return;
   const t = await token(env, o.id);
   const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#222">
-    <p>Yeni sipariş ödendi.</p>${orderHtml(o, origin, t)}
+    <p>Yeni sipariş ödendi.</p>${orderHtml(o, origin, t).replace(/<img /g, '<img style="height:200px;margin:4px" ')}
     <p><a href="${origin}/admin/${o.id}?t=${t}">Siparişi ve fotoğrafları aç</a></p></div>`;
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ from: env.MAIL_FROM || 'Masaliya <onboarding@resend.dev>', to: [env.OWNER_EMAIL], subject: `Yeni sipariş ${o.id} · ${o.title} · ${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL`, html })
+    body: JSON.stringify({ from: env.MAIL_FROM || 'Masaliya <onboarding@resend.dev>', to: [env.OWNER_EMAIL], subject: `Yeni sipariş ${o.id} · ${o.items.length} kitap · ${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL`, html })
   });
   if (!res.ok) console.log('mail failed', res.status, await res.text());
 }
 
-/* ---------- clean-up of unpaid orders (cron) ---------- */
+/* ---------- clean-up (cron): unpaid orders and cart books older than 3 days ---------- */
 async function removeUnpaid(env) {
   const limit = Date.now() - UNPAID_DAYS * 864e5;
-  let cursor;
-  do {
-    const page = await env.PHOTOS.list({ prefix: 'orders/', cursor });
-    for (const obj of page.objects) {
-      if (!obj.key.endsWith('/siparis.json')) continue;
-      const o = JSON.parse(await (await env.PHOTOS.get(obj.key)).text());
-      if (o.status !== 'odendi' && Date.parse(o.created) < limit) {
-        const id = o.id;
-        await env.PHOTOS.delete([1, 2, 3].map(n => `orders/${id}/foto-${n}.jpg`).concat(`orders/${id}/siparis.json`));
+  for (const [prefix, file] of [['orders/', '/siparis.json'], ['items/', '/kitap.json']]) {
+    let cursor;
+    do {
+      const page = await env.PHOTOS.list({ prefix, cursor });
+      for (const obj of page.objects) {
+        if (!obj.key.endsWith(file)) continue;
+        const x = await getJson(env, obj.key);
+        if (x && x.status !== 'odendi' && Date.parse(x.created) < limit) {
+          const dir = obj.key.slice(0, -file.length);
+          await env.PHOTOS.delete(file === '/kitap.json' ? [1, 2, 3].map(n => `${dir}/foto-${n}.jpg`).concat(obj.key) : [obj.key]);
+        }
       }
-    }
-    cursor = page.truncated ? page.cursor : null;
-  } while (cursor);
+      cursor = page.truncated ? page.cursor : null;
+    } while (cursor);
+  }
 }
 
 /* ---------- helpers ---------- */
@@ -248,16 +285,14 @@ async function hmac(secret, text) {
 // a per-order key for the owner's links, so photos can't be opened by guessing the order number
 const token = async (env, id) => (await hmac(env.ADMIN_KEY || env.STRIPE_WEBHOOK_SECRET || 'masaliya', 'order:' + id)).slice(0, 24);
 
-function newId() {
-  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(6));
-  return 'MSL-' + [...r].map(b => abc[b % abc.length]).join('');
+function newId(prefix, n) {
+  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(n));
+  return prefix + [...r].map(b => abc[b % abc.length]).join('');
 }
-const save = (env, o) => env.PHOTOS.put(`orders/${o.id}/siparis.json`, JSON.stringify(o, null, 1), { httpMetadata: { contentType: 'application/json' } });
-async function load(env, id) {
-  if (!/^MSL-[A-Z0-9]{6}$/.test(id || '')) return null;
-  const obj = await env.PHOTOS.get(`orders/${id}/siparis.json`);
-  return obj ? JSON.parse(await obj.text()) : null;
-}
+const putJson = (env, key, o) => env.PHOTOS.put(key, JSON.stringify(o, null, 1), { httpMetadata: { contentType: 'application/json' } });
+async function getJson(env, key) { const obj = await env.PHOTOS.get(key); return obj ? JSON.parse(await obj.text()) : null; }
+const saveOrder = (env, o) => putJson(env, `orders/${o.id}/siparis.json`, o);
+const loadOrder = (env, id) => /^MSL-[A-Z0-9]{6}$/.test(id || '') ? getJson(env, `orders/${id}/siparis.json`) : null;
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8' } });
 function cors(env, res) {
   const h = new Headers(res.headers);
@@ -270,4 +305,4 @@ function cors(env, res) {
 const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const date = iso => new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 const page = (title, body) => new Response(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)} · Masaliya</title>
-<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.photos img{height:260px;border:1px solid #eadfd3}a{color:#7a2434}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
