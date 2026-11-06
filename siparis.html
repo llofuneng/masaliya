@@ -17,8 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
 <link rel="icon" href="img/favicon.png">
-<link rel="stylesheet" href="site.css?v=202611061157">
-<script src="site.js?v=202611061157" defer></script>
+<link rel="stylesheet" href="site.css?v=202611061200">
+<script src="site.js?v=202611061200" defer></script>
 </head>
 <body data-page="siparis">
 <header id="site-head"></header>
@@ -36,7 +36,7 @@
       <button class="btn" type="submit">Siparişimi Göster</button>
       <p class="form-note" id="o-note" aria-live="polite"></p>
     </form>
-    <div class="panel summary">
+    <div class="panel summary" id="o-summary">
       <span class="example-tag">Örnek sipariş</span>
       <dl>
         <dt>Sipariş</dt><dd>MSL-7K3F9Q</dd>
@@ -47,10 +47,9 @@
     </div>
   </div>
   <div>
-    <p class="eyebrow" style="margin-bottom:22px">Atölyedeki yolculuk · örnek</p>
-    <ol class="timeline">
+    <p class="eyebrow" style="margin-bottom:22px" id="o-eyebrow">Atölyedeki yolculuk · örnek</p>
+    <ol class="timeline" id="o-steps">
       <li class="done"><span class="dot">✓</span><div><b>Sipariş alındı</b><small>Ödemeniz onaylandı.</small></div></li>
-      <li class="done"><span class="dot">✓</span><div><b>Fotoğraflar alındı</b><small>Fotoğraflarınız güvenle saklanıyor, yalnızca bu kitap için kullanılacak.</small></div></li>
       <li class="done"><span class="dot">✓</span><div><b>Resimler hazırlandı</b><small>Siparişten sonra 5 iş günü içinde.</small></div></li>
       <li class="now"><span class="dot">✦</span><div><b>Önizleme onayınızı bekliyor</b><small>Bütün sayfaları inceleyin; değiştirmek istediğiniz bir şey varsa yazın.</small>
         <div class="actions"><a class="btn" href="#onizleme">Önizlemeyi Aç</a><a class="btn ghost" href="#whatsapp">Değişiklik İste</a></div></div></li>
@@ -62,24 +61,42 @@
 </div></section>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('track').addEventListener('submit', e => {
+  const $ = id => document.getElementById(id), note = $('o-note');
+  const q = new URLSearchParams(location.search).get('siparis');
+  if (q) $('o-no').value = q.toUpperCase();
+  const day = iso => new Date(iso).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+  const show = d => {
+    $('o-summary').innerHTML = `<dl><dt>Sipariş</dt><dd>${esc(d.id)}</dd>${d.books.map(b => `<dt>Masal</dt><dd>${esc(b.title)}<br><small>${esc(b.contents)}</small></dd>`).join('')}${d.paid ? `<dt>Ödeme</dt><dd>${day(d.paid)}</dd>` : ''}</dl>`;
+    $('o-eyebrow').textContent = 'Atölyedeki yolculuk';
+    if (d.status !== 'odendi') {
+      $('o-steps').innerHTML = `<li class="now"><span class="dot">✦</span><div><b>Ödeme bekleniyor</b><small>Bu siparişin ödemesi tamamlanmamış. Kitaplarınız sepetinizde duruyorsa oradan tekrar deneyebilirsiniz.</small></div></li>`;
+      note.textContent = ''; return;
+    }
+    const cur = d.stages.findIndex(s => s.key === d.stage);
+    const steps = [{ title: 'Sipariş alındı', text: 'Ödemeniz onaylandı.', date: d.paid }].concat(d.stages);
+    $('o-steps').innerHTML = steps.map((s, i) => {
+      const k = i - 1, state = k < cur ? 'done' : k === cur ? (s.key === 'teslim' ? 'done' : 'now') : '';
+      let extra = '';
+      if (s.key === 'onizleme' && d.preview && k <= cur) extra = `<div class="actions"><a class="btn" href="${esc(d.preview)}" target="_blank" rel="noopener">Önizlemeyi aç</a></div>`;
+      if (s.key === 'kargo' && d.cargo && d.cargo.no && k <= cur) extra = `<small>${esc(d.cargo.firm)} · takip numarası <strong>${esc(d.cargo.no)}</strong></small>`;
+      return `<li class="${state}"><span class="dot">${state === 'done' ? '✓' : state === 'now' ? '✦' : ''}</span><div><b>${esc(s.title)}</b>${s.date && state ? `<small>${day(s.date)}</small>` : ''}${state === 'now' || !state ? `<small>${esc(s.text)}</small>` : ''}${extra}</div></li>`;
+    }).join('');
+    note.textContent = '';
+  };
+  $('track').addEventListener('submit', e => {
     e.preventDefault();
-    const v = document.getElementById('o-contact').value.trim(), note = document.getElementById('o-note');
+    const v = $('o-contact').value.trim();
     const ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.replace(/\D/g, '').length >= 10;
     if (!ok) { note.textContent = 'Lütfen siparişte kullandığınız e-posta adresini ya da telefon numarasını yazın.'; return; }
-    const no = document.getElementById('o-no').value.trim().toUpperCase();
-    if (!ORDER_API) { note.textContent = 'Sipariş sistemi birkaç gün içinde açılıyor. Yandaki adımlar örnektir.'; return; }
+    const no = $('o-no').value.trim().toUpperCase();
     note.textContent = 'Sipariş aranıyor…';
     fetch(`${ORDER_API}/api/status?siparis=${encodeURIComponent(no)}&iletisim=${encodeURIComponent(v)}`)
       .then(r => r.json().then(d => ({ ok: r.ok, d })))
-      .then(({ ok, d }) => {
-        if (!ok) { note.textContent = d.error || 'Bu bilgilerle bir sipariş bulunamadı.'; return; }
-        const state = d.status === 'odendi' ? 'Ödemeniz alındı, masalınız atölyede hazırlanıyor. Önizleme hazır olduğunda size yazacağız.' : 'Bu siparişin ödemesi tamamlanmamış.';
-        note.textContent = `${d.id} · ${d.title} (${d.contents}). ${state}`;
-      })
+      .then(({ ok, d }) => { if (!ok) { note.textContent = d.error || 'Bu bilgilerle bir sipariş bulunamadı.'; return; } show(d); })
       .catch(() => { note.textContent = 'Şu anda sipariş bilgisine ulaşılamıyor, lütfen biraz sonra tekrar deneyin.'; });
   });
-  document.querySelector('a[href="#onizleme"]').addEventListener('click', e => { e.preventDefault(); document.getElementById('o-note').textContent = 'Önizleme sürümü: gerçek siparişte burada kitabınızın bütün sayfaları açılacak.'; });
+  const pv = document.querySelector('a[href="#onizleme"]');
+  if (pv) pv.addEventListener('click', e => { e.preventDefault(); note.textContent = 'Örnek: gerçek siparişinizde önizleme hazır olduğunda burada açılır.'; });
 });
 </script>
 </main>
