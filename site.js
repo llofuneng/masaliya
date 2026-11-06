@@ -38,7 +38,8 @@ const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
    the lists, the price table and the texts that mention them. After switching, run
    node tools/build-pages.js (the order server already knows every set, so Cloudflare needs nothing). */
 const SELL = { boyama: false, yapboz: false };
-const onSale = p => p.type !== 'boyama' || SELL.boyama;
+// a product with hidden: true is off the site for now (its pages stay, its address leads to the collection)
+const onSale = p => !p.hidden && !(p.book && (PRODUCTS.find(b => b.id === p.book) || {}).hidden) && (p.type !== 'boyama' || SELL.boyama);
 
 /* Sets: the same hero across several products, priced together.
    The set price is the book plus its parts (coloring book, wooden puzzle), minus the discount if any.
@@ -204,7 +205,8 @@ const SPREADS_DINO = [
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list).
    book: a coloring book is sold only with its story book, as a Masal Seti */
 const PRODUCTS = [
-  { id: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+  { id: 'sihirli-kutuphane', hidden: true,   // hidden for now: set to false (or delete) to bring it back
+    coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
     img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
@@ -643,7 +645,7 @@ function renderProduct() {
   const root = document.getElementById('product');
   function show() {
     const p = currentProduct();
-    if (p && !onSale(p)) { const b = PRODUCTS.find(x => x.id === p.book); location.replace(b ? productHref(b) : 'urunler.html'); return; }
+    if (p && !onSale(p)) { const b = PRODUCTS.find(x => x.id === p.book); location.replace(b && onSale(b) ? productHref(b) : (AUDIENCES[p.aud] || {}).page || 'urunler.html'); return; }
     if (!p) {
       // an address we don't know: say so instead of quietly showing another book
       document.title = 'Bulunamadı · Masaliya';
@@ -995,7 +997,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (AUDIENCES[page]) renderCollection(page);
   if (page === 'home') {
     // the story books, with their prices, just below the opening scene
-    const books = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir');
+    const books = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p));
     const g = document.getElementById('home-grid');
     if (g) {
       g.innerHTML = books.map(card).join('');
