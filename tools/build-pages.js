@@ -10,11 +10,11 @@ const ROOT = path.join(__dirname, '..');
 const SITE = 'https://masaliya.com';
 
 // read the catalogue straight from site.js
-const code = fs.readFileSync(path.join(ROOT, 'site.js'), 'utf8') + '\n;this.__cat = { PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, SETS, GIFT_BOX_PRICE, FORMATS };';
+const code = fs.readFileSync(path.join(ROOT, 'site.js'), 'utf8') + '\n;this.__cat = { SELL, PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, SETS, GIFT_BOX_PRICE, FORMATS };';
 const ctx = { document: { addEventListener() {} }, location: {}, addEventListener() {} };
 vm.createContext(ctx);
 vm.runInContext(code, ctx);
-const { PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, SETS, GIFT_BOX_PRICE, FORMATS } = ctx.__cat;
+const { SELL, PRODUCTS, AUDIENCES, TYPES, OCCASIONS, PRICES, SETS, GIFT_BOX_PRICE, FORMATS } = ctx.__cat;
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const clip = (s, n) => (s.length <= n ? s : s.slice(0, s.lastIndexOf(' ', n - 1)) + '…');
@@ -48,7 +48,7 @@ for (const p of PRODUCTS) {
 }
 
 // sitemap for search engines
-const pages = ['', 'urunler', 'kizlar', 'erkekler', ...(AUDIENCES.yetiskin.hidden ? [] : ['yetiskinler']), 'nasil', 'sss', 'gizlilik', 'mesafeli-satis', 'kvkk', ...PRODUCTS.map(p => p.id)];
+const pages = ['', 'urunler', 'kizlar', 'erkekler', ...(AUDIENCES.yetiskin.hidden ? [] : ['yetiskinler']), 'nasil', 'sss', 'gizlilik', 'mesafeli-satis', 'kvkk', ...PRODUCTS.filter(p => p.type !== 'boyama' || SELL.boyama).map(p => p.id)];
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(u => `  <url><loc>${SITE}/${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 

@@ -33,15 +33,24 @@ const PRICES = {
 };
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
+/* ON SALE NOW. Only the story books are ready. Switch boyama (coloring books) or yapboz (wooden
+   puzzle) to true and they come back by themselves: the sets on the book pages, the coloring pages,
+   the lists, the price table and the texts that mention them. After switching, run
+   node tools/build-pages.js: it also updates worker/masaliya-siparis.js, which then goes into Cloudflare. */
+const SELL = { boyama: false, yapboz: false };
+const onSale = p => p.type !== 'boyama' || SELL.boyama;
+
 /* Sets: the same hero across several products, priced together.
    The set price is the book plus its parts (coloring book, wooden puzzle), minus the discount if any.
    Sets go with the printed book only. */
-const SETS = [
+const ALL_SETS = [
   { id: 'tek', name: 'Yalnızca kitap', items: [], discount: 0 },
   { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: 0 },
   { id: 'yapboz-seti', name: 'Yapboz Seti', note: 'Kitap + ahşap yapboz, 35 parça', items: [['yapboz', 'std']], discount: 0 },
   { id: 'super-set', name: 'Süper Set', note: 'Kitap + boyama kitabı + ahşap yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: 0 }
 ];
+const SETS = ALL_SETS.filter(st => st.items.every(([t]) => SELL[t]));   // only sets whose parts are on sale
+const setTotal = st => Math.round((PRICES.kitap.hard + st.items.reduce((a, [t, f]) => a + PRICES[t][f], 0)) * (1 - st.discount));
 const PHOTO_SLOTS = ['Önden', 'Hafif yandan', 'Gülümserken'];
 const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır. 3 yaşından küçük çocuklar için uygun değildir.' };
 const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
@@ -470,8 +479,8 @@ function renderCollection(aud) {
   const isAdult = aud === 'yetiskin';
   const filters = isAdult
     ? [['hepsi', 'Hepsi'], ...Object.entries(OCCASIONS)]
-    : Object.values(TYPES).map(t => [t.tab, t.name]);
-  const items = PRODUCTS.filter(p => p.aud === aud);
+    : Object.entries(TYPES).filter(([k]) => k !== 'boyama' || SELL.boyama).map(([, t]) => [t.tab, t.name]);
+  const items = PRODUCTS.filter(p => p.aud === aud && onSale(p));
   function show() {
     let key = location.hash.slice(1);
     if (!filters.some(([k]) => k === key)) key = filters[0][0];
@@ -634,6 +643,7 @@ function renderProduct() {
   const root = document.getElementById('product');
   function show() {
     const p = currentProduct();
+    if (p && !onSale(p)) { const b = PRODUCTS.find(x => x.id === p.book); location.replace(b ? productHref(b) : 'urunler.html'); return; }
     if (!p) {
       // an address we don't know: say so instead of quietly showing another book
       document.title = 'Bulunamadı · Masaliya';
@@ -661,7 +671,7 @@ function renderProduct() {
         <div class="covers" role="radiogroup" aria-label="Seçenekler" style="--n:${formats.length}">
           ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
         </div>` : '';
-    const coloring = PRODUCTS.find(x => x.book === p.id);
+    const coloring = PRODUCTS.find(x => x.book === p.id && onSale(x));
     const askedSet = new URLSearchParams(location.search).get('set');
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
     const buy = orderable ? `
@@ -677,7 +687,7 @@ function renderProduct() {
         <span class="step">3 · Seçenekler</span>
         ${options}
         ${p.type === 'kitap' ? `
-        <div class="sets" role="radiogroup" aria-label="Set">
+        <div class="sets" role="radiogroup" aria-label="Set"${SETS.length < 2 ? ' hidden' : ''}>
           ${SETS.map(st => {
             const parts = st.items.map(([t, f]) => (PRICES[t] || {})[f]);
             const ready = parts.every(Boolean);
@@ -685,10 +695,10 @@ function renderProduct() {
               <b>${st.name}</b>${st.note ? `<small>${st.note}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ready && st.items.length ? `+ ${fmt(parts.reduce((a, b) => a + b, 0))}` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
           }).join('')}
         </div>
-        <div class="addons">
+        ${coloring || SELL.yapboz ? `<div class="addons">
           ${coloring ? `<a class="addon-card" href="${productHref(coloring)}"><img src="${thumb(coloring.img)}" alt="" loading="lazy"><span><b>Boyama kitabı</b><small>${coloring.pages.length} sayfa boyama ve etkinlik, aynı kahramanla · sayfalarına bakın</small></span></a>` : ''}
-          <button type="button" class="addon-card" id="puzzle-look"><img src="${thumb(puzzleImg(p))}" alt="" loading="lazy"><span><b>Ahşap yapboz</b><small>${esc(PUZZLE.desc)} · büyüt</small></span></button>
-        </div>
+          ${SELL.yapboz ? `<button type="button" class="addon-card" id="puzzle-look"><img src="${thumb(puzzleImg(p))}" alt="" loading="lazy"><span><b>Ahşap yapboz</b><small>${esc(PUZZLE.desc)} · büyüt</small></span></button>` : ''}
+        </div>` : ''}
         ${PDF_ADDON_PRICE ? `<label class="pdf-opt${PDF_ADDON_PRICE ? '' : ' off'}" for="pdf-addon" id="pdf-wrap"><input type="checkbox" id="pdf-addon"${PDF_ADDON_PRICE ? '' : ' disabled'}><span><b>+ Dijital kopya (PDF)</b><small>Basılı kitabın yanında tablet ve telefon için</small></span><em>${PDF_ADDON_PRICE ? '+ ' + fmt(PDF_ADDON_PRICE) : 'Fiyat yakında'}</em></label>` : ''}` : ''}
         <label class="gift-opt" for="gift-box" id="gift-wrap">
           <input type="checkbox" id="gift-box">
@@ -707,12 +717,12 @@ function renderProduct() {
       </form>`
       : book ? (() => {
         const set = SETS.find(st => st.id === 'masal-seti'), sup = SETS.find(st => st.id === 'super-set');
-        const setPrice = st => fmt(Math.round((PRICES.kitap.hard + st.items.reduce((a, [t, f]) => a + PRICES[t][f], 0)) * (1 - st.discount)));
+        const setPrice = st => fmt(setTotal(st));
         return `
       <div class="info addon">
         <p class="eyebrow">${set.name}</p>
         <p class="desc">Bu boyama kitabı tek başına satılmaz. <a href="${productHref(book)}">${fullTitle(book)}</a> kitabıyla birlikte, aynı kahramanla hazırlanır.</p>
-        <p class="set-price">${set.name}: kitap + boyama kitabı · ${setPrice(set)}<br>${sup.name}: kitap + boyama kitabı + ahşap yapboz · ${setPrice(sup)}</p>
+        <p class="set-price">${set.name}: kitap + boyama kitabı · ${setPrice(set)}${sup ? `<br>${sup.name}: kitap + boyama kitabı + ahşap yapboz · ${setPrice(sup)}` : ''}</p>
         <a class="btn" href="${productHref(book)}?set=${set.id}#buy">${set.name}’ni oluştur</a>
       </div>`; })()
       : `
@@ -811,7 +821,7 @@ function renderProduct() {
       // the e-book comes alone: sets go with the printed book only
       const setsBox = root.querySelector('.sets'), addons = root.querySelector('.addons');
       if (setsBox) {
-        setsBox.hidden = digital; if (addons) addons.hidden = digital;
+        setsBox.hidden = digital || SETS.length < 2; if (addons) addons.hidden = digital;
         const tek = setsBox.querySelector('input[value="tek"]');
         if (digital && tek && !tek.checked) tek.checked = true;
       }
@@ -930,7 +940,7 @@ function renderProduct() {
     }
 
     // Related
-    const rel = PRODUCTS.filter(x => x.aud === p.aud && x.id !== p.id).slice(0, 3);
+    const rel = PRODUCTS.filter(x => x.aud === p.aud && x.id !== p.id && onSale(x)).slice(0, 3);
     document.getElementById('related').innerHTML = rel.map(card).join('');
     if (location.hash === '#inside' && document.getElementById('inside')) requestAnimationFrame(() => document.getElementById('inside').scrollIntoView());
     else scrollTo(0, 0);
@@ -972,6 +982,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.body.dataset.page === 'sepet') renderCart();
   if (document.body.dataset.page === 'tesekkurler' && /siparis=MSL-/.test(location.search)) { cart.clear(); try { sessionStorage.removeItem(DRAFT_KEY); } catch (e) {} }
   document.querySelectorAll('[data-aud]').forEach(el => { if (AUDIENCES[el.dataset.aud] && AUDIENCES[el.dataset.aud].hidden) el.remove(); });
+  // data-sell="boyama yapboz": shown while at least one of them is on sale
+  document.querySelectorAll('[data-sell]').forEach(el => { if (!el.dataset.sell.split(' ').some(k => SELL[k])) el.remove(); });
+  const setRows = document.querySelector('tr[data-set-rows]');
+  if (setRows) {
+    const sets = SETS.filter(st => st.items.length);
+    setRows.outerHTML = sets.map((st, i) => `<tr${i ? '' : ' class="first"'}>${i ? '' : `<td rowspan="${sets.length}">Setler<br><small>sert kapaklı kitapla</small></td>`}<td class="opt">${st.name}: ${st.note.replace(/^Kitap/, 'kitap')}</td><td class="num">${fmt(setTotal(st))}</td></tr>`).join('');
+  }
   renderChrome();
   cart.badge();
   const page = document.body.dataset.page;
