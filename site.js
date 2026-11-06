@@ -769,7 +769,6 @@ function renderProduct() {
           <li>Tasarım 5 iş günü: bütün sayfaları size gönderir, onayınızı bekleriz.</li>
           <li>Baskı onayınızdan sonra 5 iş günü; ardından ücretsiz kargoyla yola çıkar. Dijital sürüm onayınızın hemen ardından gönderilir.</li>
           <li>Fotoğraflar yalnızca bu ürün için kullanılır, teslimden sonra silinir.</li>
-          ${p.type === 'kitap' ? '<li>Sesli masal: kitaptaki QR kodu okutun, masalı anlatıcımızın sesinden dinleyin.</li>' : ''}
           <li><a href="gizlilik.html">Gizlilik sözümüzü okuyun</a></li>
         </ul></div>
       </div>
