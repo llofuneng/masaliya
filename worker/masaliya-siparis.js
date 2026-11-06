@@ -37,6 +37,10 @@ const STAGES = {
 };
 const stagesFor = o => o.ships ? ['tasarim', 'onizleme', 'baski', 'kargo', 'teslim'] : ['tasarim', 'onizleme', 'teslim'];
 const MAX_PREVIEW = 25 * 1024 * 1024, PREVIEW_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
+// each part of a book's set gets its own preview: the book, the coloring book, the puzzle
+const PART_LABELS = { kitap: 'Kitap', boyama: 'Boyama kitabı', yapboz: 'Ahşap yapboz' };
+const partsOf = it => ['kitap', ...((CATALOG.sets.find(s => s.id === it.set) || { items: [] }).items.map(([p]) => p))];
+const partFiles = (o, it, part) => ((o.previews || {})[it.id] || []).filter(f => (f.part || 'kitap') === part);
 const stageTitle = (o, k) => !o.ships && k === 'teslim' ? 'E-postanıza gönderildi' : STAGES[k].title;
 
 export default {
@@ -49,7 +53,7 @@ export default {
       if (req.method === 'POST' && url.pathname === '/api/stripe') return await stripeEvent(req, env);
       if (req.method === 'GET' && url.pathname === '/api/status') return cors(env, await orderStatus(url, env));
       if (req.method === 'POST' && url.pathname === '/api/onay') return cors(env, await customerReview(req, url, env));
-      const pv = url.pathname.match(/^\/api\/onizleme\/(MSL-[A-Z0-9]{6})\/([A-Z0-9-]+\.(?:jpg|png|webp|pdf))$/);
+      const pv = url.pathname.match(/^\/api\/onizleme\/(MSL-[A-Z0-9]{6})\/([A-Za-z0-9-]+\.(?:jpg|png|webp|pdf))$/);
       if (req.method === 'GET' && pv) return await previewFile(pv[1], pv[2], url, env);
       if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env);
       const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
@@ -211,8 +215,9 @@ async function orderStatus(url, env) {
   if (!order || !order.items || !((key && key === await ctoken(env, order.id)) || (who && (who === order.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(order.contact.phone))))))
     return json({ error: 'Bu bilgilerle bir sipariş bulunamadı.' }, 404);
   const h = order.history || {}, k = await ctoken(env, order.id), api = new URL(url.origin);
-  const previews = order.items.filter(it => (order.previews || {})[it.id]).map(it => ({ title: it.title,
-    files: order.previews[it.id].map(f => ({ name: f.name, pdf: f.type === 'pdf', url: `${api.origin}/api/onizleme/${order.id}/${f.file}?k=${k}` })) }));
+  const previews = order.items.flatMap(it => { const parts = partsOf(it); return parts.map(part => ({ part, files: partFiles(order, it, part) })).filter(x => x.files.length).map(({ part, files }) => ({
+    title: parts.length > 1 ? `${it.title} · ${PART_LABELS[part]}` : it.title,
+    files: files.map(f => ({ name: f.name, pdf: f.type === 'pdf', url: `${api.origin}/api/onizleme/${order.id}/${f.file}?k=${k}` })) })); });
   return json({
     id: order.id, status: order.status, stage: order.stage || null, ships: !!order.ships,
     books: order.items.map(it => ({ title: it.title, contents: `${it.setName} · ${it.contents}` })),
@@ -269,19 +274,22 @@ async function uploadPreview(id, req, url, env) {
   const round = (o.previewRound || 0) + 1;
   const previews = { ...(o.previews || {}) };
   let added = 0;
-  for (const it of o.items) {
-    const files = form.getAll('f-' + it.id).filter(f => f && typeof f !== 'string' && f.size > 0);
+  for (const it of o.items) for (const part of partsOf(it)) {
+    const files = form.getAll(`f-${it.id}-${part}`).filter(f => f && typeof f !== 'string' && f.size > 0);
     if (!files.length) continue;
     if (files.some(f => !PREVIEW_TYPES[f.type] || f.size > MAX_PREVIEW)) return back('Yalnızca JPG, PNG, WEBP ya da PDF; her dosya en fazla 25 MB.');
     files.sort((a, b) => a.name.localeCompare(b.name, 'tr', { numeric: true }));
-    const old = previews[it.id] || [];
+    // a new upload for a part replaces that part's earlier pages only
+    const old = partFiles({ previews }, it, part);
     if (old.length) await env.PHOTOS.delete(old.map(f => `orders/${id}/onizleme/${f.file}`));
-    previews[it.id] = [];
+    const kept = (previews[it.id] || []).filter(f => (f.part || 'kitap') !== part);
     for (const [n, f] of files.entries()) {
-      const file = `${it.id}-${round}-${n + 1}.${PREVIEW_TYPES[f.type]}`;
+      const file = `${it.id}-${part}-${round}-${n + 1}.${PREVIEW_TYPES[f.type]}`;
       await env.PHOTOS.put(`orders/${id}/onizleme/${file}`, f.stream(), { httpMetadata: { contentType: f.type } });
-      previews[it.id].push({ file, name: f.name.slice(0, 80), type: PREVIEW_TYPES[f.type] });
+      kept.push({ file, part, name: f.name.slice(0, 80), type: PREVIEW_TYPES[f.type] });
     }
+    // book first, then coloring book, then puzzle
+    previews[it.id] = kept.sort((a, b) => partsOf(it).indexOf(a.part || 'kitap') - partsOf(it).indexOf(b.part || 'kitap'));
     added += files.length;
   }
   if (!added) return back('Dosya seçilmedi.');
@@ -344,19 +352,19 @@ async function previewPanel(o, t, origin, env) {
     : r.state === 'onay' ? `<b style="color:#2e7d32">Müşteri onayladı ✓</b> · ${date(r.date)}`
     : `<b style="color:#b0412e">Müşteri düzeltme istedi</b> · ${date(r.date)}`;
   const revs = (o.revisions || []).slice().reverse().map(v => `<li><small>${date(v.date)} · ${v.round}. önizleme için</small><br>${esc(v.text).replace(/\n/g, '<br>')}</li>`).join('');
-  const books = o.items.map(it => {
-    const files = (o.previews || {})[it.id] || [];
-    return `<div class="pv-book"><b>${esc(it.title)}</b>
+  const books = o.items.map(it => `<div class="pv-book"><b>${esc(it.title)}</b> <small>${esc(it.setName)}</small>${partsOf(it).map(part => {
+    const files = partFiles(o, it, part);
+    return `<div class="pv-part"><i>${PART_LABELS[part]}</i>
       ${files.length ? `<div class="pv-files">${files.map(f => { const src = `${origin}/api/onizleme/${o.id}/${f.file}?t=${t}`; return f.type === 'pdf' ? `<a class="pdf" href="${src}" target="_blank">PDF · ${esc(f.name)}</a>` : `<a href="${src}" target="_blank"><img src="${src}" alt="${esc(f.name)}" loading="lazy"></a>`; }).join('')}</div>` : ''}
-      <label>${files.length ? 'Yeni sürümü yükle (eskisinin yerine geçer)' : 'Sayfaları seçin'} · JPG, PNG ya da PDF, birden fazla dosya seçilebilir<input type="file" name="f-${it.id}" multiple accept="image/jpeg,image/png,image/webp,application/pdf"></label></div>`;
-  }).join('');
+      <label>${files.length ? 'Yeni sürümü yükle (eskisinin yerine geçer)' : 'Dosyaları seçin'} · JPG, PNG ya da PDF, birden fazla dosya seçilebilir<input type="file" name="f-${it.id}-${part}" multiple accept="image/jpeg,image/png,image/webp,application/pdf"></label></div>`;
+  }).join('')}</div>`).join('');
   return `<form class="stage preview" method="post" enctype="multipart/form-data" action="/admin/${o.id}/onizleme?t=${t}">
     <p>Önizleme: ${state}</p>
     ${revs ? `<ul class="revs">${revs}</ul>` : ''}
     ${books}
     <button class="upload">Önizlemeyi yükle ve müşteriye göster</button>
     <label>Müşterinin önizleme linki (WhatsApp’tan gönderebilirsiniz)<input readonly value="${link}" onclick="this.select()"></label>
-    <small>Dosyalar ad sırasına göre gösterilir (01-kapak.jpg, 02-sayfa.jpg …). Yükleyince sipariş “Önizleme gönderildi” aşamasına geçer; müşteri onaylayınca basılı siparişler kendiliğinden “Baskıda”ya geçer.</small>
+    <small>Kitap, boyama kitabı ve yapboz için ayrı ayrı yükleyebilirsiniz; yalnızca seçtiğiniz bölüm yenilenir. Dosyalar ad sırasına göre gösterilir (01-kapak.jpg, 02-sayfa.jpg …). Yükleyince sipariş “Önizleme gönderildi” aşamasına geçer; müşteri onaylayınca basılı siparişler kendiliğinden “Baskıda”ya geçer.</small>
   </form>`;
 }
 
@@ -525,4 +533,4 @@ function cors(env, res) {
 const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const date = iso => new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 const page = (title, body) => new Response(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)} · Masaliya</title>
-<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-part{display:grid;gap:6px;padding-left:12px;border-left:3px solid #eadfd3}.pv-part i{font-style:normal;font-weight:600;color:#7a2434}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
