@@ -501,7 +501,7 @@ function renderCart() {
       <ul class="cart-items">${items.map(it => `<li>
         <img src="${thumb(it.img)}" alt="">
         <div><b>${esc(it.title)}</b><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>
-          <button type="button" class="link" data-remove="${it.id}">Sepetten çıkar</button></div>
+          <button type="button" class="cart-remove" data-remove="${it.id}" aria-label="${esc(it.title)} sepetten çıkar"><span aria-hidden="true">✕</span> Sepetten çıkar</button></div>
         <span class="cart-price">${fmt(it.price.total)}</span></li>`).join('')}
       </ul>
       <form class="panel cart-pay" id="pay">
