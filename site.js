@@ -237,7 +237,7 @@ const PRODUCTS = [
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
   { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
-    desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
+    desc: 'Bir yaz sabahı kumsalda bulunan deniz kabuğu kulağa bir şarkı fısıldar ve kahramanımız kendini dalgaların altında bulur. Küçük deniz kızı Mira, yan yan yürüyen yengeç ve bilge kaplumbağayla birlikte, krallığın kaybolan üç incisini aramak için denizin derinliklerine yolculuk başlar. Dostluğun ve cesaretin parıl parıl bir deniz masalı.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
   { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
     img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
@@ -276,7 +276,7 @@ const PRODUCTS = [
 
 const GIFT_SVG = '<svg viewBox="0 0 64 64"><rect x="10" y="26" width="44" height="30" rx="2" fill="#6b1d2a" stroke="#e2b56b" stroke-width="1.2"/><rect x="7" y="19" width="50" height="9" rx="1.5" fill="#7d2534" stroke="#e2b56b" stroke-width="1.2"/><rect x="29" y="19" width="6" height="37" fill="#e2b56b"/><path d="M32 19c-6-9-15-8-13-2 1 3 7 3 13 2zM32 19c6-9 15-8 13-2-1 3-7 3-13 2z" fill="none" stroke="#e2b56b" stroke-width="1.6"/><circle cx="32" cy="40" r="6" fill="#8d2e3d" stroke="#f4dfb3" stroke-width="1"/><path d="M29.6 42.6V39a2.4 2.4 0 0 1 4.8 0v3.6" fill="none" stroke="#f4dfb3" stroke-width=".9"/></svg>';
 const CART_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>';
-const ARCH_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46 V28 a12 12 0 0 1 24 0 V46" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M32 25.5 l1.17 3.33 3.33 1.17 -3.33 1.17 -1.17 3.33 -1.17 -3.33 -3.33 -1.17 3.33 -1.17z" fill="currentColor"/><path d="M8 50 q12 -5 24 2 q12 -7 24 -2 M8 50 v6 q12 -5 24 2 q12 -7 24 -2 v-6 M32 52 v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>';
+const ARCH_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="currentColor" opacity=".55"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="currentColor"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg>';   // the Masaliya mark: an open book whose pages make a heart
 
 const NAV = [
   ['urunler.html', 'Ürünlerimiz'],
@@ -306,7 +306,7 @@ function priceLine(p) {
   if (p.status !== 'hazir') return 'Yakında';
   if (p.book) return 'Yalnızca masal kitabıyla, Masal Seti içinde';
   const pr = PRICES[p.type];
-  if (p.type === 'kitap' && pr && pr.hard) return `Sert kapak ${fmt(pr.hard)}${pr.digital ? ` · dijital ${fmt(pr.digital)}` : ''}`;
+  if (p.type === 'kitap' && pr && pr.hard) return `Sert Kapak ${fmt(pr.hard)}${pr.digital ? ` · Dijital ${fmt(pr.digital)}` : ''}`;
   const known = pr ? Object.values(pr).filter(Boolean) : [];
   return known.length ? fmt(Math.min(...known)) : 'Fiyat yakında';
 }
@@ -483,7 +483,7 @@ function renderChrome() {
 }
 
 /* ---------- Product card ---------- */
-function card(p, noPrice) {
+function card(p) {
   const visual = `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
   return `<a class="card${p.type === 'kitap' ? ' book' : ''}" href="${productHref(p)}">
@@ -491,7 +491,6 @@ function card(p, noPrice) {
     <div class="meta"><span>${kind}</span>${p.age ? `<span>${p.age}</span>` : ''}</div>
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.desc)}</p>
-    ${noPrice ? '' : `<p class="price">${priceLine(p)}</p>`}
   </a>`;
 }
 
@@ -517,6 +516,11 @@ function renderCollection(aud) {
     ? [['hepsi', 'Hepsi'], ...Object.entries(OCCASIONS)]
     : Object.entries(TYPES).filter(([k]) => k !== 'boyama' || SELL.boyama).map(([, t]) => [t.tab, t.name]);
   const items = PRODUCTS.filter(p => p.aud === aud && onSale(p));
+  if (!isAdult && PRICES.kitap.hard && !document.getElementById('price-note')) {
+    const pn = document.createElement('p'); pn.id = 'price-note'; pn.className = 'price-note';
+    pn.innerHTML = `<span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span><span>Ücretsiz kargo</span>`;
+    tabsEl.after(pn);
+  }
   function show() {
     let key = location.hash.slice(1);
     if (!filters.some(([k]) => k === key)) key = filters[0][0];
@@ -1036,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const books = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p));
     const g = document.getElementById('home-grid');
     if (g) {
-      g.innerHTML = books.map(b => card(b, true)).join('');   // no prices on the home page
+      g.innerHTML = books.map(b => card(b)).join('');
       if (books.length === 4) g.classList.add('n2');   // two by two, so no book is left alone on a row
     }
   }

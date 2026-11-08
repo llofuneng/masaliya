@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611081222">
+<link rel="stylesheet" href="site.css?v=202611081239">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -69,10 +69,12 @@
 /* while the 3D book is prepared, the arch draws itself in gold */
 .loader { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; background: var(--ink); transition: opacity .9s ease, visibility .9s; pointer-events: none; }
 .loader svg { width: 74px; height: 74px; color: var(--gold); overflow: visible; }
-.loader path { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; }
-.loader .l-arch { stroke-dasharray: 120; stroke-dashoffset: 120; animation: draw 1.8s cubic-bezier(.6,.1,.3,1) .2s forwards; }
-.loader .l-base { stroke-dasharray: 140; stroke-dashoffset: 140; animation: draw .8s ease 1.6s forwards; }
-.loader .l-star { fill: currentColor; stroke: none; opacity: 0; transform-origin: 32px 30px; animation: star 1s ease 2s forwards; }
+.loader path { opacity: 0; transform-origin: 32px 40px; animation: rise .7s ease forwards; }
+.loader .l-1 { fill: currentColor; fill-opacity: .55; animation-delay: .2s; }
+.loader .l-2 { fill: var(--gold-pale); animation-delay: .55s; }
+.loader .l-3 { fill: currentColor; animation-delay: .9s; }
+.loader .l-4 { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; animation-delay: 1.3s; }
+@keyframes rise { from { opacity: 0; transform: translateY(5px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes star { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
 .ready .loader { opacity: 0; visibility: hidden; }
@@ -152,7 +154,7 @@
 .playing .intro-bottom * { pointer-events: none; }
 
 .home-books { border-top: 1px solid var(--line); }
-.home-books { padding-bottom: 28px; }
+.home-books { padding-top: 24px; padding-bottom: 28px; }
 .home-books + #site-foot { padding-top: 24px; }
 .how-box { margin: clamp(40px, 6vw, 72px) auto 0; max-width: 900px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .how3 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); counter-reset: s; }
@@ -170,7 +172,7 @@
 <body data-page="home">
 <section class="intro" id="intro" aria-label="Masaliya">
   <div class="scene" aria-hidden="true"></div>
-  <div class="loader" aria-hidden="true"><svg viewBox="0 0 64 64"><path class="l-arch" d="M20 46 V28 a12 12 0 0 1 24 0 V46"/><path class="l-base" d="M8 50 q12 -5 24 2 q12 -7 24 -2 M8 50 v6 q12 -5 24 2 q12 -7 24 -2 v-6 M32 52 v6"/><path class="l-star" d="M32 25.5 l1.17 3.33 3.33 1.17 -3.33 1.17 -1.17 3.33 -1.17 -3.33 -3.33 -1.17 3.33 -1.17z"/></svg></div>
+  <div class="loader" aria-hidden="true"><svg viewBox="0 0 64 64"><path class="l-1" d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z"/><path class="l-2" d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z"/><path class="l-3" d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z"/><path class="l-4" d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5"/></svg></div>
   <canvas id="book3d" role="img" aria-label="Üzerinde Masaliya logosu olan deri kapaklı kitap. Açmak için kitaba dokunun."></canvas>
   <div class="film-bg" id="film-bg"></div>
   <div class="film"><div class="film-box">
@@ -194,7 +196,7 @@
   </div>
 
   <div class="wrap intro-top">
-    <a class="lockup" href="./" aria-label="Masaliya"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46 V28 a12 12 0 0 1 24 0 V46" fill="none" stroke="currentColor" stroke-width="2"/><path d="M32 25.5 l1.17 3.33 3.33 1.17 -3.33 1.17 -1.17 3.33 -1.17 -3.33 -3.33 -1.17 3.33 -1.17z" fill="currentColor"/><path d="M8 50 q12 -5 24 2 q12 -7 24 -2 M8 50 v6 q12 -5 24 2 q12 -7 24 -2 v-6 M32 52 v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>MASALİYA</span></a>
+    <a class="lockup" href="./" aria-label="Masaliya"><svg viewBox="0 0 64 64" aria-hidden="true" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="currentColor" opacity=".55"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="currentColor"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg><span>MASALİYA</span></a>
     <button class="menu-icon" type="button" data-open-menu aria-label="Menü"><span>Menü</span><i></i></button>
   </div>
 
@@ -205,7 +207,7 @@
       <label class="cover-name" for="cover-name"><span>Kahramanın adı</span><input id="cover-name" type="text" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Bir isim yazın, kapakta görün"></label>
     </div>
     <div class="seal" id="seal" role="button" tabindex="0" aria-label="Masalı aç">
-      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46 V28 a12 12 0 0 1 24 0 V46" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M32 25.5 l1.17 3.33 3.33 1.17 -3.33 1.17 -1.17 3.33 -1.17 -3.33 -3.33 -1.17 3.33 -1.17z" fill="currentColor"/><path d="M8 50 q12 -5 24 2 q12 -7 24 -2 M8 50 v6 q12 -5 24 2 q12 -7 24 -2 v-6 M32 52 v6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg viewBox="0 0 64 64" aria-hidden="true" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="currentColor" opacity=".55"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="currentColor"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg>
       <h1 class="word">MASALİYA</h1>
     </div>
     <nav class="doors" id="doors" aria-label="Koleksiyonlar">
@@ -243,7 +245,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611081222" defer></script>
+<script src="site.js?v=202611081239" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -337,9 +339,15 @@ addEventListener('DOMContentLoaded', () => {
       ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
       for (let i = 0; i < n; i++) { ctx.fillStyle = rnd() < .5 ? light : dark; const r = 1 + rnd() * 3.4; ctx.fillRect(rnd() * w, rnd() * h, r, r * (.6 + rnd() * .8)); }
     }
-    const archPath = new Path2D('M20 46 V28 a12 12 0 0 1 24 0 V46');
-    const starPath = new Path2D('M32 25.5 l1.17 3.33 3.33 1.17 -3.33 1.17 -1.17 3.33 -1.17 -3.33 -3.33 -1.17 3.33 -1.17z');
-    const basePath = new Path2D('M8 50 q12 -5 24 2 q12 -7 24 -2 M8 50 v6 q12 -5 24 2 q12 -7 24 -2 v-6 M32 52 v6');   // the open book under the arch
+    // the Masaliya mark (an open book whose pages make a heart), stamped in one ink with fine cut lines
+    const MARK = { base: new Path2D('M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z'), pages: new Path2D('M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z'), heart: new Path2D('M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z'), lines: new Path2D('M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5') };
+    function stampMark(ctx, ink, x, y, s) {
+      const o = document.createElement('canvas'); o.width = o.height = Math.ceil(64 * s); const c = o.getContext('2d');
+      c.scale(s, s); c.fillStyle = ink; c.fill(MARK.base); c.fill(MARK.pages); c.fill(MARK.heart);
+      c.globalCompositeOperation = 'destination-out'; c.lineCap = 'round'; c.lineJoin = 'round';
+      c.lineWidth = 1.3; c.stroke(MARK.pages); c.stroke(MARK.heart); c.lineWidth = 1.2; c.stroke(MARK.lines);
+      ctx.drawImage(o, x, y);
+    }
     function spaced(ctx, text, cx, y, gap) {
       const ws = [...text].map(ch => ctx.measureText(ch).width);
       let x = cx - (ws.reduce((a, b) => a + b, 0) + gap * (ws.length - 1)) / 2;
@@ -366,7 +374,7 @@ addEventListener('DOMContentLoaded', () => {
       ctx.lineWidth = 2.2; ctx.strokeRect(80, 80, w - 160, h - 160);
       corner(ctx, 92, 92, 1, 1); corner(ctx, w - 92, 92, -1, 1); corner(ctx, 92, h - 92, 1, -1); corner(ctx, w - 92, h - 92, -1, -1);
       const s = 6.6, ox = w / 2 - 32 * s, oy = h * .29 - 6 * s;
-      ctx.save(); ctx.translate(ox, oy); ctx.scale(s, s); ctx.lineWidth = 1.5; ctx.stroke(archPath); ctx.stroke(basePath); ctx.fill(starPath); ctx.restore();
+      stampMark(ctx, ink, ox, oy + 2 * s, s);
       [[w / 2 - 190, h * .27, 10], [w / 2 + 196, h * .25, 13], [w / 2 - 150, h * .17, 7], [w / 2 + 150, h * .16, 8], [w / 2, h * .135, 11]].forEach(([x, y, r]) => star4(ctx, x, y, r));
       ctx.font = '500 76px "Cormorant Garamond", Garamond, serif';
       spaced(ctx, 'MASALİYA', w / 2, h * .29 + 52 * s + 120, 30);

@@ -116,10 +116,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     linear-gradient(180deg, rgba(20,11,9,.7), rgba(20,11,9,.95)),
     url("img/library-blur.jpg") center 30% / cover no-repeat;
 }
-.page-head .wrap { display: grid; justify-items: center; text-align: center; gap: 14px; padding-block: clamp(48px, 7vw, 88px) clamp(36px, 5vw, 56px); }
+.page-head .wrap { display: grid; justify-items: center; text-align: center; gap: 14px; padding-block: clamp(40px, 5vw, 72px) clamp(28px, 3.5vw, 44px); }
 
 /* Sections */
-.sec { padding-block: clamp(56px, 8vw, 110px); }
+.sec { padding-block: clamp(36px, 4.5vw, 60px); }
 .sec-head { display: grid; gap: 14px; justify-items: center; text-align: center; margin-bottom: clamp(32px, 5vw, 52px); }
 .sec-head .lede { text-align: center; }
 
@@ -239,7 +239,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .faq details p { color: var(--muted); padding: 0 0 24px; max-width: 68ch; }
 
 /* Footer */
-.site-foot { border-top: 1px solid var(--line); padding-block: 48px 40px; }
+.site-foot { border-top: 1px solid var(--line); padding-block: 32px 30px; }
 .site-foot .wrap { display: grid; gap: 22px; justify-items: center; text-align: center; color: var(--muted); font-size: .86rem; }
 .site-foot nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; }
 .site-foot nav a { text-decoration: none; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; }
@@ -673,3 +673,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .pv-note { margin: 0; padding: 8px 14px; border-left: 2px solid var(--gold); color: var(--muted); white-space: pre-line; }
 .pv-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 #pv-form { display: grid; gap: 12px; }
+
+/* one price line per collection instead of a price under every card */
+.price-note { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 26px; margin: 18px 0 0; color: var(--muted); font-size: .9rem; letter-spacing: .04em; }
+.price-note b { color: var(--gold-pale); font-weight: 500; }
+.price-note span + span::before { content: "✦"; color: var(--gold); font-size: .65em; margin-right: 26px; vertical-align: middle; }
