@@ -184,13 +184,10 @@ const SPREADS_LAVIN = [
 ];
 
 const SPREADS_BUZ = [
-  ['img/buz-satosunun-sirri-s1.jpg', 'Erva Ülkü kar küresini sallıyor, oda kar taneleriyle doluyor'],
+  ['img/buz-satosunun-sirri-s1.jpg', 'Asya kar küresini sallıyor, oda kar taneleriyle doluyor'],
   ['img/buz-satosunun-sirri-s2.jpg', 'Burnunu kaybeden kardan adam Kartopu ve geyik yavrusu Fındık'],
   ['img/buz-satosunun-sirri-s3.jpg', 'Fındık’a uzatılan elma ve açılan ikinci kapı'],
-  ['img/buz-satosunun-sirri-s4.jpg', 'Donmuş bahçede atkıya sarılan minik kuş'],
-  ['img/buz-satosunun-sirri-s5.jpg', 'Buz Kraliçesi’nin taht salonunda parlayan buz taşları'],
-  ['img/buz-satosunun-sirri-s6.jpg', 'Kuzey ışıkları altında şatoda şenlik'],
-  ['img/buz-satosunun-sirri-s7.jpg', 'Evde, kar küresindeki minik şato']
+  ['img/buz-satosunun-sirri-s4.jpg', 'Donmuş bahçede atkıya sarılan minik kuş']
 ];
 const SPREADS_DINO = [
   ['img/dinozorlarin-dogum-gunu-s1.jpg', 'Hızır Ali dinozor kitabını açıyor, küçük yeşil dinozor göz kırpıyor'],
@@ -214,8 +211,8 @@ const PRODUCTS = [
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
-  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .24], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Erva Ülkü', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
-    img: 'img/buz-satosunun-sirri-kapak.jpg', alt: 'Erva Ülkü ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
+  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
+    img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
     desc: 'Karlı bir akşam, masadaki kar küresi sallanınca kahramanımız kendini kapıları anahtarla açılmayan bir buz şatosunun önünde bulur. Burnunu kaybeden kardan adam Kartopu ve hep aç geyik yavrusu Fındık ile her kapının ardında bir sır bekler. Karşılık beklemeden yapılan küçük iyiliklerin büyük gücünü anlatan sıcacık bir kış masalı.',
     extra: [['img/buz-satosunun-sirri-arka.jpg', 'Arka kapak']], spreads: SPREADS_BUZ },
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '2–7 yaş',
@@ -231,8 +228,8 @@ const PRODUCTS = [
     img: 'img/sihirli-kutuphane-boyama-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/sihirli-kutuphane-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/sihirli-kutuphane-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
-  { id: 'buz-satosunun-sirri-boyama', book: 'buz-satosunun-sirri', coverTitle: { box: [0, .24], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Erva Ülkü', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
-    img: 'img/buz-satosunun-sirri-boyama-kapak.jpg', alt: 'Erva Ülkü ve Buz Şatosunun Sırrı boyama ve etkinlik kitabının kapağı',
+  { id: 'buz-satosunun-sirri-boyama', book: 'buz-satosunun-sirri', coverTitle: { box: [0, .29], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
+    img: 'img/buz-satosunun-sirri-boyama-kapak.jpg', alt: 'Asya ve Buz Şatosunun Sırrı boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/buz-satosunun-sirri-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/buz-satosunun-sirri-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_BUZ },
   { id: 'dinozorlarin-dogum-gunu-boyama', book: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'boyama', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '3–7 yaş',
@@ -593,6 +590,8 @@ function drawCoverName(canvas, img, p, name) {
   canvas.width = W; canvas.height = H;
   const c = canvas.getContext('2d');
   c.drawImage(img, 0, 0, W, H);
+  // a cover painted without its title needs no softening: the name goes straight on it
+  if (!img.dataset.clean) {
   // soften the painted title away, then set the new one
   c.save(); c.beginPath(); c.rect(0, y0 * H, W, (y1 - y0) * H); c.clip();
   c.filter = 'blur(22px)'; c.drawImage(img, -40, -40, W + 80, H + 80); c.filter = 'none';
@@ -600,6 +599,7 @@ function drawCoverName(canvas, img, p, name) {
   fade.addColorStop(0, 'rgba(20,10,8,.10)'); fade.addColorStop(.5, 'rgba(20,10,8,.22)'); fade.addColorStop(1, 'rgba(20,10,8,.06)');
   c.fillStyle = fade; c.fillRect(0, y0 * H, W, (y1 - y0) * H);
   c.restore();
+  }
   const mid = (y0 + (y1 - y0) * .58) * H;
   let size = W * .2;
   c.textAlign = 'center'; c.shadowColor = 'rgba(30,10,4,.55)'; c.shadowBlur = W * .02;
@@ -799,7 +799,7 @@ function renderProduct() {
       const on = !!(p.coverTitle && coverShown && n && n !== p.hero);
       coverCanvas.hidden = !on;
       if (!on) return;
-      const img = new Image(); img.src = p.img;
+      const img = new Image(); img.src = p.clean || p.img; if (p.clean) img.dataset.clean = '1';
       Promise.all([img.decode(), document.fonts.load('italic 500 40px "Cormorant Garamond"', n)]).then(() => drawCoverName(coverCanvas, img, p, n)).catch(() => {});
     }
     if (nameIn) {
