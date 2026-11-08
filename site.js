@@ -219,7 +219,7 @@ const SPREADS_BUZ = [
   ['img/buz-satosunun-sirri-s7.jpg', 'Evde, kar küresindeki minik şato']
 ];
 const SPREADS_DINO = [
-  ['img/dinozorlarin-dogum-gunu-s1.jpg', 'Hızır Ali dinozor kitabını açıyor, küçük yeşil dinozor göz kırpıyor'],
+  ['img/dinozorlarin-dogum-gunu-s1.jpg', 'Kerem dinozor kitabını açıyor, küçük yeşil dinozor göz kırpıyor'],
   ['img/dinozorlarin-dogum-gunu-s2.jpg', 'Yemyeşil ormanda küçük dinozor Fıstık ile tanışma'],
   ['img/dinozorlarin-dogum-gunu-s3.jpg', 'Sırtı dikenli dinozorun üstünden meyve toplamak'],
   ['img/dinozorlarin-dogum-gunu-s4.jpg', 'Kanatlı dinozor Rüzgâr ile vadinin üstünde uçuş'],
@@ -248,8 +248,8 @@ const PRODUCTS = [
     img: 'img/minik-pandalar-kapak.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
     desc: 'Bambu ormanında şenlik var: kahramanımız ve üç minik panda, herkes yesin diye kocaman bir karpuz götürüyor. Ama karpuz kaçıyor! Yokuş aşağı, taştan taşa, kütüğün içinden... Bir kovalamaca, bir sürü kahkaha ve paylaşınca büyüyen bir şenliğin masalı.',
     extra: [['img/minik-pandalar-arka.jpg', 'Arka kapak']], spreads: SPREADS_PANDA },
-  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Hızır Ali', title: 've Dinozorların Doğum Günü', age: '2–7 yaş',
-    img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', alt: 'Hızır Ali ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
+  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü', age: '2–7 yaş',
+    img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
     extra: [['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
 
