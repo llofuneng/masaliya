@@ -200,12 +200,12 @@ const PAGES_BOYAMA_DUA = [
   ['img/sihirli-kutuphane-boyama-p15.jpg', 'Cevaplar']
 ];
 const SPREADS_LAVIN = [
-  ['img/deniz-kizi-kralligi-s1.jpg', 'Lavin kumsalda deniz kabuğunu kulağına tutuyor'],
+  ['img/deniz-kizi-kralligi-s1.jpg', 'Elif kumsalda deniz kabuğunu kulağına tutuyor'],
   ['img/deniz-kizi-kralligi-s2.jpg', 'Deniz kızı Mira dalgaların arasından çıkıyor'],
   ['img/deniz-kizi-kralligi-s3.jpg', 'Yan yan yürüyen yengeç ilk inciyi veriyor'],
   ['img/deniz-kizi-kralligi-s4.jpg', 'Bilge kaplumbağa ikinci inciyi sırtında taşıyor'],
   ['img/deniz-kizi-kralligi-s5.jpg', 'Parlayan balıklar mağaranın yolunu gösteriyor'],
-  ['img/deniz-kizi-kralligi-s6.jpg', 'Lavin ve Mira el ele üçüncü inciyi buluyor'],
+  ['img/deniz-kizi-kralligi-s6.jpg', 'Elif ve Mira el ele üçüncü inciyi buluyor'],
   ['img/deniz-kizi-kralligi-s7.jpg', 'Deniz Kızı Krallığı’nda şenlik']
 ];
 
@@ -236,8 +236,8 @@ const PRODUCTS = [
     img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
-  { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Lavin', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
-    img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Lavin ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
+  { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
+    img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda şarkı söyleyen bir deniz kabuğu. Küçük deniz kızı Mira ile kaybolan üç inciyi aramak için denizin derinliklerine bir yolculuk.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
   { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
