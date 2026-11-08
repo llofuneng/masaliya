@@ -67,7 +67,7 @@ p { margin: 0; }
 
 /* Brand lockup (logo option 2: arch door with a star) */
 .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: var(--gold-pale); white-space: nowrap; }
-.brand svg { width: 26px; height: 26px; flex: none; }
+.brand svg { width: 32px; height: 32px; flex: none; }
 .brand span { font: 500 1.05rem/1 var(--f-display); letter-spacing: .38em; }
 
 /* Header */
