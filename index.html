@@ -367,7 +367,8 @@ addEventListener('DOMContentLoaded', () => {
       ctx.lineWidth = 2.2; ctx.strokeRect(80, 80, w - 160, h - 160);
       corner(ctx, 92, 92, 1, 1); corner(ctx, w - 92, 92, -1, 1); corner(ctx, 92, h - 92, 1, -1); corner(ctx, w - 92, h - 92, -1, -1);
       const s = 6.6, ox = w / 2 - 32 * s, oy = h * .29 - 6 * s;
-      stampMark(ctx, ink, ox, oy + 2 * s, s);
+      // the mark a little larger than the old one, its bottom where the old one ended
+      const ms = 7.6; stampMark(ctx, ink, w / 2 - 32 * ms, h * .29 + 52 * s - 56 * ms, ms);
       [[w / 2 - 190, h * .27, 10], [w / 2 + 196, h * .25, 13], [w / 2 - 150, h * .17, 7], [w / 2 + 150, h * .16, 8], [w / 2, h * .135, 11]].forEach(([x, y, r]) => star4(ctx, x, y, r));
       ctx.font = '500 76px "Cormorant Garamond", Garamond, serif';
       spaced(ctx, 'MASALİYA', w / 2, h * .29 + 52 * s + 120, 30);
@@ -665,14 +666,14 @@ addEventListener('DOMContentLoaded', () => {
       bookG.position.x = e * W / 2 * bs;
       spine.visible = e < .5;
       contact.scale.set((1 + e) * bs, bs, 1);
-      const lightUp = clamp((e - .15) / .55), peek = 0;   // no glow on hover either: it lit the gold logo
+      const lightUp = clamp((e - .58) / .32), peek = 0;   // light from inside only after the cover has turned away   // no glow on hover either: it lit the gold logo
       pageR.emissiveIntensity = .22 * lightUp + .15 * peek;
       pageL.emissiveIntensity = .22 * lightUp;
       inner.intensity = .7 * lightUp + .6 * peek;
       glow.material.opacity = .45 * lightUp + .12 * peek;
       glow.scale.setScalar(4.6 + Math.sin(t * 1.3) * .2);
-      beamMat.uniforms.uOpacity.value = clamp((e - .35) / .5); beamMat.uniforms.uTime.value = t;
-      sparks.material.opacity = .65 * clamp((e - .3) / .4);
+      beamMat.uniforms.uOpacity.value = clamp((e - .6) / .35); beamMat.uniforms.uTime.value = t;
+      sparks.material.opacity = .65 * clamp((e - .6) / .3);
       candle.intensity = 1.3 + Math.sin(t * 7.1) * .1 + Math.sin(t * 13.7) * .06;
       if (foil < 1) {
         foil = Math.min(1, foil + dt / .9);
