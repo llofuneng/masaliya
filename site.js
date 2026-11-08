@@ -47,8 +47,8 @@ const onSale = p => !p.hidden && !(p.book && (PRODUCTS.find(b => b.id === p.book
 const ALL_SETS = [
   { id: 'tek', name: 'Yalnızca kitap', items: [], discount: 0 },
   { id: 'masal-seti', name: 'Masal Seti', note: 'Kitap + boyama kitabı, aynı kahramanla', items: [['boyama', 'print']], discount: 0 },
-  { id: 'yapboz-seti', name: 'Yapboz Seti', note: 'Kitap + ahşap yapboz, 35 parça', items: [['yapboz', 'std']], discount: 0 },
-  { id: 'super-set', name: 'Süper Set', note: 'Kitap + boyama kitabı + ahşap yapboz', items: [['boyama', 'print'], ['yapboz', 'std']], discount: 0 }
+  { id: 'yapboz-seti', name: 'Puzzle Seti', note: 'Kitap + ahşap puzzle, 35 parça', items: [['yapboz', 'std']], discount: 0 },
+  { id: 'super-set', name: 'Süper Set', note: 'Kitap + boyama kitabı + ahşap puzzle', items: [['boyama', 'print'], ['yapboz', 'std']], discount: 0 }
 ];
 const SETS = ALL_SETS.filter(st => st.items.every(([t]) => SELL[t]));   // only sets whose parts are on sale
 const setTotal = st => Math.round((PRICES.kitap.hard + st.items.reduce((a, [t, f]) => a + PRICES[t][f], 0)) * (1 - st.discount));
@@ -560,7 +560,7 @@ function renderCart() {
         <span class="cart-price">${fmt(it.price.total)}</span></li>`).join('')}
       </ul>
       <form class="panel cart-pay" id="pay">
-        <div class="total"><span>Toplam <small>${items.length} kitap · kargo ücretsiz · yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
+        <div class="total"><span>Toplam <small>${items.length} kitap · Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
         ${ships ? `<span class="step">Teslimat adresi</span>
         <label class="field" for="c-name">Alıcının adı soyadı<input id="c-name" autocomplete="shipping name" maxlength="80"></label>
         <div class="field-row">
@@ -716,13 +716,13 @@ function renderProduct() {
         </div>` : '';
     const coloring = PRODUCTS.find(x => x.book === p.id && onSale(x));
     // the add-ons as "+" choices; together they pick the set (none = the book alone)
-    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik', coloring && coloring.img], yapboz: ['Ahşap Yapboz Ekle', '35 parça · kitabın kapağındaki sahne', puzzleImg(p)] };
+    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik', coloring && coloring.img], yapboz: ['Ahşap Puzzle Ekle', '35 parça · Kitabın kapağındaki sahne', puzzleImg(p)] };
     const extraParts = Object.keys(EXTRAS).filter(k => SELL[k] && SETS.some(st => st.items.some(([t]) => t === k)));
     const askedParts = ((SETS.find(st => st.id === new URLSearchParams(location.search).get('set')) || {}).items || []).map(([t]) => t);
     const extrasHtml = p.type === 'kitap' && extraParts.length ? `<div class="extras" id="extras">${extraParts.map(k => {
       const f = Object.keys(PRICES[k]).find(x => PRICES[k][x]);
       const pic = EXTRAS[k][2];
-      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}>${pic ? `<button type="button" class="ex-pic" data-look="${pic}" aria-label="${EXTRAS[k][0]} resmini büyüt"><img src="${thumb(pic)}" alt="" loading="lazy"></button>` : ''}<span class="ex-text"><b>${EXTRAS[k][0]}<span class="ex-plus" aria-hidden="true"></span></b><span class="ex-price">+ ${fmt(PRICES[k][f])}</span><small>${EXTRAS[k][1]}</small></span></label>`;
+      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}>${pic ? `<span class="ex-pic"><img src="${thumb(pic)}" alt="" loading="lazy"></span>` : ''}<span class="ex-text"><b>${EXTRAS[k][0]}<span class="ex-plus" aria-hidden="true"></span></b><span class="ex-price">+ ${fmt(PRICES[k][f])}</span><small>${EXTRAS[k][1]}</small></span></label>`;
     }).join('')}</div>` : '';
     const askedSet = new URLSearchParams(location.search).get('set');
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
@@ -760,7 +760,7 @@ function renderProduct() {
           <span class="gift-price">${GIFT_BOX_PRICE ? '+ ' + fmt(GIFT_BOX_PRICE) : 'Fiyat yakında'}</span>
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
-        <div class="total"><span>Toplam <small>kargo ücretsiz · yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
+        <div class="total"><span>Toplam <small>Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
         <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için işlenmesine ve hizmet sağlayıcılar aracılığıyla yurt dışına aktarılmasına <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a> kapsamında açık rıza veriyorum.</span></label>
         <div class="buy-actions">
           <button class="btn ghost" type="submit" value="sepet" id="cart-btn">Sepete ekle</button>
@@ -775,7 +775,7 @@ function renderProduct() {
       <div class="info addon">
         <p class="eyebrow">${set.name}</p>
         <p class="desc">Bu boyama kitabı tek başına satılmaz. <a href="${productHref(book)}">${fullTitle(book)}</a> kitabıyla birlikte, aynı kahramanla hazırlanır.</p>
-        <p class="set-price">${set.name}: kitap + boyama kitabı · ${setPrice(set)}${sup ? `<br>${sup.name}: kitap + boyama kitabı + ahşap yapboz · ${setPrice(sup)}` : ''}</p>
+        <p class="set-price">${set.name}: kitap + boyama kitabı · ${setPrice(set)}${sup ? `<br>${sup.name}: kitap + boyama kitabı + ahşap puzzle · ${setPrice(sup)}` : ''}</p>
         <a class="btn" href="${productHref(book)}?set=${set.id}#buy">${set.name}’ni oluştur</a>
       </div>`; })()
       : `
@@ -905,8 +905,6 @@ function renderProduct() {
       };
       extrasBox.addEventListener('change', pick); pick();
     }
-    // the picture in an add-on card opens large, without ticking the card
-    root.querySelectorAll('.ex-pic').forEach(b => b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openLightbox([[b.dataset.look, `${p.title.replace(/^ve /, '')} · ${b.closest('.extra-opt').querySelector('b').textContent}`]], 0); }));
     total();
     // three photo slots: each photo is checked on the visitor's device as soon as it is chosen
     const slots = [...root.querySelectorAll('.slot')];

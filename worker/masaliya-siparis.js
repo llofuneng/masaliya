@@ -17,10 +17,10 @@
    The catalogue below is written by tools/build-pages.js from site.js: don't edit it by hand. */
 
 /* CATALOG:START */
-const CATALOG = {"books":{"sihirli-kutuphane":{"title":"ve Sihirli Kütüphane","hero":"Zeynep"},"deniz-kizi-kralligi":{"title":"ve Deniz Kızı Krallığı","hero":"Elif"},"buz-satosunun-sirri":{"title":"ve Buz Şatosunun Sırrı","hero":"Asya"},"minik-pandalar":{"title":"ve Minik Pandalar","hero":"Ela"},"dinozorlarin-dogum-gunu":{"title":"ve Dinozorların Doğum Günü","hero":"Kerem"}},"prices":{"kitap":{"hard":2900,"digital":900},"boyama":{"print":590,"digital":null},"yapboz":{"std":640}},"sets":[{"id":"tek","name":"Yalnızca kitap","items":[],"discount":0},{"id":"masal-seti","name":"Masal Seti","items":[["boyama","print"]],"discount":0},{"id":"yapboz-seti","name":"Yapboz Seti","items":[["yapboz","std"]],"discount":0},{"id":"super-set","name":"Süper Set","items":[["boyama","print"],["yapboz","std"]],"discount":0}],"giftBox":300,"covers":{"hard":"Sert kapak","digital":"Dijital kitap (PDF)"}};
+const CATALOG = {"books":{"sihirli-kutuphane":{"title":"ve Sihirli Kütüphane","hero":"Zeynep"},"deniz-kizi-kralligi":{"title":"ve Deniz Kızı Krallığı","hero":"Elif"},"buz-satosunun-sirri":{"title":"ve Buz Şatosunun Sırrı","hero":"Asya"},"minik-pandalar":{"title":"ve Minik Pandalar","hero":"Ela"},"dinozorlarin-dogum-gunu":{"title":"ve Dinozorların Doğum Günü","hero":"Kerem"}},"prices":{"kitap":{"hard":2900,"digital":900},"boyama":{"print":590,"digital":null},"yapboz":{"std":640}},"sets":[{"id":"tek","name":"Yalnızca kitap","items":[],"discount":0},{"id":"masal-seti","name":"Masal Seti","items":[["boyama","print"]],"discount":0},{"id":"yapboz-seti","name":"Puzzle Seti","items":[["yapboz","std"]],"discount":0},{"id":"super-set","name":"Süper Set","items":[["boyama","print"],["yapboz","std"]],"discount":0}],"giftBox":300,"covers":{"hard":"Sert kapak","digital":"Dijital kitap (PDF)"}};
 /* CATALOG:END */
 
-const PART_NAMES = { boyama: 'boyama kitabı', yapboz: 'ahşap yapboz' };
+const PART_NAMES = { boyama: 'boyama kitabı', yapboz: 'ahşap puzzle' };
 const UNPAID_DAYS = 3;
 const MAX_PHOTO = 12 * 1024 * 1024;
 const MAX_ITEMS = 10;
@@ -41,7 +41,7 @@ const refundBadge = o => !o.cancelled ? '' : o.refund && o.refund.state === 'yap
 const stagesFor = o => o.ships ? ['tasarim', 'onizleme', 'baski', 'kargo', 'teslim'] : ['tasarim', 'onizleme', 'teslim'];
 const MAX_PREVIEW = 25 * 1024 * 1024, PREVIEW_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
 // each part of a book's set gets its own preview: the book, the coloring book, the puzzle
-const PART_LABELS = { kitap: 'Kitap', boyama: 'Boyama kitabı', yapboz: 'Ahşap yapboz' };
+const PART_LABELS = { kitap: 'Kitap', boyama: 'Boyama kitabı', yapboz: 'Ahşap puzzle' };
 const partsOf = it => ['kitap', ...((CATALOG.sets.find(s => s.id === it.set) || { items: [] }).items.map(([p]) => p))];
 const partFiles = (o, it, part) => ((o.previews || {})[it.id] || []).filter(f => (f.part || 'kitap') === part);
 const stageTitle = (o, k) => !o.ships && k === 'teslim' ? 'E-postanıza gönderildi' : STAGES[k].title;

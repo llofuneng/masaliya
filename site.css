@@ -723,14 +723,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* add-ons on the order form: as large as a cover choice, with a picture; "+" to add, a tick once added */
 .extras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 560px) { .extras { gap: 10px; } }
-.extra-opt { position: relative; display: grid; align-content: start; gap: 10px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 2px; cursor: pointer; background: linear-gradient(170deg, var(--wood-2), var(--wood)); transition: border-color .2s, background .2s; }
+.extra-opt { position: relative; display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 2px; cursor: pointer; background: linear-gradient(170deg, var(--wood-2), var(--wood)); transition: border-color .2s, background .2s; }
 .extra-opt input { position: absolute; opacity: 0; pointer-events: none; }
-.extra-opt .ex-pic { position: relative; display: block; padding: 0; border: 0; border-radius: 2px; overflow: hidden; background: var(--ink); aspect-ratio: 4 / 3; cursor: zoom-in; }
+.extra-opt .ex-pic { display: block; border-radius: 2px; overflow: hidden; background: var(--ink); aspect-ratio: 1; }
 .extra-opt .ex-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.extra-opt .ex-text { display: grid; gap: 4px; padding: 0 4px 2px; }
-.extra-opt b { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 500 1.25rem var(--f-display); }
+.extra-opt .ex-text { display: grid; gap: 3px; min-width: 0; }
+.extra-opt b { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 500 1.15rem/1.15 var(--f-display); }
 .extra-opt small { color: var(--muted); font-size: .82rem; }
-.extra-opt .ex-price { font-family: var(--f-display); font-size: 1.4rem; color: var(--gold-pale); }
+.extra-opt .ex-price { font-family: var(--f-display); font-size: 1.3rem; color: var(--gold-pale); }
 .extra-opt .ex-plus { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); font: 400 1.15rem/1 var(--f-body); transition: background .2s, color .2s; }
 .extra-opt .ex-plus::before { content: "+"; }
 .extra-opt:hover { border-color: var(--gold); }
@@ -738,4 +738,4 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .extra-opt:has(input:checked) .ex-plus { background: var(--gold); color: var(--ink); }
 .extra-opt:has(input:checked) .ex-plus::before { content: "✓"; font-size: .9rem; }
 .extra-opt:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
-@media (max-width: 560px) { .extra-opt b { font-size: 1.1rem; } .extra-opt .ex-price { font-size: 1.2rem; } }
+@media (max-width: 560px) { .extra-opt { grid-template-columns: 1fr; gap: 6px; padding: 10px; } .extra-opt .ex-pic { aspect-ratio: 5 / 2; } .extra-opt b { font-size: 1rem; } .extra-opt .ex-plus { width: 24px; height: 24px; } .extra-opt .ex-price { font-size: 1.1rem; } .extra-opt small { font-size: .76rem; } }
