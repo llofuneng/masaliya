@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611081254">
+<link rel="stylesheet" href="site.css?v=202611081306">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -238,7 +238,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611081254" defer></script>
+<script src="site.js?v=202611081306" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -614,6 +614,28 @@ addEventListener('DOMContentLoaded', () => {
     let aspect = 1;
     const isPhone = () => aspect < .8;
     function shot(s) { const k = aspect < 1.05 && !isPhone() ? Math.min(s === shots.open ? 2.0 : 2.25, 1.22 / aspect) : 1; return { pos: s.pos.clone().multiplyScalar(k), look: s.look.clone() }; }
+    /* keep the closed book between the name field above it and the "Masalı Aç" button below it:
+       each frame while the book is closed, nudge the camera (and if need be the book's size) */
+    const fit = { shift: 0, scale: 1 }, tmpFit = new T.Vector3(), fitBox = new T.Box3();
+    const nameField = document.querySelector('.cover-name input'), openBtn = document.getElementById('open');
+    function fitBook() {
+      if (!nameField || !openBtn || !nameField.offsetParent) return;
+      const r = canvas.getBoundingClientRect(), top0 = nameField.getBoundingClientRect().bottom - r.top + 14, bot0 = openBtn.getBoundingClientRect().top - r.top - 14;
+      if (bot0 - top0 < 80) return;
+      fitBox.setFromObject(bookG);
+      let y0 = Infinity, y1 = -Infinity;
+      for (const x of [fitBox.min.x, fitBox.max.x]) for (const y of [fitBox.min.y, fitBox.max.y]) for (const z of [fitBox.min.z, fitBox.max.z]) {
+        const v = tmpFit.set(x, y, z).project(camera), py = (1 - v.y) / 2 * r.height; y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+      }
+      const h = y1 - y0, room = bot0 - top0;
+      // a little smaller only when it does not fit; never larger than designed
+      const wantScale = Math.min(1, fit.scale * room / h);
+      fit.scale += (Math.max(.6, wantScale) - fit.scale) * .3;
+      // pixels to world units at the book's distance
+      const dist = camera.position.distanceTo(bookG.position), perPx = 2 * dist * Math.tan(camera.fov * Math.PI / 360) / r.height;
+      const err = (y0 + y1) / 2 - (top0 + bot0) / 2;
+      fit.shift = Math.max(-1.5, Math.min(1.5, fit.shift - err * perPx * .25));
+    }
     function resize() { const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); aspect = w / h; camera.aspect = aspect; camera.updateProjectionMatrix(); }
 
     /* --- timeline: seconds since the open began --- */
@@ -638,7 +660,7 @@ addEventListener('DOMContentLoaded', () => {
       const lift = (1 - e) * hover * .16;
       hinge.rotation.z = e * Math.PI + lift;
       // on an upright phone the open book shrinks a little so it stays inside the frame
-      const bs = BOOK_SIZE * (isPhone() ? 1 - .26 * e : 1);
+      const bs = BOOK_SIZE * (isPhone() ? 1 - .26 * e : 1) * (fit.scale + (1 - fit.scale) * e);
       bookG.scale.setScalar(bs);
       bookG.position.x = e * W / 2 * bs;
       spine.visible = e < .5;
@@ -676,8 +698,10 @@ addEventListener('DOMContentLoaded', () => {
       camera.position.lerpVectors(a.pos, b.pos, ce);
       camera.position.x += Math.sin(t * .23) * .12 * (1 - ce * .6);
       camera.position.y += Math.sin(t * .31) * .05;
-      camera.lookAt(a.look.clone().lerp(b.look, ce));
+      camera.position.y += fit.shift * (1 - ce);
+      camera.lookAt(a.look.clone().lerp(b.look, ce).add(tmpFit.set(0, fit.shift * (1 - ce), 0)));
       camera.updateMatrixWorld();
+      if (tl === 0) fitBook();
       // heroes rise out of the gutter, each a little after the other
       const tall = aspect < 1.05, spread = tall ? 1.5 : 1.85, sc = phone ? 1 : tall ? .78 : 1;
       intro.classList.toggle('phone', phone);

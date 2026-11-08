@@ -17,8 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
 <link rel="icon" href="img/favicon.png?v=2"><link rel="apple-touch-icon" href="img/logo/masaliya-favicon.png?v=2">
-<link rel="stylesheet" href="site.css?v=202611081254">
-<script src="site.js?v=202611081254" defer></script>
+<link rel="stylesheet" href="site.css?v=202611081306">
+<script src="site.js?v=202611081306" defer></script>
 </head>
 <body data-page="siparis">
 <header id="site-head"></header>
@@ -26,36 +26,26 @@
 <section class="page-head"><div class="wrap">
   <p class="eyebrow">Sipariş takibi</p>
   <h1>Masalınız ne aşamada?</h1>
-  <p class="lede">Sipariş numaranızı ve e-posta adresinizi ya da telefonunuzu yazın; masalınızın atölyede hangi adımda olduğunu görün.</p>
+  <p class="lede">Sipariş numaranızı yazın; masalınızın atölyede hangi adımda olduğunu görün.</p>
 </div></section>
 <section class="sec"><div class="wrap track">
   <div style="display:grid; gap:24px">
     <form class="panel" id="track">
       <label class="field" for="o-no">Sipariş numarası<input id="o-no" type="text" required placeholder="MSL-7K3F9Q" autocomplete="off"></label>
-      <label class="field" for="o-contact">E-posta veya telefon<input id="o-contact" type="text" required autocomplete="email" placeholder="ornek@mail.com ya da 05xx xxx xx xx"></label>
       <button class="btn" type="submit">Siparişimi Göster</button>
       <p class="form-note" id="o-note" aria-live="polite"></p>
     </form>
-    <div class="panel summary" id="o-summary">
-      <span class="example-tag">Örnek sipariş</span>
-      <dl>
-        <dt>Sipariş</dt><dd>MSL-7K3F9Q</dd>
-        <dt>Masal</dt><dd>Elif ve Deniz Kızı Krallığı</dd>
-        <dt>Kapak</dt><dd>Sert kapak · 21 × 28 cm</dd>
-        <dt>Ekler</dt><dd>Hediye kutusu, not kartı</dd>
-      </dl>
-    </div>
+    <div class="panel summary" id="o-summary" hidden></div>
   </div>
   <div>
-    <p class="eyebrow" style="margin-bottom:22px" id="o-eyebrow">Atölyedeki yolculuk · örnek</p>
+    <p class="eyebrow" style="margin-bottom:22px" id="o-eyebrow">Atölyedeki yolculuk</p>
     <ol class="timeline" id="o-steps">
-      <li class="done"><span class="dot">✓</span><div><b>Sipariş alındı</b><small>Ödemeniz onaylandı.</small></div></li>
-      <li class="done"><span class="dot">✓</span><div><b>Resimler hazırlandı</b><small>Siparişten sonra 5 iş günü içinde.</small></div></li>
-      <li class="now"><span class="dot">✦</span><div><b>Önizleme onayınızı bekliyor</b><small>Bütün sayfaları inceleyin; değiştirmek istediğiniz bir şey varsa yazın.</small>
-        <div class="actions"><a class="btn" href="#onizleme">Önizlemeyi Aç</a><a class="btn ghost" href="#whatsapp">Değişiklik İste</a></div></div></li>
-      <li><span class="dot"></span><div><b>Baskıda</b><small>Dijital kitap bu adımda hemen gönderilir.</small></div></li>
-      <li><span class="dot"></span><div><b>Kargoda</b><small>Onaydan sonra 5 iş günü içinde basılır. Takip numaranız burada görünecek.</small></div></li>
-      <li><span class="dot"></span><div><b>Teslim edildi</b><small>Fotoğraflarınız sistemlerimizden silinir.</small></div></li>
+      <li><span class="dot"></span><div><b>Sipariş alındı</b><small>Ödemeniz onaylanır.</small></div></li>
+      <li><span class="dot"></span><div><b>Tasarım · 5 iş günü</b><small>Resimler fotoğraflarınıza göre hazırlanır.</small></div></li>
+      <li><span class="dot"></span><div><b>Önizleme ve onayınız</b><small>Bütün sayfaları burada görür, onaylar ya da düzeltme istersiniz.</small></div></li>
+      <li><span class="dot"></span><div><b>Baskı · 5 iş günü</b><small>Dijital kitap onayınızla e-postanıza gelir.</small></div></li>
+      <li><span class="dot"></span><div><b>Kargoda</b><small>Takip numaranız burada görünür.</small></div></li>
+      <li><span class="dot"></span><div><b>Teslim edildi</b><small>İyi okumalar!</small></div></li>
     </ol>
     <div id="o-preview"></div>
   </div>
@@ -68,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (q) $('o-no').value = q.toUpperCase();
   const day = iso => new Date(iso).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
   const show = d => {
-    $('o-summary').innerHTML = `<dl><dt>Sipariş</dt><dd>${esc(d.id)}</dd>${d.books.map(b => `<dt>Masal</dt><dd>${esc(b.title)}<br><small>${esc(b.contents)}</small></dd>`).join('')}${d.paid ? `<dt>Ödeme</dt><dd>${day(d.paid)}</dd>` : ''}</dl>`;
+    $('o-summary').hidden = !d.books;
+    if (d.books) $('o-summary').innerHTML = `<dl><dt>Sipariş</dt><dd>${esc(d.id)}</dd>${d.books.map(b => `<dt>Masal</dt><dd>${esc(b.title)}<br><small>${esc(b.contents)}</small></dd>`).join('')}${d.paid ? `<dt>Ödeme</dt><dd>${day(d.paid)}</dd>` : ''}</dl>`;
     $('o-eyebrow').textContent = 'Atölyedeki yolculuk';
     if (d.status !== 'odendi') {
       $('o-steps').innerHTML = `<li class="now"><span class="dot">✦</span><div><b>Ödeme bekleniyor</b><small>Bu siparişin ödemesi tamamlanmamış. Kitaplarınız sepetinizde duruyorsa oradan tekrar deneyebilirsiniz.</small></div></li>`;
@@ -129,10 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
       send('duzeltme', text);
     });
   };
-  const load = (who) => {
+  const load = () => {
     const no = $('o-no').value.trim().toUpperCase();
     note.textContent = 'Sipariş aranıyor…';
-    const auth = who ? `iletisim=${encodeURIComponent(who)}` : `k=${encodeURIComponent(key)}`;
+    const auth = key ? `k=${encodeURIComponent(key)}` : '';
     fetch(`${ORDER_API}/api/status?siparis=${encodeURIComponent(no)}&${auth}`)
       .then(r => r.json().then(d => ({ ok: r.ok, d })))
       .then(({ ok, d }) => { if (!ok) { note.textContent = d.error || 'Bu bilgilerle bir sipariş bulunamadı.'; return; } show(d); if (location.hash === '#o-preview' || (d.stage === 'onizleme' && params.get('k'))) { const pv = $('pv'); if (pv) pv.scrollIntoView({ block: 'start' }); } })
@@ -141,13 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (q && key) load();
   $('track').addEventListener('submit', e => {
     e.preventDefault();
-    const v = $('o-contact').value.trim();
-    const ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.replace(/\D/g, '').length >= 10;
-    if (!ok) { note.textContent = 'Lütfen siparişte kullandığınız e-posta adresini ya da telefon numarasını yazın.'; return; }
-    load(v);
+    if (!/^MSL-[A-Z0-9]{6}$/.test($('o-no').value.trim().toUpperCase())) { note.textContent = 'Sipariş numaranız MSL- ile başlar, örneğin MSL-7K3F9Q.'; $('o-no').focus(); return; }
+    load();
   });
   const pv = document.querySelector('a[href="#onizleme"]');
-  if (pv) pv.addEventListener('click', e => { e.preventDefault(); note.textContent = 'Örnek: gerçek siparişinizde önizleme hazır olduğunda burada açılır.'; });
 });
 </script>
 </main>

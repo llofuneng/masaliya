@@ -80,6 +80,7 @@ async function addItem(req, env) {
   const set = CATALOG.sets.find(s => s.id === o.set);
   const coverPrice = CATALOG.prices.kitap[o.cover];
   const hero = String(o.hero || '').trim().slice(0, 32);
+  const about = String(o.about || '').trim().slice(0, 400);
   if (!book || !set || !coverPrice) return json({ error: 'Seçtiğiniz kitap ya da seçenek bulunamadı.' }, 400);
   if (o.cover === 'digital' && set.items.length) return json({ error: 'Dijital kitap setle birlikte sipariş edilemez.' }, 400);
   if (!hero) return json({ error: 'Kahramanın adı eksik.' }, 400);
@@ -94,7 +95,7 @@ async function addItem(req, env) {
   const giftBox = !!o.giftBox && ships;
   const item = {
     id: newId('KTP-', 8), status: 'sepette', created: new Date().toISOString(),
-    product: o.product, title: `${hero} ${book.title}`, hero, cover: o.cover, set: set.id, setName: set.name,
+    product: o.product, title: `${hero} ${book.title}`, hero, about, cover: o.cover, set: set.id, setName: set.name,
     contents: [CATALOG.covers[o.cover], ...set.items.map(([t]) => PART_NAMES[t])].join(' + '),
     giftBox, giftNote: giftBox ? String(o.giftNote || '').slice(0, 240) : '', ships,
     price: { set: setPrice, giftBox: giftBox ? CATALOG.giftBox : 0, total: setPrice + (giftBox ? CATALOG.giftBox : 0) }
@@ -210,18 +211,19 @@ async function stripeEvent(req, env) {
 /* ---------- order tracking on the site: order number + e-mail or phone ---------- */
 async function orderStatus(url, env) {
   const order = await loadOrder(env, (url.searchParams.get('siparis') || '').toUpperCase());
-  const who = (url.searchParams.get('iletisim') || '').trim().toLowerCase(), key = url.searchParams.get('k') || '';
-  const digits = s => String(s || '').replace(/\D/g, '').slice(-10);
-  if (!order || !order.items || !((key && key === await ctoken(env, order.id)) || (who && (who === order.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(order.contact.phone))))))
-    return json({ error: 'Bu bilgilerle bir sipariş bulunamadı.' }, 404);
+  const key = url.searchParams.get('k') || '';
+  if (!order || !order.items) return json({ error: 'Bu numarayla bir sipariş bulunamadı.' }, 404);
   const h = order.history || {}, k = await ctoken(env, order.id), api = new URL(url.origin);
+  const stages = order.status === 'odendi' ? stagesFor(order).map(st => ({ key: st, title: stageTitle(order, st), text: STAGES[st].text, date: h[st] || null })) : [];
+  // the order number alone shows only where the order is; the books, names and preview pages
+  // need the personal link (k) we send to the customer
+  if (key !== k) return json({ id: order.id, status: order.status, stage: order.stage || null, ships: !!order.ships, stages, cargo: order.cargo || null, paid: order.paid || null, previews: [], revisions: [], review: null });
   const previews = order.items.flatMap(it => { const parts = partsOf(it); return parts.map(part => ({ part, files: partFiles(order, it, part) })).filter(x => x.files.length).map(({ part, files }) => ({
     title: parts.length > 1 ? `${it.title} · ${PART_LABELS[part]}` : it.title,
     files: files.map(f => ({ name: f.name, pdf: f.type === 'pdf', url: `${api.origin}/api/onizleme/${order.id}/${f.file}?k=${k}` })) })); });
   return json({
     id: order.id, status: order.status, stage: order.stage || null, ships: !!order.ships,
-    books: order.items.map(it => ({ title: it.title, contents: `${it.setName} · ${it.contents}` })),
-    stages: order.status === 'odendi' ? stagesFor(order).map(k => ({ key: k, title: stageTitle(order, k), text: STAGES[k].text, date: h[k] || null })) : [],
+    books: order.items.map(it => ({ title: it.title, contents: `${it.setName} · ${it.contents}` })), stages,
     cargo: order.cargo || null, created: order.created, paid: order.paid || null,
     k, previews, review: order.review || null, revisions: order.revisions || []
   });
@@ -395,6 +397,7 @@ function orderHtml(o, origin, t) {
     <h2>${k + 1}. ${esc(it.title)}</h2>
     <table>
       <tr><th>Set</th><td>${esc(it.setName)} · ${esc(it.contents)}</td></tr>
+      ${it.about ? `<tr><th>Kahraman hakkında</th><td>${esc(it.about)}</td></tr>` : ''}
       <tr><th>Hediye kutusu</th><td>${it.giftBox ? 'Evet' + (it.giftNote ? ` · not: “${esc(it.giftNote)}”` : '') : 'Hayır'}</td></tr>
       <tr><th>Tutar</th><td>${it.price.total.toLocaleString('tr-TR')} TL</td></tr>
     </table>
