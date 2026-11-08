@@ -339,7 +339,7 @@ function stagePanel(o, t, note) {
   return `<form class="stage" method="post" action="/admin/${o.id}/asama?t=${t}">
     <p>Şu anki aşama: <b>${STAGES[cur].admin}</b>${h[cur] ? ` · ${date(h[cur])}` : ''}${note ? ` <span class="note">${esc(note)}</span>` : ''}</p>
     <div class="steps">${stagesFor(o).map(k => `<button name="asama" value="${k}"${k === cur ? ' class="cur" disabled' : ''}>${!o.ships && k === 'teslim' ? 'Gönderildi' : STAGES[k].admin}${h[k] && k !== cur ? ' ✓' : ''}</button>`).join('')}</div>
-    ${o.ships ? `<div class="two"><label>Kargo firması<input name="firma" value="${esc(c.firm || '')}" placeholder="Yurtiçi Kargo"></label><label>Takip numarası<input name="takip" value="${esc(c.no || '')}"></label></div>` : ''}
+    ${o.ships ? `<div class="two"><label>Kargo firması<input name="firma" value="${esc(c.firm || 'Aras Kargo')}" placeholder="Aras Kargo"></label><label>Takip numarası<input name="takip" value="${esc(c.no || '')}"></label></div>` : ''}
     <small>“Kargoda” için takip numarası gerekli. Yanlış bir düğmeye bastıysanız doğru aşamaya basmanız yeterli.${o.photosDeleted ? ` Fotoğraflar ${date(o.photosDeleted)} tarihinde silindi.` : (h.teslim ? ` Fotoğraflar teslimden ${PHOTO_DAYS} gün sonra kendiliğinden silinir.` : '')}</small>
   </form>`;
 }
