@@ -53,7 +53,7 @@ const ALL_SETS = [
 const SETS = ALL_SETS.filter(st => st.items.every(([t]) => SELL[t]));   // only sets whose parts are on sale
 const setTotal = st => Math.round((PRICES.kitap.hard + st.items.reduce((a, [t, f]) => a + PRICES[t][f], 0)) * (1 - st.discount));
 const PHOTO_SLOTS = ['Önden', 'Hafif yandan', 'Gülümserken'];
-const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır.' };
+const PUZZLE = { pieces: 35, desc: '35 parça. Kitaptan bir sahne; son parça yerine oturduğunda karşısında kendi yüzü vardır.' };
 const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
@@ -762,7 +762,7 @@ function renderProduct() {
         </div>` : '';
     const coloring = PRODUCTS.find(x => x.book === p.id && onSale(x));
     // the add-ons as "+" choices; together they pick the set (none = the book alone)
-    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik', coloring && coloring.img], yapboz: ['Ahşap Puzzle Ekle', '35 parça · Kitabın kapağındaki sahne', puzzleImg(p)] };
+    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik', coloring && coloring.img], yapboz: ['Ahşap Puzzle Ekle', '35 parça · Kitaptan bir sahne', puzzleImg(p)] };
     const extraParts = Object.keys(EXTRAS).filter(k => SELL[k] && SETS.some(st => st.items.some(([t]) => t === k)));
     const askedParts = ((SETS.find(st => st.id === new URLSearchParams(location.search).get('set')) || {}).items || []).map(([t]) => t);
     const extrasHtml = p.type === 'kitap' && extraParts.length ? `<div class="extras" id="extras">${extraParts.map(k => {
