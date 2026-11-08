@@ -525,7 +525,7 @@ function renderCollection(aud) {
       ? items.filter(p => key === 'hepsi' || p.occ === key)
       : items.filter(p => TYPES[p.type].tab === key);
     grid.className = `grid${list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : ''}`;
-    grid.innerHTML = list.length ? list.map(card).join('') : '<p class="empty">Bu bölüm için yeni ürünler hazırlanıyor.</p>';
+    grid.innerHTML = list.length ? list.map(p => card(p)).join('') : '<p class="empty">Bu bölüm için yeni ürünler hazırlanıyor.</p>';
   }
   addEventListener('hashchange', show);
   show();
@@ -979,7 +979,7 @@ function renderProduct() {
 
     // Related
     const rel = PRODUCTS.filter(x => x.aud === p.aud && x.id !== p.id && onSale(x)).slice(0, 3);
-    document.getElementById('related').innerHTML = rel.map(card).join('');
+    document.getElementById('related').innerHTML = rel.map(p => card(p)).join('');
     if (location.hash === '#inside' && document.getElementById('inside')) requestAnimationFrame(() => document.getElementById('inside').scrollIntoView());
     else scrollTo(0, 0);
   }
