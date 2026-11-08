@@ -683,3 +683,26 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .cancel-box b { color: var(--cream); font-weight: 500; }
 .cancel-box p { margin: 0; }
 .cancel-box .btn { justify-self: start; }
+
+/* collection pages: each story in its own tile, two colours in a chessboard pattern */
+#grid .card { padding: clamp(14px, 1.6vw, 20px); border: 1px solid var(--line); border-radius: 4px; background: linear-gradient(165deg, #3d141c, #26090f); transition: border-color .25s; }
+#grid .card:nth-child(even) { background: linear-gradient(165deg, #2e1d15, #1b100c); }
+#grid .card:hover { border-color: rgba(226,181,107,.45); }
+@media (max-width: 900px) {
+  #grid .card:nth-child(4n+1), #grid .card:nth-child(4n+4) { background: linear-gradient(165deg, #3d141c, #26090f); }
+  #grid .card:nth-child(4n+2), #grid .card:nth-child(4n+3) { background: linear-gradient(165deg, #2e1d15, #1b100c); }
+}
+@media (max-width: 520px) {
+  #grid .card:nth-child(odd) { background: linear-gradient(165deg, #3d141c, #26090f); }
+  #grid .card:nth-child(even) { background: linear-gradient(165deg, #2e1d15, #1b100c); }
+}
+/* a lone book on the last row sits under the middle tile: give it the other colour */
+@media (min-width: 901px) {
+  #grid .card:last-child:nth-child(6n+1) { background: linear-gradient(165deg, #2e1d15, #1b100c); }
+  #grid .card:last-child:nth-child(6n+4) { background: linear-gradient(165deg, #3d141c, #26090f); }
+}
+/* the price line stays on one line on a phone */
+@media (max-width: 560px) {
+  .price-note { flex-wrap: nowrap; gap: 0 8px; font-size: .76rem; letter-spacing: 0; white-space: nowrap; }
+  .price-note span + span::before { margin-right: 8px; }
+}
