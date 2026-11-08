@@ -765,3 +765,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .extra-opt .ex-title { padding: 2px 0 0; }
   .gift-opt { grid-template-columns: 46px minmax(0, 1fr); }
 }
+
+/* "Kahraman hakkında": as tall as the name box above it, grows with the text */
+#hero-about { box-sizing: border-box; height: 48px; min-height: 0; padding: 12px 1em; resize: none; overflow: hidden; line-height: 1.35; }

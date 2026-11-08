@@ -729,7 +729,7 @@ function renderProduct() {
     const buy = orderable ? `
       <form id="buy" class="info" style="gap:18px" autocomplete="off">
         ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
-        <label class="field" for="hero-about"><span class="step">2 · Kahraman hakkında <span class="opt">(opsiyonel<sup>*</sup>)</span></span><textarea id="hero-about" rows="3" maxlength="400" placeholder="Örneğin: 5 yaşında, kıvırcık saçlı, dinozorlara bayılıyor, kedisinin adı Pamuk"></textarea></label>
+        <label class="field" for="hero-about"><span class="step">2 · Kahraman hakkında <span class="opt">(opsiyonel<sup>*</sup>)</span></span><textarea id="hero-about" rows="1" maxlength="400" placeholder="Örneğin: 5 yaşında, kıvırcık saçlı, dinozor sever"></textarea></label>
         <div class="field"><span class="step">3 · Üç fotoğraf</span>
           <div class="slots">
             ${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}
@@ -901,6 +901,8 @@ function renderProduct() {
       if (giftBox) giftBox.checked = false;
       root.querySelectorAll('#extras input').forEach(x => { x.checked = false; });
     }
+    const about = document.getElementById('hero-about');
+    if (about) { const grow = () => { about.style.height = ''; about.style.height = Math.max(about.offsetHeight, about.scrollHeight + 2) + 'px'; }; about.addEventListener('input', grow); }
     const needHard = () => { if (!root.querySelector('input[name="cover"]:checked')) { const h = root.querySelector('input[name="cover"][value="hard"]'); if (h) h.checked = true; } };
     if (giftBox) giftBox.addEventListener('change', () => { if (giftBox.checked) needHard(); giftWanted = giftBox.checked; total(); });
     root.querySelectorAll('input[name="cover"], input[name="set"], #pdf-addon').forEach(r => r.addEventListener('change', total));
