@@ -174,6 +174,15 @@ const SPREADS_AY = [
   ['img/kayip-ay-isigi-s6.jpg', 'Ay’a bir masal: «Artık yalnız değilsin»'],
   ['img/kayip-ay-isigi-s7.jpg', 'Evde, göz kırpan Ay’a iyi geceler']
 ];
+const SPREADS_YARIS = [
+  ['img/buyuk-yaris-s1.jpg', 'Oyuncak kırmızı araba parlıyor ve büyüyor'],
+  ['img/buyuk-yaris-s2.jpg', 'Neon şehirde start çizgisi: Kıvılcım’ın sırrı'],
+  ['img/buyuk-yaris-s3.jpg', 'Yağ birikintisinde dönen Vida’ya yardım'],
+  ['img/buyuk-yaris-s4.jpg', 'Karanlık tünelin önünde minik Bip'],
+  ['img/buyuk-yaris-s5.jpg', 'Usta Robot’un saçılan somunları'],
+  ['img/buyuk-yaris-s6.jpg', 'Altın turbo: yıkık köprünün üstünden uçuş'],
+  ['img/buyuk-yaris-s7.jpg', 'Sabah: rafta minicik altın bir kupa']
+];
 const PAGES_BOYAMA_BUZ = [
   ['img/buz-satosunun-sirri-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
   ['img/buz-satosunun-sirri-boyama-p02.jpg', 'Şifreli mesaj'],
@@ -264,6 +273,10 @@ const PRODUCTS = [
     img: 'img/kayip-ay-isigi-kapak.jpg', clean: 'img/kayip-ay-isigi-temiz.jpg', alt: 'Ege ve Kayıp Ay Işığı kapağı: astronot kıyafetli çocuk, gülümseyen Ay ve küçük yıldız',
     desc: 'Bir gece Ay kaybolur ve dünyanın her yerinde çocuklar korkulu rüyalar görmeye başlar. Penceredeki oyuncak roket gerçek bir uzay gemisine dönüşünce kahramanımız, küçük bir yıldızla birlikte Ay’ın karanlık tarafına cesur bir yolculuğa çıkar. Cesaretin, iyiliğin ve kendine inanmanın masalı.',
     extra: [['img/kayip-ay-isigi-arka.jpg', 'Arka kapak']], spreads: SPREADS_AY },
+  { id: 'buyuk-yaris', coverTitle: { box: [0, .26], sub: 've Büyük Yarış', font: 'sans', nameSize: 123, subSize: 43, block: 180, top: 13, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Poyraz', title: 've Büyük Yarış',
+    img: 'img/buyuk-yaris-kapak.jpg', clean: 'img/buyuk-yaris-temiz.jpg', alt: 'Poyraz ve Büyük Yarış kapağı: yarış tulumlu çocuk, kırmızı spor araba ve start çizgisindeki robotlar',
+    desc: 'Bir akşam raftaki oyuncak kırmızı araba vınlar, farları yanıp söner ve kocaman, gerçek bir spor arabaya dönüşür. Kahramanımız, neon ışıklı bir şehirde robotlarla Büyük Yarış’a katılır. Ama bu yarışta en hızlı olmak yetmez: Kıvılcım’ın altın turbosu yalnızca iyiliklerle dolar. İyiliğin, dostluğun ve cesaretin masalı.',
+    extra: [['img/buyuk-yaris-arka.jpg', 'Arka kapak']], spreads: SPREADS_YARIS },
 
   { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
