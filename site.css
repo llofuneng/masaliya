@@ -781,3 +781,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .p-viewer .spread:not(.portrait) > img { object-fit: contain; }
 .p-viewer .spread .cover-box { inset: 2% 0; height: 96%; }
 @media (max-width: 860px) { .p-viewer .spread:not(.portrait) { aspect-ratio: 1; } }
+
+/* the cover in a tall frame of its own, as large as the column allows; spreads in the wide frame */
+.p-viewer .spread.on-cover:not(.portrait) { aspect-ratio: 800 / 1075; width: min(100%, calc(86vh * 800 / 1075)); justify-self: center; background: none; }
+.p-viewer .spread.on-cover .cover-box { inset: 0; width: 100%; height: 100%; aspect-ratio: auto; border-radius: 2px 6px 6px 2px; }
+.p-viewer .spread:not(.portrait):not(.on-cover) { aspect-ratio: 1820 / 1287; }
+.p-viewer .spread:not(.portrait):not(.on-cover) > img { object-fit: cover; }
+@media (max-width: 860px) { .p-viewer .spread:not(.portrait):not(.on-cover) { aspect-ratio: 1820 / 1287; } }
+.p-viewer .spread .ov { position: absolute; top: 50%; translate: 0 -50%; z-index: 3; width: 42px; height: 42px; background: rgba(20,10,8,.55); border-color: rgba(226,181,107,.6); backdrop-filter: blur(2px); }
+.p-viewer .spread .ov-prev { left: 10px; } .p-viewer .spread .ov-next { right: 10px; }
+.p-viewer .spread .ov:hover { background: rgba(20,10,8,.8); border-color: var(--gold); }

@@ -838,8 +838,9 @@ function renderProduct() {
         <div class="spread${p.spreads ? '' : ' portrait'} on-cover" id="spread" tabindex="0" role="button" aria-label="Sayfayı büyüt">
           <div class="cover-box main" id="cover-box"><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
           <img id="spread-img" src="" alt="" hidden>
+          <button class="arrow ov ov-prev" id="prev" type="button" aria-label="Önceki sayfa">←</button><button class="arrow ov ov-next" id="next" type="button" aria-label="Sonraki sayfa">→</button>
         </div>
-        <div class="viewer-bar"><button class="arrow" id="prev" type="button" aria-label="Önceki sayfa">←</button><span class="counter" id="counter" aria-live="polite"></span><button class="arrow" id="next" type="button" aria-label="Sonraki sayfa">→</button><button class="zoom" id="zoom" type="button" aria-label="Büyüt">Büyüt</button></div>
+        <div class="viewer-bar"><span class="counter" id="counter" aria-live="polite"></span><button class="zoom" id="zoom" type="button" aria-label="Büyüt">Büyüt</button></div>
         <div class="vthumbs${p.spreads ? '' : ' portrait'}" id="vthumbs" aria-label="Bütün sayfalar"></div>
         <p class="sample-note">Örnek kitap. Sizin kitabınızda kahramanın yüzü ve adı her sayfada yer alır.</p>
       </section>` : '';
@@ -1104,8 +1105,8 @@ function setupViewer(slides, onCover) {
   const go = i => show(i, true);
   show(0, false);
   strip.querySelectorAll('button').forEach((b, k) => { b.onclick = () => go(k); });
-  document.getElementById('prev').onclick = () => go(cur - 1);
-  document.getElementById('next').onclick = () => go(cur + 1);
+  document.getElementById('prev').onclick = e => { e.stopPropagation(); go(cur - 1); };
+  document.getElementById('next').onclick = e => { e.stopPropagation(); go(cur + 1); };
   const all = slides.map(([src, alt]) => [src, alt]);
   document.getElementById('zoom').onclick = () => openLightbox(all, cur);
   swipe(frame, () => go(cur + 1), () => go(cur - 1));
