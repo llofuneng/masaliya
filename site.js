@@ -96,13 +96,13 @@ const cart = {
 const ORDER_API = 'https://masaliya-siparis.llo-fun-eng.workers.dev';
 
 const SPREADS_DUA = [
-  ['img/sihirli-kutuphane-s1.jpg', 'Dua tozlu Masallar Kitabı’nı buluyor'],
+  ['img/sihirli-kutuphane-s1.jpg', 'Zeynep tozlu Masallar Kitabı’nı buluyor'],
   ['img/sihirli-kutuphane-s2.jpg', 'Masal Diyarı’nda konuşan kedi Mürekkep'],
   ['img/sihirli-kutuphane-s3.jpg', 'Bulutların üstündeki ip köprüde küçük şövalye Aras'],
   ['img/sihirli-kutuphane-s4.jpg', 'Yalnız dev Toprak ile paylaşılan simit'],
   ['img/sihirli-kutuphane-s5.jpg', 'Yüz yıldır kapıyı bekleyen taş aslan'],
   ['img/sihirli-kutuphane-s6.jpg', 'Sihirli Kütüphane’de altın sayfalar'],
-  ['img/sihirli-kutuphane-s7.jpg', 'Dua okul kütüphanesinde ilk cümleyi yazıyor']
+  ['img/sihirli-kutuphane-s7.jpg', 'Zeynep okul kütüphanesinde ilk cümleyi yazıyor']
 ];
 // coloring books: single portrait pages
 const PAGES_BOYAMA_LAVIN = [
@@ -231,9 +231,8 @@ const SPREADS_DINO = [
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list).
    book: a coloring book is sold only with its story book, as a Masal Seti */
 const PRODUCTS = [
-  { id: 'sihirli-kutuphane', hidden: true,   // hidden for now: set to false (or delete) to bring it back
-    coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Dua', title: 've Sihirli Kütüphane', age: '7–12 yaş',
-    img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Dua ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
+  { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+    img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Zeynep ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
   { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
