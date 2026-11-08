@@ -289,7 +289,9 @@ addEventListener('DOMContentLoaded', () => {
   /* ---------- the hero's name, written on the cover in gold foil ---------- */
   const nameIn = document.getElementById('cover-name');
   let nameTimer = 0;
-  try { const saved = sessionStorage.getItem('masaliya-hero'); if (saved) nameIn.value = saved; } catch (e) {}
+  // every visit starts with an empty name; what is typed here still goes on to the book pages
+  try { sessionStorage.removeItem('masaliya-hero'); } catch (e) {}
+  nameIn.value = '';
   function applyName() {
     const n = cap(nameIn.value.trim().replace(/\s+/g, ' '));
     try { sessionStorage.setItem('masaliya-hero', n); } catch (e) {}
@@ -619,7 +621,7 @@ addEventListener('DOMContentLoaded', () => {
        each frame while the book is closed, nudge the camera (and if need be the book's size) */
     const fit = { shift: 0, scale: 1 }, tmpFit = new T.Vector3(), fitBox = new T.Box3();
     const nameField = document.querySelector('.cover-name input'), openBtn = document.getElementById('open');
-    function fitBook() {
+    function fitBook(g = .3) {
       if (!nameField || !openBtn || !nameField.offsetParent) return;
       const r = canvas.getBoundingClientRect(), top0 = nameField.getBoundingClientRect().bottom - r.top + 14, bot0 = openBtn.getBoundingClientRect().top - r.top - 14;
       if (bot0 - top0 < 80) return;
@@ -631,11 +633,22 @@ addEventListener('DOMContentLoaded', () => {
       const h = y1 - y0, room = bot0 - top0;
       // a little smaller only when it does not fit; never larger than designed
       const wantScale = Math.min(1, fit.scale * room / h);
-      fit.scale += (Math.max(.6, wantScale) - fit.scale) * .3;
+      fit.scale += (Math.max(.6, wantScale) - fit.scale) * g;
       // pixels to world units at the book's distance
       const dist = camera.position.distanceTo(bookG.position), perPx = 2 * dist * Math.tan(camera.fov * Math.PI / 360) / r.height;
       const err = (y0 + y1) / 2 - (top0 + bot0) / 2;
-      fit.shift = Math.max(-1.5, Math.min(1.5, fit.shift - err * perPx * .25));
+      fit.shift = Math.max(-1.5, Math.min(1.5, fit.shift - err * perPx * Math.min(1, g * .85)));
+    }
+    // find the book's size and place at once (before it is shown, after a resize), so it never shrinks in view
+    function settleBook() {
+      if (tl !== 0) return;
+      for (let i = 0; i < 14; i++) {
+        const a = shot(isPhone() ? shots.closedTall : shots.closed);
+        camera.position.copy(a.pos); camera.position.y += fit.shift;
+        camera.lookAt(a.look.clone().add(tmpFit.set(0, fit.shift, 0))); camera.updateMatrixWorld();
+        bookG.scale.setScalar(BOOK_SIZE * fit.scale); bookG.updateMatrixWorld(true);
+        fitBook(1);
+      }
     }
     function resize() { const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); aspect = w / h; camera.aspect = aspect; camera.updateProjectionMatrix(); }
 
@@ -664,6 +677,8 @@ addEventListener('DOMContentLoaded', () => {
       const bs = BOOK_SIZE * (isPhone() ? 1 - .26 * e : 1) * (fit.scale + (1 - fit.scale) * e);
       bookG.scale.setScalar(bs);
       bookG.position.x = e * W / 2 * bs;
+      bookG.rotation.y = -.05 + (1 - e) * Math.sin(t * 1.05) * .07;
+      bookG.rotation.z = (1 - e) * Math.sin(t * 1.6 + .8) * .012;
       spine.visible = e < .5;
       contact.scale.set((1 + e) * bs, bs, 1);
       const lightUp = clamp((e - .58) / .32), peek = 0;   // light from inside only after the cover has turned away   // no glow on hover either: it lit the gold logo
@@ -702,7 +717,7 @@ addEventListener('DOMContentLoaded', () => {
       camera.position.y += fit.shift * (1 - ce);
       camera.lookAt(a.look.clone().lerp(b.look, ce).add(tmpFit.set(0, fit.shift * (1 - ce), 0)));
       camera.updateMatrixWorld();
-      if (tl === 0) fitBook();
+      if (tl === 0) fitBook(.08);   // only small corrections now; the big one was done before showing
       // heroes rise out of the gutter, each a little after the other
       const tall = aspect < 1.05, spread = tall ? 1.5 : 1.85, sc = phone ? 1 : tall ? .78 : 1;
       intro.classList.toggle('phone', phone);
@@ -765,7 +780,8 @@ addEventListener('DOMContentLoaded', () => {
       if (tl === 0 && !dir) { if (ray.intersectObjects(bookParts, false).length) onPick(); return; }
     });
 
-    resize(); addEventListener('resize', resize);
+    resize(); settleBook(); addEventListener('resize', () => { resize(); settleBook(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => settleBook());
     new IntersectionObserver(([en]) => { const was = running; running = en.isIntersecting; if (running && !was) { clock.getDelta(); frame(); } }).observe(canvas);
     document.fonts.load('500 76px "Cormorant Garamond"', 'MASALİYA').then(() => document.fonts.load('italic 400 44px "Cormorant Garamond"', 'kişiye özel masallar')).then(() => {
       buildCoverBase(); composeCover(curName, prevName, 1);
