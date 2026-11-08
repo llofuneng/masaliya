@@ -778,6 +778,16 @@ function renderProduct() {
       </form>`;
 
     const inner = p.spreads || p.pages;
+    // one viewer at the top: the cover first, then every page, then the back cover
+    const viewerHtml = inner ? `<section class="p-viewer" id="inside" aria-label="Kitabın içinden">
+        <div class="spread${p.spreads ? '' : ' portrait'} on-cover" id="spread" tabindex="0" role="button" aria-label="Sayfayı büyüt">
+          <div class="cover-box main" id="cover-box"><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
+          <img id="spread-img" src="" alt="" hidden>
+        </div>
+        <div class="viewer-bar"><button class="arrow" id="prev" type="button" aria-label="Önceki sayfa">←</button><span class="counter" id="counter" aria-live="polite"></span><button class="arrow" id="next" type="button" aria-label="Sonraki sayfa">→</button><button class="zoom" id="zoom" type="button" aria-label="Büyüt">Büyüt</button></div>
+        <div class="vthumbs${p.spreads ? '' : ' portrait'}" id="vthumbs" aria-label="Bütün sayfalar"></div>
+        <p class="sample-note">Örnek kitap. Sizin kitabınızda kahramanın yüzü ve adı her sayfada yer alır.</p>
+      </section>` : '';
     // what is in it, and when it arrives if ordered today
     const content = p.spreads ? `${p.spreads.length * 2} iç sayfa ve kapak`
       : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : '';
@@ -790,7 +800,7 @@ function renderProduct() {
         <div><dt>Gönderim</dt><dd>Yalnızca Türkiye içi</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
-      <div class="p-gallery">${gallery}</div>
+      <div class="p-gallery">${inner ? viewerHtml : gallery}</div>
       <div class="p-head">
         <p class="eyebrow" id="crumbs-inline">${a.name}</p>
         <h1 id="p-title">${fullTitle(p)}</h1>
@@ -798,13 +808,7 @@ function renderProduct() {
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
       </div>
-      ${inner ? `<section class="p-viewer" id="inside" aria-label="Kitabın içinden">
-        <p class="eyebrow">Kitabın içinden · bütün sayfalar</p>
-        <div class="spread${p.spreads ? '' : ' portrait'}" id="spread" tabindex="0" role="button" aria-label="Sayfayı büyüt"><img id="spread-img" src="" alt=""></div>
-        <div class="viewer-bar"><button class="arrow" id="prev" type="button" aria-label="Önceki sayfa">←</button><span class="counter" id="counter" aria-live="polite"></span><button class="arrow" id="next" type="button" aria-label="Sonraki sayfa">→</button><button class="zoom" id="zoom" type="button">Büyüt</button></div>
-        <div class="vthumbs${p.spreads ? '' : ' portrait'}" id="vthumbs" aria-label="Bütün sayfalar"></div>
-        <p class="sample-note">Örnek kitap. Sizin kitabınızda kahramanın yüzü ve adı her sayfada yer alır.</p>
-      </section>` : ''}
+
       <div class="p-buy info">
         ${buy}
         ${specs ? `<div class="about"><p class="eyebrow">Kitap hakkında</p>${specs}</div>` : ''}
@@ -833,7 +837,7 @@ function renderProduct() {
     // Live name: in the title, on the cover, in the dedication suggestion
     const nameIn = document.getElementById('hero-name');
     let coverShown = true, coverTimer = 0;
-    const mainBox = root.querySelector('.gallery .main'), coverCanvas = document.createElement('canvas');
+    const mainBox = root.querySelector('.gallery .main, #cover-box'), coverCanvas = document.createElement('canvas');
     coverCanvas.className = 'cover-name-canvas'; coverCanvas.setAttribute('aria-hidden', 'true');
     if (mainBox && p.coverTitle) mainBox.appendChild(coverCanvas);
     function paintCover() {
@@ -974,7 +978,7 @@ function renderProduct() {
     if (intF) intF.addEventListener('submit', e => { e.preventDefault(); document.getElementById('int-note').textContent = 'Önizleme sürümü: haber listesi site yayına alınırken bağlanacak.'; });
 
     // inside the book: spreads for story books, single pages for coloring books
-    if (inner) setupViewer(inner);
+    if (inner) setupViewer([[shots[0][0], shots[0][1], 'cover'], ...inner, ...shots.slice(1).map(([src, alt]) => [src, alt, 'back'])], on => { coverShown = on; paintCover(); });
     // phone: a slim bar with the total stays at hand until the order form is on screen
     const bar = document.getElementById('buybar');
     if (bar && buyF && 'IntersectionObserver' in window) {
@@ -992,32 +996,44 @@ function renderProduct() {
   show();
 }
 
-function setupViewer(spreads) {
+// slides: [src, alt, kind]; kind 'cover' / 'back' show in the upright cover frame, the rest are the pages
+function setupViewer(slides, onCover) {
   let cur = 0;
   const img = document.getElementById('spread-img'), counter = document.getElementById('counter'), strip = document.getElementById('vthumbs');
-  const frame = document.getElementById('spread');
+  const frame = document.getElementById('spread'), box = document.getElementById('cover-box'), coverImg = document.getElementById('g-main');
+  const pages = slides.filter(s => !s[2]).length;
+  const label = i => slides[i][2] === 'cover' ? 'Kapak' : slides[i][2] === 'back' ? 'Arka kapak' : `${slides.slice(0, i).filter(s => !s[2]).length + 1} / ${pages}`;
   // every page as a thumbnail, so the whole book can be seen at a glance
-  strip.innerHTML = spreads.map(([src, alt], i) => `<button type="button" data-i="${i}" aria-label="Sayfa ${i + 1}: ${esc(alt)}"><img src="${thumb(src)}" alt="" loading="lazy"></button>`).join('');
-  function go(i) {
-    cur = (i + spreads.length) % spreads.length;
-    img.style.opacity = 0;
-    setTimeout(() => { img.src = pageSrc(spreads[cur][0]); img.alt = spreads[cur][1]; img.style.opacity = 1; }, 220);
-    counter.textContent = `${cur + 1} / ${spreads.length}`;
+  strip.innerHTML = slides.map(([src, alt, kind], i) => `<button type="button" data-i="${i}"${kind ? ' class="pt"' : ''} aria-label="${esc(label(i))}: ${esc(alt)}"><img src="${thumb(src)}" alt="" loading="lazy"></button>`).join('');
+  function show(i, fade) {
+    cur = (i + slides.length) % slides.length;
+    const [src, alt, kind] = slides[cur];
+    const apply = () => {
+      frame.classList.toggle('on-cover', !!kind);
+      box.hidden = !kind; img.hidden = !!kind;
+      if (kind) { coverImg.src = src; coverImg.alt = alt; } else { img.src = pageSrc(src); img.alt = alt; }
+      onCover && onCover(kind === 'cover');
+      frame.style.opacity = 1;
+    };
+    if (fade) { frame.style.opacity = .35; setTimeout(apply, 180); } else apply();
+    counter.textContent = label(cur);
     strip.querySelectorAll('button').forEach((b, k) => b.setAttribute('aria-current', String(k === cur)));
     const active = strip.children[cur];
-    if (active) strip.scrollTo({ left: active.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
+    if (active && fade) strip.scrollTo({ left: active.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
   }
-  img.src = pageSrc(spreads[0][0]); img.alt = spreads[0][1]; counter.textContent = `1 / ${spreads.length}`;
-  strip.querySelectorAll('button').forEach((b, k) => { b.setAttribute('aria-current', String(k === 0)); b.onclick = () => go(k); });
+  const go = i => show(i, true);
+  show(0, false);
+  strip.querySelectorAll('button').forEach((b, k) => { b.onclick = () => go(k); });
   document.getElementById('prev').onclick = () => go(cur - 1);
   document.getElementById('next').onclick = () => go(cur + 1);
-  document.getElementById('zoom').onclick = () => openLightbox(spreads, cur);
+  const all = slides.map(([src, alt]) => [src, alt]);
+  document.getElementById('zoom').onclick = () => openLightbox(all, cur);
   swipe(frame, () => go(cur + 1), () => go(cur - 1));
-  frame.addEventListener('click', () => { if (frame.dataset.swiped) { delete frame.dataset.swiped; return; } openLightbox(spreads, cur); });
+  frame.addEventListener('click', () => { if (frame.dataset.swiped) { delete frame.dataset.swiped; return; } openLightbox(all, cur); });
   frame.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') go(cur - 1);
     if (e.key === 'ArrowRight') go(cur + 1);
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(spreads, cur); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(all, cur); }
   });
 }
 
