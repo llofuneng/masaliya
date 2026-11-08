@@ -768,3 +768,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* "Kahraman hakkında": as tall as the name box above it, grows with the text */
 #hero-about { box-sizing: border-box; height: 48px; min-height: 0; padding: 12px 1em; resize: none; overflow: hidden; line-height: 1.35; }
+
+/* the puzzle card takes the whole row: room for its name, its picture and the button */
+.extras { grid-template-columns: 1fr; }
+.extra-opt { grid-template-columns: 96px minmax(0, 1fr); padding: 14px 16px; }
+.extra-opt .ex-title { padding-right: 56px; }
+@media (max-width: 560px) {
+  .extra-opt { grid-template-columns: 84px minmax(0, 1fr); gap: 8px 12px; padding: 12px; }
+  .extra-opt .ex-pic { order: 0; aspect-ratio: 1; }
+  .extra-opt::after { top: 8px; right: 8px; background-color: transparent; }
+  .extra-opt .ex-title { padding: 4px 48px 0 0; font-size: 1.1rem; }
+}
