@@ -722,7 +722,7 @@ function renderProduct() {
     const extrasHtml = p.type === 'kitap' && extraParts.length ? `<div class="extras" id="extras">${extraParts.map(k => {
       const f = Object.keys(PRICES[k]).find(x => PRICES[k][x]);
       const pic = EXTRAS[k][2];
-      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}>${pic ? `<span class="ex-pic"><img src="${thumb(pic)}" alt="" loading="lazy"></span>` : ''}<span class="ex-text"><b>${EXTRAS[k][0]}</b><span class="ex-price">+ ${fmt(PRICES[k][f])}</span><small>${EXTRAS[k][1]}</small></span></label>`;
+      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}><b class="ex-title">${EXTRAS[k][0]}</b>${pic ? `<span class="ex-pic"><img src="${thumb(pic)}" alt="" loading="lazy"></span>` : ''}<span class="ex-text"><span class="ex-price">+ ${fmt(PRICES[k][f])}</span><small>${EXTRAS[k][1]}</small></span></label>`;
     }).join('')}</div>` : '';
     const askedSet = new URLSearchParams(location.search).get('set');
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
