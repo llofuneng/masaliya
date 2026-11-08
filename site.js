@@ -778,14 +778,15 @@ function renderProduct() {
 
     const inner = p.spreads || p.pages;
     // what is in it, and when it arrives if ordered today
-    const content = p.spreads ? `${p.spreads.length} çift sayfa masal · ${p.spreads.length * 2} iç sayfa ve kapak`
+    const content = p.spreads ? `${p.spreads.length * 2} iç sayfa ve kapak`
       : p.pages ? `${p.pages.length} sayfa boyama ve etkinlik` : '';
     const specs = orderable ? `<dl class="specs">
         <div><dt>Boyut</dt><dd>${p.type === 'kitap' ? '21 × 28 cm' : 'A4 · 21 × 29,7 cm'}</dd></div>
         ${content ? `<div><dt>İçerik</dt><dd>${content}</dd></div>` : ''}
-        ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>laminasyonlu, sert MDF kapak · lay-flat cilt: sayfalar tamamen düz açılır, çift sayfa resimler ortada kaybolmaz</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm albüm kâğıdı, gerçek fotoğraf kâğıdı: canlı, solmayan renkler</dd></div>' : ''}
-        <div><dt>Tasarım</dt><dd>5 iş günü · bugün sipariş verirseniz en geç ${trDate(inWorkDays(5))} önizlemeniz hazır</dd></div>
-        <div><dt>Baskı</dt><dd>onayınızdan sonra 5 iş günü, ardından ücretsiz kargo · dijital kitap onayınızla hemen</dd></div><div><dt>Gönderim</dt><dd>yalnızca Türkiye içindeki adreslere</dd></div>
+        ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>Sert kapak, sayfalar düz açılır</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm fotoğraf kâğıdı</dd></div>' : ''}
+        <div><dt>Tasarım</dt><dd>5 iş günü · Önizleme en geç ${trDate(inWorkDays(5))}</dd></div>
+        <div><dt>Baskı</dt><dd>Onayınızdan sonra 5 iş günü · Ücretsiz kargo</dd></div>
+        <div><dt>Gönderim</dt><dd>Yalnızca Türkiye içi</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
       <div class="p-gallery">${gallery}</div>
