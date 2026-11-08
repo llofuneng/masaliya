@@ -751,3 +751,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .extra-opt .ex-title { font-size: 1rem; }
   .cover-opt span, .gift-price, .extra-opt .ex-price { font-size: 1.3rem; }
 }
+
+/* room around the corner buttons */
+.cover-opt b { padding-right: 40px; }
+.extra-opt .ex-title { padding-right: 56px; }
+.gift-opt { grid-template-columns: 56px minmax(0, 1fr); padding-right: 16px; }
+.gift-opt .gift-text { padding-right: 44px; }
+.gift-price { grid-column: 2; }
+@media (max-width: 560px) {
+  /* the card is narrow on a phone: the button sits on the picture's corner and the name gets the full width below it */
+  .extra-opt .ex-pic { order: -1; }
+  .extra-opt::after { top: 16px; right: 16px; background-color: rgba(20, 10, 8, .55); }
+  .extra-opt .ex-title { padding: 2px 0 0; }
+  .gift-opt { grid-template-columns: 46px minmax(0, 1fr); }
+}
