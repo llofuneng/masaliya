@@ -719,3 +719,19 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .vthumbs button.pt img { object-fit: contain; background: var(--ink); }
 .product { grid-template-areas: "g h" "g b"; grid-template-rows: auto 1fr; }
 @media (max-width: 860px) { .product { grid-template-areas: "g" "h" "b"; } }
+
+/* add-ons on the order form: a "+" to add, a tick once added */
+.extras { display: grid; gap: 10px; }
+.extra-opt { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; padding: 14px 16px; border: 1px solid var(--line-strong); border-radius: 4px; cursor: pointer; background: linear-gradient(170deg, var(--wood-2), var(--wood)); transition: border-color .2s, background .2s; }
+.extra-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.extra-opt .ex-text { display: grid; gap: 2px; }
+.extra-opt b { display: inline-flex; align-items: center; gap: 10px; font: 500 1.2rem var(--f-display); }
+.extra-opt small { color: var(--muted); font-size: .84rem; }
+.extra-opt .ex-price { color: var(--gold); font-size: .9rem; letter-spacing: .06em; white-space: nowrap; }
+.extra-opt .ex-plus { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); font: 400 1.1rem/1 var(--f-body); transition: background .2s, color .2s; }
+.extra-opt .ex-plus::before { content: "+"; }
+.extra-opt:hover { border-color: var(--gold); }
+.extra-opt:has(input:checked) { border-color: var(--gold); background: linear-gradient(170deg, #5a1a26, #3a0f18); box-shadow: 0 0 0 1px var(--gold); }
+.extra-opt:has(input:checked) .ex-plus { background: var(--gold); color: var(--ink); }
+.extra-opt:has(input:checked) .ex-plus::before { content: "✓"; font-size: .9rem; }
+.extra-opt:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }

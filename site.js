@@ -715,6 +715,14 @@ function renderProduct() {
           ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
         </div>` : '';
     const coloring = PRODUCTS.find(x => x.book === p.id && onSale(x));
+    // the add-ons as "+" choices; together they pick the set (none = the book alone)
+    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik'], yapboz: ['Yapboz Seti', 'Ahşap yapboz, 35 parça'] };
+    const extraParts = Object.keys(EXTRAS).filter(k => SELL[k] && SETS.some(st => st.items.some(([t]) => t === k)));
+    const askedParts = ((SETS.find(st => st.id === new URLSearchParams(location.search).get('set')) || {}).items || []).map(([t]) => t);
+    const extrasHtml = p.type === 'kitap' && extraParts.length ? `<div class="extras" id="extras">${extraParts.map(k => {
+      const f = Object.keys(PRICES[k]).find(x => PRICES[k][x]);
+      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}><span class="ex-text"><b>${EXTRAS[k][0]}<span class="ex-plus" aria-hidden="true"></span></b><small>${EXTRAS[k][1]}</small></span><span class="ex-price">+ ${fmt(PRICES[k][f])}</span></label>`;
+    }).join('')}</div>` : '';
     const askedSet = new URLSearchParams(location.search).get('set');
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
     const buy = orderable ? `
@@ -731,7 +739,8 @@ function renderProduct() {
         <span class="step">4 · Seçenekler</span>
         ${options}
         ${p.type === 'kitap' ? `
-        <div class="sets" role="radiogroup" aria-label="Set"${SETS.length < 2 ? ' hidden' : ''}>
+        ${extrasHtml}
+        <div class="sets" role="radiogroup" aria-label="Set" hidden>
           ${SETS.map(st => {
             const parts = st.items.map(([t, f]) => (PRICES[t] || {})[f]);
             const ready = parts.every(Boolean);
@@ -866,11 +875,12 @@ function renderProduct() {
       // the e-book has nothing to put in a box
       const digital = !!c && c.value === 'digital';
       // the e-book comes alone: sets go with the printed book only
-      const setsBox = root.querySelector('.sets'), addons = root.querySelector('.addons');
+      const setsBox = root.querySelector('.sets'), addons = root.querySelector('.addons'), extras = document.getElementById('extras');
       if (setsBox) {
-        setsBox.hidden = digital || SETS.length < 2; if (addons) addons.hidden = digital;
+        if (addons) addons.hidden = digital;
+        if (extras) extras.hidden = digital;
         const tek = setsBox.querySelector('input[value="tek"]');
-        if (digital && tek && !tek.checked) tek.checked = true;
+        if (digital && tek && !tek.checked) { tek.checked = true; if (extras) extras.querySelectorAll('input').forEach(x => { x.checked = false; }); }
       }
       // a set adds its parts (and takes off any discount); the PDF copy goes with printed books only
       const set = root.querySelector('input[name="set"]:checked'), pdf = document.getElementById('pdf-addon');
@@ -890,6 +900,17 @@ function renderProduct() {
     }
     if (giftBox) giftBox.addEventListener('change', () => { giftWanted = giftBox.checked; total(); });
     root.querySelectorAll('input[name="cover"], input[name="set"], #pdf-addon').forEach(r => r.addEventListener('change', total));
+    // the "+" add-ons choose the matching set
+    const extrasBox = document.getElementById('extras');
+    if (extrasBox) {
+      const pick = () => {
+        const parts = [...extrasBox.querySelectorAll('input:checked')].map(x => x.dataset.part).sort().join(',');
+        const st = SETS.find(x => x.items.map(([t]) => t).sort().join(',') === parts) || SETS[0];
+        const r = root.querySelector(`input[name="set"][value="${st.id}"]`); if (r) r.checked = true;
+        total();
+      };
+      extrasBox.addEventListener('change', pick); pick();
+    }
     const puzzleLook = document.getElementById('puzzle-look');
     if (puzzleLook) puzzleLook.addEventListener('click', () => openLightbox([[puzzleImg(p), `${p.title.replace(/^ve /, '')} · ahşap yapboz, ${PUZZLE.pieces} parça`]], 0));
     total();
