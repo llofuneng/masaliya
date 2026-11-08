@@ -240,27 +240,27 @@ const SPREADS_DINO = [
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list).
    book: a coloring book is sold only with its story book, as a Masal Seti */
 const PRODUCTS = [
-  { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane', font: 'script', at: [.185, .25] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane',
+  { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane', font: 'script', nameSize: 141, subSize: 29, block: 166, top: 10, glow: 4.3, gold: 1.5 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane',
     img: 'img/sihirli-kutuphane-kapak.jpg', clean: 'img/sihirli-kutuphane-temiz.jpg', alt: 'Zeynep ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
-  { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı', font: 'script', at: [.17, .225] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
+  { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı', font: 'script', nameSize: 116, subSize: 24, block: 136, top: 11, glow: 3.5, gold: 1.2 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-kapak.jpg', clean: 'img/deniz-kizi-kralligi-temiz.jpg', alt: 'Elif ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda bulunan deniz kabuğu kulağa bir şarkı fısıldar ve kahramanımız kendini dalgaların altında bulur. Küçük deniz kızı Mira, yan yan yürüyen yengeç ve bilge kaplumbağayla birlikte, krallığın kaybolan üç incisini aramak için denizin derinliklerine yolculuk başlar. Dostluğun ve cesaretin parıl parıl bir deniz masalı.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
-  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı', font: 'sans', at: [.18, .25] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
+  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı', font: 'sans', nameSize: 140, subSize: 41, block: 190, top: 14 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
     img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
     desc: 'Karlı bir akşam, masadaki kar küresi sallanınca kahramanımız kendini kapıları anahtarla açılmayan bir buz şatosunun önünde bulur. Burnunu kaybeden kardan adam Kartopu ve hep aç geyik yavrusu Fındık ile her kapının ardında bir sır bekler. Karşılık beklemeden yapılan küçük iyiliklerin büyük gücünü anlatan sıcacık bir kış masalı.',
     extra: [['img/buz-satosunun-sirri-arka.jpg', 'Arka kapak']], spreads: SPREADS_BUZ },
-  { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar', font: 'sans', at: [.17, .225] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
+  { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar', font: 'sans', nameSize: 140, subSize: 46, block: 190, top: 14 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
     img: 'img/minik-pandalar-kapak.jpg', clean: 'img/minik-pandalar-temiz.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
     desc: 'Bambu ormanında şenlik var: kahramanımız ve üç minik panda, herkes yesin diye kocaman bir karpuz götürüyor. Ama karpuz kaçıyor! Yokuş aşağı, taştan taşa, kütüğün içinden... Bir kovalamaca, bir sürü kahkaha ve paylaşınca büyüyen bir şenliğin masalı.',
     extra: [['img/minik-pandalar-arka.jpg', 'Arka kapak']], spreads: SPREADS_PANDA },
-  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', at: [.16, .205] }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
+  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', nameSize: 140, subSize: 31, block: 190, top: 14 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
     extra: [['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
-  { id: 'kayip-ay-isigi', coverTitle: { box: [0, .17], sub: 've Kayıp Ay Işığı', font: 'sans', at: [.155, .215] }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Ege', title: 've Kayıp Ay Işığı',
+  { id: 'kayip-ay-isigi', coverTitle: { box: [0, .17], sub: 've Kayıp Ay Işığı', font: 'sans', nameSize: 122, subSize: 40, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Ege', title: 've Kayıp Ay Işığı',
     img: 'img/kayip-ay-isigi-kapak.jpg', clean: 'img/kayip-ay-isigi-temiz.jpg', alt: 'Ege ve Kayıp Ay Işığı kapağı: astronot kıyafetli çocuk, gülümseyen Ay ve küçük yıldız',
     desc: 'Bir gece Ay kaybolur ve dünyanın her yerinde çocuklar korkulu rüyalar görmeye başlar. Penceredeki oyuncak roket gerçek bir uzay gemisine dönüşünce kahramanımız, küçük bir yıldızla birlikte Ay’ın karanlık tarafına cesur bir yolculuğa çıkar. Cesaretin, iyiliğin ve kendine inanmanın masalı.',
     extra: [['img/kayip-ay-isigi-arka.jpg', 'Arka kapak']], spreads: SPREADS_AY },
@@ -638,47 +638,52 @@ const trDate = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long
 const inWorkDays = n => { const d = new Date(); while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; };
 
 // a cover with the visitor's name set in place of the sample hero's name
-const COVER_FONTS = { sans: '"Nunito", "Arial Rounded MT Bold", sans-serif', script: '"Great Vibes", "Snell Roundhand", cursive' };
+const COVER_FONTS = { sans: '"Nunito", "Arial Rounded MT Bold", sans-serif', script: '"Great Vibes", "Snell Roundhand", cursive', sub: '"Lora", Georgia, serif' };
+// the lettering of the printed covers, redrawn with the visitor's name: same fonts, sizes, colours, glow and place
 function drawCoverName(canvas, img, p, name) {
   const W = img.naturalWidth, H = img.naturalHeight, ct = p.coverTitle, [y0, y1] = ct.box;
   canvas.width = W; canvas.height = H;
   const c = canvas.getContext('2d');
   c.drawImage(img, 0, 0, W, H);
-  // a cover painted without its title needs no softening: the name goes straight on it
   if (!img.dataset.clean) {
-  // soften the painted title away, then set the new one
-  c.save(); c.beginPath(); c.rect(0, y0 * H, W, (y1 - y0) * H); c.clip();
-  c.filter = 'blur(22px)'; c.drawImage(img, -40, -40, W + 80, H + 80); c.filter = 'none';
-  const fade = c.createLinearGradient(0, y0 * H, 0, y1 * H);
-  fade.addColorStop(0, 'rgba(20,10,8,.10)'); fade.addColorStop(.5, 'rgba(20,10,8,.22)'); fade.addColorStop(1, 'rgba(20,10,8,.06)');
-  c.fillStyle = fade; c.fillRect(0, y0 * H, W, (y1 - y0) * H);
-  c.restore();
+    // no clean cover: soften the painted title away first
+    c.save(); c.beginPath(); c.rect(0, y0 * H, W, (y1 - y0) * H); c.clip();
+    c.filter = 'blur(22px)'; c.drawImage(img, -40, -40, W + 80, H + 80); c.filter = 'none';
+    const fade = c.createLinearGradient(0, y0 * H, 0, y1 * H);
+    fade.addColorStop(0, 'rgba(20,10,8,.10)'); fade.addColorStop(.5, 'rgba(20,10,8,.22)'); fade.addColorStop(1, 'rgba(20,10,8,.06)');
+    c.fillStyle = fade; c.fillRect(0, y0 * H, W, (y1 - y0) * H);
+    c.restore();
   }
   c.textAlign = 'center'; c.textBaseline = 'alphabetic';
-  const fit = (weight, family, start, maxW, text) => { let size = start; do { c.font = `${weight} ${size}px ${family}`; size -= 2; } while (c.measureText(text).width > maxW && size > W * .05); return size + 2; };
-  if (ct.font === 'sans') {
-    // bold rounded white letters with a soft shadow, as on the printed covers
-    const [ny, sy] = ct.at;
-    c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = W * .025; c.shadowOffsetY = W * .006; c.fillStyle = '#ffffff';
-    fit(900, COVER_FONTS.sans, W * .25, W * .8, name); c.fillText(name, W / 2, ny * H);
-    fit(800, COVER_FONTS.sans, W * .072, W * .78, ct.sub); c.fillText(ct.sub, W / 2, sy * H);
-    c.restore();
-    return;
-  }
-  if (ct.font === 'script') {
-    // flowing script in warm cream with a glow, the subtitle in small white serif
-    const [ny, sy] = ct.at;
-    // a warm dark halo first, so the cream letters read on a pale sky or ceiling too
-    c.save(); const size = fit(400, COVER_FONTS.script, W * .24, W * .78, name);
-    c.shadowColor = 'rgba(70,30,15,.75)'; c.shadowBlur = W * .022; c.fillStyle = 'rgba(70,30,15,.35)';
-    c.fillText(name, W / 2, ny * H); c.fillText(name, W / 2, ny * H);
-    c.shadowColor = 'rgba(255,214,150,.6)'; c.shadowBlur = W * .012;
-    const g = c.createLinearGradient(0, ny * H - size * .8, 0, ny * H);
-    g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#f2d39a');
-    c.fillStyle = g; c.fillText(name, W / 2, ny * H);
-    c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = W * .015; c.fillStyle = '#ffffff';
-    fit(600, '"Cormorant Garamond", Garamond, serif', W * .052, W * .7, ct.sub); c.fillText(ct.sub, W / 2, sy * H);
-    c.restore();
+  if (ct.font === 'sans' || ct.font === 'script') {
+    const mm = W / 213.9, pt = .3528 * mm, block = ct.block * mm;
+    const nameFont = s => ct.font === 'sans' ? `900 ${s}px ${COVER_FONTS.sans}` : `400 ${s}px ${COVER_FONTS.script}`;
+    const subFont = s => ct.font === 'sans' ? `900 ${s}px ${COVER_FONTS.sans}` : `italic 600 ${s}px ${COVER_FONTS.sub}`;
+    // the size shrinks only when the text is wider than its block
+    const fitTo = (font, size, text) => { c.font = font(size); const w = c.measureText(text).width; if (w > block) { size *= block / w; c.font = font(size); } return c.measureText(text); };
+    const nm = fitTo(nameFont, ct.nameSize * pt, name), nameFontNow = c.font;
+    const sm = fitTo(subFont, ct.subSize * pt, ct.sub), subFontNow = c.font;
+    const nameBase = ct.top * mm + nm.actualBoundingBoxAscent;
+    const subBase = nameBase + nm.actualBoundingBoxDescent + 1 * mm + sm.actualBoundingBoxAscent;
+    const away = W * 4;
+    const glow = (color, blur, dy = 0, times = 1) => {
+      c.save(); c.fillStyle = '#000'; c.shadowColor = color; c.shadowBlur = blur; c.shadowOffsetX = away; c.shadowOffsetY = dy;
+      for (let k = 0; k < times; k++) { c.font = nameFontNow; c.fillText(name, W / 2 - away, nameBase); c.font = subFontNow; c.fillText(ct.sub, W / 2 - away, subBase); }
+      c.restore();
+    };
+    const letters = color => { c.save(); c.fillStyle = color; c.font = nameFontNow; c.fillText(name, W / 2, nameBase); c.font = subFontNow; c.fillText(ct.sub, W / 2, subBase); c.restore(); };
+    if (ct.font === 'sans') {
+      const f = ct.fx || 1;
+      // wide soft dark-brown halo, a shadow below, then near-white letters
+      glow('rgba(40,28,18,.7)', 7 * mm * f, 0, 2);
+      glow('rgba(50,32,20,.75)', 1.2 * mm * f, 1.7 * mm * f);
+      letters('#FFFFFC');
+    } else {
+      // wide plum glow, a narrow gold halo over it, then warm white letters
+      glow('rgba(92,46,110,1)', ct.glow * mm, 0, 3);
+      glow('rgba(240,190,70,1)', ct.gold * mm, 0, 2);
+      letters('#FFFDF5');
+    }
     return;
   }
   const mid = (y0 + (y1 - y0) * .58) * H;
@@ -890,7 +895,7 @@ function renderProduct() {
       coverCanvas.hidden = !on;
       if (!on) return;
       const img = new Image(); img.src = p.clean || p.img; if (p.clean) img.dataset.clean = '1';
-      const f = p.coverTitle.font, faces = f === 'sans' ? ['900 40px "Nunito"', '800 40px "Nunito"'] : f === 'script' ? ['400 40px "Great Vibes"', '600 40px "Cormorant Garamond"'] : ['italic 500 40px "Cormorant Garamond"'];
+      const f = p.coverTitle.font, faces = f === 'sans' ? ['900 40px "Nunito"', '800 40px "Nunito"'] : f === 'script' ? ['400 40px "Great Vibes"', 'italic 600 40px "Lora"'] : ['italic 500 40px "Cormorant Garamond"'];
       Promise.all([img.decode(), ...faces.map(x => document.fonts.load(x, n + p.coverTitle.sub))]).then(() => drawCoverName(coverCanvas, img, p, n)).catch(() => {});
     }
     if (nameIn) {
