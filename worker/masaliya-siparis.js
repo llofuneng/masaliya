@@ -211,13 +211,12 @@ async function stripeEvent(req, env) {
 /* ---------- order tracking on the site: order number + e-mail or phone ---------- */
 async function orderStatus(url, env) {
   const order = await loadOrder(env, (url.searchParams.get('siparis') || '').toUpperCase());
-  const key = url.searchParams.get('k') || '';
-  if (!order || !order.items) return json({ error: 'Bu numarayla bir sipariş bulunamadı.' }, 404);
+  const who = (url.searchParams.get('iletisim') || '').trim().toLowerCase(), key = url.searchParams.get('k') || '';
+  const digits = s => String(s || '').replace(/\D/g, '').slice(-10);
+  if (!order || !order.items || !((key && key === await ctoken(env, order.id)) || (who && (who === order.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(order.contact.phone))))))
+    return json({ error: 'Bu bilgilerle bir sipariş bulunamadı.' }, 404);
   const h = order.history || {}, k = await ctoken(env, order.id), api = new URL(url.origin);
   const stages = order.status === 'odendi' ? stagesFor(order).map(st => ({ key: st, title: stageTitle(order, st), text: STAGES[st].text, date: h[st] || null })) : [];
-  // the order number alone shows only where the order is; the books, names and preview pages
-  // need the personal link (k) we send to the customer
-  if (key !== k) return json({ id: order.id, status: order.status, stage: order.stage || null, ships: !!order.ships, stages, cargo: order.cargo || null, paid: order.paid || null, previews: [], revisions: [], review: null });
   const previews = order.items.flatMap(it => { const parts = partsOf(it); return parts.map(part => ({ part, files: partFiles(order, it, part) })).filter(x => x.files.length).map(({ part, files }) => ({
     title: parts.length > 1 ? `${it.title} · ${PART_LABELS[part]}` : it.title,
     files: files.map(f => ({ name: f.name, pdf: f.type === 'pdf', url: `${api.origin}/api/onizleme/${order.id}/${f.file}?k=${k}` })) })); });

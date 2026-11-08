@@ -26,12 +26,13 @@
 <section class="page-head"><div class="wrap">
   <p class="eyebrow">Sipariş takibi</p>
   <h1>Masalınız ne aşamada?</h1>
-  <p class="lede">Sipariş numaranızı yazın; masalınızın atölyede hangi adımda olduğunu görün.</p>
+  <p class="lede">Sipariş numaranızı ve e-posta adresinizi ya da telefonunuzu yazın; masalınızın atölyede hangi adımda olduğunu görün.</p>
 </div></section>
 <section class="sec"><div class="wrap track">
   <div style="display:grid; gap:24px">
     <form class="panel" id="track">
       <label class="field" for="o-no">Sipariş numarası<input id="o-no" type="text" required placeholder="MSL-7K3F9Q" autocomplete="off"></label>
+      <label class="field" for="o-contact">E-posta veya telefon<input id="o-contact" type="text" required autocomplete="email" placeholder="ornek@mail.com ya da 05xx xxx xx xx"></label>
       <button class="btn" type="submit">Siparişimi Göster</button>
       <p class="form-note" id="o-note" aria-live="polite"></p>
     </form>
@@ -120,10 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
       send('duzeltme', text);
     });
   };
-  const load = () => {
+  const load = (who) => {
     const no = $('o-no').value.trim().toUpperCase();
     note.textContent = 'Sipariş aranıyor…';
-    const auth = key ? `k=${encodeURIComponent(key)}` : '';
+    const auth = who ? `iletisim=${encodeURIComponent(who)}` : `k=${encodeURIComponent(key)}`;
     fetch(`${ORDER_API}/api/status?siparis=${encodeURIComponent(no)}&${auth}`)
       .then(r => r.json().then(d => ({ ok: r.ok, d })))
       .then(({ ok, d }) => { if (!ok) { note.textContent = d.error || 'Bu bilgilerle bir sipariş bulunamadı.'; return; } show(d); if (location.hash === '#o-preview' || (d.stage === 'onizleme' && params.get('k'))) { const pv = $('pv'); if (pv) pv.scrollIntoView({ block: 'start' }); } })
@@ -132,8 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (q && key) load();
   $('track').addEventListener('submit', e => {
     e.preventDefault();
-    if (!/^MSL-[A-Z0-9]{6}$/.test($('o-no').value.trim().toUpperCase())) { note.textContent = 'Sipariş numaranız MSL- ile başlar, örneğin MSL-7K3F9Q.'; $('o-no').focus(); return; }
-    load();
+    const v = $('o-contact').value.trim();
+    const ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || v.replace(/\D/g, '').length >= 10;
+    if (!ok) { note.textContent = 'Lütfen siparişte kullandığınız e-posta adresini ya da telefon numarasını yazın.'; return; }
+    load(v);
   });
   const pv = document.querySelector('a[href="#onizleme"]');
 });
