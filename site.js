@@ -53,7 +53,7 @@ const ALL_SETS = [
 const SETS = ALL_SETS.filter(st => st.items.every(([t]) => SELL[t]));   // only sets whose parts are on sale
 const setTotal = st => Math.round((PRICES.kitap.hard + st.items.reduce((a, [t, f]) => a + PRICES[t][f], 0)) * (1 - st.discount));
 const PHOTO_SLOTS = ['Önden', 'Hafif yandan', 'Gülümserken'];
-const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır. 3 yaşından küçük çocuklar için uygun değildir.' };
+const PUZZLE = { pieces: 35, desc: '35 parça. Kitabın kapağındaki sahne, yazısız hâliyle; son parça yerine oturduğunda karşısında kendi yüzü vardır.' };
 const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
