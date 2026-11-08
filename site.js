@@ -37,7 +37,7 @@ const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
    puzzle) to true and they come back by themselves: the sets on the book pages, the coloring pages,
    the lists, the price table and the texts that mention them. After switching, run
    node tools/build-pages.js (the order server already knows every set, so Cloudflare needs nothing). */
-const SELL = { boyama: false, yapboz: false };
+const SELL = { boyama: false, yapboz: true };
 // a product with hidden: true is off the site for now (its pages stay, its address leads to the collection)
 const onSale = p => !p.hidden && !(p.book && (PRODUCTS.find(b => b.id === p.book) || {}).hidden) && (p.type !== 'boyama' || SELL.boyama);
 
