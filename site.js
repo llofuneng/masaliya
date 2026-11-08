@@ -161,8 +161,9 @@ const SPREADS_PANDA = [
   ['img/minik-pandalar-s2.jpg', 'Karpuz yokuş aşağı yuvarlanıyor: güm, güm, güm!'],
   ['img/minik-pandalar-s3.jpg', 'Derenin taşlarından hop hop hop'],
   ['img/minik-pandalar-s4.jpg', 'Kütüğün içinde: «Karpuz, neredesiiin?»'],
-  ['img/minik-pandalar-s5.jpg', 'Ağacın altındaki üç aç kirpi'],
-  ['img/minik-pandalar-s6.jpg', 'Paylaşınca büyüyen şenlik']
+  ['img/minik-pandalar-s5.jpg', 'Karpuz su birikintisine dalıyor: cup!'],
+  ['img/minik-pandalar-s6.jpg', 'Ağacın altındaki üç aç kirpi'],
+  ['img/minik-pandalar-s7.jpg', 'Paylaşınca büyüyen şenlik']
 ];
 const PAGES_BOYAMA_BUZ = [
   ['img/buz-satosunun-sirri-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
