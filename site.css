@@ -742,3 +742,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .extra-opt:has(input:checked) { border-color: var(--gold); background: linear-gradient(170deg, #5a1a26, #3a0f18); box-shadow: 0 0 0 1px var(--gold); }
 .extra-opt:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
 @media (max-width: 560px) { .extra-opt { grid-template-columns: 1fr; gap: 8px; padding: 10px; } .extra-opt .ex-title { font-size: .95rem; padding: 5px 36px 0 0; } .extra-opt .ex-pic { aspect-ratio: 5 / 2; } .extra-opt .ex-price { font-size: 1.1rem; } .extra-opt small { font-size: .76rem; } }
+
+/* the same type for every choice card: names alike, prices alike */
+.cover-opt b, .gift-text b, .extra-opt .ex-title { font-size: 1.25rem; }
+.cover-opt span, .gift-price, .extra-opt .ex-price { font-family: var(--f-display); font-size: 1.45rem; line-height: 1.15; color: var(--gold-pale); font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) {
+  .cover-opt b, .gift-text b { font-size: 1.1rem; }
+  .extra-opt .ex-title { font-size: 1rem; }
+  .cover-opt span, .gift-price, .extra-opt .ex-price { font-size: 1.3rem; }
+}
