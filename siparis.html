@@ -75,13 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
     $('o-steps').innerHTML = steps.map((s, i) => {
       const k = i - 1, state = k < cur ? 'done' : k === cur ? (s.key === 'teslim' ? 'done' : 'now') : '';
       let extra = '';
-      if (s.key === 'onizleme' && d.previews.length && k <= cur) extra = `<div class="actions"><a class="btn ghost" href="#o-preview">Önizlemeyi aç</a></div>`;
+      // the preview step: a clear way to the pages and to the answer
+      if (s.key === 'onizleme' && k <= cur) {
+        const waiting = d.review && d.review.state === 'bekliyor' && d.stage === 'onizleme';
+        extra = d.previews.length
+          ? `<div class="actions"><a class="btn${waiting ? '' : ' ghost'}" href="#pv" data-go-pv>${waiting ? 'Önizlemeyi aç ve onayla' : 'Önizlemeye bak'}</a></div>`
+          : (k === cur ? '<small>Önizleme sayfalarınız hazırlanıyor; yüklendiğinde burada açılacak.</small>' : '');
+      }
       if (s.key === 'kargo' && d.cargo && d.cargo.no && k <= cur) extra = `<small>${esc(d.cargo.firm)} · takip numarası <strong>${esc(d.cargo.no)}</strong></small>`;
       return `<li class="${state}"><span class="dot">${state === 'done' ? '✓' : state === 'now' ? '✦' : ''}</span><div><b>${esc(s.title)}</b>${s.date && state ? `<small>${day(s.date)}</small>` : ''}${state === 'now' || !state ? `<small>${esc(s.text)}</small>` : ''}${extra}</div></li>`;
     }).join('');
     note.textContent = '';
     current = d; key = d.k || key;
     showPreview(d);
+    $('o-steps').querySelectorAll('[data-go-pv]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); const pv = $('pv'); if (pv) pv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
   };
   // the pages of the preview, and the customer's answer
   const showPreview = d => {
