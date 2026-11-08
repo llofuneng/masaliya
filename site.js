@@ -68,7 +68,7 @@ const FORMATS = {
 };
 
 /* WhatsApp concierge: put the number here in international format without "+", e.g. '905321234567'. */
-const WHATSAPP = '';
+const WHATSAPP = '905306233782';
 
 /* The cart: the books put in it, kept in this browser (localStorage). The photos are already on the
    order server; here we keep only what the cart page shows. Books not paid within 3 days are deleted
@@ -395,6 +395,7 @@ function renderChrome() {
     const w = e.target.closest('a[href="#whatsapp"]');
     if (!w) return;
     e.preventDefault();
+    if (WHATSAPP) { window.open(waLink(), '_blank', 'noopener'); return; }
     let t = document.getElementById('wa-toast');
     if (!t) { t = document.createElement('div'); t.id = 'wa-toast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
     t.textContent = 'WhatsApp hattımız çok yakında burada olacak.';
