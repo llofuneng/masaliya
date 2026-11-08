@@ -246,7 +246,6 @@ async function customerReview(req, url, env) {
   if (b.karar === 'onay') {
     o.review = { state: 'onay', date: now, round: o.previewRound };
     o.approved = now;
-    if (o.ships) { o.stage = 'baski'; o.history = { ...(o.history || {}), baski: now }; }
   } else if (b.karar === 'duzeltme') {
     const text = String(b.not || '').trim().slice(0, 2000);
     if (text.length < 3) return json({ error: 'Lütfen neyi değiştirmemizi istediğinizi yazın.' }, 400);
@@ -256,7 +255,7 @@ async function customerReview(req, url, env) {
   await saveOrder(env, o);
   const t = await token(env, o.id);
   await mailOwnerNote(env, o.review.state === 'onay' ? `${o.id} · müşteri önizlemeyi onayladı` : `${o.id} · müşteri düzeltme istedi`,
-    `<p>${o.review.state === 'onay' ? `Müşteri önizlemeyi onayladı.${o.ships ? ' Sipariş “Baskıda” aşamasına geçti.' : ' Dijital kitabı gönderip “Gönderildi”ye basın.'}` : `Müşterinin düzeltme isteği:</p><blockquote style="border-left:3px solid #7a2434;margin:0;padding:4px 12px">${esc(o.revisions.at(-1).text).replace(/\n/g, '<br>')}</blockquote><p>`}</p><p><a href="${url.origin}/admin/${o.id}?t=${t}">Siparişi aç</a></p>`);
+    `<p>${o.review.state === 'onay' ? `Müşteri önizlemeyi onayladı.${o.ships ? ' Siparişi “Baskıya gönder” ile matbaaya gönderebilirsiniz.' : ' Dijital kitabı gönderip “Dijital kitabı gönderdim”e basın.'}` : `Müşterinin düzeltme isteği:</p><blockquote style="border-left:3px solid #7a2434;margin:0;padding:4px 12px">${esc(o.revisions.at(-1).text).replace(/\n/g, '<br>')}</blockquote><p>`}</p><p><a href="${url.origin}/admin/${o.id}?t=${t}">Siparişi aç</a></p>`);
   return json({ ok: true, review: o.review, stage: o.stage });
 }
 
@@ -307,7 +306,7 @@ async function uploadPreview(id, req, url, env) {
   o.stage = 'onizleme'; o.history = { ...(o.history || {}), onizleme: now };
   await saveOrder(env, o);
   await mailCustomer(env, o, 'onizleme');
-  return back(`Önizleme yüklendi (${added} dosya). Müşteri sayfasında görüyor.`);
+  return Response.redirect(`${url.origin}/admin/${id}?t=${t}&adim=onizleme&not=${encodeURIComponent(`Önizleme gönderildi (${added} dosya). Müşterinin yanıtı bekleniyor.`)}`, 303);
 }
 
 /* ---------- owner pages: all orders, and one order with its photos ---------- */
@@ -340,43 +339,65 @@ async function adminOrder(id, itemId, photo, url, env) {
   }
   const note = url.searchParams.get('not');
   if (o.cancelled) return page(o.id, cancelledPanel(o, t, note) + orderHtml(o, url.origin, t));
-  return page(o.id, stagePanel(o, t, note) + await previewPanel(o, t, url.origin, env) + `<p style="margin:0 0 20px">${await cancelButton(env, o, `/admin/${o.id}?t=${t}`)}</p>` + orderHtml(o, url.origin, t));
+  return page(o.id, `<div class="top"><a href="/admin?key=" onclick="history.back(); return false">← Siparişler</a>${await cancelButton(env, o, `/admin/${o.id}?t=${t}`)}</div>` + await workflow(o, t, url.origin, env, url.searchParams.get('adim'), note) + orderHtml(o, url.origin, t));
 }
 
 // the owner's buttons that move a paid order to its next step
-function stagePanel(o, t, note) {
+/* the owner's work on a paid order, one step at a time: a row of steps at the top, and under it
+   only what belongs to the step being looked at (?adim=…; by default the current step) */
+const STEP_NAMES = { tasarim: 'Tasarım', onizleme: 'Önizleme', baski: 'Baskı', kargo: 'Kargo', teslim: 'Teslim' };
+async function workflow(o, t, origin, env, view, note) {
   if (o.status !== 'odendi') return '';
-  const cur = o.stage || 'tasarim', h = o.history || {}, c = o.cargo || {};
-  return `<form class="stage" method="post" action="/admin/${o.id}/asama?t=${t}">
-    <p>Şu anki aşama: <b>${STAGES[cur].admin}</b>${h[cur] ? ` · ${date(h[cur])}` : ''}${note ? ` <span class="note">${esc(note)}</span>` : ''}</p>
-    <div class="steps">${stagesFor(o).map(k => `<button name="asama" value="${k}"${k === cur ? ' class="cur" disabled' : ''}>${!o.ships && k === 'teslim' ? 'Gönderildi' : STAGES[k].admin}${h[k] && k !== cur ? ' ✓' : ''}</button>`).join('')}</div>
-    ${o.ships ? `<div class="two"><label>Kargo firması<input name="firma" value="${esc(c.firm || 'Aras Kargo')}" placeholder="Aras Kargo"></label><label>Takip numarası<input name="takip" value="${esc(c.no || '')}"></label></div>` : ''}
-    <small>“Kargoda” için takip numarası gerekli. Yanlış bir düğmeye bastıysanız doğru aşamaya basmanız yeterli.${o.photosDeleted ? ` Fotoğraflar ${date(o.photosDeleted)} tarihinde silindi.` : (h.teslim ? ` Fotoğraflar teslimden ${PHOTO_DAYS} gün sonra kendiliğinden silinir.` : '')}</small>
-  </form>`;
-}
-
-async function previewPanel(o, t, origin, env) {
-  if (o.status !== 'odendi') return '';
-  const r = o.review, link = `${env.SITE_URL || 'https://masaliya.com'}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`;
-  const state = !r ? 'Henüz önizleme yüklenmedi.'
-    : r.state === 'bekliyor' ? `<b>Müşterinin yanıtı bekleniyor</b> · ${r.round}. önizleme, ${date(r.date)}`
-    : r.state === 'onay' ? `<b style="color:#2e7d32">Müşteri onayladı ✓</b> · ${date(r.date)}`
-    : `<b style="color:#b0412e">Müşteri düzeltme istedi</b> · ${date(r.date)}`;
-  const revs = (o.revisions || []).slice().reverse().map(v => `<li><small>${date(v.date)} · ${v.round}. önizleme için</small><br>${esc(v.text).replace(/\n/g, '<br>')}</li>`).join('');
-  const books = o.items.map(it => `<div class="pv-book"><b>${esc(it.title)}</b> <small>${esc(it.setName)}</small>${partsOf(it).map(part => {
-    const files = partFiles(o, it, part);
-    return `<div class="pv-part"><i>${PART_LABELS[part]}</i>
-      ${files.length ? `<div class="pv-files">${files.map(f => { const src = `${origin}/api/onizleme/${o.id}/${f.file}?t=${t}`; return f.type === 'pdf' ? `<a class="pdf" href="${src}" target="_blank">PDF · ${esc(f.name)}</a>` : `<a href="${src}" target="_blank"><img src="${src}" alt="${esc(f.name)}" loading="lazy"></a>`; }).join('')}</div>` : ''}
-      <label>${files.length ? 'Yeni sürümü yükle (eskisinin yerine geçer)' : 'Dosyaları seçin'} · JPG, PNG ya da PDF, birden fazla dosya seçilebilir<input type="file" name="f-${it.id}-${part}" multiple accept="image/jpeg,image/png,image/webp,application/pdf"></label></div>`;
-  }).join('')}</div>`).join('');
-  return `<form class="stage preview" method="post" enctype="multipart/form-data" action="/admin/${o.id}/onizleme?t=${t}">
-    <p>Önizleme: ${state}</p>
-    ${revs ? `<ul class="revs">${revs}</ul>` : ''}
-    ${books}
-    <button class="upload">Önizlemeyi yükle ve müşteriye göster</button>
-    <label>Müşterinin önizleme linki (WhatsApp’tan gönderebilirsiniz)<input readonly value="${link}" onclick="this.select()"></label>
-    <small>Kitap, boyama kitabı ve yapboz için ayrı ayrı yükleyebilirsiniz; yalnızca seçtiğiniz bölüm yenilenir. Dosyalar ad sırasına göre gösterilir (01-kapak.jpg, 02-sayfa.jpg …). Yükleyince sipariş “Önizleme gönderildi” aşamasına geçer; müşteri onaylayınca basılı siparişler kendiliğinden “Baskıda”ya geçer.</small>
-  </form>`;
+  const steps = stagesFor(o), cur = o.stage || 'tasarim', h = o.history || {};
+  if (!steps.includes(view)) view = cur;
+  const ci = steps.indexOf(cur), href = k => `/admin/${o.id}?t=${t}&adim=${k}`;
+  const bar = `<nav class="flow">${steps.map((k, i) => `<a href="${href(k)}" class="${i < ci ? 'done' : i === ci ? 'cur' : ''}${k === view ? ' view' : ''}"><span>${i < ci ? '✓' : i + 1}</span>${!o.ships && k === 'teslim' ? 'Gönderildi' : STEP_NAMES[k]}</a>`).join('')}</nav>`;
+  const go = (k, label, extra = '') => `<form method="post" action="/admin/${o.id}/asama?t=${t}"${extra}><input type="hidden" name="asama" value="${k}"><button class="next">${label}</button></form>`;
+  const r = o.review, c = o.cargo || {};
+  let body = '';
+  if (view === 'tasarim') {
+    body = `<p class="lead">Müşterinin gönderdikleri aşağıda: kahramanın adı, “Kahraman hakkında” notu ve fotoğraflar. Resimleri hazırladığınızda önizlemeye geçin.</p>
+      <a class="next" href="${href('onizleme')}">Önizlemeyi hazırla →</a>`;
+  } else if (view === 'onizleme') {
+    const link = `${env.SITE_URL || 'https://masaliya.com'}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`;
+    const state = !r ? '<span class="pill">Henüz gönderilmedi</span>'
+      : r.state === 'bekliyor' ? `<span class="pill wait">Müşterinin yanıtı bekleniyor</span> <small>${r.round}. önizleme · ${date(r.date)}</small>`
+      : r.state === 'onay' ? `<span class="pill ok">Müşteri onayladı ✓</span> <small>${date(r.date)}</small>`
+      : `<span class="pill no">Müşteri düzeltme istedi</span> <small>${date(r.date)}</small>`;
+    const revs = (o.revisions || []).slice().reverse().map(v => `<li><small>${date(v.date)} · ${v.round}. önizleme için</small><br>${esc(v.text).replace(/\n/g, '<br>')}</li>`).join('');
+    const books = o.items.map(it => `<div class="pv-book"><b>${esc(it.title)}</b> <small>${esc(it.setName)}</small>${partsOf(it).map(part => {
+      const files = partFiles(o, it, part);
+      return `<div class="pv-part"><i>${PART_LABELS[part]}</i>
+        ${files.length ? `<div class="pv-files">${files.map(f => { const src = `${origin}/api/onizleme/${o.id}/${f.file}?t=${t}`; return f.type === 'pdf' ? `<a class="pdf" href="${src}" target="_blank">PDF · ${esc(f.name)}</a>` : `<a href="${src}" target="_blank"><img src="${src}" alt="${esc(f.name)}" loading="lazy"></a>`; }).join('')}</div>` : ''}
+        <label>${files.length ? 'Yeni sürümü seçin (eskisinin yerine geçer)' : 'Sayfaları seçin'} · JPG, PNG ya da PDF, birden fazla dosya<input type="file" name="f-${it.id}-${part}" multiple accept="image/jpeg,image/png,image/webp,application/pdf"></label></div>`;
+    }).join('')}</div>`).join('');
+    const approved = r && r.state === 'onay';
+    body = `<div class="review"><p>Müşterinin yanıtı: ${state}</p>${revs ? `<p class="sub">Müşterinin düzeltme istekleri</p><ul class="revs">${revs}</ul>` : ''}</div>
+      <form method="post" enctype="multipart/form-data" action="/admin/${o.id}/onizleme?t=${t}" class="pv-form">
+        ${books}
+        <button class="next">${r ? 'Yeni önizlemeyi müşteriye gönder' : 'Önizlemeyi müşteriye gönder'}</button>
+        <small>Gönderince sipariş “Önizleme” aşamasına geçer, müşteri sayfalarını görür ve onaylar ya da düzeltme ister. Kitap, boyama kitabı ve yapboz ayrı ayrı yüklenebilir; dosyalar ad sırasıyla gösterilir (01-kapak.jpg, 02-sayfa.jpg …).</small>
+      </form>
+      ${r ? `<label class="link">Müşterinin önizleme linki (WhatsApp’tan da gönderebilirsiniz)<input readonly value="${link}" onclick="this.select()"></label>` : ''}
+      ${r ? (o.ships
+        ? go('baski', 'Baskıya gönder →', approved ? '' : ` onsubmit="return confirm('Müşteri önizlemeyi henüz onaylamadı. Yine de baskıya gönderilsin mi?')"`)
+        : go('teslim', 'Dijital kitabı gönderdim →', approved ? '' : ` onsubmit="return confirm('Müşteri önizlemeyi henüz onaylamadı. Yine de gönderildi olarak işaretlensin mi?')"`)) : ''}`;
+  } else if (view === 'baski') {
+    body = cur === 'baski' || ci > steps.indexOf('baski')
+      ? `<p class="lead">Baskıda${h.baski ? ` · ${date(h.baski)}` : ''}. Kitap matbaadan çıkınca kargoya verin.</p><a class="next" href="${href('kargo')}">Kargoya ver →</a>`
+      : `<p class="lead">Müşteri önizlemeyi onaylayınca “Önizleme” adımından baskıya gönderin.</p>`;
+  } else if (view === 'kargo') {
+    body = `<form method="post" action="/admin/${o.id}/asama?t=${t}" class="cargo">
+        <div class="two"><label>Kargo firması<input name="firma" value="${esc(c.firm || 'Aras Kargo')}"></label><label>Takip numarası<input name="takip" value="${esc(c.no || '')}" required></label></div>
+        <input type="hidden" name="asama" value="kargo"><button class="next">${cur === 'kargo' || ci > steps.indexOf('kargo') ? 'Takip bilgisini kaydet' : 'Kargoya verildi olarak kaydet →'}</button>
+        <small>Müşteri takip numarasını sipariş takibi sayfasında görür.</small></form>
+      ${cur === 'kargo' ? go('teslim', 'Teslim edildi →') : ''}`;
+  } else if (view === 'teslim') {
+    body = cur === 'teslim'
+      ? `<p class="lead">${o.ships ? 'Teslim edildi' : 'Dijital kitap gönderildi'}${h.teslim ? ` · ${date(h.teslim)}` : ''}. ${o.photosDeleted ? `Fotoğraflar ${date(o.photosDeleted)} tarihinde silindi.` : `Fotoğraflar ${PHOTO_DAYS} gün sonra kendiliğinden silinir.`}</p>`
+      : `<p class="lead">${o.ships ? 'Kargo teslim edilince buradan işaretleyin.' : 'Müşteri onaylayınca “Önizleme” adımından işaretleyin.'}</p>${cur === 'kargo' ? go('teslim', 'Teslim edildi →') : ''}`;
+  }
+  return `<section class="work">${bar}${note ? `<p class="note">${esc(note)}</p>` : ''}<div class="panel-in"><h2>${STEP_NAMES[view]}${view === cur ? ' <small>· şu anki aşama</small>' : ''}</h2>${body}</div></section>`;
 }
 
 /* ---------- cancelling an order: the payment goes back to the card through Stripe ---------- */
@@ -440,21 +461,21 @@ async function setStage(id, req, url, env) {
   if (!o || !o.items || o.status !== 'odendi' || o.cancelled) return new Response('Sipariş bulunamadı', { status: 404 });
   const f = await req.formData(), stage = String(f.get('asama') || '');
   const back = note => Response.redirect(`${url.origin}/admin/${id}?t=${t}${note ? '&not=' + encodeURIComponent(note) : ''}`, 303);
-  if (o.ships) {
+  if (o.ships && f.has('takip')) {
     const firm = String(f.get('firma') || '').trim().slice(0, 40), no = String(f.get('takip') || '').trim().slice(0, 40);
     o.cargo = firm || no ? { firm, no } : null;
   }
   if (!stagesFor(o).includes(stage)) { await saveOrder(env, o); return back('Kaydedildi.'); }
   if (stage === 'kargo' && !(o.cargo && o.cargo.no)) return back('Önce takip numarasını yazın.');
   // the customer can only answer a preview that has pages: upload them below, that moves the order on by itself
-  if (stage === 'onizleme' && !Object.values(o.previews || {}).flat().length) return back('Önce aşağıdaki “Önizleme” bölümünden sayfaları yükleyin; sipariş kendiliğinden “Önizleme gönderildi”ye geçer.');
+  if (stage === 'onizleme' && !Object.values(o.previews || {}).flat().length) return back('Önce önizleme sayfalarını yükleyip gönderin.');
   if (stage === 'onizleme' && (!o.review || o.review.state !== 'bekliyor')) o.review = { state: 'bekliyor', date: new Date().toISOString(), round: o.previewRound || 1 };
   const changed = stage !== o.stage;
   o.stage = stage;
-  o.history = { ...(o.history || {}), [stage]: new Date().toISOString() };
+  if (changed) o.history = { ...(o.history || {}), [stage]: new Date().toISOString() };
   await saveOrder(env, o);
   if (changed) await mailCustomer(env, o, stage);
-  return back('');
+  return Response.redirect(`${url.origin}/admin/${id}?t=${t}&adim=${stage}${changed ? '' : '&not=' + encodeURIComponent('Kaydedildi.')}`, 303);
 }
 
 function orderHtml(o, origin, t) {
@@ -603,4 +624,9 @@ function cors(env, res) {
 const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const date = iso => new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 const page = (title, body) => new Response(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)} · Masaliya</title>
-<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-part{display:grid;gap:6px;padding-left:12px;border-left:3px solid #eadfd3}.pv-part i{font-style:normal;font-weight:600;color:#7a2434}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}button.cancel{font:inherit;font-size:13px;padding:7px 10px;border:1px solid #b0412e;background:#fff;color:#b0412e;border-radius:6px;cursor:pointer;white-space:nowrap}button.cancel:hover{background:#b0412e;color:#fff}.stage.cancelled{border-color:#b0412e}.badge{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;vertical-align:middle}.badge.ok{background:#e3f2e5;color:#2e7d32}.badge.no{background:#fbe6e3;color:#b0412e}tr.iptal{opacity:.7}.closed{font-size:12px;color:#9a8a80;white-space:nowrap}small.left{display:block;font-size:11px;color:#9a8a80;margin-top:3px}.flash{background:#fff;border-left:4px solid #7a2434;padding:10px 14px;max-width:1100px}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-part{display:grid;gap:6px;padding-left:12px;border-left:3px solid #eadfd3}.pv-part i{font-style:normal;font-weight:600;color:#7a2434}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}
+.top{max-width:1100px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.top form{display:flex;align-items:center;gap:8px}.top small.left{margin:0}.work{max-width:1100px;margin-bottom:22px}.flow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.flow a{flex:1;min-width:110px;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #d9cbbd;border-radius:8px;background:#fff;color:#7a6a60;text-decoration:none}.flow a span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid currentColor;font-size:12px}.flow a.done{color:#2e7d32;border-color:#b9dcbc}.flow a.cur{color:#fff;background:#7a2434;border-color:#7a2434}.flow a.view{box-shadow:0 0 0 3px #e2b56b}
+.panel-in{background:#fff;border:2px solid #7a2434;border-radius:8px;padding:16px;display:grid;gap:14px}.panel-in h2{margin:0;color:#7a2434}.panel-in h2 small{font-weight:400;color:#9a8a80;font-size:14px}.lead{margin:0}
+.next{justify-self:start;display:inline-block;font:inherit;font-weight:600;padding:11px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;text-decoration:none}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;background:#eee;font-weight:600;font-size:13px}.pill.wait{background:#fff4dc;color:#8a5a00}.pill.ok{background:#e3f2e5;color:#2e7d32}.pill.no{background:#fbe6e3;color:#b0412e}
+.review{background:#faf6f0;border-radius:6px;padding:10px 12px}.review p{margin:0}.review .sub{margin-top:8px;font-weight:600;color:#7a2434}.pv-form,.cargo{display:grid;gap:10px}.link{display:grid;gap:4px;font-size:13px;color:#7a6a60}.link input,.cargo input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.cargo label{display:grid;gap:4px;font-size:13px;color:#7a6a60}button.cancel{font:inherit;font-size:13px;padding:7px 10px;border:1px solid #b0412e;background:#fff;color:#b0412e;border-radius:6px;cursor:pointer;white-space:nowrap}button.cancel:hover{background:#b0412e;color:#fff}.stage.cancelled{border-color:#b0412e}.badge{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;vertical-align:middle}.badge.ok{background:#e3f2e5;color:#2e7d32}.badge.no{background:#fbe6e3;color:#b0412e}tr.iptal{opacity:.7}.closed{font-size:12px;color:#9a8a80;white-space:nowrap}small.left{display:block;font-size:11px;color:#9a8a80;margin-top:3px}.flash{background:#fff;border-left:4px solid #7a2434;padding:10px 14px;max-width:1100px}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
