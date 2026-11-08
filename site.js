@@ -241,11 +241,11 @@ const SPREADS_DINO = [
    book: a coloring book is sold only with its story book, as a Masal Seti */
 const PRODUCTS = [
   { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane', font: 'script', at: [.185, .25] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane',
-    img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Zeynep ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
+    img: 'img/sihirli-kutuphane-kapak.jpg', clean: 'img/sihirli-kutuphane-temiz.jpg', alt: 'Zeynep ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
   { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı', font: 'script', at: [.17, .225] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
-    img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
+    img: 'img/deniz-kizi-kralligi-kapak.jpg', clean: 'img/deniz-kizi-kralligi-temiz.jpg', alt: 'Elif ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda bulunan deniz kabuğu kulağa bir şarkı fısıldar ve kahramanımız kendini dalgaların altında bulur. Küçük deniz kızı Mira, yan yan yürüyen yengeç ve bilge kaplumbağayla birlikte, krallığın kaybolan üç incisini aramak için denizin derinliklerine yolculuk başlar. Dostluğun ve cesaretin parıl parıl bir deniz masalı.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
   { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı', font: 'sans', at: [.18, .25] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
@@ -253,7 +253,7 @@ const PRODUCTS = [
     desc: 'Karlı bir akşam, masadaki kar küresi sallanınca kahramanımız kendini kapıları anahtarla açılmayan bir buz şatosunun önünde bulur. Burnunu kaybeden kardan adam Kartopu ve hep aç geyik yavrusu Fındık ile her kapının ardında bir sır bekler. Karşılık beklemeden yapılan küçük iyiliklerin büyük gücünü anlatan sıcacık bir kış masalı.',
     extra: [['img/buz-satosunun-sirri-arka.jpg', 'Arka kapak']], spreads: SPREADS_BUZ },
   { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar', font: 'sans', at: [.17, .225] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
-    img: 'img/minik-pandalar-kapak.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
+    img: 'img/minik-pandalar-kapak.jpg', clean: 'img/minik-pandalar-temiz.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
     desc: 'Bambu ormanında şenlik var: kahramanımız ve üç minik panda, herkes yesin diye kocaman bir karpuz götürüyor. Ama karpuz kaçıyor! Yokuş aşağı, taştan taşa, kütüğün içinden... Bir kovalamaca, bir sürü kahkaha ve paylaşınca büyüyen bir şenliğin masalı.',
     extra: [['img/minik-pandalar-arka.jpg', 'Arka kapak']], spreads: SPREADS_PANDA },
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', at: [.16, .205] }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
@@ -668,10 +668,13 @@ function drawCoverName(canvas, img, p, name) {
   if (ct.font === 'script') {
     // flowing script in warm cream with a glow, the subtitle in small white serif
     const [ny, sy] = ct.at;
-    c.save(); c.shadowColor = 'rgba(255,214,150,.75)'; c.shadowBlur = W * .03;
-    const size = fit(400, COVER_FONTS.script, W * .24, W * .78, name);
+    // a warm dark halo first, so the cream letters read on a pale sky or ceiling too
+    c.save(); const size = fit(400, COVER_FONTS.script, W * .24, W * .78, name);
+    c.shadowColor = 'rgba(70,30,15,.75)'; c.shadowBlur = W * .022; c.fillStyle = 'rgba(70,30,15,.35)';
+    c.fillText(name, W / 2, ny * H); c.fillText(name, W / 2, ny * H);
+    c.shadowColor = 'rgba(255,214,150,.6)'; c.shadowBlur = W * .012;
     const g = c.createLinearGradient(0, ny * H - size * .8, 0, ny * H);
-    g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#f6dcaa');
+    g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#f2d39a');
     c.fillStyle = g; c.fillText(name, W / 2, ny * H);
     c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = W * .015; c.fillStyle = '#ffffff';
     fit(600, '"Cormorant Garamond", Garamond, serif', W * .052, W * .7, ct.sub); c.fillText(ct.sub, W / 2, sy * H);
