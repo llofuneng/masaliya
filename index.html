@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611081430">
+<link rel="stylesheet" href="site.css?v=202611081541">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -238,7 +238,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611081430" defer></script>
+<script src="site.js?v=202611081541" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -289,12 +289,11 @@ addEventListener('DOMContentLoaded', () => {
   /* ---------- the hero's name, written on the cover in gold foil ---------- */
   const nameIn = document.getElementById('cover-name');
   let nameTimer = 0;
-  // every visit starts with an empty name; what is typed here still goes on to the book pages
+  // every visit starts with an empty name; nothing typed here is kept
   try { sessionStorage.removeItem('masaliya-hero'); } catch (e) {}
   nameIn.value = '';
   function applyName() {
     const n = cap(nameIn.value.trim().replace(/\s+/g, ' '));
-    try { sessionStorage.setItem('masaliya-hero', n); } catch (e) {}
     if (book) book.setName(n);
   }
   nameIn.addEventListener('input', () => { clearTimeout(nameTimer); nameTimer = setTimeout(applyName, 180); });

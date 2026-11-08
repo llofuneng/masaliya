@@ -849,9 +849,8 @@ function renderProduct() {
         const n = cap(nameIn.value.trim());
         document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim());
         clearTimeout(coverTimer); coverTimer = setTimeout(paintCover, 200);
-        try { sessionStorage.setItem('masaliya-hero', n); } catch (e) {}
       };
-      try { const saved = sessionStorage.getItem('masaliya-hero'); if (saved) { nameIn.value = saved; sync(); } } catch (e) {}
+      nameIn.value = '';   // every visit starts empty, also after a reload
       nameIn.addEventListener('input', sync);
     }
     // Gift box and total
