@@ -691,22 +691,19 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .cancel-box p { margin: 0; }
 .cancel-box .btn { justify-self: start; }
 
-/* collection pages: each story in its own tile, two colours in a chessboard pattern */
-#grid .card { padding: clamp(14px, 1.6vw, 20px); border: 1px solid var(--line); border-radius: 4px; background: linear-gradient(165deg, #3d141c, #26090f); transition: border-color .25s; }
-#grid .card:nth-child(even) { background: linear-gradient(165deg, #2e1d15, #1b100c); }
-#grid .card:hover { border-color: rgba(226,181,107,.45); }
-@media (max-width: 900px) {
-  #grid .card:nth-child(4n+1), #grid .card:nth-child(4n+4) { background: linear-gradient(165deg, #3d141c, #26090f); }
-  #grid .card:nth-child(4n+2), #grid .card:nth-child(4n+3) { background: linear-gradient(165deg, #2e1d15, #1b100c); }
+/* every list of stories: each book in its own tile, burgundy and midnight blue in turn (a chessboard on wide screens) */
+:root { --tile-a: linear-gradient(165deg, #6a1f2e, #3e0f1a); --tile-b: linear-gradient(165deg, #1f2a4a, #121a30); }
+#grid .card, #home-grid .card, #related .card { padding: clamp(14px, 1.6vw, 20px); border: 1px solid rgba(226,181,107,.28); border-radius: 4px; background: var(--tile-a); transition: border-color .25s; }
+#grid .card:nth-child(even), #home-grid .card:nth-child(even), #related .card:nth-child(even) { background: var(--tile-b); }
+#grid .card:hover, #home-grid .card:hover, #related .card:hover { border-color: rgba(226,181,107,.7); }
+#grid .card p, #home-grid .card p, #related .card p { color: #d9c8b4; }
+@media (max-width: 900px) and (min-width: 521px) {
+  #grid .card:nth-child(4n+1), #grid .card:nth-child(4n+4), #home-grid .card:nth-child(4n+1), #home-grid .card:nth-child(4n+4) { background: var(--tile-a); }
+  #grid .card:nth-child(4n+2), #grid .card:nth-child(4n+3), #home-grid .card:nth-child(4n+2), #home-grid .card:nth-child(4n+3) { background: var(--tile-b); }
 }
-@media (max-width: 520px) {
-  #grid .card:nth-child(odd) { background: linear-gradient(165deg, #3d141c, #26090f); }
-  #grid .card:nth-child(even) { background: linear-gradient(165deg, #2e1d15, #1b100c); }
-}
-/* a lone book on the last row sits under the middle tile: give it the other colour */
 @media (min-width: 901px) {
-  #grid .card:last-child:nth-child(6n+1) { background: linear-gradient(165deg, #2e1d15, #1b100c); }
-  #grid .card:last-child:nth-child(6n+4) { background: linear-gradient(165deg, #3d141c, #26090f); }
+  #grid .card:last-child:nth-child(6n+1), #home-grid .card:last-child:nth-child(6n+1) { background: var(--tile-b); }
+  #grid .card:last-child:nth-child(6n+4), #home-grid .card:last-child:nth-child(6n+4) { background: var(--tile-a); }
 }
 /* the price line stays on one line on a phone */
 @media (max-width: 560px) {
