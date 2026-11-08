@@ -483,7 +483,7 @@ function renderChrome() {
 }
 
 /* ---------- Product card ---------- */
-function card(p) {
+function card(p, noPrice) {
   const visual = `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
   return `<a class="card${p.type === 'kitap' ? ' book' : ''}" href="${productHref(p)}">
@@ -491,7 +491,7 @@ function card(p) {
     <div class="meta"><span>${kind}</span>${p.age ? `<span>${p.age}</span>` : ''}</div>
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.desc)}</p>
-    <p class="price">${priceLine(p)}</p>
+    ${noPrice ? '' : `<p class="price">${priceLine(p)}</p>`}
   </a>`;
 }
 
@@ -1036,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const books = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p));
     const g = document.getElementById('home-grid');
     if (g) {
-      g.innerHTML = books.map(card).join('');
+      g.innerHTML = books.map(b => card(b, true)).join('');   // no prices on the home page
       if (books.length === 4) g.classList.add('n2');   // two by two, so no book is left alone on a row
     }
   }
