@@ -240,27 +240,27 @@ const SPREADS_DINO = [
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list).
    book: a coloring book is sold only with its story book, as a Masal Seti */
 const PRODUCTS = [
-  { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane',
+  { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane', font: 'script', at: [.185, .25] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane',
     img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Zeynep ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
-  { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
+  { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı', font: 'script', at: [.17, .225] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda bulunan deniz kabuğu kulağa bir şarkı fısıldar ve kahramanımız kendini dalgaların altında bulur. Küçük deniz kızı Mira, yan yan yürüyen yengeç ve bilge kaplumbağayla birlikte, krallığın kaybolan üç incisini aramak için denizin derinliklerine yolculuk başlar. Dostluğun ve cesaretin parıl parıl bir deniz masalı.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
-  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
+  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı', font: 'sans', at: [.18, .25] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
     img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
     desc: 'Karlı bir akşam, masadaki kar küresi sallanınca kahramanımız kendini kapıları anahtarla açılmayan bir buz şatosunun önünde bulur. Burnunu kaybeden kardan adam Kartopu ve hep aç geyik yavrusu Fındık ile her kapının ardında bir sır bekler. Karşılık beklemeden yapılan küçük iyiliklerin büyük gücünü anlatan sıcacık bir kış masalı.',
     extra: [['img/buz-satosunun-sirri-arka.jpg', 'Arka kapak']], spreads: SPREADS_BUZ },
-  { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
+  { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar', font: 'sans', at: [.17, .225] }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
     img: 'img/minik-pandalar-kapak.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
     desc: 'Bambu ormanında şenlik var: kahramanımız ve üç minik panda, herkes yesin diye kocaman bir karpuz götürüyor. Ama karpuz kaçıyor! Yokuş aşağı, taştan taşa, kütüğün içinden... Bir kovalamaca, bir sürü kahkaha ve paylaşınca büyüyen bir şenliğin masalı.',
     extra: [['img/minik-pandalar-arka.jpg', 'Arka kapak']], spreads: SPREADS_PANDA },
-  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
+  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', at: [.16, .205] }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
     extra: [['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
-  { id: 'kayip-ay-isigi', coverTitle: { box: [0, .17], sub: 've Kayıp Ay Işığı' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Ege', title: 've Kayıp Ay Işığı',
+  { id: 'kayip-ay-isigi', coverTitle: { box: [0, .17], sub: 've Kayıp Ay Işığı', font: 'sans', at: [.155, .215] }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Ege', title: 've Kayıp Ay Işığı',
     img: 'img/kayip-ay-isigi-kapak.jpg', clean: 'img/kayip-ay-isigi-temiz.jpg', alt: 'Ege ve Kayıp Ay Işığı kapağı: astronot kıyafetli çocuk, gülümseyen Ay ve küçük yıldız',
     desc: 'Bir gece Ay kaybolur ve dünyanın her yerinde çocuklar korkulu rüyalar görmeye başlar. Penceredeki oyuncak roket gerçek bir uzay gemisine dönüşünce kahramanımız, küçük bir yıldızla birlikte Ay’ın karanlık tarafına cesur bir yolculuğa çıkar. Cesaretin, iyiliğin ve kendine inanmanın masalı.',
     extra: [['img/kayip-ay-isigi-arka.jpg', 'Arka kapak']], spreads: SPREADS_AY },
@@ -638,8 +638,9 @@ const trDate = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long
 const inWorkDays = n => { const d = new Date(); while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; };
 
 // a cover with the visitor's name set in place of the sample hero's name
+const COVER_FONTS = { sans: '"Nunito", "Arial Rounded MT Bold", sans-serif', script: '"Great Vibes", "Snell Roundhand", cursive' };
 function drawCoverName(canvas, img, p, name) {
-  const W = img.naturalWidth, H = img.naturalHeight, [y0, y1] = p.coverTitle.box;
+  const W = img.naturalWidth, H = img.naturalHeight, ct = p.coverTitle, [y0, y1] = ct.box;
   canvas.width = W; canvas.height = H;
   const c = canvas.getContext('2d');
   c.drawImage(img, 0, 0, W, H);
@@ -653,15 +654,39 @@ function drawCoverName(canvas, img, p, name) {
   c.fillStyle = fade; c.fillRect(0, y0 * H, W, (y1 - y0) * H);
   c.restore();
   }
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  const fit = (weight, family, start, maxW, text) => { let size = start; do { c.font = `${weight} ${size}px ${family}`; size -= 2; } while (c.measureText(text).width > maxW && size > W * .05); return size + 2; };
+  if (ct.font === 'sans') {
+    // bold rounded white letters with a soft shadow, as on the printed covers
+    const [ny, sy] = ct.at;
+    c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = W * .025; c.shadowOffsetY = W * .006; c.fillStyle = '#ffffff';
+    fit(900, COVER_FONTS.sans, W * .25, W * .8, name); c.fillText(name, W / 2, ny * H);
+    fit(800, COVER_FONTS.sans, W * .072, W * .78, ct.sub); c.fillText(ct.sub, W / 2, sy * H);
+    c.restore();
+    return;
+  }
+  if (ct.font === 'script') {
+    // flowing script in warm cream with a glow, the subtitle in small white serif
+    const [ny, sy] = ct.at;
+    c.save(); c.shadowColor = 'rgba(255,214,150,.75)'; c.shadowBlur = W * .03;
+    const size = fit(400, COVER_FONTS.script, W * .24, W * .78, name);
+    const g = c.createLinearGradient(0, ny * H - size * .8, 0, ny * H);
+    g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#f6dcaa');
+    c.fillStyle = g; c.fillText(name, W / 2, ny * H);
+    c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = W * .015; c.fillStyle = '#ffffff';
+    fit(600, '"Cormorant Garamond", Garamond, serif', W * .052, W * .7, ct.sub); c.fillText(ct.sub, W / 2, sy * H);
+    c.restore();
+    return;
+  }
   const mid = (y0 + (y1 - y0) * .58) * H;
   let size = W * .2;
-  c.textAlign = 'center'; c.shadowColor = 'rgba(30,10,4,.55)'; c.shadowBlur = W * .02;
+  c.shadowColor = 'rgba(30,10,4,.55)'; c.shadowBlur = W * .02;
   do { c.font = `italic 500 ${size}px "Cormorant Garamond", Garamond, serif`; size -= 2; } while (c.measureText(name).width > W * .8 && size > W * .07);
   const g = c.createLinearGradient(0, mid - size, 0, mid);
   g.addColorStop(0, '#fff6dc'); g.addColorStop(.6, '#f1d08e'); g.addColorStop(1, '#c9974a');
   c.fillStyle = g; c.fillText(name, W / 2, mid);
   c.font = `italic 500 ${W * .052}px "Cormorant Garamond", Garamond, serif`; c.fillStyle = '#fff2d6';
-  c.fillText(p.coverTitle.sub, W / 2, mid + W * .075);
+  c.fillText(ct.sub, W / 2, mid + W * .075);
 }
 
 // full-screen page viewer, shared by every product page
@@ -862,7 +887,8 @@ function renderProduct() {
       coverCanvas.hidden = !on;
       if (!on) return;
       const img = new Image(); img.src = p.clean || p.img; if (p.clean) img.dataset.clean = '1';
-      Promise.all([img.decode(), document.fonts.load('italic 500 40px "Cormorant Garamond"', n)]).then(() => drawCoverName(coverCanvas, img, p, n)).catch(() => {});
+      const f = p.coverTitle.font, faces = f === 'sans' ? ['900 40px "Nunito"', '800 40px "Nunito"'] : f === 'script' ? ['400 40px "Great Vibes"', '600 40px "Cormorant Garamond"'] : ['italic 500 40px "Cormorant Garamond"'];
+      Promise.all([img.decode(), ...faces.map(x => document.fonts.load(x, n + p.coverTitle.sub))]).then(() => drawCoverName(coverCanvas, img, p, n)).catch(() => {});
     }
     if (nameIn) {
       const sync = () => {
