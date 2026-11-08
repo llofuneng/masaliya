@@ -183,7 +183,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 }
 .field input.script { font: italic 500 1.5rem var(--f-display); color: var(--gold-pale); padding: .35em .8em; }
 .covers { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 12px; }
-@media (max-width: 560px) { .covers { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .covers { gap: 10px; } .cover-opt { padding: 14px 12px 12px; } .cover-opt b { font-size: 1.1rem; } .cover-opt span { font-size: 1.25rem; } }
 .cover-opt { position: relative; display: grid; gap: 4px; padding: 18px 18px 16px; border: 1px solid var(--line-strong); border-radius: 6px; cursor: pointer; background: linear-gradient(170deg, var(--wood-2), var(--wood)); transition: border-color .2s, box-shadow .2s; }
 .cover-opt input { position: absolute; opacity: 0; pointer-events: none; }
 .cover-opt:has(input:checked) { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
@@ -720,18 +720,22 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .product { grid-template-areas: "g h" "g b"; grid-template-rows: auto 1fr; }
 @media (max-width: 860px) { .product { grid-template-areas: "g" "h" "b"; } }
 
-/* add-ons on the order form: a "+" to add, a tick once added */
-.extras { display: grid; gap: 10px; }
-.extra-opt { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; padding: 14px 16px; border: 1px solid var(--line-strong); border-radius: 4px; cursor: pointer; background: linear-gradient(170deg, var(--wood-2), var(--wood)); transition: border-color .2s, background .2s; }
+/* add-ons on the order form: as large as a cover choice, with a picture; "+" to add, a tick once added */
+.extras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .extras { gap: 10px; } }
+.extra-opt { position: relative; display: grid; align-content: start; gap: 10px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 2px; cursor: pointer; background: linear-gradient(170deg, var(--wood-2), var(--wood)); transition: border-color .2s, background .2s; }
 .extra-opt input { position: absolute; opacity: 0; pointer-events: none; }
-.extra-opt .ex-text { display: grid; gap: 2px; }
-.extra-opt b { display: inline-flex; align-items: center; gap: 10px; font: 500 1.2rem var(--f-display); }
-.extra-opt small { color: var(--muted); font-size: .84rem; }
-.extra-opt .ex-price { color: var(--gold); font-size: .9rem; letter-spacing: .06em; white-space: nowrap; }
-.extra-opt .ex-plus { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); font: 400 1.1rem/1 var(--f-body); transition: background .2s, color .2s; }
+.extra-opt .ex-pic { position: relative; display: block; padding: 0; border: 0; border-radius: 2px; overflow: hidden; background: var(--ink); aspect-ratio: 4 / 3; cursor: zoom-in; }
+.extra-opt .ex-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.extra-opt .ex-text { display: grid; gap: 4px; padding: 0 4px 2px; }
+.extra-opt b { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 500 1.25rem var(--f-display); }
+.extra-opt small { color: var(--muted); font-size: .82rem; }
+.extra-opt .ex-price { font-family: var(--f-display); font-size: 1.4rem; color: var(--gold-pale); }
+.extra-opt .ex-plus { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); font: 400 1.15rem/1 var(--f-body); transition: background .2s, color .2s; }
 .extra-opt .ex-plus::before { content: "+"; }
 .extra-opt:hover { border-color: var(--gold); }
 .extra-opt:has(input:checked) { border-color: var(--gold); background: linear-gradient(170deg, #5a1a26, #3a0f18); box-shadow: 0 0 0 1px var(--gold); }
 .extra-opt:has(input:checked) .ex-plus { background: var(--gold); color: var(--ink); }
 .extra-opt:has(input:checked) .ex-plus::before { content: "✓"; font-size: .9rem; }
 .extra-opt:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
+@media (max-width: 560px) { .extra-opt b { font-size: 1.1rem; } .extra-opt .ex-price { font-size: 1.2rem; } }

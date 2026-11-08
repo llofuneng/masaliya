@@ -716,12 +716,13 @@ function renderProduct() {
         </div>` : '';
     const coloring = PRODUCTS.find(x => x.book === p.id && onSale(x));
     // the add-ons as "+" choices; together they pick the set (none = the book alone)
-    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik'], yapboz: ['Yapboz Seti', 'Ahşap yapboz, 35 parça'] };
+    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik', coloring && coloring.img], yapboz: ['Yapboz Seti', 'Ahşap yapboz, 35 parça', puzzleImg(p)] };
     const extraParts = Object.keys(EXTRAS).filter(k => SELL[k] && SETS.some(st => st.items.some(([t]) => t === k)));
     const askedParts = ((SETS.find(st => st.id === new URLSearchParams(location.search).get('set')) || {}).items || []).map(([t]) => t);
     const extrasHtml = p.type === 'kitap' && extraParts.length ? `<div class="extras" id="extras">${extraParts.map(k => {
       const f = Object.keys(PRICES[k]).find(x => PRICES[k][x]);
-      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}><span class="ex-text"><b>${EXTRAS[k][0]}<span class="ex-plus" aria-hidden="true"></span></b><small>${EXTRAS[k][1]}</small></span><span class="ex-price">+ ${fmt(PRICES[k][f])}</span></label>`;
+      const pic = EXTRAS[k][2];
+      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}>${pic ? `<button type="button" class="ex-pic" data-look="${pic}" aria-label="${EXTRAS[k][0]} resmini büyüt"><img src="${thumb(pic)}" alt="" loading="lazy"></button>` : ''}<span class="ex-text"><b>${EXTRAS[k][0]}<span class="ex-plus" aria-hidden="true"></span></b><span class="ex-price">+ ${fmt(PRICES[k][f])}</span><small>${EXTRAS[k][1]}</small></span></label>`;
     }).join('')}</div>` : '';
     const askedSet = new URLSearchParams(location.search).get('set');
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
@@ -748,9 +749,8 @@ function renderProduct() {
               <b>${st.name}</b>${st.note ? `<small>${st.note}</small>` : ''}<span>${st.discount ? `%${Math.round(st.discount * 100)} avantajlı` : ready && st.items.length ? `+ ${fmt(parts.reduce((a, b) => a + b, 0))}` : ''}${ready || !st.items.length ? '' : ' · fiyat yakında'}</span></label>`;
           }).join('')}
         </div>
-        ${coloring || SELL.yapboz ? `<div class="addons">
+        ${coloring ? `<div class="addons">
           ${coloring ? `<a class="addon-card" href="${productHref(coloring)}"><img src="${thumb(coloring.img)}" alt="" loading="lazy"><span><b>Boyama kitabı</b><small>${coloring.pages.length} sayfa boyama ve etkinlik, aynı kahramanla · sayfalarına bakın</small></span></a>` : ''}
-          ${SELL.yapboz ? `<button type="button" class="addon-card" id="puzzle-look"><img src="${thumb(puzzleImg(p))}" alt="" loading="lazy"><span><b>Ahşap yapboz</b><small>${esc(PUZZLE.desc)} · büyüt</small></span></button>` : ''}
         </div>` : ''}
         ${PDF_ADDON_PRICE ? `<label class="pdf-opt${PDF_ADDON_PRICE ? '' : ' off'}" for="pdf-addon" id="pdf-wrap"><input type="checkbox" id="pdf-addon"${PDF_ADDON_PRICE ? '' : ' disabled'}><span><b>+ Dijital kopya (PDF)</b><small>Basılı kitabın yanında tablet ve telefon için</small></span><em>${PDF_ADDON_PRICE ? '+ ' + fmt(PDF_ADDON_PRICE) : 'Fiyat yakında'}</em></label>` : ''}` : ''}
         <label class="gift-opt" for="gift-box" id="gift-wrap">
@@ -911,8 +911,8 @@ function renderProduct() {
       };
       extrasBox.addEventListener('change', pick); pick();
     }
-    const puzzleLook = document.getElementById('puzzle-look');
-    if (puzzleLook) puzzleLook.addEventListener('click', () => openLightbox([[puzzleImg(p), `${p.title.replace(/^ve /, '')} · ahşap yapboz, ${PUZZLE.pieces} parça`]], 0));
+    // the picture in an add-on card opens large, without ticking the card
+    root.querySelectorAll('.ex-pic').forEach(b => b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openLightbox([[b.dataset.look, `${p.title.replace(/^ve /, '')} · ${b.closest('.extra-opt').querySelector('b').textContent}`]], 0); }));
     total();
     // three photo slots: each photo is checked on the visitor's device as soon as it is chosen
     const slots = [...root.querySelectorAll('.slot')];
