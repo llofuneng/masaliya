@@ -56,6 +56,7 @@ export default {
       if (req.method === 'POST' && url.pathname === '/api/stripe') return await stripeEvent(req, env);
       if (req.method === 'GET' && url.pathname === '/api/status') return cors(env, await orderStatus(url, env));
       if (req.method === 'POST' && url.pathname === '/api/onay') return cors(env, await customerReview(req, url, env));
+      if (req.method === 'POST' && url.pathname === '/api/iptal') return cors(env, await customerCancel(req, env));
       const pv = url.pathname.match(/^\/api\/onizleme\/(MSL-[A-Z0-9]{6})\/([A-Za-z0-9-]+\.(?:jpg|png|webp|pdf))$/);
       if (req.method === 'GET' && pv) return await previewFile(pv[1], pv[2], url, env);
       if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env);
@@ -231,7 +232,8 @@ async function orderStatus(url, env) {
     books: order.items.map(it => ({ title: it.title, contents: `${it.setName} · ${it.contents}` })), stages,
     cargo: order.cargo || null, created: order.created, paid: order.paid || null,
     k, previews: order.cancelled ? [] : previews, review: order.review || null, revisions: order.revisions || [],
-    cancelled: order.cancelled || null, refunded: !!(order.refund && order.refund.state === 'yapildi')
+    cancelled: order.cancelled || null, refunded: !!(order.refund && order.refund.state === 'yapildi'),
+    cancelUntil: customerCanCancel(order) ? new Date(Date.parse(order.paid) + REFUND_HOURS * 36e5).toISOString() : null
   });
 }
 
@@ -422,6 +424,42 @@ function cancelledPanel(o, t, note) {
       : '<p>Bu sipariş ödenmemişti; iade gerekmiyor.</p>'}
   </div>`;
 }
+// marks the order cancelled and sends the payment back to the card; who: 'satici' or 'musteri'
+async function cancelAndRefund(env, o, who) {
+  const now = new Date().toISOString();
+  if (!o.cancelled) { o.cancelled = now; o.cancelledBy = who; o.history = { ...(o.history || {}), iptal: now }; }
+  if (o.status === 'odendi') {
+    try {
+      let pi = o.paymentIntent;
+      if (!pi && o.stripeSession) pi = (await stripe(env, `checkout/sessions/${o.stripeSession}`)).payment_intent;
+      if (!pi) throw new Error('ödeme bulunamadı');
+      const r = await stripe(env, 'refunds', new URLSearchParams({ payment_intent: pi, 'metadata[siparis]': o.id }));
+      o.refund = { state: r.status === 'failed' || r.status === 'canceled' ? 'yapilmadi' : 'yapildi', id: r.id, amount: r.amount / 100, date: now, stripeStatus: r.status };
+    } catch (e) {
+      o.refund = { state: 'yapilmadi', error: String(e.message || e).replace(/^Stripe: /, '').slice(0, 200), date: now };
+    }
+  }
+  await saveOrder(env, o);
+  if (o.status === 'odendi') await mailCustomer(env, o, 'iptal');
+}
+
+/* the customer cancels on the tracking page: only in the first 24 hours after payment and before the preview */
+async function customerCancel(req, env) {
+  let b;
+  try { b = await req.json(); } catch (e) { return json({ error: 'İstek okunamadı.' }, 400); }
+  const o = await loadOrder(env, String(b.siparis || '').toUpperCase());
+  const who = String(b.iletisim || '').trim().toLowerCase(), key = String(b.k || '');
+  const digits = s => String(s || '').replace(/\D/g, '').slice(-10);
+  if (!o || !o.items || !((key && key === await ctoken(env, o.id)) || (who && (who === o.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(o.contact.phone))))))
+    return json({ error: 'Sipariş bulunamadı.' }, 404);
+  if (o.cancelled) return json({ error: 'Bu sipariş zaten iptal edildi.' }, 409);
+  if (!customerCanCancel(o)) return json({ error: `İptal yalnızca ödemeden sonraki ${REFUND_HOURS} saat içinde, önizleme gönderilmeden önce yapılabilir.` }, 409);
+  await cancelAndRefund(env, o, 'musteri');
+  await mailOwnerNote(env, `${o.id} · müşteri siparişi iptal etti`, `<p>Müşteri siparişi ${REFUND_HOURS} saat içinde iptal etti.</p><p>${o.refund && o.refund.state === 'yapildi' ? `${(o.refund.amount || o.amountPaid).toLocaleString('tr-TR')} TL kartına iade edildi.` : `İade yapılamadı${o.refund && o.refund.error ? `: ${esc(o.refund.error)}` : ''}. Lütfen Stripe’ta iade edip yönetim sayfasında işaretleyin.`}</p>`);
+  return json({ ok: true, refunded: !!(o.refund && o.refund.state === 'yapildi') });
+}
+const customerCanCancel = o => o.status === 'odendi' && !o.cancelled && (o.stage || 'tasarim') === 'tasarim' && refundOpen(o);
+
 async function cancelOrder(id, action, url, env) {
   const t = url.searchParams.get('t');
   if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
@@ -436,21 +474,7 @@ async function cancelOrder(id, action, url, env) {
   }
   if (o.refund && o.refund.state === 'yapildi') return back('Bu siparişin iadesi zaten yapıldı.');
   if (!o.cancelled && !refundOpen(o)) return back(`İptal ve iade yalnızca ödemeden sonraki ${REFUND_HOURS} saat içinde yapılabilir.`);
-  if (!o.cancelled) { o.cancelled = now; o.history = { ...(o.history || {}), iptal: now }; }
-  if (o.status === 'odendi') {
-    try {
-      let pi = o.paymentIntent;
-      if (!pi && o.stripeSession) pi = (await stripe(env, `checkout/sessions/${o.stripeSession}`)).payment_intent;
-      if (!pi) throw new Error('ödeme bulunamadı');
-      const p = new URLSearchParams({ payment_intent: pi, 'metadata[siparis]': o.id });
-      const r = await stripe(env, 'refunds', p);
-      o.refund = { state: r.status === 'failed' || r.status === 'canceled' ? 'yapilmadi' : 'yapildi', id: r.id, amount: r.amount / 100, date: now, stripeStatus: r.status };
-    } catch (e) {
-      o.refund = { state: 'yapilmadi', error: String(e.message || e).replace(/^Stripe: /, '').slice(0, 200), date: now };
-    }
-  }
-  await saveOrder(env, o);
-  if (o.status === 'odendi') await mailCustomer(env, o, 'iptal');
+  await cancelAndRefund(env, o, 'satici');
   return back(o.status !== 'odendi' ? 'Sipariş iptal edildi.' : o.refund.state === 'yapildi' ? 'Sipariş iptal edildi, ödeme iade edildi.' : 'Sipariş iptal edildi ama iade yapılamadı.');
 }
 

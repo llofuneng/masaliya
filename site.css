@@ -678,3 +678,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .price-note { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 26px; margin: 18px 0 0; color: var(--muted); font-size: .9rem; letter-spacing: .04em; }
 .price-note b { color: var(--gold-pale); font-weight: 500; }
 .price-note span + span::before { content: "✦"; color: var(--gold); font-size: .65em; margin-right: 26px; vertical-align: middle; }
+
+.cancel-box { display: grid; gap: 12px; padding: 18px; border: 1px dashed var(--line-strong); border-radius: 4px; color: var(--muted); font-size: .92rem; }
+.cancel-box b { color: var(--cream); font-weight: 500; }
+.cancel-box p { margin: 0; }
+.cancel-box .btn { justify-self: start; }

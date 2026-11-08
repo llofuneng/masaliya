@@ -17,8 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
 <link rel="icon" href="img/favicon.png?v=2"><link rel="apple-touch-icon" href="img/logo/masaliya-favicon.png?v=2">
-<link rel="stylesheet" href="site.css?v=202611081306">
-<script src="site.js?v=202611081306" defer></script>
+<link rel="stylesheet" href="site.css?v=202611081430">
+<script src="site.js?v=202611081430" defer></script>
 </head>
 <body data-page="siparis">
 <header id="site-head"></header>
@@ -88,7 +88,28 @@ document.addEventListener('DOMContentLoaded', () => {
     note.textContent = '';
     current = d; key = d.k || key;
     showPreview(d);
+    showCancel(d);
     $('o-steps').querySelectorAll('[data-go-pv]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); const pv = $('pv'); if (pv) pv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+  };
+  // in the first 24 hours after payment, before the preview, the customer can cancel and get the money back
+  let lastWho = '';
+  const showCancel = d => {
+    let box = $('o-cancel');
+    if (!box) { box = document.createElement('div'); box.id = 'o-cancel'; box.className = 'cancel-box'; $('o-summary').after(box); }
+    if (!d.cancelUntil) { box.hidden = true; return; }
+    const left = Math.max(1, Math.ceil((Date.parse(d.cancelUntil) - Date.now()) / 36e5));
+    const until = new Date(d.cancelUntil).toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+    box.hidden = false;
+    box.innerHTML = `<p><b>Fikrinizi mi değiştirdiniz?</b> Siparişinizi ${until}’e kadar (${left} saat) iptal edebilirsiniz; ödediğiniz tutarın tamamı kartınıza iade edilir.</p>
+      <button type="button" class="btn ghost" id="cancel-btn">Siparişi iptal et</button><p class="form-note" id="cancel-note" aria-live="polite"></p>`;
+    $('cancel-btn').addEventListener('click', () => {
+      if (!confirm('Siparişinizi iptal etmek istediğinizden emin misiniz?\n\nÖdediğiniz tutar kartınıza iade edilecek. Bu işlem geri alınamaz.')) return;
+      const n = $('cancel-note'), btn = $('cancel-btn'); btn.disabled = true; n.textContent = 'İptal ediliyor…';
+      fetch(`${ORDER_API}/api/iptal`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ siparis: d.id, k: key, iletisim: lastWho }) })
+        .then(r => r.json().then(x => ({ ok: r.ok, x })))
+        .then(({ ok, x }) => { if (!ok) { btn.disabled = false; n.textContent = x.error || 'İptal edilemedi, lütfen bize yazın.'; return; } load(lastWho); })
+        .catch(() => { btn.disabled = false; n.textContent = 'Şu anda iptal edilemiyor, lütfen biraz sonra tekrar deneyin.'; });
+    });
   };
   // the pages of the preview, and the customer's answer
   const showPreview = d => {
@@ -133,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
   const load = (who) => {
+    if (who) lastWho = who;
     const no = $('o-no').value.trim().toUpperCase();
     note.textContent = 'Sipariş aranıyor…';
     const auth = who ? `iletisim=${encodeURIComponent(who)}` : `k=${encodeURIComponent(key)}`;
