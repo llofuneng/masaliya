@@ -274,7 +274,7 @@ const PRODUCTS = [
     extra: [['img/dinozorlarin-dogum-gunu-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/dinozorlarin-dogum-gunu-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DINO }
 ];
 
-const GIFT_SVG = '<svg viewBox="0 0 64 64"><rect x="10" y="26" width="44" height="30" rx="2" fill="#6b1d2a" stroke="#e2b56b" stroke-width="1.2"/><rect x="7" y="19" width="50" height="9" rx="1.5" fill="#7d2534" stroke="#e2b56b" stroke-width="1.2"/><rect x="29" y="19" width="6" height="37" fill="#e2b56b"/><path d="M32 19c-6-9-15-8-13-2 1 3 7 3 13 2zM32 19c6-9 15-8 13-2-1 3-7 3-13 2z" fill="none" stroke="#e2b56b" stroke-width="1.6"/><circle cx="32" cy="40" r="6" fill="#8d2e3d" stroke="#f4dfb3" stroke-width="1"/><path d="M29.6 42.6V39a2.4 2.4 0 0 1 4.8 0v3.6" fill="none" stroke="#f4dfb3" stroke-width=".9"/></svg>';
+const GIFT_SVG = '<svg viewBox="0 0 64 64"><rect x="10" y="26" width="44" height="30" rx="2" fill="#6b1d2a" stroke="#e2b56b" stroke-width="1.2"/><rect x="7" y="19" width="50" height="9" rx="1.5" fill="#7d2534" stroke="#e2b56b" stroke-width="1.2"/><rect x="29" y="19" width="6" height="37" fill="#e2b56b"/><path d="M32 19c-6-9-15-8-13-2 1 3 7 3 13 2zM32 19c6-9 15-8 13-2-1 3-7 3-13 2z" fill="none" stroke="#e2b56b" stroke-width="1.6"/><circle cx="32" cy="40" r="6" fill="#8d2e3d" stroke="#f4dfb3" stroke-width="1"/><path d="M32 43.4c-1.9-1.6-3.3-2.7-3.3-4a1.7 1.7 0 0 1 3.3-.6 1.7 1.7 0 0 1 3.3.6c0 1.3-1.4 2.4-3.3 4z" fill="#f4dfb3"/></svg>';
 const CART_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>';
 const ARCH_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="var(--gold, #e2b56b)" opacity=".6"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)" stroke="var(--ink, #160a0c)" stroke-width="1.2"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="var(--gold, #e2b56b)" stroke="var(--ink, #160a0c)" stroke-width="1.6" stroke-linejoin="round"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg>';   // the Masaliya mark: an open book whose pages make a heart
 
@@ -712,7 +712,7 @@ function renderProduct() {
     const singlePrice = formats.length ? null : Object.values(pr).find(Boolean) || null;
     const options = formats.length ? `
         <div class="covers" role="radiogroup" aria-label="Seçenekler" style="--n:${formats.length}">
-          ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
+          ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced && !p.spreads ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
         </div>` : '';
     const coloring = PRODUCTS.find(x => x.book === p.id && onSale(x));
     // the add-ons as "+" choices; together they pick the set (none = the book alone)
@@ -722,7 +722,7 @@ function renderProduct() {
     const extrasHtml = p.type === 'kitap' && extraParts.length ? `<div class="extras" id="extras">${extraParts.map(k => {
       const f = Object.keys(PRICES[k]).find(x => PRICES[k][x]);
       const pic = EXTRAS[k][2];
-      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}>${pic ? `<span class="ex-pic"><img src="${thumb(pic)}" alt="" loading="lazy"></span>` : ''}<span class="ex-text"><b>${EXTRAS[k][0]}<span class="ex-plus" aria-hidden="true"></span></b><span class="ex-price">+ ${fmt(PRICES[k][f])}</span><small>${EXTRAS[k][1]}</small></span></label>`;
+      return `<label class="extra-opt"><input type="checkbox" data-part="${k}"${askedParts.includes(k) ? ' checked' : ''}>${pic ? `<span class="ex-pic"><img src="${thumb(pic)}" alt="" loading="lazy"></span>` : ''}<span class="ex-text"><b>${EXTRAS[k][0]}</b><span class="ex-price">+ ${fmt(PRICES[k][f])}</span><small>${EXTRAS[k][1]}</small></span></label>`;
     }).join('')}</div>` : '';
     const askedSet = new URLSearchParams(location.search).get('set');
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
@@ -884,6 +884,10 @@ function renderProduct() {
       document.getElementById('gift-note-wrap').hidden = !giftBox.checked;
       if (pdf) { document.getElementById('pdf-wrap').hidden = digital; if (digital) pdf.checked = false; }
       const base = c ? +c.dataset.price : singlePrice;
+      if (!c && formats.length) {
+        // nothing chosen yet: the gift box and puzzle add to the hard cover's price once it is chosen
+        const sel = 'Seçim yapın'; t.textContent = sel; const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = sel; return;
+      }
       if (!base) { t.textContent = 'Fiyat yakında'; const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = 'Fiyat yakında'; return; }
       let sum = base;
       if (set && set.dataset.extra) sum = Math.round((sum + +set.dataset.extra) * (1 - +set.dataset.discount));
@@ -892,12 +896,14 @@ function renderProduct() {
       t.textContent = fmt(sum) + (giftBox.checked && !GIFT_BOX_PRICE ? ' + hediye kutusu' : '');
       const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = fmt(sum);
     }
-    if (giftBox) giftBox.addEventListener('change', () => { giftWanted = giftBox.checked; total(); });
+    const needHard = () => { if (!root.querySelector('input[name="cover"]:checked')) { const h = root.querySelector('input[name="cover"][value="hard"]'); if (h) h.checked = true; } };
+    if (giftBox) giftBox.addEventListener('change', () => { if (giftBox.checked) needHard(); giftWanted = giftBox.checked; total(); });
     root.querySelectorAll('input[name="cover"], input[name="set"], #pdf-addon').forEach(r => r.addEventListener('change', total));
     // the "+" add-ons choose the matching set
     const extrasBox = document.getElementById('extras');
     if (extrasBox) {
       const pick = () => {
+        if (extrasBox.querySelector('input:checked')) needHard();
         const parts = [...extrasBox.querySelectorAll('input:checked')].map(x => x.dataset.part).sort().join(',');
         const st = SETS.find(x => x.items.map(([t]) => t).sort().join(',') === parts) || SETS[0];
         const r = root.querySelector(`input[name="set"][value="${st.id}"]`); if (r) r.checked = true;
@@ -957,6 +963,7 @@ function renderProduct() {
       const c = root.querySelector('input[name="cover"]:checked'), set = root.querySelector('input[name="set"]:checked');
       const name = nameIn ? nameIn.value.trim() : '';
       const say = (html, focus) => { note.innerHTML = html; if (focus) focus.focus(); };
+      if (!c && formats.length) { const first = root.querySelector('.covers'); if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' }); return say('Lütfen önce Sert Kapak ya da Dijital Kitap seçin.'); }
       if (!(c ? c.dataset.price : singlePrice)) return say('Bu ürünün fiyatı yakında açıklanacak; şimdilik sipariş alamıyoruz.');
       if (nameIn && !name) return say('Lütfen kahramanın adını yazın.', nameIn);
       if (checked.some(r => r && r.level === 'checking')) return say('Fotoğraflar kontrol ediliyor, birkaç saniye bekleyin.');

@@ -621,10 +621,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 }
 .cover-opt:has(input:checked) b, .set-opt:has(input:checked) b, .gift-opt:has(input:checked) b { color: #fff4e2; }
 .cover-opt:has(input:checked) small, .set-opt:has(input:checked) small, .gift-opt:has(input:checked) small { color: #f0dcc2; }
-.cover-opt:has(input:checked)::after, .set-opt:has(input:checked)::after, .gift-opt:has(input:checked)::after {
-  content: "✓"; position: absolute; top: 6px; right: 8px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--gold); color: #2a0c16; font: 700 .72rem var(--f-body);
+.cover-opt::after, .gift-opt::after, .extra-opt::after {
+  content: "+"; position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--gold); color: var(--gold); background: transparent; font: 400 1.1rem/1 var(--f-body); transition: background .2s, color .2s;
 }
+.cover-opt.off::after { display: none; }
+.cover-opt:has(input:checked)::after, .set-opt:has(input:checked)::after, .gift-opt:has(input:checked)::after, .extra-opt:has(input:checked)::after {
+  content: "✓"; background: var(--gold); color: #2a0c16; font: 700 .8rem var(--f-body);
+}
+.cover-opt b, .gift-opt .gift-text { padding-right: 30px; }
 .gift-opt { position: relative; }
 
 /* header cart */
@@ -728,14 +733,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .extra-opt .ex-pic { display: block; border-radius: 2px; overflow: hidden; background: var(--ink); aspect-ratio: 1; }
 .extra-opt .ex-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .extra-opt .ex-text { display: grid; gap: 3px; min-width: 0; }
-.extra-opt b { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 500 1.15rem/1.15 var(--f-display); }
+.extra-opt b { display: block; font: 500 1.12rem/1.15 var(--f-display); white-space: nowrap; padding-right: 30px; }
 .extra-opt small { color: var(--muted); font-size: .82rem; }
 .extra-opt .ex-price { font-family: var(--f-display); font-size: 1.3rem; color: var(--gold-pale); }
-.extra-opt .ex-plus { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); font: 400 1.15rem/1 var(--f-body); transition: background .2s, color .2s; }
-.extra-opt .ex-plus::before { content: "+"; }
 .extra-opt:hover { border-color: var(--gold); }
 .extra-opt:has(input:checked) { border-color: var(--gold); background: linear-gradient(170deg, #5a1a26, #3a0f18); box-shadow: 0 0 0 1px var(--gold); }
-.extra-opt:has(input:checked) .ex-plus { background: var(--gold); color: var(--ink); }
-.extra-opt:has(input:checked) .ex-plus::before { content: "✓"; font-size: .9rem; }
 .extra-opt:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
-@media (max-width: 560px) { .extra-opt { grid-template-columns: 1fr; gap: 6px; padding: 10px; } .extra-opt .ex-pic { aspect-ratio: 5 / 2; } .extra-opt b { font-size: 1rem; } .extra-opt .ex-plus { width: 24px; height: 24px; } .extra-opt .ex-price { font-size: 1.1rem; } .extra-opt small { font-size: .76rem; } }
+@media (max-width: 560px) { .extra-opt { grid-template-columns: 1fr; gap: 6px; padding: 10px; } .extra-opt .ex-pic { aspect-ratio: 5 / 2; } .extra-opt b { font-size: .98rem; padding-right: 0; } .extra-opt .ex-pic { margin-right: 30px; } .extra-opt .ex-price { font-size: 1.1rem; } .extra-opt small { font-size: .76rem; } }
