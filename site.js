@@ -821,12 +821,6 @@ function renderProduct() {
       <div class="p-buy info">
         ${buy}
         ${specs ? `<div class="about"><p class="eyebrow">Kitap hakkında</p>${specs}</div>` : ''}
-        <div class="assure"><ul>
-          <li>Tasarım 5 iş günü: bütün sayfaları size gönderir, onayınızı bekleriz.</li>
-          <li>Baskı onayınızdan sonra 5 iş günü; ardından ücretsiz kargoyla yola çıkar. Dijital sürüm onayınızın hemen ardından gönderilir.</li>
-          <li>Fotoğraflar yalnızca bu ürün için kullanılır, teslimden sonra silinir.</li>
-          <li><a href="gizlilik.html">Gizlilik sözümüzü okuyun</a></li>
-        </ul></div>
       </div>
     </div>
     ${orderable ? `<div class="buybar" id="buybar"><span><small>Toplam</small><b id="buybar-total"></b></span><a class="btn" href="#buy">Masalını oluştur</a></div>` : ''}`;
