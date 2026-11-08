@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611081028">
+<link rel="stylesheet" href="site.css?v=202611081220">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -251,7 +251,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611081028" defer></script>
+<script src="site.js?v=202611081220" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -335,7 +335,7 @@ addEventListener('DOMContentLoaded', () => {
 
     const scene = new T.Scene();
     const camera = new T.PerspectiveCamera(32, 1, .1, 100);
-    const W = 2.1, D = 2.97, CT = .05, PT = .26, PW = W - .07, PD = D - .1;
+    const W = 2.1, D = 2.97, CT = .1, PT = .3, PW = W - .07, PD = D - .1;
 
     /* --- canvas texture helpers --- */
     const mk = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); return c; };
@@ -534,6 +534,7 @@ addEventListener('DOMContentLoaded', () => {
     pageL.emissive = new T.Color(0xffffff); pageL.emissiveMap = pageL.map; pageL.emissiveIntensity = 0;
 
     /* --- the book --- */
+    const BOOK_SIZE = 1.12;   // the book a little larger on the table
     const bookG = new T.Group(); scene.add(bookG);
     const back = new T.Mesh(new T.BoxGeometry(W, CT, D), leather); back.position.y = CT / 2; bookG.add(back);
     const right = new T.Mesh(new T.BoxGeometry(PW, PT / 2, PD), [goldEdge, goldEdge, pageR, goldEdge, goldEdge, goldEdge]);
@@ -548,14 +549,6 @@ addEventListener('DOMContentLoaded', () => {
     bookG.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     bookG.rotation.y = -.05;
     hinge.name = 'hinge'; spine.name = 'spine';
-
-    // a candle in a brass holder beside the book
-    const brass = new T.Mesh(new T.CylinderGeometry(.3, .36, .07, 40), goldMetal); brass.position.set(3.0, .035, -.8); scene.add(brass);
-    const wax = new T.Mesh(new T.CylinderGeometry(.15, .15, 1.05, 32), new T.MeshStandardMaterial({ color: 0xf3e4c4, roughness: .55, emissive: 0xffb060, emissiveIntensity: .08 }));
-    wax.position.set(3.0, .07 + .525, -.8); wax.castShadow = true; scene.add(wax);
-    const flameT = tex(mk(64, 128, (c, w, h) => { const g = c.createRadialGradient(w / 2, h * .65, 2, w / 2, h * .62, h * .5); g.addColorStop(0, 'rgba(255,255,235,1)'); g.addColorStop(.35, 'rgba(255,200,110,.9)'); g.addColorStop(1, 'rgba(255,140,60,0)'); c.fillStyle = g; c.beginPath(); c.ellipse(w / 2, h * .6, w * .42, h * .42, 0, 0, 6.283); c.fill(); }));
-    const flame = new T.Sprite(new T.SpriteMaterial({ map: flameT, transparent: true, depthWrite: false, blending: T.AdditiveBlending }));
-    flame.scale.set(.2, .42, 1); flame.position.set(3.0, 1.12 + .18, -.8); scene.add(flame);
 
     /* --- table, contact shadow --- */
     seed = 3;
@@ -652,11 +645,9 @@ addEventListener('DOMContentLoaded', () => {
       const lift = (1 - e) * hover * .16;
       hinge.rotation.z = e * Math.PI + lift;
       // on an upright phone the open book shrinks a little so it stays inside the frame
-      const bs = isPhone() ? 1 - .26 * e : 1;
+      const bs = BOOK_SIZE * (isPhone() ? 1 - .26 * e : 1);
       bookG.scale.setScalar(bs);
       bookG.position.x = e * W / 2 * bs;
-      brass.visible = wax.visible = flame.visible = !isPhone();
-      flame.scale.set(.2 + Math.sin(t * 17) * .012, .42 + Math.sin(t * 11.3) * .03 + Math.sin(t * 23) * .015, 1);
       spine.visible = e < .5;
       contact.scale.set((1 + e) * bs, bs, 1);
       const lightUp = clamp((e - .15) / .55), peek = (1 - e) * hover;
