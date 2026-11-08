@@ -61,7 +61,13 @@ export default {
       if (req.method === 'GET' && pv) return await previewFile(pv[1], pv[2], url, env);
       if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env, req);
       const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
-      if (req.method === 'GET' && m) return await adminOrder(m[1], m[2], m[3], url, env);
+      if (req.method === 'GET' && m) {
+        const res = await adminOrder(m[1], m[2], m[3], url, env);
+        // an open order page lets "← Siparişler" lead straight to the whole order list on this browser
+        if (res.status !== 200 || m[3]) return res;
+        const h = new Headers(res.headers); h.append('set-cookie', `mk=${await ownerCookie(env)}; Path=/admin; Max-Age=${60 * 60 * 24 * 60}; HttpOnly; Secure; SameSite=Lax`);
+        return new Response(res.body, { status: 200, headers: h });
+      }
       const s = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})\/asama$/);
       if (req.method === 'POST' && s) return await setStage(s[1], req, url, env);
       const cx = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})\/(iptal|iade-yapildi)$/);
