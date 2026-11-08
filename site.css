@@ -706,3 +706,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .price-note { flex-wrap: nowrap; gap: 0 8px; font-size: .76rem; letter-spacing: 0; white-space: nowrap; }
   .price-note span + span::before { margin-right: 8px; }
 }
+
+.step .opt { text-transform: none; letter-spacing: .02em; color: var(--muted); font-size: .9em; }
+.step .opt sup { color: var(--gold); font-size: .8em; margin-left: 1px; }
