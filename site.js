@@ -712,7 +712,7 @@ function renderProduct() {
     const singlePrice = formats.length ? null : Object.values(pr).find(Boolean) || null;
     const options = formats.length ? `
         <div class="covers" role="radiogroup" aria-label="Seçenekler" style="--n:${formats.length}">
-          ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="radio" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced && !p.spreads ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
+          ${formats.map(([k, name, note]) => `<label class="cover-opt${pr[k] ? '' : ' off'}"><input type="${p.spreads ? 'checkbox' : 'radio'}" name="cover" value="${k}" data-price="${pr[k] || ''}"${pr[k] ? '' : ' disabled'}${k === firstPriced && !p.spreads ? ' checked' : ''}><b>${name}</b><span>${pr[k] ? fmt(pr[k]) : 'Fiyat yakında'}</span><small>${note}</small></label>`).join('')}
         </div>` : '';
     const coloring = PRODUCTS.find(x => x.book === p.id && onSale(x));
     // the add-ons as "+" choices; together they pick the set (none = the book alone)
@@ -862,9 +862,14 @@ function renderProduct() {
     }
     // Gift box and total
     const giftBox = document.getElementById('gift-box');
+    // Sert Kapak and Dijital can both be chosen: then the printed book comes with its PDF as well
+    const coverChoice = () => {
+      const h = root.querySelector('input[name="cover"][value="hard"]:checked'), d = root.querySelector('input[name="cover"][value="digital"]:checked');
+      return { c: h || d || root.querySelector('input[name="cover"]:checked'), both: !!(h && d), digitalPrice: d ? +d.dataset.price : 0 };
+    };
     let giftWanted = false;   // what the customer chose, kept while a digital format hides the box
     function total() {
-      const c = root.querySelector('input[name="cover"]:checked'), t = document.getElementById('total');
+      const { c, both, digitalPrice } = coverChoice(), t = document.getElementById('total');
       if (!t || !giftBox) return;
       // the e-book has nothing to put in a box
       const digital = !!c && c.value === 'digital';
@@ -892,6 +897,7 @@ function renderProduct() {
       let sum = base;
       if (set && set.dataset.extra) sum = Math.round((sum + +set.dataset.extra) * (1 - +set.dataset.discount));
       if (pdf && pdf.checked) sum += PDF_ADDON_PRICE || 0;
+      if (both) sum += digitalPrice;
       sum += giftBox.checked ? (GIFT_BOX_PRICE || 0) : 0;
       t.textContent = fmt(sum) + (giftBox.checked && !GIFT_BOX_PRICE ? ' + hediye kutusu' : '');
       const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = fmt(sum);
@@ -967,7 +973,7 @@ function renderProduct() {
       e.preventDefault();
       const goPay = !e.submitter || e.submitter.value !== 'sepet';
       const note = document.getElementById('buy-note'), btns = [...buyF.querySelectorAll('.buy-actions button')];
-      const c = root.querySelector('input[name="cover"]:checked'), set = root.querySelector('input[name="set"]:checked');
+      const { c, both } = coverChoice(), set = root.querySelector('input[name="set"]:checked');
       const name = nameIn ? nameIn.value.trim() : '';
       const say = (html, focus) => { note.innerHTML = html; if (focus) focus.focus(); };
       if (!c && formats.length) { const first = root.querySelector('.covers'); if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' }); return say('Lütfen önce Sert Kapak ya da Dijital Kitap seçin.'); }
@@ -981,7 +987,7 @@ function renderProduct() {
 
       const gift = document.getElementById('gift-box');
       const item = {
-        product: p.id, hero: cap(name), cover: c ? c.value : '', set: set ? set.value : 'tek',
+        product: p.id, hero: cap(name), cover: c ? c.value : '', pdf: both, set: set ? set.value : 'tek',
         giftBox: !!(gift && gift.checked && !document.getElementById('gift-wrap').hidden),
         giftNote: (document.getElementById('gift-note') || {}).value || '', about: (document.getElementById('hero-about') || {}).value || '', consentKvkk: true
       };

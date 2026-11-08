@@ -102,13 +102,15 @@ async function addItem(req, env) {
 
   // the price is worked out here, never taken from the browser
   const parts = set.items.map(([t, f]) => CATALOG.prices[t][f]);
-  const setPrice = Math.round((coverPrice + parts.reduce((a, b) => a + b, 0)) * (1 - set.discount));
+  // the printed book can come with its PDF too (both chosen on the page)
+  const pdf = o.pdf === true && o.cover === 'hard' && !!CATALOG.prices.kitap.digital;
+  const setPrice = Math.round((coverPrice + parts.reduce((a, b) => a + b, 0)) * (1 - set.discount)) + (pdf ? CATALOG.prices.kitap.digital : 0);
   const ships = o.cover !== 'digital' || set.items.length > 0;
   const giftBox = !!o.giftBox && ships;
   const item = {
     id: newId('KTP-', 8), status: 'sepette', created: new Date().toISOString(),
-    product: o.product, title: `${hero} ${book.title}`, hero, about, cover: o.cover, set: set.id, setName: set.name,
-    contents: [CATALOG.covers[o.cover], ...set.items.map(([t]) => PART_NAMES[t])].join(' + '),
+    product: o.product, title: `${hero} ${book.title}`, hero, about, cover: o.cover, pdf, set: set.id, setName: set.name,
+    contents: [CATALOG.covers[o.cover], ...(pdf ? [CATALOG.covers.digital] : []), ...set.items.map(([t]) => PART_NAMES[t])].join(' + '),
     giftBox, giftNote: giftBox ? String(o.giftNote || '').slice(0, 240) : '', ships,
     price: { set: setPrice, giftBox: giftBox ? CATALOG.giftBox : 0, total: setPrice + (giftBox ? CATALOG.giftBox : 0) }
   };
