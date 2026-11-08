@@ -240,48 +240,48 @@ const SPREADS_DINO = [
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list).
    book: a coloring book is sold only with its story book, as a Masal Seti */
 const PRODUCTS = [
-  { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+  { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane',
     img: 'img/sihirli-kutuphane-kapak.jpg', alt: 'Zeynep ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
-  { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı', age: '2–7 yaş',
+  { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
     desc: 'Bir yaz sabahı kumsalda bulunan deniz kabuğu kulağa bir şarkı fısıldar ve kahramanımız kendini dalgaların altında bulur. Küçük deniz kızı Mira, yan yan yürüyen yengeç ve bilge kaplumbağayla birlikte, krallığın kaybolan üç incisini aramak için denizin derinliklerine yolculuk başlar. Dostluğun ve cesaretin parıl parıl bir deniz masalı.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
-  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
+  { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
     img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
     desc: 'Karlı bir akşam, masadaki kar küresi sallanınca kahramanımız kendini kapıları anahtarla açılmayan bir buz şatosunun önünde bulur. Burnunu kaybeden kardan adam Kartopu ve hep aç geyik yavrusu Fındık ile her kapının ardında bir sır bekler. Karşılık beklemeden yapılan küçük iyiliklerin büyük gücünü anlatan sıcacık bir kış masalı.',
     extra: [['img/buz-satosunun-sirri-arka.jpg', 'Arka kapak']], spreads: SPREADS_BUZ },
-  { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar', age: '2–5 yaş',
+  { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar' }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
     img: 'img/minik-pandalar-kapak.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
     desc: 'Bambu ormanında şenlik var: kahramanımız ve üç minik panda, herkes yesin diye kocaman bir karpuz götürüyor. Ama karpuz kaçıyor! Yokuş aşağı, taştan taşa, kütüğün içinden... Bir kovalamaca, bir sürü kahkaha ve paylaşınca büyüyen bir şenliğin masalı.',
     extra: [['img/minik-pandalar-arka.jpg', 'Arka kapak']], spreads: SPREADS_PANDA },
-  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü', age: '2–7 yaş',
+  { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
     extra: [['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
-  { id: 'kayip-ay-isigi', coverTitle: { box: [0, .17], sub: 've Kayıp Ay Işığı' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Ege', title: 've Kayıp Ay Işığı', age: '3–8 yaş',
+  { id: 'kayip-ay-isigi', coverTitle: { box: [0, .17], sub: 've Kayıp Ay Işığı' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Ege', title: 've Kayıp Ay Işığı',
     img: 'img/kayip-ay-isigi-kapak.jpg', clean: 'img/kayip-ay-isigi-temiz.jpg', alt: 'Ege ve Kayıp Ay Işığı kapağı: astronot kıyafetli çocuk, gülümseyen Ay ve küçük yıldız',
     desc: 'Bir gece Ay kaybolur ve dünyanın her yerinde çocuklar korkulu rüyalar görmeye başlar. Penceredeki oyuncak roket gerçek bir uzay gemisine dönüşünce kahramanımız, küçük bir yıldızla birlikte Ay’ın karanlık tarafına cesur bir yolculuğa çıkar. Cesaretin, iyiliğin ve kendine inanmanın masalı.',
     extra: [['img/kayip-ay-isigi-arka.jpg', 'Arka kapak']], spreads: SPREADS_AY },
 
-  { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
+  { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: dalgalar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
     extra: [['img/deniz-kizi-kralligi-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/deniz-kizi-kralligi-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_LAVIN },
-  { id: 'sihirli-kutuphane-boyama', book: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane', age: '7–12 yaş',
+  { id: 'sihirli-kutuphane-boyama', book: 'sihirli-kutuphane', coverTitle: { box: [.015, .235], sub: 've Sihirli Kütüphane' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane',
     img: 'img/sihirli-kutuphane-boyama-kapak.jpg', alt: 'Zeynep ve Sihirli Kütüphane boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/sihirli-kutuphane-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/sihirli-kutuphane-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DUA },
-  { id: 'buz-satosunun-sirri-boyama', book: 'buz-satosunun-sirri', coverTitle: { box: [0, .29], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı', age: '5–10 yaş',
+  { id: 'buz-satosunun-sirri-boyama', book: 'buz-satosunun-sirri', coverTitle: { box: [0, .29], sub: 've Buz Şatosunun Sırrı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
     img: 'img/buz-satosunun-sirri-boyama-kapak.jpg', alt: 'Asya ve Buz Şatosunun Sırrı boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 7 boyama sayfası ve 7 etkinlik: şifreli mesaj, kelime avı, harfli labirent, bilmeceler, sihirli kareler, masal bulmacası ve kendi masalını yazacağın bir sayfa.',
     extra: [['img/buz-satosunun-sirri-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/buz-satosunun-sirri-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_BUZ },
-  { id: 'minik-pandalar-boyama', book: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar', age: '2–5 yaş',
+  { id: 'minik-pandalar-boyama', book: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
     img: 'img/minik-pandalar-boyama-kapak.jpg', alt: 'Ela ve Minik Pandalar boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: yollar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
     extra: [['img/minik-pandalar-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/minik-pandalar-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_PANDA },
-  { id: 'dinozorlarin-dogum-gunu-boyama', book: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'boyama', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü', age: '3–7 yaş',
+  { id: 'dinozorlarin-dogum-gunu-boyama', book: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .215], sub: 've Dinozorların Doğum Günü' }, aud: 'erkek', type: 'boyama', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-boyama-kapak.jpg', alt: 'Kerem ve Dinozorların Doğum Günü boyama ve etkinlik kitabının kapağı',
     desc: '«Masalın kahramanı sensin, renkleri de sen seç!» 8 boyama sayfası ve 7 etkinlik: yollar, labirent, sayma, eşini bulma, farklı olanı bulma, noktaları birleştirme ve kendi resmin.',
     extra: [['img/dinozorlarin-dogum-gunu-boyama-ornek.jpg', 'Örnek sayfalar: renkli kitaptan sahneler'], ['img/dinozorlarin-dogum-gunu-boyama-arka.jpg', 'Arka kapak']], pages: PAGES_BOYAMA_DINO }
@@ -501,7 +501,7 @@ function card(p) {
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
   return `<a class="card${p.type === 'kitap' ? ' book' : ''}" href="${productHref(p)}">
     <div class="visual">${p.status === 'yakinda' ? '<span class="badge">Yakında</span>' : ''}${visual}</div>
-    <div class="meta"><span>${kind}</span>${p.age ? `<span>${p.age}</span>` : ''}</div>
+    <div class="meta"><span>${kind}</span></div>
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.desc)}</p>
   </a>`;
@@ -826,7 +826,7 @@ function renderProduct() {
       <div class="p-head">
         <p class="eyebrow" id="crumbs-inline">${a.name}</p>
         <h1 id="p-title">${fullTitle(p)}</h1>
-        <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span>${p.age ? `<span>${p.age}</span>` : ''}<span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
+        <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span><span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
       </div>
