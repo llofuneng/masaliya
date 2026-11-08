@@ -59,7 +59,7 @@ export default {
       if (req.method === 'POST' && url.pathname === '/api/iptal') return cors(env, await customerCancel(req, env));
       const pv = url.pathname.match(/^\/api\/onizleme\/(MSL-[A-Z0-9]{6})\/([A-Za-z0-9-]+\.(?:jpg|png|webp|pdf))$/);
       if (req.method === 'GET' && pv) return await previewFile(pv[1], pv[2], url, env);
-      if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env);
+      if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env, req);
       const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
       if (req.method === 'GET' && m) return await adminOrder(m[1], m[2], m[3], url, env);
       const s = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})\/asama$/);
@@ -308,12 +308,21 @@ async function uploadPreview(id, req, url, env) {
   o.stage = 'onizleme'; o.history = { ...(o.history || {}), onizleme: now };
   await saveOrder(env, o);
   await mailCustomer(env, o, 'onizleme');
-  return Response.redirect(`${url.origin}/admin/${id}?t=${t}&adim=onizleme&not=${encodeURIComponent(`Önizleme gönderildi (${added} dosya). Müşterinin yanıtı bekleniyor.`)}`, 303);
+  return Response.redirect(`${url.origin}/admin/${id}?t=${t}&adim=onizleme&gonderildi=${added}`, 303);
 }
 
 /* ---------- owner pages: all orders, and one order with its photos ---------- */
-async function adminList(url, env) {
-  if (!env.ADMIN_KEY || url.searchParams.get('key') !== env.ADMIN_KEY) return new Response('Giriş yetkisi yok', { status: 401 });
+const ownerCookie = async env => (await hmac(env.ADMIN_KEY || 'masaliya', 'sahip')).slice(0, 32);
+async function adminList(url, env, req) {
+  const cookie = ((req && req.headers.get('cookie')) || '').match(/(?:^|;\s*)mk=([0-9a-f]+)/);
+  const byKey = env.ADMIN_KEY && url.searchParams.get('key') === env.ADMIN_KEY, byCookie = env.ADMIN_KEY && cookie && cookie[1] === await ownerCookie(env);
+  if (!byKey && !byCookie) return new Response('Giriş yetkisi yok. Sipariş listesini bir kez ADMIN_KEY ile açın: /admin?key=…', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  const res = await adminListPage(url, env);
+  const h = new Headers(res.headers);
+  if (byKey) h.append('set-cookie', `mk=${await ownerCookie(env)}; Path=/admin; Max-Age=${60 * 60 * 24 * 60}; HttpOnly; Secure; SameSite=Lax`);
+  return new Response(res.body, { status: res.status, headers: h });
+}
+async function adminListPage(url, env) {
   const orders = [];
   let cursor;
   do {
@@ -322,7 +331,7 @@ async function adminList(url, env) {
     cursor = page.truncated ? page.cursor : null;
   } while (cursor);
   orders.sort((a, b) => b.created.localeCompare(a.created));
-  const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">Düzeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin?key=' + encodeURIComponent(url.searchParams.get('key')))}</td></tr>`));
+  const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">Düzeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin')}</td></tr>`));
   const note = url.searchParams.get('not');
   return page('Siparişler', `<h1>Siparişler</h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} ödenmiş sipariş. Ödenmeyenler ${UNPAID_DAYS} gün sonra silinir.</p>
     <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>Aşama</th><th>Müşteri</th><th></th></tr>${rows.join('')}</table>`);
@@ -339,9 +348,14 @@ async function adminOrder(id, itemId, photo, url, env) {
     if (!obj) return new Response('Fotoğraf bulunamadı', { status: 404 });
     return new Response(obj.body, { headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, no-store', 'content-disposition': `inline; filename="${id}-${itemId}-foto-${photo}.jpg"` } });
   }
-  const note = url.searchParams.get('not');
+  const note = url.searchParams.get('not'), sent = +url.searchParams.get('gonderildi') || 0;
+  const modal = sent ? `<div class="modal" id="sent" role="dialog" aria-modal="true" aria-labelledby="sent-t"><div class="box">
+      <div class="tick">✓</div><h2 id="sent-t">Başarıyla gönderildi</h2>
+      <p>Önizleme (${sent} dosya) müşteriye gönderildi. Müşterinin yanıtını bu sayfada ve sipariş listesinde göreceksiniz.</p>
+      <div class="acts"><button type="button" onclick="document.getElementById('sent').remove(); history.replaceState(null, '', location.href.replace(/&gonderildi=\\d+/, ''))">Geri dön</button><a href="/admin">Siparişlere git</a></div>
+    </div></div>` : '';
   if (o.cancelled) return page(o.id, cancelledPanel(o, t, note) + orderHtml(o, url.origin, t));
-  return page(o.id, `<div class="top"><a href="/admin?key=" onclick="history.back(); return false">← Siparişler</a>${await cancelButton(env, o, `/admin/${o.id}?t=${t}`)}</div>` + await workflow(o, t, url.origin, env, url.searchParams.get('adim'), note) + orderHtml(o, url.origin, t));
+  return page(o.id, modal + `<div class="top"><a href="/admin">← Siparişler</a>${await cancelButton(env, o, `/admin/${o.id}?t=${t}`)}</div>` + await workflow(o, t, url.origin, env, url.searchParams.get('adim'), note) + orderHtml(o, url.origin, t));
 }
 
 // the owner's buttons that move a paid order to its next step
@@ -649,7 +663,7 @@ const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const date = iso => new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 const page = (title, body) => new Response(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)} · Masaliya</title>
 <style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-part{display:grid;gap:6px;padding-left:12px;border-left:3px solid #eadfd3}.pv-part i{font-style:normal;font-weight:600;color:#7a2434}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}
-.top{max-width:1100px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.top form{display:flex;align-items:center;gap:8px}.top small.left{margin:0}.work{max-width:1100px;margin-bottom:22px}.flow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.flow a{flex:1;min-width:110px;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #d9cbbd;border-radius:8px;background:#fff;color:#7a6a60;text-decoration:none}.flow a span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid currentColor;font-size:12px}.flow a.done{color:#2e7d32;border-color:#b9dcbc}.flow a.cur{color:#fff;background:#7a2434;border-color:#7a2434}.flow a.view{box-shadow:0 0 0 3px #e2b56b}
+.top{max-width:1100px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.top form{display:flex;align-items:center;gap:8px}.top small.left{margin:0}.work{max-width:1100px;margin-bottom:22px}.modal{position:fixed;inset:0;background:rgba(30,10,14,.55);display:grid;place-items:center;z-index:10;padding:16px}.modal .box{background:#fff;border-radius:12px;padding:26px 24px;max-width:420px;width:100%;text-align:center;display:grid;gap:12px;box-shadow:0 30px 60px rgba(0,0,0,.35)}.modal .tick{width:56px;height:56px;margin:0 auto;border-radius:50%;background:#e3f2e5;color:#2e7d32;display:grid;place-items:center;font-size:28px;font-weight:700}.modal h2{margin:0;color:#2e7d32}.modal p{margin:0;color:#5a4a42}.modal .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px}.modal .acts button,.modal .acts a{font:inherit;font-weight:600;padding:11px 16px;border-radius:6px;cursor:pointer;text-decoration:none}.modal .acts button{background:#fff;border:1px solid #7a2434;color:#7a2434}.modal .acts a{background:#7a2434;color:#fff;border:1px solid #7a2434}.flow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.flow a{flex:1;min-width:110px;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #d9cbbd;border-radius:8px;background:#fff;color:#7a6a60;text-decoration:none}.flow a span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid currentColor;font-size:12px}.flow a.done{color:#2e7d32;border-color:#b9dcbc}.flow a.cur{color:#fff;background:#7a2434;border-color:#7a2434}.flow a.view{box-shadow:0 0 0 3px #e2b56b}
 .panel-in{background:#fff;border:2px solid #7a2434;border-radius:8px;padding:16px;display:grid;gap:14px}.panel-in h2{margin:0;color:#7a2434}.panel-in h2 small{font-weight:400;color:#9a8a80;font-size:14px}.lead{margin:0}
 .next{justify-self:start;display:inline-block;font:inherit;font-weight:600;padding:11px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;text-decoration:none}
 .pill{display:inline-block;padding:3px 10px;border-radius:20px;background:#eee;font-weight:600;font-size:13px}.pill.wait{background:#fff4dc;color:#8a5a00}.pill.ok{background:#e3f2e5;color:#2e7d32}.pill.no{background:#fbe6e3;color:#b0412e}
