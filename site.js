@@ -213,7 +213,10 @@ const SPREADS_BUZ = [
   ['img/buz-satosunun-sirri-s1.jpg', 'Asya kar küresini sallıyor, oda kar taneleriyle doluyor'],
   ['img/buz-satosunun-sirri-s2.jpg', 'Burnunu kaybeden kardan adam Kartopu ve geyik yavrusu Fındık'],
   ['img/buz-satosunun-sirri-s3.jpg', 'Fındık’a uzatılan elma ve açılan ikinci kapı'],
-  ['img/buz-satosunun-sirri-s4.jpg', 'Donmuş bahçede atkıya sarılan minik kuş']
+  ['img/buz-satosunun-sirri-s4.jpg', 'Donmuş bahçede atkıya sarılan minik kuş'],
+  ['img/buz-satosunun-sirri-s5.jpg', 'Buz Kraliçesi’nin taht salonunda parlayan buz taşları'],
+  ['img/buz-satosunun-sirri-s6.jpg', 'Kuzey ışıkları altında şatoda şenlik'],
+  ['img/buz-satosunun-sirri-s7.jpg', 'Evde, kar küresindeki minik şato']
 ];
 const SPREADS_DINO = [
   ['img/dinozorlarin-dogum-gunu-s1.jpg', 'Hızır Ali dinozor kitabını açıyor, küçük yeşil dinozor göz kırpıyor'],
