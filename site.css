@@ -779,3 +779,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .extra-opt::after { top: 8px; right: 8px; background-color: transparent; }
   .extra-opt .ex-title { padding: 4px 48px 0 0; font-size: 1.1rem; }
 }
+
+/* gift box card laid out like the puzzle card: the name on its own row beside the button, then the box, price and contents */
+.gift-opt { grid-template-columns: 64px minmax(0, 1fr); grid-template-rows: auto auto auto; align-items: center; gap: 6px 14px; padding: 14px 16px; }
+.gift-opt .gift-text { display: contents; }
+.gift-opt .gift-text b { grid-column: 1 / -1; grid-row: 1; min-height: 26px; padding: 4px 56px 0 0; }
+.gift-opt .gift-art { grid-column: 1; grid-row: 2 / span 2; align-self: center; }
+.gift-opt .gift-price { grid-column: 2; grid-row: 2; }
+.gift-opt .gift-text small { grid-column: 2; grid-row: 3; }
+@media (max-width: 560px) { .gift-opt { grid-template-columns: 52px minmax(0, 1fr); padding: 12px; } .gift-opt .gift-text b { padding-right: 48px; } }

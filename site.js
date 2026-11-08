@@ -756,7 +756,7 @@ function renderProduct() {
         <label class="gift-opt" for="gift-box" id="gift-wrap">
           <input type="checkbox" id="gift-box">
           <span class="gift-art" aria-hidden="true">${GIFT_SVG}</span>
-          <span class="gift-text"><b>Hediye kutusu</b><small>Hediye kutusu, kurdele, Masaliya mührü ve el yazısıyla not kartı</small></span>
+          <span class="gift-text"><b>Hediye Kutusu</b><small>Hediye kutusu, kurdele, Masaliya mührü ve el yazısıyla not kartı</small></span>
           <span class="gift-price">${GIFT_BOX_PRICE ? '+ ' + fmt(GIFT_BOX_PRICE) : 'Fiyat yakında'}</span>
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
