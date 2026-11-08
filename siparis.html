@@ -62,6 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
     $('o-summary').hidden = !d.books;
     if (d.books) $('o-summary').innerHTML = `<dl><dt>Sipariş</dt><dd>${esc(d.id)}</dd>${d.books.map(b => `<dt>Masal</dt><dd>${esc(b.title)}<br><small>${esc(b.contents)}</small></dd>`).join('')}${d.paid ? `<dt>Ödeme</dt><dd>${day(d.paid)}</dd>` : ''}</dl>`;
     $('o-eyebrow').textContent = 'Atölyedeki yolculuk';
+    if (d.cancelled) {
+      $('o-steps').innerHTML = `<li class="now"><span class="dot">✕</span><div><b>Sipariş iptal edildi</b><small>${day(d.cancelled)}${d.refunded ? ' · Ödemeniz kartınıza iade edildi; bankanıza göre 5–10 iş günü içinde görünür.' : ''}</small></div></li>`;
+      note.textContent = ''; $('o-preview').innerHTML = ''; return;
+    }
     if (d.status !== 'odendi') {
       $('o-steps').innerHTML = `<li class="now"><span class="dot">✦</span><div><b>Ödeme bekleniyor</b><small>Bu siparişin ödemesi tamamlanmamış. Kitaplarınız sepetinizde duruyorsa oradan tekrar deneyebilirsiniz.</small></div></li>`;
       note.textContent = ''; return;

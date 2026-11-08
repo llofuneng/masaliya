@@ -35,6 +35,9 @@ const STAGES = {
   kargo:    { admin: 'Kargoda', title: 'Kargoda', text: 'Kitabınız yola çıktı.' },
   teslim:   { admin: 'Teslim edildi', title: 'Teslim edildi', text: `İyi okumalar! Fotoğraflarınız ${PHOTO_DAYS} gün içinde sistemlerimizden silinir.` }
 };
+const stageLabel = o => o.cancelled ? 'İptal edildi' : o.status === 'odendi' ? STAGES[o.stage || 'tasarim'].admin : 'Ödeme bekleniyor';
+const refundBadge = o => !o.cancelled ? '' : o.refund && o.refund.state === 'yapildi'
+  ? '<span class="badge ok">İade yapıldı</span>' : '<span class="badge no">İade yapılmadı</span>';
 const stagesFor = o => o.ships ? ['tasarim', 'onizleme', 'baski', 'kargo', 'teslim'] : ['tasarim', 'onizleme', 'teslim'];
 const MAX_PREVIEW = 25 * 1024 * 1024, PREVIEW_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
 // each part of a book's set gets its own preview: the book, the coloring book, the puzzle
@@ -60,6 +63,8 @@ export default {
       if (req.method === 'GET' && m) return await adminOrder(m[1], m[2], m[3], url, env);
       const s = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})\/asama$/);
       if (req.method === 'POST' && s) return await setStage(s[1], req, url, env);
+      const cx = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})\/(iptal|iade-yapildi)$/);
+      if (req.method === 'POST' && cx) return await cancelOrder(cx[1], cx[2], url, env);
       const up = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})\/onizleme$/);
       if (req.method === 'POST' && up) return await uploadPreview(up[1], req, url, env);
       return new Response('Not found', { status: 404 });
@@ -192,6 +197,7 @@ async function stripeEvent(req, env) {
     order.status = 'odendi';
     order.paid = new Date().toISOString();
     order.amountPaid = s.amount_total / 100;
+    order.paymentIntent = s.payment_intent || null;
     order.stage = 'tasarim';
     order.history = { tasarim: order.paid };
     order.contact = { ...order.contact, name: order.contact.name || cust.name || '', email: order.contact.email || cust.email || '' };
@@ -224,7 +230,8 @@ async function orderStatus(url, env) {
     id: order.id, status: order.status, stage: order.stage || null, ships: !!order.ships,
     books: order.items.map(it => ({ title: it.title, contents: `${it.setName} · ${it.contents}` })), stages,
     cargo: order.cargo || null, created: order.created, paid: order.paid || null,
-    k, previews, review: order.review || null, revisions: order.revisions || []
+    k, previews: order.cancelled ? [] : previews, review: order.review || null, revisions: order.revisions || [],
+    cancelled: order.cancelled || null, refunded: !!(order.refund && order.refund.state === 'yapildi')
   });
 }
 
@@ -234,7 +241,7 @@ async function customerReview(req, url, env) {
   try { b = await req.json(); } catch (e) { return json({ error: 'İstek okunamadı.' }, 400); }
   const o = await loadOrder(env, String(b.siparis || '').toUpperCase());
   if (!o || !o.items || b.k !== await ctoken(env, o.id)) return json({ error: 'Sipariş bulunamadı.' }, 404);
-  if (o.stage !== 'onizleme' || !o.previews || !o.review || o.review.state !== 'bekliyor') return json({ error: 'Bu önizleme için yanıtınız zaten alındı.' }, 409);
+  if (o.cancelled || o.stage !== 'onizleme' || !o.previews || !o.review || o.review.state !== 'bekliyor') return json({ error: 'Bu önizleme için yanıtınız zaten alındı.' }, 409);
   const now = new Date().toISOString();
   if (b.karar === 'onay') {
     o.review = { state: 'onay', date: now, round: o.previewRound };
@@ -314,9 +321,10 @@ async function adminList(url, env) {
     cursor = page.truncated ? page.cursor : null;
   } while (cursor);
   orders.sort((a, b) => b.created.localeCompare(a.created));
-  const rows = await Promise.all(orders.map(async o => `<tr class="${o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td>${o.status === 'odendi' ? `<b>${STAGES[o.stage || 'tasarim'].admin}</b>${o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">Düzeltme istendi</b>' : o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}` : 'Ödeme bekleniyor'}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td></tr>`));
-  return page('Siparişler', `<h1>Siparişler</h1><p>${orders.filter(o => o.status === 'odendi').length} ödenmiş sipariş. Ödenmeyenler ${UNPAID_DAYS} gün sonra silinir.</p>
-    <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>Aşama</th><th>Müşteri</th></tr>${rows.join('')}</table>`);
+  const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">Düzeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin?key=' + encodeURIComponent(url.searchParams.get('key')))}</td></tr>`));
+  const note = url.searchParams.get('not');
+  return page('Siparişler', `<h1>Siparişler</h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} ödenmiş sipariş. Ödenmeyenler ${UNPAID_DAYS} gün sonra silinir.</p>
+    <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>Aşama</th><th>Müşteri</th><th></th></tr>${rows.join('')}</table>`);
 }
 
 async function adminOrder(id, itemId, photo, url, env) {
@@ -330,7 +338,9 @@ async function adminOrder(id, itemId, photo, url, env) {
     if (!obj) return new Response('Fotoğraf bulunamadı', { status: 404 });
     return new Response(obj.body, { headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, no-store', 'content-disposition': `inline; filename="${id}-${itemId}-foto-${photo}.jpg"` } });
   }
-  return page(o.id, stagePanel(o, t, url.searchParams.get('not')) + await previewPanel(o, t, url.origin, env) + orderHtml(o, url.origin, t));
+  const note = url.searchParams.get('not');
+  if (o.cancelled) return page(o.id, cancelledPanel(o, t, note) + orderHtml(o, url.origin, t));
+  return page(o.id, stagePanel(o, t, note) + await previewPanel(o, t, url.origin, env) + `<p style="margin:0 0 20px">${await cancelButton(env, o, `/admin/${o.id}?t=${t}`)}</p>` + orderHtml(o, url.origin, t));
 }
 
 // the owner's buttons that move a paid order to its next step
@@ -369,11 +379,59 @@ async function previewPanel(o, t, origin, env) {
   </form>`;
 }
 
+/* ---------- cancelling an order: the payment goes back to the card through Stripe ---------- */
+async function cancelButton(env, o, back) {
+  if (o.cancelled) return '';
+  const paid = o.status === 'odendi';
+  const q = paid ? `${o.id} siparişini iptal etmek istediğinizden emin misiniz?\n\n${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL müşterinin kartına iade edilecek. Bu işlem geri alınamaz.` : `${o.id} siparişini iptal etmek istediğinizden emin misiniz?`;
+  return `<form method="post" action="/admin/${o.id}/iptal?t=${await token(env, o.id)}&geri=${encodeURIComponent(back)}" onsubmit="return confirm(${esc(JSON.stringify(q))})"><button class="cancel">${paid ? 'Siparişi iptal et ve iade et' : 'Siparişi iptal et'}</button></form>`;
+}
+function cancelledPanel(o, t, note) {
+  const r = o.refund || {};
+  return `<div class="stage cancelled"><p><b>Sipariş iptal edildi</b> · ${date(o.cancelled)} ${refundBadge(o)}${note ? ` <span class="note">${esc(note)}</span>` : ''}</p>
+    ${r.state === 'yapildi' ? `<p>${(r.amount || o.amountPaid || 0).toLocaleString('tr-TR')} TL müşterinin kartına iade edildi${r.id ? ` (Stripe: ${esc(r.id)})` : ''}. Kartta görünmesi bankaya göre 5–10 iş günü sürebilir.</p>`
+      : o.status === 'odendi' ? `<p>İade yapılamadı${r.error ? `: ${esc(r.error)}` : ''}. Tekrar deneyin ya da iadeyi Stripe’ta (Payments → bu ödeme → Refund) yapıp aşağıdan işaretleyin.</p>
+        <div class="steps"><form method="post" action="/admin/${o.id}/iptal?t=${t}"><button>İadeyi tekrar dene</button></form>
+        <form method="post" action="/admin/${o.id}/iade-yapildi?t=${t}" onsubmit="return confirm('İadeyi Stripe’ta kendiniz yaptınız mı?')"><button>Stripe’ta iade ettim</button></form></div>`
+      : '<p>Bu sipariş ödenmemişti; iade gerekmiyor.</p>'}
+  </div>`;
+}
+async function cancelOrder(id, action, url, env) {
+  const t = url.searchParams.get('t');
+  if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
+  const o = await loadOrder(env, id);
+  if (!o || !o.items) return new Response('Sipariş bulunamadı', { status: 404 });
+  const geri = url.searchParams.get('geri');
+  const back = note => Response.redirect(`${url.origin}${geri && /^\/admin/.test(geri) ? geri : `/admin/${id}?t=${t}`}${note ? (geri && geri.includes('?') || !geri ? '&' : '?') + 'not=' + encodeURIComponent(note) : ''}`, 303);
+  const now = new Date().toISOString();
+  if (action === 'iade-yapildi') {
+    if (!o.cancelled) return back('');
+    o.refund = { ...(o.refund || {}), state: 'yapildi', manual: true, date: now }; await saveOrder(env, o); return back('İade yapıldı olarak işaretlendi.');
+  }
+  if (o.refund && o.refund.state === 'yapildi') return back('Bu siparişin iadesi zaten yapıldı.');
+  if (!o.cancelled) { o.cancelled = now; o.history = { ...(o.history || {}), iptal: now }; }
+  if (o.status === 'odendi') {
+    try {
+      let pi = o.paymentIntent;
+      if (!pi && o.stripeSession) pi = (await stripe(env, `checkout/sessions/${o.stripeSession}`)).payment_intent;
+      if (!pi) throw new Error('ödeme bulunamadı');
+      const p = new URLSearchParams({ payment_intent: pi, 'metadata[siparis]': o.id });
+      const r = await stripe(env, 'refunds', p);
+      o.refund = { state: r.status === 'failed' || r.status === 'canceled' ? 'yapilmadi' : 'yapildi', id: r.id, amount: r.amount / 100, date: now, stripeStatus: r.status };
+    } catch (e) {
+      o.refund = { state: 'yapilmadi', error: String(e.message || e).replace(/^Stripe: /, '').slice(0, 200), date: now };
+    }
+  }
+  await saveOrder(env, o);
+  if (o.status === 'odendi') await mailCustomer(env, o, 'iptal');
+  return back(o.status !== 'odendi' ? 'Sipariş iptal edildi.' : o.refund.state === 'yapildi' ? 'Sipariş iptal edildi, ödeme iade edildi.' : 'Sipariş iptal edildi ama iade yapılamadı.');
+}
+
 async function setStage(id, req, url, env) {
   const t = url.searchParams.get('t');
   if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
   const o = await loadOrder(env, id);
-  if (!o || !o.items || o.status !== 'odendi') return new Response('Sipariş bulunamadı', { status: 404 });
+  if (!o || !o.items || o.status !== 'odendi' || o.cancelled) return new Response('Sipariş bulunamadı', { status: 404 });
   const f = await req.formData(), stage = String(f.get('asama') || '');
   const back = note => Response.redirect(`${url.origin}/admin/${id}?t=${t}${note ? '&not=' + encodeURIComponent(note) : ''}`, 303);
   if (o.ships) {
@@ -401,7 +459,7 @@ function orderHtml(o, origin, t) {
       <tr><th>Tutar</th><td>${it.price.total.toLocaleString('tr-TR')} TL</td></tr>
     </table>
     <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(it.hero)} · fotoğraf ${n}"></a>`; }).join('')}</div>`).join('');
-  return `<h1>${o.id} · ${o.status === 'odendi' ? STAGES[o.stage || 'tasarim'].admin : 'Ödeme bekleniyor'}</h1>
+  return `<h1>${o.id} · ${stageLabel(o)} ${refundBadge(o)}</h1>
     <table>
       <tr><th>Tutar</th><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL · ${o.items.length} kitap</td></tr>
       <tr><th>Tarih</th><td>${date(o.created)}${o.paid ? ` · ödendi ${date(o.paid)}` : ''}</td></tr>
@@ -447,9 +505,10 @@ async function mailCustomer(env, o, stage) {
     onizleme: `<p>Kitabınızın önizlemesi hazır.</p><p><a href="${link}">Önizlemeyi açın</a></p><p>Bütün sayfaları inceleyin; her şey yolundaysa “Onaylıyorum”a, değiştirmek istediğiniz bir şey varsa “Düzeltme istiyorum”a basın.</p>`,
     baski: `<p>Onayınız için teşekkürler. Kitabınız baskıda; 5 iş günü içinde kargoya verilecek.</p>`,
     kargo: `<p>Kitabınız yola çıktı.</p><p>${esc(c.firm)} · takip numarası: <b>${esc(c.no)}</b></p>`,
-    teslim: o.ships ? `<p>Kitabınız teslim edildi. İyi okumalar!</p>` : `<p>Dijital kitabınız e-postanıza gönderildi. İyi okumalar!</p>`
+    teslim: o.ships ? `<p>Kitabınız teslim edildi. İyi okumalar!</p>` : `<p>Dijital kitabınız e-postanıza gönderildi. İyi okumalar!</p>`,
+    iptal: `<p>Siparişiniz iptal edildi.</p>${o.refund && o.refund.state === 'yapildi' ? `<p>${(o.refund.amount || o.amountPaid).toLocaleString('tr-TR')} TL kartınıza iade edildi; bankanıza göre hesabınızda görünmesi 5–10 iş günü sürebilir.</p>` : '<p>Ödemenizin iadesiyle ilgili size ayrıca bilgi vereceğiz.</p>'}`
   };
-  const subject = { tasarim: `Siparişiniz alındı · ${o.id}`, onizleme: `Önizlemeniz hazır · ${o.id}`, baski: `Kitabınız baskıda · ${o.id}`, kargo: `Kitabınız kargoda · ${o.id}`, teslim: `Masalınız size ulaştı · ${o.id}` }[stage];
+  const subject = { tasarim: `Siparişiniz alındı · ${o.id}`, onizleme: `Önizlemeniz hazır · ${o.id}`, baski: `Kitabınız baskıda · ${o.id}`, kargo: `Kitabınız kargoda · ${o.id}`, teslim: `Masalınız size ulaştı · ${o.id}`, iptal: `Siparişiniz iptal edildi · ${o.id}` }[stage];
   const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#2a1a16;max-width:560px">
     <p>Merhaba${o.contact.name ? ' ' + esc(o.contact.name.split(' ')[0]) : ''},</p>${lines[stage]}
     <p><a href="${link}">Siparişinizi takip edin</a> · sipariş numaranız ${o.id}</p><p>Masaliya</p></div>`;
@@ -474,7 +533,7 @@ async function removeUnpaid(env) {
         const dir = obj.key.slice(0, -file.length), photos = d => [1, 2, 3].map(n => `${d}/foto-${n}.jpg`);
         if (x.status !== 'odendi' && Date.parse(x.created) < limit) {
           await env.PHOTOS.delete(photos(dir).concat(obj.key));
-        } else if (file === '/siparis.json' && x.items && x.stage === 'teslim' && !x.photosDeleted && x.history && Date.parse(x.history.teslim) < Date.now() - PHOTO_DAYS * 864e5) {
+        } else if (file === '/siparis.json' && x.items && !x.photosDeleted && x.history && (x.cancelled ? Date.parse(x.history.iptal) : x.stage === 'teslim' ? Date.parse(x.history.teslim) : Infinity) < Date.now() - PHOTO_DAYS * 864e5) {
           await env.PHOTOS.delete(x.items.flatMap(it => photos(`items/${it.id}`)).concat(Object.values(x.previews || {}).flat().map(f => `${dir}/onizleme/${f.file}`)));
           x.photosDeleted = new Date().toISOString();
           await putJson(env, obj.key, x);
@@ -488,7 +547,7 @@ async function removeUnpaid(env) {
 /* ---------- helpers ---------- */
 async function stripe(env, path, params) {
   const res = await fetch(`https://api.stripe.com/v1/${path}`, {
-    method: 'POST', body: params,
+    method: params ? 'POST' : 'GET', body: params || undefined,
     headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'content-type': 'application/x-www-form-urlencoded' }
   });
   const out = await res.json();
@@ -535,4 +594,4 @@ function cors(env, res) {
 const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const date = iso => new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 const page = (title, body) => new Response(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)} · Masaliya</title>
-<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-part{display:grid;gap:6px;padding-left:12px;border-left:3px solid #eadfd3}.pv-part i{font-style:normal;font-weight:600;color:#7a2434}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+<style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-part{display:grid;gap:6px;padding-left:12px;border-left:3px solid #eadfd3}.pv-part i{font-style:normal;font-weight:600;color:#7a2434}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}button.cancel{font:inherit;font-size:13px;padding:7px 10px;border:1px solid #b0412e;background:#fff;color:#b0412e;border-radius:6px;cursor:pointer;white-space:nowrap}button.cancel:hover{background:#b0412e;color:#fff}.stage.cancelled{border-color:#b0412e}.badge{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;vertical-align:middle}.badge.ok{background:#e3f2e5;color:#2e7d32}.badge.no{background:#fbe6e3;color:#b0412e}tr.iptal{opacity:.7}.flash{background:#fff;border-left:4px solid #7a2434;padding:10px 14px;max-width:1100px}</style></head><body>${body}</body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
