@@ -774,3 +774,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .gift-opt .gift-price { grid-column: 2; grid-row: 2; }
 .gift-opt .gift-text small { grid-column: 2; grid-row: 3; }
 @media (max-width: 560px) { .gift-opt { grid-template-columns: 52px minmax(0, 1fr); padding: 12px; } .gift-opt .gift-text b { padding-right: 48px; } }
+
+/* the book viewer at the top of a book page: bigger, and the same frame for covers and spreads so nothing jumps */
+@media (min-width: 861px) { .product { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); } }
+.p-viewer .spread:not(.portrait) { aspect-ratio: 5 / 4; }
+.p-viewer .spread:not(.portrait) > img { object-fit: contain; }
+.p-viewer .spread .cover-box { inset: 2% 0; height: 96%; }
+@media (max-width: 860px) { .p-viewer .spread:not(.portrait) { aspect-ratio: 1; } }
