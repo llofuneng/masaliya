@@ -774,7 +774,7 @@ function renderProduct() {
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
     const buy = orderable ? `
       <form id="buy" class="info" style="gap:18px" autocomplete="off">
-        ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
+        ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="Adı" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
         <label class="field" for="hero-about"><span class="step">2 · Kahraman hakkında <span class="opt">(opsiyonel<sup>*</sup>)</span></span><textarea id="hero-about" rows="1" maxlength="400" placeholder="Örneğin: 5 yaşında, kıvırcık saçlı, dinozor sever"></textarea></label>
         <div class="field"><span class="step">3 · Üç fotoğraf</span>
           <div class="slots">
