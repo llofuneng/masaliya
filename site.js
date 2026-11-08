@@ -727,7 +727,7 @@ function renderProduct() {
     const askedSet = new URLSearchParams(location.search).get('set');
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
     const buy = orderable ? `
-      <form id="buy" class="info" style="gap:18px">
+      <form id="buy" class="info" style="gap:18px" autocomplete="off">
         ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="${p.hero}" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
         <label class="field" for="hero-about"><span class="step">2 · Kahraman hakkında <span class="opt">(opsiyonel<sup>*</sup>)</span></span><textarea id="hero-about" rows="3" maxlength="400" placeholder="Örneğin: 5 yaşında, kıvırcık saçlı, dinozorlara bayılıyor, kedisinin adı Pamuk"></textarea><small class="hint">* Yazmak zorunda değilsiniz. İsterseniz kahramanı tanıtan özellikleri virgülle ayırarak yazın: yaşı, saçı, sevdiği şeyler, evcil hayvanı…</small></label>
         <div class="field"><span class="step">3 · Üç fotoğraf</span>
@@ -895,6 +895,11 @@ function renderProduct() {
       sum += giftBox.checked ? (GIFT_BOX_PRICE || 0) : 0;
       t.textContent = fmt(sum) + (giftBox.checked && !GIFT_BOX_PRICE ? ' + hediye kutusu' : '');
       const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = fmt(sum);
+    }
+    if (p.spreads) {
+      root.querySelectorAll('input[name="cover"]').forEach(r => { r.checked = false; });
+      if (giftBox) giftBox.checked = false;
+      root.querySelectorAll('#extras input').forEach(x => { x.checked = false; });
     }
     const needHard = () => { if (!root.querySelector('input[name="cover"]:checked')) { const h = root.querySelector('input[name="cover"][value="hard"]'); if (h) h.checked = true; } };
     if (giftBox) giftBox.addEventListener('change', () => { if (giftBox.checked) needHard(); giftWanted = giftBox.checked; total(); });
