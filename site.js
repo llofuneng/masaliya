@@ -165,6 +165,12 @@ const SPREADS_PANDA = [
   ['img/minik-pandalar-s6.jpg', 'Ağacın altındaki üç aç kirpi'],
   ['img/minik-pandalar-s7.jpg', 'Paylaşınca büyüyen şenlik']
 ];
+const SPREADS_AY = [
+  ['img/kayip-ay-isigi-s1.jpg', 'Ege her gece penceresinden Ay’a bakıyor'],
+  ['img/kayip-ay-isigi-s2.jpg', 'Oyuncak roket gerçek bir uzay gemisine dönüşüyor'],
+  ['img/kayip-ay-isigi-s3.jpg', 'Yıldızların arasında küçük yıldızla tanışma'],
+  ['img/kayip-ay-isigi-s4.jpg', 'Ay’ın karanlık tarafında cesur adımlar']
+];
 const PAGES_BOYAMA_BUZ = [
   ['img/buz-satosunun-sirri-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
   ['img/buz-satosunun-sirri-boyama-p02.jpg', 'Şifreli mesaj'],
@@ -251,6 +257,10 @@ const PRODUCTS = [
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
     extra: [['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
+  { id: 'kayip-ay-isigi', coverTitle: { box: [0, .27], sub: 've Kayıp Ay Işığı' }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Ege', title: 've Kayıp Ay Işığı', age: '3–8 yaş',
+    img: 'img/kayip-ay-isigi-kapak.jpg', alt: 'Ege ve Kayıp Ay Işığı kapağı: astronot kıyafetli çocuk, gülümseyen Ay ve küçük yıldız',
+    desc: 'Bir gece Ay kaybolur ve dünyanın her yerinde çocuklar korkulu rüyalar görmeye başlar. Penceredeki oyuncak roket gerçek bir uzay gemisine dönüşünce kahramanımız, küçük bir yıldızla birlikte Ay’ın karanlık tarafına cesur bir yolculuğa çıkar. Cesaretin, iyiliğin ve kendine inanmanın masalı.',
+    extra: [['img/kayip-ay-isigi-arka.jpg', 'Arka kapak']], spreads: SPREADS_AY },
 
   { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı', age: '3–7 yaş',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
