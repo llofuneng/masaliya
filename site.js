@@ -192,6 +192,15 @@ const SPREADS_BALINA = [
   ['img/denizi-kurtariyor-s6.jpg', 'Köpük annesine kavuşuyor, gökyüzünde gökkuşağı'],
   ['img/denizi-kurtariyor-s7.jpg', 'Sabah: kulağa tutulan, gülen bir deniz kabuğu']
 ];
+const SPREADS_ADA = [
+  ['img/gokkusagi-unicornu-s1.jpg', 'Yağmurlu balkonda ıslak bir yavru unicorn: kırmızı yandı'],
+  ['img/gokkusagi-unicornu-s2.jpg', 'Kuş yavrusu yuvasına dönüyor: turuncu yandı'],
+  ['img/gokkusagi-unicornu-s3.jpg', 'Taştan taşa zıplayan dostlar: sarı yandı'],
+  ['img/gokkusagi-unicornu-s4.jpg', 'Son elma kirpiye: yeşil yandı'],
+  ['img/gokkusagi-unicornu-s5.jpg', 'Siste bir ninni, ateş böceği yeniden parlıyor: mavi yandı'],
+  ['img/gokkusagi-unicornu-s6.jpg', 'Gülen bulut ve gökkuşağına uçuş'],
+  ['img/gokkusagi-unicornu-s7.jpg', 'Sabah: camda yedi renkli minicik bir pırıltı']
+];
 const PAGES_BOYAMA_BUZ = [
   ['img/buz-satosunun-sirri-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
   ['img/buz-satosunun-sirri-boyama-p02.jpg', 'Şifreli mesaj'],
@@ -274,6 +283,10 @@ const PRODUCTS = [
     img: 'img/minik-pandalar-kapak.jpg', clean: 'img/minik-pandalar-temiz.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
     desc: 'Bambu ormanında şenlik var: kahramanımız ve üç minik panda, herkes yesin diye kocaman bir karpuz götürüyor. Ama karpuz kaçıyor! Yokuş aşağı, taştan taşa, kütüğün içinden... Bir kovalamaca, bir sürü kahkaha ve paylaşınca büyüyen bir şenliğin masalı.',
     extra: [['img/minik-pandalar-arka.jpg', 'Arka kapak']], spreads: SPREADS_PANDA },
+  { id: 'gokkusagi-unicornu', coverTitle: { box: [0, .2], sub: 've Gökkuşağı Unicornu', font: 'sans', nameSize: 122, subSize: 36, block: 165, top: 12, fx: .87 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ada', title: 've Gökkuşağı Unicornu',
+    img: 'img/gokkusagi-unicornu-kapak.jpg', clean: 'img/gokkusagi-unicornu-temiz.jpg', alt: 'Ada ve Gökkuşağı Unicornu kapağı: gökkuşağı yeleli yavru unicorna yanak yanağa sarılan kız',
+    desc: 'Yağmurlu bir akşam kahramanımız balkonda ıslak bir yavru unicorn bulur. Fırtına onu gökkuşağından düşürmüş, boynuzu sönmüş, gökkuşağı kaybolmuş. Ama unicornun boynuzu iyilikle yanar: her iyilik bir renk! Kırmızı, turuncu, sarı... Gökkuşağı geri gelecek mi? İyiliğin, dostluğun ve renklerin masalı.',
+    extra: [['img/gokkusagi-unicornu-arka.jpg', 'Arka kapak']], spreads: SPREADS_ADA },
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', nameSize: 140, subSize: 31, block: 190, top: 14 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
