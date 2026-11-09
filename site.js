@@ -210,6 +210,15 @@ const SPREADS_ADA = [
   ['img/gokkusagi-unicornu-s6.jpg', 'Gülen bulut ve gökkuşağına uçuş'],
   ['img/gokkusagi-unicornu-s7.jpg', 'Sabah: camda yedi renkli minicik bir pırıltı']
 ];
+const SPREADS_FIRCA = [
+  ['img/sihirli-firca-s1.jpg', 'Penceredeki gri kelebek sihirli fırçayla rengârenk oluyor'],
+  ['img/sihirli-firca-s2.jpg', 'Duvara çizilen kapıdan Gri Kasaba\'ya: tavşanın havucu turuncu'],
+  ['img/sihirli-firca-s3.jpg', 'Yaprak kayık coşkun nehirde: kirpi yelkeni sarıya boyuyor'],
+  ['img/sihirli-firca-s4.jpg', 'Ayıcık balonu boyuyor, beş arkadaş havalanıyor'],
+  ['img/sihirli-firca-s5.jpg', 'Upuzun kaydırak: gri gölgenin peşinde'],
+  ['img/sihirli-firca-s6.jpg', 'Renksiz bukalemun kendini boyuyor, renkler kelebek olup uçuyor'],
+  ['img/sihirli-firca-s7.jpg', 'Rengârenk kasabada şenlik: altı arkadaş bir arada']
+];
 const PAGES_BOYAMA_BUZ = [
   ['img/buz-satosunun-sirri-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
   ['img/buz-satosunun-sirri-boyama-p02.jpg', 'Şifreli mesaj'],
@@ -284,6 +293,10 @@ const PRODUCTS = [
     img: 'img/gokkusagi-unicornu-kapak.jpg', clean: 'img/gokkusagi-unicornu-temiz.jpg', alt: 'Ada ve Gökkuşağı Unicornu kapağı: gökkuşağı yeleli yavru unicorna yanak yanağa sarılan kız',
     desc: 'Yağmurlu bir akşam kahramanımız balkonda ıslak bir yavru unicorn bulur. Fırtına onu gökkuşağından düşürmüş, boynuzu sönmüş, gökkuşağı kaybolmuş. Ama unicornun boynuzu iyilikle yanar: her iyilik bir renk! Kırmızı, turuncu, sarı... Gökkuşağı geri gelecek mi? İyiliğin, dostluğun ve renklerin masalı.',
     extra: [['img/gokkusagi-unicornu-arka.jpg', 'Arka kapak']], spreads: SPREADS_ADA },
+  { id: 'sihirli-firca', coverTitle: { box: [0, .2], sub: 've Sihirli Fırça', font: 'sans', nameSize: 122, subSize: 40, block: 165, top: 12, fx: .87 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Duru', title: 've Sihirli Fırça',
+    img: 'img/sihirli-firca-kapak.jpg', clean: 'img/sihirli-firca-temiz.jpg', alt: 'Duru ve Sihirli Fırça kapağı: altın saplı fırçadan renkli boya kurdelesi akıtan kız ve kucağında tavşan',
+    desc: 'Bir akşam kahramanımız penceresinde ağlayan gri bir kelebek bulur: ülkesinin bütün renkleri kaybolmuş! Altın saplı sihirli fırçayla ne çizerse canlanır: bir kapı, bir kayık, bir balon, upuzun bir kaydırak... Yolda bir tavşan, bir kirpi ve bir ayıcık da onlara katılır. Renkleri kim aldı? Paylaşmanın, dostluğun ve renklerin masalı.',
+    extra: [['img/sihirli-firca-arka.jpg', 'Arka kapak']], spreads: SPREADS_FIRCA },
   { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar', font: 'sans', nameSize: 140, subSize: 46, block: 190, top: 14 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
     img: 'img/minik-pandalar-kapak.jpg', clean: 'img/minik-pandalar-temiz.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
     desc: 'Bambu ormanında şenlik var: kahramanımız ve üç minik panda, herkes yesin diye kocaman bir karpuz götürüyor. Ama karpuz kaçıyor! Yokuş aşağı, taştan taşa, kütüğün içinden... Bir kovalamaca, bir sürü kahkaha ve paylaşınca büyüyen bir şenliğin masalı.',
