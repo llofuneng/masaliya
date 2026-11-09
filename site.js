@@ -192,6 +192,15 @@ const SPREADS_BALINA = [
   ['img/denizi-kurtariyor-s6.jpg', 'Köpük annesine kavuşuyor, gökyüzünde gökkuşağı'],
   ['img/denizi-kurtariyor-s7.jpg', 'Sabah: kulağa tutulan, gülen bir deniz kabuğu']
 ];
+const SPREADS_ASLAN = [
+  ['img/kaybolan-minik-aslan-s1.jpg', 'Fırtınadan sonra top sepetinde ağlayan minik bir aslan'],
+  ['img/kaybolan-minik-aslan-s2.jpg', 'Gelincik yapraklarının izinde ilk paslar'],
+  ['img/kaybolan-minik-aslan-s3.jpg', 'Mısır tarlasında korkuluğun omzundan yol aramak'],
+  ['img/kaybolan-minik-aslan-s4.jpg', 'Rüzgârlı tepede atkıyla birbirine bağlı iki dost'],
+  ['img/kaybolan-minik-aslan-s5.jpg', '«Seni yarı yolda bırakmam. Atla sırtıma!»'],
+  ['img/kaybolan-minik-aslan-s6.jpg', 'Akşam maçı: aslan yavruları ve kaplan yavruları'],
+  ['img/kaybolan-minik-aslan-s7.jpg', 'Sabah: sepette altın bir başak ve minicik bir pati izi']
+];
 const SPREADS_ADA = [
   ['img/gokkusagi-unicornu-s1.jpg', 'Yağmurlu balkonda ıslak bir yavru unicorn: kırmızı yandı'],
   ['img/gokkusagi-unicornu-s2.jpg', 'Kuş yavrusu yuvasına dönüyor: turuncu yandı'],
@@ -303,6 +312,10 @@ const PRODUCTS = [
     img: 'img/denizi-kurtariyor-kapak.jpg', clean: 'img/denizi-kurtariyor-temiz.jpg', alt: 'Mert Denizi Kurtarıyor kapağı: sarı denizaltının lombozundan sarkan çocuk yavru balinaya sarılıyor',
     desc: 'Bir akşam raftaki oyuncak sarı denizaltı mavi mavi parlar ve büyür. Kahramanımız denizin altında, evinin yolunu kaybetmiş yavru balina Köpük’ü bulur. Ama Köpük’ün evi Mavi Koy çöple dolmuştur. Birlikte temizlerlerse anne balina yavrusunu bulabilir mi? Doğayı korumanın, iyiliğin ve dostluğun masalı.',
     extra: [['img/denizi-kurtariyor-arka.jpg', 'Arka kapak']], spreads: SPREADS_BALINA },
+  { id: 'kaybolan-minik-aslan', coverTitle: { box: [0, .22], sub: 've Kaybolan Minik Aslan', font: 'sans', nameSize: 124, subSize: 34, block: 168, top: 12.4, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Emir', title: 've Kaybolan Minik Aslan',
+    img: 'img/kaybolan-minik-aslan-kapak.jpg', clean: 'img/kaybolan-minik-aslan-temiz.jpg', alt: 'Emir ve Kaybolan Minik Aslan kapağı: futbol kalesinin önünde topuyla oturan çocuk ve yanağını ona yaslayan minik aslan',
+    desc: 'Bütün gece süren fırtınanın sabahında kahramanımız, top sepetinde ağlayan minik bir aslan bulur. Akşam aslancığın takımının büyük maçı vardır, ama köyü çok uzaktadır. Gelincik yollarından, mısır tarlalarından ve rüzgârlı tepelerden geçen bir yolculuk: arkadaşını asla yarı yolda bırakmamanın masalı.',
+    extra: [['img/kaybolan-minik-aslan-arka.jpg', 'Arka kapak']], spreads: SPREADS_ASLAN },
 
   { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
