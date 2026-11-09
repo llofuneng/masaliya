@@ -184,13 +184,13 @@ const SPREADS_YARIS = [
   ['img/buyuk-yaris-s7.jpg', 'Sabah: rafta minicik altın bir kupa']
 ];
 const SPREADS_BALINA = [
-  ['img/kayip-yavru-balina-s1.jpg', 'Oyuncak sarı denizaltı mavi mavi parlıyor'],
-  ['img/kayip-yavru-balina-s2.jpg', 'Derinlerde ağlayan küçücük bir yavru balina'],
-  ['img/kayip-yavru-balina-s3.jpg', 'Lombozun iki yanında yeni bir dostluk'],
-  ['img/kayip-yavru-balina-s4.jpg', '«Dur, o yemek değil!»: kaplumbağa ve poşet'],
-  ['img/kayip-yavru-balina-s5.jpg', 'Mavi Koy’da büyük temizlik başlıyor'],
-  ['img/kayip-yavru-balina-s6.jpg', 'Köpük annesine kavuşuyor, gökyüzünde gökkuşağı'],
-  ['img/kayip-yavru-balina-s7.jpg', 'Sabah: kulağa tutulan, gülen bir deniz kabuğu']
+  ['img/denizi-kurtariyor-s1.jpg', 'Oyuncak sarı denizaltı mavi mavi parlıyor'],
+  ['img/denizi-kurtariyor-s2.jpg', 'Derinlerde ağlayan küçücük bir yavru balina'],
+  ['img/denizi-kurtariyor-s3.jpg', 'Lombozun iki yanında yeni bir dostluk'],
+  ['img/denizi-kurtariyor-s4.jpg', '«Dur, o yemek değil!»: kaplumbağa ve poşet'],
+  ['img/denizi-kurtariyor-s5.jpg', 'Mavi Koy’da büyük temizlik başlıyor'],
+  ['img/denizi-kurtariyor-s6.jpg', 'Köpük annesine kavuşuyor, gökyüzünde gökkuşağı'],
+  ['img/denizi-kurtariyor-s7.jpg', 'Sabah: kulağa tutulan, gülen bir deniz kabuğu']
 ];
 const PAGES_BOYAMA_BUZ = [
   ['img/buz-satosunun-sirri-boyama-p01.jpg', 'Kapaktaki sahne, boyanmayı bekliyor'],
@@ -286,10 +286,10 @@ const PRODUCTS = [
     img: 'img/buyuk-yaris-kapak.jpg', clean: 'img/buyuk-yaris-temiz.jpg', alt: 'Poyraz ve Büyük Yarış kapağı: yarış tulumlu çocuk, kırmızı spor araba ve start çizgisindeki robotlar',
     desc: 'Bir akşam raftaki oyuncak kırmızı araba vınlar, farları yanıp söner ve kocaman, gerçek bir spor arabaya dönüşür. Kahramanımız, neon ışıklı bir şehirde robotlarla Büyük Yarış’a katılır. Ama bu yarışta en hızlı olmak yetmez: Kıvılcım’ın altın turbosu yalnızca iyiliklerle dolar. İyiliğin, dostluğun ve cesaretin masalı.',
     extra: [['img/buyuk-yaris-arka.jpg', 'Arka kapak']], spreads: SPREADS_YARIS },
-  { id: 'kayip-yavru-balina', coverTitle: { box: [0, .23], sub: 've Kayıp Yavru Balina', font: 'sans', nameSize: 125, subSize: 39, block: 170, top: 13, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Mert', title: 've Kayıp Yavru Balina',
-    img: 'img/kayip-yavru-balina-kapak.jpg', clean: 'img/kayip-yavru-balina-temiz.jpg', alt: 'Mert ve Kayıp Yavru Balina kapağı: sarı denizaltının lombozundan sarkan çocuk yavru balinaya sarılıyor',
+  { id: 'denizi-kurtariyor', coverTitle: { box: [0, .23], sub: 'Denizi Kurtarıyor', font: 'sans', nameSize: 125, subSize: 41, block: 170, top: 13, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Mert', title: 'Denizi Kurtarıyor',
+    img: 'img/denizi-kurtariyor-kapak.jpg', clean: 'img/denizi-kurtariyor-temiz.jpg', alt: 'Mert Denizi Kurtarıyor kapağı: sarı denizaltının lombozundan sarkan çocuk yavru balinaya sarılıyor',
     desc: 'Bir akşam raftaki oyuncak sarı denizaltı mavi mavi parlar ve büyür. Kahramanımız denizin altında, evinin yolunu kaybetmiş yavru balina Köpük’ü bulur. Ama Köpük’ün evi Mavi Koy çöple dolmuştur. Birlikte temizlerlerse anne balina yavrusunu bulabilir mi? Doğayı korumanın, iyiliğin ve dostluğun masalı.',
-    extra: [['img/kayip-yavru-balina-arka.jpg', 'Arka kapak']], spreads: SPREADS_BALINA },
+    extra: [['img/denizi-kurtariyor-arka.jpg', 'Arka kapak']], spreads: SPREADS_BALINA },
 
   { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
