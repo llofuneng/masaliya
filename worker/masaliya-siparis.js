@@ -60,6 +60,7 @@ export default {
       const pv = url.pathname.match(/^\/api\/onizleme\/(MSL-[A-Z0-9]{6})\/([A-Za-z0-9-]+\.(?:jpg|png|webp|pdf))$/);
       if (req.method === 'GET' && pv) return await previewFile(pv[1], pv[2], url, env);
       if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env, req);
+      if (req.method === 'GET' && url.pathname === '/admin/istatistik') return await adminStats(url, env, req);
       const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
       if (req.method === 'GET' && m) {
         const res = await adminOrder(m[1], m[2], m[3], url, env);
@@ -116,6 +117,7 @@ async function addItem(req, env) {
   };
   await Promise.all(photos.map((f, i) => env.PHOTOS.put(`items/${item.id}/foto-${i + 1}.jpg`, f.stream(), { httpMetadata: { contentType: f.type } })));
   await putJson(env, `items/${item.id}/kitap.json`, item);
+  await countDay(env, 'sepet', item.product);
   return json(publicItem(item));
 }
 const publicItem = it => ({ id: it.id, product: it.product, title: it.title, contents: it.contents, setName: it.setName, cover: it.cover, giftBox: it.giftBox, giftNote: it.giftNote, price: it.price });
@@ -188,6 +190,7 @@ async function createOrder(req, env) {
   const session = await stripe(env, 'checkout/sessions', p);
   order.stripeSession = session.id;
   await saveOrder(env, order);
+  await countDay(env, 'odemeye', null, items.length);
   return json({ id: order.id, url: session.url });
 }
 
@@ -212,6 +215,7 @@ async function stripeEvent(req, env) {
     order.contact = { ...order.contact, name: order.contact.name || cust.name || '', email: order.contact.email || cust.email || '' };
     if (!order.shipping && ship) order.shipping = { name: ship.name, ...ship.address };
     await saveOrder(env, order);
+    await countDay(env, 'odendi', null, order.items.length);
     // the books in this order are paid: the clean-up leaves them alone
     await Promise.all(order.items.map(async it => {
       const cur = await getJson(env, `items/${it.id}/kitap.json`);
@@ -320,6 +324,49 @@ async function uploadPreview(id, req, url, env) {
 }
 
 /* ---------- owner pages: all orders, and one order with its photos ---------- */
+/* ---------- the order funnel: books put in a cart → taken to payment → paid ---------- */
+// one small file per day with counts; it stays when the 3-day clean-up deletes unpaid carts
+async function countDay(env, what, product, n = 1) {
+  try {
+    const key = `istatistik/${new Date().toISOString().slice(0, 10)}.json`;
+    const d = (await getJson(env, key)) || { sepet: 0, odemeye: 0, odendi: 0, kitaplar: {} };
+    d[what] = (d[what] || 0) + n;
+    if (product) d.kitaplar[product] = (d.kitaplar[product] || 0) + 1;
+    await putJson(env, key, d);
+  } catch (e) { console.log('count failed', e); }
+}
+async function adminStats(url, env, req) {
+  const cookie = ((req && req.headers.get('cookie')) || '').match(/(?:^|;\s*)mk=([0-9a-f]+)/);
+  if (!env.ADMIN_KEY || !((url.searchParams.get('key') === env.ADMIN_KEY) || (cookie && cookie[1] === await ownerCookie(env)))) return new Response('Giriş yetkisi yok. Önce sipariş listesini ADMIN_KEY ile açın.', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  const all = async prefix => { const out = []; let cursor; do { const pg = await env.PHOTOS.list({ prefix, cursor }); out.push(...pg.objects.map(o => o.key)); cursor = pg.truncated ? pg.cursor : null; } while (cursor); return out; };
+  const items = (await Promise.all((await all('items/')).filter(k => k.endsWith('/kitap.json')).map(k => getJson(env, k)))).filter(Boolean);
+  const orders = (await Promise.all((await all('orders/')).filter(k => k.endsWith('/siparis.json')).map(k => getJson(env, k)))).filter(o => o && o.items);
+  const days = (await Promise.all((await all('istatistik/')).map(async k => [k.slice(11, 21), await getJson(env, k)]))).filter(([, d]) => d).sort((a, b) => b[0].localeCompare(a[0]));
+  const inOrder = new Set(orders.flatMap(o => o.items.map(it => it.id)));
+  const paid = orders.filter(o => o.status === 'odendi' && !o.cancelled), waiting = orders.filter(o => o.status !== 'odendi');
+  const cartOnly = items.filter(it => it.status !== 'odendi' && !inOrder.has(it.id));
+  const by = (arr, f) => arr.reduce((m, x) => { const k = f(x); m[k] = (m[k] || 0) + 1; return m; }, {});
+  const prodName = id => (CATALOG.books[id] ? CATALOG.books[id].hero + ' ' + CATALOG.books[id].title : id);
+  const rows = (m, label = x => x) => Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<tr><td>${esc(label(k))}</td><td>${n}</td></tr>`).join('') || '<tr><td colspan="2">—</td></tr>';
+  const tot = days.reduce((t, [, d]) => ({ sepet: t.sepet + (d.sepet || 0), odemeye: t.odemeye + (d.odemeye || 0), odendi: t.odendi + (d.odendi || 0) }), { sepet: 0, odemeye: 0, odendi: 0 });
+  const kit = days.reduce((m, [, d]) => { for (const [k, n] of Object.entries(d.kitaplar || {})) m[k] = (m[k] || 0) + n; return m; }, {});
+  const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '—';
+  const opts = items.reduce((m, it) => { m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] = (m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] || 0) + 1; if (it.set && it.set !== 'tek') m[it.setName] = (m[it.setName] || 0) + 1; if (it.giftBox) m['Hediye kutusu'] = (m['Hediye kutusu'] || 0) + 1; if (it.about) m['“Kahraman hakkında” dolu'] = (m['“Kahraman hakkında” dolu'] || 0) + 1; return m; }, {});
+  return page('İstatistik', `<p><a href="/admin">← Siparişler</a></p><h1>Sipariş hunisi</h1>
+    <h2>Şu an kayıtlı olanlar (ödenmeyenler ${UNPAID_DAYS} gün tutulur)</h2>
+    <table><tr><th>Sepete eklenen kitap</th><td>${items.length}</td></tr>
+      <tr><th>Sepette kalan, ödemeye geçmeyen</th><td>${cartOnly.length}</td></tr>
+      <tr><th>Ödeme sayfasına giden sipariş</th><td>${orders.length} (${orders.reduce((a, o) => a + o.items.length, 0)} kitap)</td></tr>
+      <tr><th>Ödeme sayfasında bırakılan</th><td>${waiting.length}</td></tr>
+      <tr><th>Ödenen sipariş</th><td>${paid.length} (${paid.reduce((a, o) => a + (o.amountPaid || 0), 0).toLocaleString('tr-TR')} TL)</td></tr>
+      <tr><th>İptal edilen</th><td>${orders.filter(o => o.cancelled).length}</td></tr></table>
+    <h2>Sepete en çok eklenen kitaplar (şu an kayıtlı)</h2><table>${rows(by(items, it => it.product), prodName)}</table>
+    <h2>Seçenekler (şu an kayıtlı)</h2><table>${rows(opts)}</table>
+    <h2>Günlük sayaç (bu sürümden itibaren, silinmez)</h2>
+    <table><tr><th>Toplam</th><td>Sepete: ${tot.sepet} · Ödemeye geçen kitap: ${tot.odemeye} (${pct(tot.odemeye, tot.sepet)}) · Ödenen kitap: ${tot.odendi} (${pct(tot.odendi, tot.sepet)})</td></tr>
+    ${days.slice(0, 30).map(([d, x]) => `<tr><td>${d}</td><td>Sepete ${x.sepet || 0} · Ödemeye ${x.odemeye || 0} · Ödendi ${x.odendi || 0}</td></tr>`).join('')}</table>
+    <h2>Sepete eklenen kitaplar (günlük sayaçtan)</h2><table>${rows(kit, prodName)}</table>`);
+}
 const ownerCookie = async env => (await hmac(env.ADMIN_KEY || 'masaliya', 'sahip')).slice(0, 32);
 async function adminList(url, env, req) {
   const cookie = ((req && req.headers.get('cookie')) || '').match(/(?:^|;\s*)mk=([0-9a-f]+)/);
@@ -341,7 +388,7 @@ async function adminListPage(url, env) {
   orders.sort((a, b) => b.created.localeCompare(a.created));
   const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">Düzeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin')}</td></tr>`));
   const note = url.searchParams.get('not');
-  return page('Siparişler', `<h1>Siparişler</h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} ödenmiş sipariş. Ödenmeyenler ${UNPAID_DAYS} gün sonra silinir.</p>
+  return page('Siparişler', `<h1>Siparişler <small style="font-size:14px;font-weight:400"><a href="/admin/istatistik">İstatistik →</a></small></h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} ödenmiş sipariş. Ödenmeyenler ${UNPAID_DAYS} gün sonra silinir.</p>
     <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>Aşama</th><th>Müşteri</th><th></th></tr>${rows.join('')}</table>`);
 }
 
