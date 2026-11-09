@@ -569,7 +569,7 @@ function card(p) {
     <div class="meta"><span>${kind}</span></div>
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.desc)}</p>
-    ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">Sipariş Ver</span>' : ''}
+    ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">İncele</span>' : ''}
   </a>`;
 }
 
