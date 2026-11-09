@@ -791,3 +791,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .p-viewer .spread .ov { position: absolute; top: 50%; translate: 0 -50%; z-index: 3; width: 42px; height: 42px; background: rgba(20,10,8,.55); border-color: rgba(226,181,107,.6); backdrop-filter: blur(2px); }
 .p-viewer .spread .ov-prev { left: 10px; } .p-viewer .spread .ov-next { right: 10px; }
 .p-viewer .spread .ov:hover { background: rgba(20,10,8,.8); border-color: var(--gold); }
+
+/* "Sipariş Ver" at the foot of each book tile */
+.card:has(.card-cta) { display: flex; flex-direction: column; }
+.card .card-cta { justify-self: stretch; margin-top: auto; text-align: center; pointer-events: none; }
+.card:hover .card-cta { background: var(--gold); color: var(--ink); }
