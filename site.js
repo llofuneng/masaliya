@@ -1121,8 +1121,11 @@ function renderProduct() {
     }
 
     // Related
-    const rel = PRODUCTS.filter(x => x.aud === p.aud && x.id !== p.id && onSale(x)).slice(0, 3);
+    // all our other stories: this collection first, then the others
+    const others = PRODUCTS.filter(x => x.id !== p.id && x.type === p.type && x.status === 'hazir' && onSale(x) && !(x.aud && AUDIENCES[x.aud] && AUDIENCES[x.aud].hidden));
+    const rel = [...others.filter(x => x.aud === p.aud), ...others.filter(x => x.aud !== p.aud)];
     document.getElementById('related').innerHTML = rel.map(p => card(p)).join('');
+    const rh = document.getElementById('related-head'); if (rh) rh.hidden = !rel.length;
     if (location.hash === '#inside' && document.getElementById('inside')) requestAnimationFrame(() => document.getElementById('inside').scrollIntoView());
     else scrollTo(0, 0);
   }
