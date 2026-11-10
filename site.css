@@ -270,6 +270,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .promise li { position: relative; padding-left: 24px; }
 .promise li::before { content: ""; position: absolute; left: 0; top: .2em; width: 15px; height: 15px; border-radius: 50%; background: var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.3l2.6 2.5L12 5.4' fill='none' stroke='%23200f0b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 11px no-repeat; }
 .p-buy .promise { margin: 4px 0 14px; font-size: .8rem; }
+.card .card-from { font: 500 .95rem var(--f-body); color: var(--gold-pale); margin-top: 2px; }
+.photo-promise { display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; background: rgba(226,181,107,.06); font-size: .84rem; line-height: 1.5; color: var(--cream); }
+.photo-promise svg, .secure-pay svg { width: 16px; height: 16px; flex: none; color: var(--gold); margin-top: 2px; }
+.secure-pay { display: grid; gap: 8px; justify-items: center; text-align: center; margin-top: 12px; font-size: .74rem; line-height: 1.5; color: var(--muted); }
+.secure-pay > span:last-child { display: inline-flex; gap: 6px; align-items: flex-start; }
+.secure-pay .cards { display: flex; gap: 6px; }
+.secure-pay .cards svg { width: 40px; height: 25px; margin: 0; }
 .eta { margin: 2px 0 12px; font-size: .86rem; color: var(--cream); }
 .eta b { color: var(--gold-pale); font-weight: 500; }
 .eta small { display: block; margin-top: 2px; font-size: .72rem; color: var(--muted); }

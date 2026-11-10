@@ -75,6 +75,12 @@ const WHATSAPP = '905306233782';
    there, so they are dropped here too. */
 // what every book order comes with, shown on the book page at once and again by the order buttons
 const PROMISE = `<ul class="promise"><li>Baskıdan önce bütün sayfaları görüp onaylarsınız</li><li>Gerekirse düzeltme yaparız</li><li>Ücretsiz kargo</li></ul>`;
+// simple acceptance marks for the cards Stripe takes
+const CARD_MARKS = [
+  '<svg viewBox="0 0 48 30" role="img" aria-label="Visa"><rect width="48" height="30" rx="4" fill="#fff"/><text x="24" y="20" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" font-style="italic" fill="#1a1f71">VISA</text></svg>',
+  '<svg viewBox="0 0 48 30" role="img" aria-label="Mastercard"><rect width="48" height="30" rx="4" fill="#fff"/><circle cx="19.5" cy="15" r="8" fill="#eb001b"/><circle cx="28.5" cy="15" r="8" fill="#f79e1b"/><path d="M24 8.4a8 8 0 0 1 0 13.2a8 8 0 0 1 0-13.2z" fill="#ff5f00"/></svg>',
+  '<svg viewBox="0 0 48 30" role="img" aria-label="American Express"><rect width="48" height="30" rx="4" fill="#2e77bc"/><text x="24" y="19" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#fff">AMEX</text></svg>'
+].join('');
 const CART_KEY = 'masaliya-sepet', CART_DAYS = 3;
 const cart = {
   all() {
@@ -576,7 +582,7 @@ function renderChrome() {
 }
 
 /* ---------- Product card ---------- */
-function card(p) {
+function card(p, withPrice = false) {
   const visual = `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
   return `<a class="card${p.type === 'kitap' ? ' book' : ''}" href="${productHref(p)}">
@@ -584,6 +590,7 @@ function card(p) {
     <div class="meta"><span>${kind}</span></div>
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.desc)}</p>
+    ${withPrice && p.type === 'kitap' && p.status === 'hazir' ? `<span class="card-from">${fmt(Math.min(...Object.values(PRICES.kitap).filter(Boolean)))}’den başlayan</span>` : ''}
     ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">İncele</span>' : ''}
   </a>`;
 }
@@ -671,6 +678,10 @@ function renderCart() {
         <label class="field" for="c-email">E-posta<input id="c-email" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
         <label class="consent" for="ok-terms"><input type="checkbox" id="ok-terms"><span><a href="mesafeli-satis.html" target="_blank">Ön Bilgilendirme Formu</a>’nu ve <a href="mesafeli-satis.html#sozlesme" target="_blank">Mesafeli Satış Sözleşmesi</a>’ni okudum, onaylıyorum.</span></label>
         <button class="btn" type="submit" id="pay-btn">Ödemeye geç</button>
+        <div class="secure-pay">
+          <span class="cards" aria-label="Visa, Mastercard, American Express">${CARD_MARKS}</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4.5" y="10" width="15" height="11" rx="2" fill="currentColor"/></svg>Stripe ile güvenli ödeme · 3D Secure · Kart bilgileriniz bizde saklanmaz · Ödeme Türk lirası ile alınır</span>
+        </div>
         <p class="form-note" id="pay-note" aria-live="polite">${msg || ''}</p>
         <a class="link" href="urunler.html">+ Başka bir masal ekle</a>
       </form>
@@ -899,6 +910,7 @@ function renderProduct() {
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
         <div class="total"><span>Toplam <small>Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
         ${p.type === 'kitap' ? ETA() : ''}
+        <p class="photo-promise"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4.5" y="10" width="15" height="11" rx="2" fill="currentColor"/></svg><span>Fotoğraflarınız yalnızca bu kitap için kullanılır, reklamda ya da başka bir amaçla kullanılmaz ve teslimden sonra en geç 30 gün içinde silinir.</span></p>
         <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenmesine ve aktarılmasına açık rıza veriyorum.</span></label>
         ${p.type === 'kitap' ? PROMISE : ''}
         <div class="buy-actions">
@@ -1251,7 +1263,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const books = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p));
     const g = document.getElementById('home-grid');
     if (g) {
-      g.innerHTML = books.map(b => card(b)).join('');
+      g.innerHTML = books.map(b => card(b, true)).join('');
       if (books.length === 4) g.classList.add('n2');   // two by two, so no book is left alone on a row
     }
   }
