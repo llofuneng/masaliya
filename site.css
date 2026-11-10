@@ -796,3 +796,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .card:has(.card-cta) { display: flex; flex-direction: column; }
 .card .card-cta { justify-self: stretch; margin-top: auto; text-align: center; pointer-events: none; }
 .card:hover .card-cta { background: var(--gold); color: var(--ink); }
+
+/* phones: compact book tiles in the lists (cover beside the text), so several stories fit on a screen */
+@media (max-width: 620px) {
+  #grid .card:has(.card-cta), #home-grid .card:has(.card-cta), #related .card:has(.card-cta) { display: grid; grid-template-columns: 40% minmax(0, 1fr); grid-template-rows: auto auto 1fr auto; column-gap: 12px; row-gap: 6px; align-items: start; padding: 10px; }
+  #grid .card .visual, #home-grid .card .visual, #related .card .visual { grid-row: 1 / -1; width: 100%; }
+  #grid .card h3, #home-grid .card h3, #related .card h3 { font-size: 1.15rem; line-height: 1.2; }
+  #grid .card p, #home-grid .card p, #related .card p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: .82rem; line-height: 1.45; margin: 0; }
+  #grid .card .card-cta, #home-grid .card .card-cta, #related .card .card-cta { align-self: end; min-height: 38px; padding: 8px 10px; font-size: .7rem; }
+  #grid .card .meta, #home-grid .card .meta, #related .card .meta { font-size: .62rem; }
+}

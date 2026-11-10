@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611092135">
+<link rel="stylesheet" href="site.css?v=202611100039">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -58,13 +58,6 @@
 .hero-copy .eyebrow { font-size: .72rem; letter-spacing: .34em; }
 .hero-copy h1 { font: 400 clamp(2.3rem, 1.4rem + 3.6vw, 4.6rem)/1 var(--f-display); letter-spacing: .01em; text-shadow: 0 4px 30px rgba(0,0,0,.6); }
 .hero-copy h1 em { font-style: italic; font-weight: 400; color: var(--gold-pale); padding-inline: .04em; }
-/* the visitor writes a name and it appears on the cover in gold foil */
-.cover-name { display: grid; justify-items: center; gap: 6px; margin-top: 4px; pointer-events: auto; }
-.cover-name span { font-size: .68rem; letter-spacing: .26em; text-transform: uppercase; color: var(--gold); }
-.cover-name input { width: min(24ch, 86vw); text-align: center; font: italic 500 clamp(1.5rem, 1.2rem + 1vw, 2rem)/1.2 var(--f-display); color: var(--gold-pale); background: transparent; border: 0; border-bottom: 1px solid var(--line-strong); border-radius: 0; padding: 4px 6px 6px; }
-.cover-name input::placeholder { color: rgba(205,185,161,.5); font-size: .72em; }
-.cover-name input:focus { outline: none; border-bottom-color: var(--gold); }
-.no3d .cover-name, .film-mode .cover-name { display: none; }
 
 /* while the 3D book is prepared, the arch draws itself in gold */
 .loader { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; background: var(--ink); transition: opacity .9s ease, visibility .9s; pointer-events: none; }
@@ -137,8 +130,6 @@
 
 /* Bottom controls */
 .intro-bottom { display: grid; justify-items: center; gap: 10px; padding-block: 10px 30px; z-index: 5; transition: opacity .5s; }
-.intro-bottom .hint { font-size: .7rem; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
-.opened .open-btn, .opened .hint { display: none; }
 .after { display: none; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .opened .after { display: flex; }
 .after .adults { display: none; }
@@ -197,7 +188,6 @@
     <div class="hero-copy">
       <h1>Herkesin bir <em>masalı</em> var…</h1>
       <p>Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan kitaplar!</p>
-      <label class="cover-name" for="cover-name"><span>Kahramanın adı</span><input id="cover-name" type="text" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Buraya bir isim yazın."></label>
     </div>
     <div class="seal" id="seal" role="button" tabindex="0" aria-label="Masalı aç">
       <svg viewBox="0 0 64 64" aria-hidden="true" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="var(--gold, #e2b56b)" opacity=".6"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)" stroke="var(--ink, #160a0c)" stroke-width="1.2"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="var(--gold, #e2b56b)" stroke="var(--ink, #160a0c)" stroke-width="1.6" stroke-linejoin="round"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -211,8 +201,6 @@
   </div>
 
   <div class="wrap intro-bottom">
-    <button class="btn open-btn" id="open" type="button">Sipariş Ver</button>
-    <span class="hint" id="hint">ya da kitaba dokunun</span>
     <div class="after">
       <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
@@ -238,7 +226,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611092135" defer></script>
+<script src="site.js?v=202611100039" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -265,7 +253,6 @@ addEventListener('DOMContentLoaded', () => {
     if (mode === '3d' && book) { intro.classList.add('playing'); book.open(done); return; }
     done();
   }
-  document.getElementById('open').addEventListener('click', open);
   const seal = document.getElementById('seal');
   seal.addEventListener('click', open);
   seal.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
@@ -286,23 +273,12 @@ addEventListener('DOMContentLoaded', () => {
   // the first frame is drawn: let the gold arch loader fade away
   requestAnimationFrame(() => requestAnimationFrame(() => intro.classList.add('ready')));
 
-  /* ---------- the hero's name, written on the cover in gold foil ---------- */
-  const nameIn = document.getElementById('cover-name');
-  let nameTimer = 0;
-  // every visit starts with an empty name; nothing typed here is kept
-  try { sessionStorage.removeItem('masaliya-hero'); } catch (e) {}
-  nameIn.value = '';
-  function applyName() {
-    const n = cap(nameIn.value.trim().replace(/\s+/g, ' '));
-    if (book) book.setName(n);
-  }
-  nameIn.addEventListener('input', () => { clearTimeout(nameTimer); nameTimer = setTimeout(applyName, 180); });
-  nameIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyName(); open(); } });
-  if (nameIn.value) applyName();
+  // the book opens by itself a moment after the closed cover is shown
+  setTimeout(open, reduce ? 0 : 1300);
   // coming back from a collection page: show the open book with the three heroes straight away
   if (location.hash === '#sec') { if (book) book.jumpOpen(); done(); }
   if (!book) {
-    mode = 'logo'; intro.classList.add('no3d'); document.getElementById('hint').textContent = 'ya da logoya dokunun';
+    mode = 'logo'; intro.classList.add('no3d');
     // the fallback doors use the same artwork as the 3D heroes
     document.querySelectorAll('[data-hero-img]').forEach(img => { img.src = drawHeroCard(HEROES[+img.dataset.heroImg]).toDataURL(); });
   }
@@ -616,10 +592,10 @@ addEventListener('DOMContentLoaded', () => {
     let aspect = 1;
     const isPhone = () => aspect < .8;
     function shot(s) { const k = aspect < 1.05 && !isPhone() ? Math.min(s === shots.open ? 2.0 : 2.25, 1.22 / aspect) : 1; return { pos: s.pos.clone().multiplyScalar(k), look: s.look.clone() }; }
-    /* keep the closed book between the name field above it and the "Masalı Aç" button below it:
+    /* keep the closed book between the headline above it and the bottom of the stage below it:
        each frame while the book is closed, nudge the camera (and if need be the book's size) */
     const fit = { shift: 0, scale: 1 }, tmpFit = new T.Vector3(), fitBox = new T.Box3();
-    const nameField = document.querySelector('.cover-name input'), openBtn = document.getElementById('open');
+    const nameField = document.querySelector('.hero-copy'), openBtn = document.querySelector('.intro-bottom');
     function fitBook(g = .3) {
       if (!nameField || !openBtn || !nameField.offsetParent) return;
       const r = canvas.getBoundingClientRect(), top0 = nameField.getBoundingClientRect().bottom - r.top + 14, bot0 = openBtn.getBoundingClientRect().top - r.top - 14;
