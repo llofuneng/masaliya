@@ -79,7 +79,8 @@ const PROMISE = `<ul class="promise"><li>Baskıdan önce bütün sayfaları gör
 const CARD_MARKS = [
   '<svg viewBox="0 0 48 30" role="img" aria-label="Visa"><rect width="48" height="30" rx="4" fill="#fff"/><text x="24" y="20" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" font-style="italic" fill="#1a1f71">VISA</text></svg>',
   '<svg viewBox="0 0 48 30" role="img" aria-label="Mastercard"><rect width="48" height="30" rx="4" fill="#fff"/><circle cx="19.5" cy="15" r="8" fill="#eb001b"/><circle cx="28.5" cy="15" r="8" fill="#f79e1b"/><path d="M24 8.4a8 8 0 0 1 0 13.2a8 8 0 0 1 0-13.2z" fill="#ff5f00"/></svg>',
-  '<svg viewBox="0 0 48 30" role="img" aria-label="American Express"><rect width="48" height="30" rx="4" fill="#2e77bc"/><text x="24" y="19" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#fff">AMEX</text></svg>'
+  '<svg viewBox="0 0 48 30" role="img" aria-label="Apple Pay"><rect width="48" height="30" rx="4" fill="#000"/><path d="M14.2 10.6c.5-.6.8-1.4.7-2.2-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.3-.8 2.1.8.1 1.6-.4 2.2-1zm.7 1.2c-1.2-.1-2.2.7-2.7.7-.6 0-1.4-.6-2.3-.6-1.2 0-2.3.7-2.9 1.8-1.3 2.2-.3 5.4.9 7.2.6.9 1.3 1.8 2.2 1.8.9 0 1.2-.6 2.3-.6s1.4.6 2.3.6c1 0 1.6-.9 2.1-1.8.7-1 1-1.9 1-2-.1 0-1.9-.7-1.9-2.8 0-1.7 1.4-2.6 1.5-2.6-.8-1.2-2.1-1.4-2.5-1.4z" fill="#fff"/><text x="31" y="19.5" text-anchor="middle" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="10" font-weight="600" fill="#fff">Pay</text></svg>',
+  '<svg viewBox="0 0 48 30" role="img" aria-label="Google Pay"><rect width="48" height="30" rx="4" fill="#fff"/><text x="14.5" y="19.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700"><tspan fill="#4285f4">G</tspan></text><text x="30" y="19.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="500" fill="#5f6368">Pay</text></svg>'
 ].join('');
 const CART_KEY = 'masaliya-sepet', CART_DAYS = 3;
 const cart = {
@@ -679,7 +680,7 @@ function renderCart() {
         <label class="consent" for="ok-terms"><input type="checkbox" id="ok-terms"><span><a href="mesafeli-satis.html" target="_blank">Ön Bilgilendirme Formu</a>’nu ve <a href="mesafeli-satis.html#sozlesme" target="_blank">Mesafeli Satış Sözleşmesi</a>’ni okudum, onaylıyorum.</span></label>
         <button class="btn" type="submit" id="pay-btn">Ödemeye geç</button>
         <div class="secure-pay">
-          <span class="cards" aria-label="Visa, Mastercard, American Express">${CARD_MARKS}</span>
+          <span class="cards" aria-label="Visa, Mastercard, Apple Pay, Google Pay">${CARD_MARKS}</span>
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4.5" y="10" width="15" height="11" rx="2" fill="currentColor"/></svg>Stripe ile güvenli ödeme · 3D Secure · Kart bilgileriniz bizde saklanmaz · Ödeme Türk lirası ile alınır</span>
         </div>
         <p class="form-note" id="pay-note" aria-live="polite">${msg || ''}</p>
@@ -916,6 +917,7 @@ function renderProduct() {
           <button class="btn ghost" type="submit" value="sepet" id="cart-btn">Sepete ekle</button>
           <button class="btn" type="submit" value="ode" id="pay-btn">Ödemeye geç</button>
         </div>
+        <div class="secure-pay"><span class="cards" aria-label="Visa, Mastercard, Apple Pay, Google Pay">${CARD_MARKS}</span></div>
         <p class="form-note" id="buy-note" aria-live="polite"></p>
       </form>`
       : book ? (() => {
