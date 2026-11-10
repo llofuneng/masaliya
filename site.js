@@ -737,7 +737,7 @@ const etaRange = () => {
   const a = inWorkDays(9), b = inWorkDays(12);
   return a.getMonth() === b.getMonth() ? `${a.getDate()}–${trDate(b)}` : `${trDate(a)} – ${trDate(b)}`;
 };
-const ETA = () => `<p class="eta">Sert kapak tahmini teslim: <b>${etaRange()}</b><small>Kargo süresi bölgeye göre 1–4 iş günü · tarih, önizlemeyi onayladığınız güne göre değişebilir</small></p>`;
+const ETA = () => `<p class="eta">Sert kapak tahmini teslim: <b>${etaRange()}</b><small>Kargo süresi ortalama 1–4 iş günü · tarih, önizlemeyi onayladığınız güne göre değişebilir</small></p>`;
 
 // a cover with the visitor's name set in place of the sample hero's name
 const COVER_FONTS = { sans: '"Nunito", "Arial Rounded MT Bold", sans-serif', script: '"Great Vibes", "Snell Roundhand", cursive', sub: '"Lora", Georgia, serif' };
@@ -957,7 +957,7 @@ function renderProduct() {
         ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>Sert kapak, sayfalar düz açılır</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm fotoğraf kâğıdı</dd></div>' : ''}
         <div><dt>Tasarım</dt><dd>3 iş günü · Önizleme en geç ${trDate(inWorkDays(3))}</dd></div>
         <div><dt>Baskı</dt><dd>Onayınızdan sonra 5 iş günü · Ücretsiz kargo</dd></div>
-        ${p.type === 'kitap' ? `<div><dt>Teslim</dt><dd>Tahmini ${etaRange()} · kargo bölgeye göre 1–4 iş günü</dd></div>` : ''}
+        ${p.type === 'kitap' ? `<div><dt>Teslim</dt><dd>Tahmini ${etaRange()} · kargo ortalama 1–4 iş günü</dd></div>` : ''}
         <div><dt>Gönderim</dt><dd>Yalnızca Türkiye içi</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
