@@ -63,8 +63,11 @@ const catalog = {
   covers: Object.fromEntries(FORMATS.kitap.map(([k, name]) => [k, k === 'digital' ? 'Dijital kitap (PDF)' : name.charAt(0) + name.slice(1).toLocaleLowerCase('tr-TR')]))
 };
 const w = fs.readFileSync(WORKER, 'utf8');
+if (!/\/\* CATALOG:START \*\/[\s\S]*?\/\* CATALOG:END \*\//.test(w)) throw new Error('worker catalogue markers not found');
 const w2 = w.replace(/\/\* CATALOG:START \*\/[\s\S]*?\/\* CATALOG:END \*\//, `/* CATALOG:START */\nconst CATALOG = ${JSON.stringify(catalog)};\n/* CATALOG:END */`);
-if (w2 === w && !w.includes(JSON.stringify(catalog))) throw new Error('worker catalogue markers not found');
-fs.writeFileSync(WORKER, w2);
+// the owner pastes this file into Cloudflare by hand, and a text editor may read it in the wrong encoding
+// (TextEdit on a Mac turns "ş" into "≈ü"): keep the file pure ASCII, Turkish letters written as \uXXXX escapes
+const ascii = s => s.replace(/[^\x00-\x7f]/g, c => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+fs.writeFileSync(WORKER, ascii(w2));
 
 console.log(`wrote ${written.length} product pages, sitemap.xml and the order server catalogue`);

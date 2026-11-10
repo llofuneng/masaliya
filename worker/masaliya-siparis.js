@@ -5,46 +5,46 @@
    marked paid and the owner gets an e-mail with the order and links to the photos. Cart items and
    orders that are not paid within 3 days are deleted with their photos.
 
-   Settings (Cloudflare → Worker → Settings → Variables and Secrets), see worker/KURULUM.md:
-     STRIPE_SECRET_KEY      Stripe secret key (sk_live_… or sk_test_…)
-     STRIPE_WEBHOOK_SECRET  signing secret of the Stripe webhook (whsec_…)
-     RESEND_API_KEY         Resend key for the order e-mails (re_…)
+   Settings (Cloudflare \u2192 Worker \u2192 Settings \u2192 Variables and Secrets), see worker/KURULUM.md:
+     STRIPE_SECRET_KEY      Stripe secret key (sk_live_\u2026 or sk_test_\u2026)
+     STRIPE_WEBHOOK_SECRET  signing secret of the Stripe webhook (whsec_\u2026)
+     RESEND_API_KEY         Resend key for the order e-mails (re_\u2026)
      OWNER_EMAIL            where order e-mails go
-     ADMIN_KEY              a long password for the order list page (/admin?key=…)
+     ADMIN_KEY              a long password for the order list page (/admin?key=\u2026)
      SITE_URL               https://masaliya.com
    Binding: R2 bucket as PHOTOS. Cron trigger: once a day, for the clean-up.
 
    The catalogue below is written by tools/build-pages.js from site.js: don't edit it by hand. */
 
 /* CATALOG:START */
-const CATALOG = {"books":{"buz-satosunun-sirri":{"title":"ve Buz Şatosunun Sırrı","hero":"Asya"},"gokkusagi-unicornu":{"title":"ve Gökkuşağı Unicornu","hero":"Ada"},"sihirli-firca":{"title":"ve Sihirli Fırça","hero":"Duru"},"minik-pandalar":{"title":"ve Minik Pandalar","hero":"Ela"},"sihirli-kutuphane":{"title":"ve Sihirli Kütüphane","hero":"Zeynep"},"deniz-kizi-kralligi":{"title":"ve Deniz Kızı Krallığı","hero":"Elif"},"dinozorlarin-dogum-gunu":{"title":"ve Dinozorların Doğum Günü","hero":"Kerem"},"kayip-ay-isigi":{"title":"ve Kayıp Ay Işığı","hero":"Ege"},"buyuk-yaris":{"title":"ve Büyük Yarış","hero":"Poyraz"},"denizi-kurtariyor":{"title":"Denizi Kurtarıyor","hero":"Mert"},"kaybolan-minik-aslan":{"title":"ve Kaybolan Minik Aslan","hero":"Emir"}},"prices":{"kitap":{"hard":2900,"digital":900},"boyama":{"print":590,"digital":null},"yapboz":{"std":640}},"sets":[{"id":"tek","name":"Yalnızca kitap","items":[],"discount":0},{"id":"masal-seti","name":"Masal Seti","items":[["boyama","print"]],"discount":0},{"id":"yapboz-seti","name":"Puzzle Seti","items":[["yapboz","std"]],"discount":0},{"id":"super-set","name":"Süper Set","items":[["boyama","print"],["yapboz","std"]],"discount":0}],"giftBox":300,"covers":{"hard":"Sert kapak","digital":"Dijital kitap (PDF)"}};
+const CATALOG = {"books":{"buz-satosunun-sirri":{"title":"ve Buz \u015eatosunun S\u0131rr\u0131","hero":"Asya"},"gokkusagi-unicornu":{"title":"ve G\u00f6kku\u015fa\u011f\u0131 Unicornu","hero":"Ada"},"sihirli-firca":{"title":"ve Sihirli F\u0131r\u00e7a","hero":"Duru"},"minik-pandalar":{"title":"ve Minik Pandalar","hero":"Ela"},"sihirli-kutuphane":{"title":"ve Sihirli K\u00fct\u00fcphane","hero":"Zeynep"},"deniz-kizi-kralligi":{"title":"ve Deniz K\u0131z\u0131 Krall\u0131\u011f\u0131","hero":"Elif"},"dinozorlarin-dogum-gunu":{"title":"ve Dinozorlar\u0131n Do\u011fum G\u00fcn\u00fc","hero":"Kerem"},"kayip-ay-isigi":{"title":"ve Kay\u0131p Ay I\u015f\u0131\u011f\u0131","hero":"Ege"},"buyuk-yaris":{"title":"ve B\u00fcy\u00fck Yar\u0131\u015f","hero":"Poyraz"},"denizi-kurtariyor":{"title":"Denizi Kurtar\u0131yor","hero":"Mert"},"kaybolan-minik-aslan":{"title":"ve Kaybolan Minik Aslan","hero":"Emir"}},"prices":{"kitap":{"hard":2900,"digital":900},"boyama":{"print":590,"digital":null},"yapboz":{"std":640}},"sets":[{"id":"tek","name":"Yaln\u0131zca kitap","items":[],"discount":0},{"id":"masal-seti","name":"Masal Seti","items":[["boyama","print"]],"discount":0},{"id":"yapboz-seti","name":"Puzzle Seti","items":[["yapboz","std"]],"discount":0},{"id":"super-set","name":"S\u00fcper Set","items":[["boyama","print"],["yapboz","std"]],"discount":0}],"giftBox":300,"covers":{"hard":"Sert kapak","digital":"Dijital kitap (PDF)"}};
 /* CATALOG:END */
 
-const PART_NAMES = { boyama: 'boyama kitabı', yapboz: 'ahşap puzzle' };
+const PART_NAMES = { boyama: 'boyama kitab\u0131', yapboz: 'ah\u015fap puzzle' };
 const UNPAID_DAYS = 3;
 const MAX_PHOTO = 12 * 1024 * 1024;
 const MAX_ITEMS = 10;
 const PHOTO_DAYS = 30;   // photos are deleted this many days after the order is marked delivered
 
 /* the steps of a paid order. Payment moves it to the first one by itself; the owner moves it on
-   with the buttons on the order page (/admin/MSL-…). */
+   with the buttons on the order page (/admin/MSL-\u2026). */
 const STAGES = {
-  tasarim:  { admin: 'Tasarımda', title: 'Tasarımda', text: 'Resimleriniz hazırlanıyor. Ödemeden sonra 5 iş günü içinde bütün sayfaların önizlemesini göndereceğiz.' },
-  onizleme: { admin: 'Önizleme gönderildi', title: 'Önizleme onayınızı bekliyor', text: 'Bütün sayfaları size gönderdik. Değiştirmek istediğiniz bir şey varsa bize yazın; onayınızla devam ediyoruz.' },
-  baski:    { admin: 'Baskıda', title: 'Baskıda', text: 'Onayınız için teşekkürler. Kitabınız 5 iş günü içinde basılıp kargoya verilir.' },
-  kargo:    { admin: 'Kargoda', title: 'Kargoda', text: 'Kitabınız yola çıktı.' },
-  teslim:   { admin: 'Teslim edildi', title: 'Teslim edildi', text: `İyi okumalar! Fotoğraflarınız ${PHOTO_DAYS} gün içinde sistemlerimizden silinir.` }
+  tasarim:  { admin: 'Tasar\u0131mda', title: 'Tasar\u0131mda', text: 'Resimleriniz haz\u0131rlan\u0131yor. \u00d6demeden sonra 5 i\u015f g\u00fcn\u00fc i\u00e7inde b\u00fct\u00fcn sayfalar\u0131n \u00f6nizlemesini g\u00f6nderece\u011fiz.' },
+  onizleme: { admin: '\u00d6nizleme g\u00f6nderildi', title: '\u00d6nizleme onay\u0131n\u0131z\u0131 bekliyor', text: 'B\u00fct\u00fcn sayfalar\u0131 size g\u00f6nderdik. De\u011fi\u015ftirmek istedi\u011finiz bir \u015fey varsa bize yaz\u0131n; onay\u0131n\u0131zla devam ediyoruz.' },
+  baski:    { admin: 'Bask\u0131da', title: 'Bask\u0131da', text: 'Onay\u0131n\u0131z i\u00e7in te\u015fekk\u00fcrler. Kitab\u0131n\u0131z 5 i\u015f g\u00fcn\u00fc i\u00e7inde bas\u0131l\u0131p kargoya verilir.' },
+  kargo:    { admin: 'Kargoda', title: 'Kargoda', text: 'Kitab\u0131n\u0131z yola \u00e7\u0131kt\u0131.' },
+  teslim:   { admin: 'Teslim edildi', title: 'Teslim edildi', text: `\u0130yi okumalar! Foto\u011fraflar\u0131n\u0131z ${PHOTO_DAYS} g\u00fcn i\u00e7inde sistemlerimizden silinir.` }
 };
-const stageLabel = o => o.cancelled ? 'İptal edildi' : o.status === 'odendi' ? STAGES[o.stage || 'tasarim'].admin : 'Ödeme bekleniyor';
+const stageLabel = o => o.cancelled ? '\u0130ptal edildi' : o.status === 'odendi' ? STAGES[o.stage || 'tasarim'].admin : '\u00d6deme bekleniyor';
 const refundBadge = o => !o.cancelled ? '' : o.refund && o.refund.state === 'yapildi'
-  ? '<span class="badge ok">İade yapıldı</span>' : '<span class="badge no">İade yapılmadı</span>';
+  ? '<span class="badge ok">\u0130ade yap\u0131ld\u0131</span>' : '<span class="badge no">\u0130ade yap\u0131lmad\u0131</span>';
 const stagesFor = o => o.ships ? ['tasarim', 'onizleme', 'baski', 'kargo', 'teslim'] : ['tasarim', 'onizleme', 'teslim'];
 const MAX_PREVIEW = 25 * 1024 * 1024, PREVIEW_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
 // each part of a book's set gets its own preview: the book, the coloring book, the puzzle
-const PART_LABELS = { kitap: 'Kitap', boyama: 'Boyama kitabı', yapboz: 'Ahşap puzzle' };
+const PART_LABELS = { kitap: 'Kitap', boyama: 'Boyama kitab\u0131', yapboz: 'Ah\u015fap puzzle' };
 const partsOf = it => ['kitap', ...((CATALOG.sets.find(s => s.id === it.set) || { items: [] }).items.map(([p]) => p))];
 const partFiles = (o, it, part) => ((o.previews || {})[it.id] || []).filter(f => (f.part || 'kitap') === part);
-const stageTitle = (o, k) => !o.ships && k === 'teslim' ? 'E-postanıza gönderildi' : STAGES[k].title;
+const stageTitle = (o, k) => !o.ships && k === 'teslim' ? 'E-postan\u0131za g\u00f6nderildi' : STAGES[k].title;
 
 export default {
   async fetch(req, env) {
@@ -64,7 +64,7 @@ export default {
       const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
       if (req.method === 'GET' && m) {
         const res = await adminOrder(m[1], m[2], m[3], url, env);
-        // an open order page lets "← Siparişler" lead straight to the whole order list on this browser
+        // an open order page lets "\u2190 Sipari\u015fler" lead straight to the whole order list on this browser
         if (res.status !== 200 || m[3]) return res;
         const h = new Headers(res.headers); h.append('set-cookie', `mk=${await ownerCookie(env)}; Path=/admin; Max-Age=${60 * 60 * 24 * 60}; HttpOnly; Secure; SameSite=Lax`);
         return new Response(res.body, { status: 200, headers: h });
@@ -78,7 +78,7 @@ export default {
       return new Response('Not found', { status: 404 });
     } catch (err) {
       console.log('error', err && err.stack || err);
-      return cors(env, json({ error: 'Bir sorun oluştu, lütfen tekrar deneyin.' }, 500));
+      return cors(env, json({ error: 'Bir sorun olu\u015ftu, l\u00fctfen tekrar deneyin.' }, 500));
     }
   },
   async scheduled(event, env) { await removeUnpaid(env); }   // unpaid orders, and photos after delivery
@@ -88,18 +88,18 @@ export default {
 async function addItem(req, env) {
   const form = await req.formData();
   let o;
-  try { o = JSON.parse(form.get('item') || '{}'); } catch (e) { return json({ error: 'Kitap bilgileri okunamadı.' }, 400); }
+  try { o = JSON.parse(form.get('item') || '{}'); } catch (e) { return json({ error: 'Kitap bilgileri okunamad\u0131.' }, 400); }
   const book = CATALOG.books[o.product];
   const set = CATALOG.sets.find(s => s.id === o.set);
   const coverPrice = CATALOG.prices.kitap[o.cover];
   const hero = String(o.hero || '').trim().slice(0, 32);
   const about = String(o.about || '').trim().slice(0, 400);
-  if (!book || !set || !coverPrice) return json({ error: 'Seçtiğiniz kitap ya da seçenek bulunamadı.' }, 400);
-  if (o.cover === 'digital' && set.items.length) return json({ error: 'Dijital kitap setle birlikte sipariş edilemez.' }, 400);
-  if (!hero) return json({ error: 'Kahramanın adı eksik.' }, 400);
-  if (o.consentKvkk !== true) return json({ error: 'Fotoğraflar için açık rıza gerekiyor.' }, 400);
+  if (!book || !set || !coverPrice) return json({ error: 'Se\u00e7ti\u011finiz kitap ya da se\u00e7enek bulunamad\u0131.' }, 400);
+  if (o.cover === 'digital' && set.items.length) return json({ error: 'Dijital kitap setle birlikte sipari\u015f edilemez.' }, 400);
+  if (!hero) return json({ error: 'Kahraman\u0131n ad\u0131 eksik.' }, 400);
+  if (o.consentKvkk !== true) return json({ error: 'Foto\u011fraflar i\u00e7in a\u00e7\u0131k r\u0131za gerekiyor.' }, 400);
   const photos = [1, 2, 3].map(n => form.get('photo' + n));
-  if (photos.some(f => !f || typeof f === 'string' || !/^image\//.test(f.type) || f.size > MAX_PHOTO || f.size < 1000)) return json({ error: 'Üç fotoğrafın üçü de gerekli (en fazla 12 MB).' }, 400);
+  if (photos.some(f => !f || typeof f === 'string' || !/^image\//.test(f.type) || f.size > MAX_PHOTO || f.size < 1000)) return json({ error: '\u00dc\u00e7 foto\u011fraf\u0131n \u00fc\u00e7\u00fc de gerekli (en fazla 12 MB).' }, 400);
 
   // the price is worked out here, never taken from the browser
   const parts = set.items.map(([t, f]) => CATALOG.prices[t][f]);
@@ -125,19 +125,19 @@ const publicItem = it => ({ id: it.id, product: it.product, title: it.title, con
 /* ---------- the cart to the payment page ---------- */
 async function createOrder(req, env) {
   let o;
-  try { o = await req.json(); } catch (e) { return json({ error: 'Sipariş bilgileri okunamadı.' }, 400); }
+  try { o = await req.json(); } catch (e) { return json({ error: 'Sipari\u015f bilgileri okunamad\u0131.' }, 400); }
   const ids = [...new Set(Array.isArray(o.items) ? o.items : [])].slice(0, MAX_ITEMS + 1);
   const phone = String(o.phone || '').trim(), email = String(o.email || '').trim();
-  if (!ids.length) return json({ error: 'Sepetiniz boş.' }, 400);
-  if (ids.length > MAX_ITEMS) return json({ error: `Bir siparişte en fazla ${MAX_ITEMS} kitap olabilir.` }, 400);
-  if (!/^[\d\s()+-]{10,20}$/.test(phone)) return json({ error: 'Telefon numarası geçersiz.' }, 400);
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'E-posta adresi geçersiz.' }, 400);
-  if (o.consentTerms !== true) return json({ error: 'Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi onayı eksik.' }, 400);
+  if (!ids.length) return json({ error: 'Sepetiniz bo\u015f.' }, 400);
+  if (ids.length > MAX_ITEMS) return json({ error: `Bir sipari\u015fte en fazla ${MAX_ITEMS} kitap olabilir.` }, 400);
+  if (!/^[\d\s()+-]{10,20}$/.test(phone)) return json({ error: 'Telefon numaras\u0131 ge\u00e7ersiz.' }, 400);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'E-posta adresi ge\u00e7ersiz.' }, 400);
+  if (o.consentTerms !== true) return json({ error: '\u00d6n Bilgilendirme Formu ve Mesafeli Sat\u0131\u015f S\u00f6zle\u015fmesi onay\u0131 eksik.' }, 400);
   const name = String(o.name || '').trim().slice(0, 80);
   if (name.length < 3) return json({ error: 'Ad soyad eksik.' }, 400);
   const items = await Promise.all(ids.map(id => /^KTP-[A-Z0-9]{8}$/.test(id) ? getJson(env, `items/${id}/kitap.json`) : null));
   const missing = ids.filter((id, i) => !items[i] || items[i].status === 'odendi');
-  if (missing.length) return json({ error: 'Sepetinizdeki bazı kitapların süresi dolmuş. Lütfen onları yeniden ekleyin.', missing }, 409);
+  if (missing.length) return json({ error: 'Sepetinizdeki baz\u0131 kitaplar\u0131n s\u00fcresi dolmu\u015f. L\u00fctfen onlar\u0131 yeniden ekleyin.', missing }, 409);
 
   const ships = items.some(it => it.ships);
   let shipping = null;
@@ -145,8 +145,8 @@ async function createOrder(req, env) {
     // the delivery address is written on our site; the payment page only asks for the card
     const a = o.address || {}, f = k => String(a[k] || '').trim();
     shipping = { name, line1: f('adres').slice(0, 300), city: f('ilce').slice(0, 40), state: f('il').slice(0, 40), postal_code: f('posta').slice(0, 5), country: 'TR' };
-    if (shipping.line1.length < 10 || shipping.city.length < 2 || shipping.state.length < 3) return json({ error: 'Teslimat adresi eksik: il, ilçe ve açık adres gerekli.' }, 400);
-    if (shipping.postal_code && !/^\d{5}$/.test(shipping.postal_code)) return json({ error: 'Posta kodu 5 rakamdan oluşur.' }, 400);
+    if (shipping.line1.length < 10 || shipping.city.length < 2 || shipping.state.length < 3) return json({ error: 'Teslimat adresi eksik: il, il\u00e7e ve a\u00e7\u0131k adres gerekli.' }, 400);
+    if (shipping.postal_code && !/^\d{5}$/.test(shipping.postal_code)) return json({ error: 'Posta kodu 5 rakamdan olu\u015fur.' }, 400);
   }
   const total = items.reduce((a, it) => a + it.price.total, 0);
   const boxes = items.filter(it => it.giftBox).length;
@@ -163,7 +163,7 @@ async function createOrder(req, env) {
     success_url: `${site}/tesekkurler.html?siparis=${order.id}`,
     cancel_url: `${site}/sepet.html?odeme=iptal`,
     'metadata[siparis]': order.id, 'metadata[kitaplar]': summary.slice(0, 480), 'metadata[telefon]': phone,
-    'payment_intent_data[description]': `${order.id} · ${items.length} kitap · ${summary}`.slice(0, 990),
+    'payment_intent_data[description]': `${order.id} \u00b7 ${items.length} kitap \u00b7 ${summary}`.slice(0, 990),
     'payment_intent_data[metadata][siparis]': order.id
   });
   let n = 0;
@@ -171,7 +171,7 @@ async function createOrder(req, env) {
     p.set(`line_items[${n}][quantity]`, '1');
     p.set(`line_items[${n}][price_data][currency]`, 'try');
     p.set(`line_items[${n}][price_data][unit_amount]`, String(it.price.set * 100));
-    p.set(`line_items[${n}][price_data][product_data][name]`, `${it.title} · ${it.setName}`);
+    p.set(`line_items[${n}][price_data][product_data][name]`, `${it.title} \u00b7 ${it.setName}`);
     p.set(`line_items[${n}][price_data][product_data][description]`, it.contents);
     n++;
   }
@@ -233,15 +233,15 @@ async function orderStatus(url, env) {
   const who = (url.searchParams.get('iletisim') || '').trim().toLowerCase(), key = url.searchParams.get('k') || '';
   const digits = s => String(s || '').replace(/\D/g, '').slice(-10);
   if (!order || !order.items || !((key && key === await ctoken(env, order.id)) || (who && (who === order.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(order.contact.phone))))))
-    return json({ error: 'Bu bilgilerle bir sipariş bulunamadı.' }, 404);
+    return json({ error: 'Bu bilgilerle bir sipari\u015f bulunamad\u0131.' }, 404);
   const h = order.history || {}, k = await ctoken(env, order.id), api = new URL(url.origin);
   const stages = order.status === 'odendi' ? stagesFor(order).map(st => ({ key: st, title: stageTitle(order, st), text: STAGES[st].text, date: h[st] || null })) : [];
   const previews = order.items.flatMap(it => { const parts = partsOf(it); return parts.map(part => ({ part, files: partFiles(order, it, part) })).filter(x => x.files.length).map(({ part, files }) => ({
-    title: parts.length > 1 ? `${it.title} · ${PART_LABELS[part]}` : it.title,
+    title: parts.length > 1 ? `${it.title} \u00b7 ${PART_LABELS[part]}` : it.title,
     files: files.map(f => ({ name: f.name, pdf: f.type === 'pdf', url: `${api.origin}/api/onizleme/${order.id}/${f.file}?k=${k}` })) })); });
   return json({
     id: order.id, status: order.status, stage: order.stage || null, ships: !!order.ships,
-    books: order.items.map(it => ({ title: it.title, contents: `${it.setName} · ${it.contents}` })), stages,
+    books: order.items.map(it => ({ title: it.title, contents: `${it.setName} \u00b7 ${it.contents}` })), stages,
     cargo: order.cargo || null, created: order.created, paid: order.paid || null,
     k, previews: order.cancelled ? [] : previews, review: order.review || null, revisions: order.revisions || [],
     cancelled: order.cancelled || null, refunded: !!(order.refund && order.refund.state === 'yapildi'),
@@ -252,34 +252,34 @@ async function orderStatus(url, env) {
 /* ---------- the customer looks at the preview and approves it or asks for changes ---------- */
 async function customerReview(req, url, env) {
   let b;
-  try { b = await req.json(); } catch (e) { return json({ error: 'İstek okunamadı.' }, 400); }
+  try { b = await req.json(); } catch (e) { return json({ error: '\u0130stek okunamad\u0131.' }, 400); }
   const o = await loadOrder(env, String(b.siparis || '').toUpperCase());
-  if (!o || !o.items || b.k !== await ctoken(env, o.id)) return json({ error: 'Sipariş bulunamadı.' }, 404);
-  if (o.cancelled || o.stage !== 'onizleme' || !o.previews || !o.review || o.review.state !== 'bekliyor') return json({ error: 'Bu önizleme için yanıtınız zaten alındı.' }, 409);
+  if (!o || !o.items || b.k !== await ctoken(env, o.id)) return json({ error: 'Sipari\u015f bulunamad\u0131.' }, 404);
+  if (o.cancelled || o.stage !== 'onizleme' || !o.previews || !o.review || o.review.state !== 'bekliyor') return json({ error: 'Bu \u00f6nizleme i\u00e7in yan\u0131t\u0131n\u0131z zaten al\u0131nd\u0131.' }, 409);
   const now = new Date().toISOString();
   if (b.karar === 'onay') {
     o.review = { state: 'onay', date: now, round: o.previewRound };
     o.approved = now;
   } else if (b.karar === 'duzeltme') {
     const text = String(b.not || '').trim().slice(0, 2000);
-    if (text.length < 3) return json({ error: 'Lütfen neyi değiştirmemizi istediğinizi yazın.' }, 400);
+    if (text.length < 3) return json({ error: 'L\u00fctfen neyi de\u011fi\u015ftirmemizi istedi\u011finizi yaz\u0131n.' }, 400);
     o.review = { state: 'duzeltme', date: now, round: o.previewRound };
     o.revisions = [...(o.revisions || []), { date: now, round: o.previewRound, text }];
-  } else return json({ error: 'İstek okunamadı.' }, 400);
+  } else return json({ error: '\u0130stek okunamad\u0131.' }, 400);
   await saveOrder(env, o);
   const t = await token(env, o.id);
-  await mailOwnerNote(env, o.review.state === 'onay' ? `${o.id} · müşteri önizlemeyi onayladı` : `${o.id} · müşteri düzeltme istedi`,
-    `<p>${o.review.state === 'onay' ? `Müşteri önizlemeyi onayladı.${o.ships ? ' Siparişi “Baskıya gönder” ile matbaaya gönderebilirsiniz.' : ' Dijital kitabı gönderip “Dijital kitabı gönderdim”e basın.'}` : `Müşterinin düzeltme isteği:</p><blockquote style="border-left:3px solid #7a2434;margin:0;padding:4px 12px">${esc(o.revisions.at(-1).text).replace(/\n/g, '<br>')}</blockquote><p>`}</p><p><a href="${url.origin}/admin/${o.id}?t=${t}">Siparişi aç</a></p>`);
+  await mailOwnerNote(env, o.review.state === 'onay' ? `${o.id} \u00b7 m\u00fc\u015fteri \u00f6nizlemeyi onaylad\u0131` : `${o.id} \u00b7 m\u00fc\u015fteri d\u00fczeltme istedi`,
+    `<p>${o.review.state === 'onay' ? `M\u00fc\u015fteri \u00f6nizlemeyi onaylad\u0131.${o.ships ? ' Sipari\u015fi \u201cBask\u0131ya g\u00f6nder\u201d ile matbaaya g\u00f6nderebilirsiniz.' : ' Dijital kitab\u0131 g\u00f6nderip \u201cDijital kitab\u0131 g\u00f6nderdim\u201de bas\u0131n.'}` : `M\u00fc\u015fterinin d\u00fczeltme iste\u011fi:</p><blockquote style="border-left:3px solid #7a2434;margin:0;padding:4px 12px">${esc(o.revisions.at(-1).text).replace(/\n/g, '<br>')}</blockquote><p>`}</p><p><a href="${url.origin}/admin/${o.id}?t=${t}">Sipari\u015fi a\u00e7</a></p>`);
   return json({ ok: true, review: o.review, stage: o.stage });
 }
 
 async function previewFile(id, file, url, env) {
   const o = await loadOrder(env, id);
   const k = url.searchParams.get('k'), t = url.searchParams.get('t');
-  if (!o || !((k && k === await ctoken(env, id)) || (t && t === await token(env, id)))) return new Response('Bulunamadı', { status: 404 });
+  if (!o || !((k && k === await ctoken(env, id)) || (t && t === await token(env, id)))) return new Response('Bulunamad\u0131', { status: 404 });
   const f = Object.values(o.previews || {}).flat().find(x => x.file === file);
   const obj = f && await env.PHOTOS.get(`orders/${id}/onizleme/${file}`);
-  if (!obj) return new Response('Bulunamadı', { status: 404 });
+  if (!obj) return new Response('Bulunamad\u0131', { status: 404 });
   const type = Object.keys(PREVIEW_TYPES).find(m => PREVIEW_TYPES[m] === f.type);
   return new Response(obj.body, { headers: { 'content-type': type, 'cache-control': 'private, max-age=3600', 'content-disposition': `inline; filename="${id}-${file}"`, 'access-control-allow-origin': env.SITE_URL || 'https://masaliya.com' } });
 }
@@ -287,9 +287,9 @@ async function previewFile(id, file, url, env) {
 /* the owner uploads the preview pages of each book: a new upload for a book replaces its earlier pages */
 async function uploadPreview(id, req, url, env) {
   const t = url.searchParams.get('t');
-  if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
+  if (t !== await token(env, id)) return new Response('Giri\u015f yetkisi yok', { status: 401 });
   const o = await loadOrder(env, id);
-  if (!o || !o.items || o.status !== 'odendi') return new Response('Sipariş bulunamadı', { status: 404 });
+  if (!o || !o.items || o.status !== 'odendi') return new Response('Sipari\u015f bulunamad\u0131', { status: 404 });
   const back = note => Response.redirect(`${url.origin}/admin/${id}?t=${t}${note ? '&not=' + encodeURIComponent(note) : ''}`, 303);
   const form = await req.formData();
   const round = (o.previewRound || 0) + 1;
@@ -298,7 +298,7 @@ async function uploadPreview(id, req, url, env) {
   for (const it of o.items) for (const part of partsOf(it)) {
     const files = form.getAll(`f-${it.id}-${part}`).filter(f => f && typeof f !== 'string' && f.size > 0);
     if (!files.length) continue;
-    if (files.some(f => !PREVIEW_TYPES[f.type] || f.size > MAX_PREVIEW)) return back('Yalnızca JPG, PNG, WEBP ya da PDF; her dosya en fazla 25 MB.');
+    if (files.some(f => !PREVIEW_TYPES[f.type] || f.size > MAX_PREVIEW)) return back('Yaln\u0131zca JPG, PNG, WEBP ya da PDF; her dosya en fazla 25 MB.');
     files.sort((a, b) => a.name.localeCompare(b.name, 'tr', { numeric: true }));
     // a new upload for a part replaces that part's earlier pages only
     const old = partFiles({ previews }, it, part);
@@ -313,7 +313,7 @@ async function uploadPreview(id, req, url, env) {
     previews[it.id] = kept.sort((a, b) => partsOf(it).indexOf(a.part || 'kitap') - partsOf(it).indexOf(b.part || 'kitap'));
     added += files.length;
   }
-  if (!added) return back('Dosya seçilmedi.');
+  if (!added) return back('Dosya se\u00e7ilmedi.');
   const now = new Date().toISOString();
   o.previews = previews; o.previewRound = round;
   o.review = { state: 'bekliyor', date: now, round };
@@ -324,7 +324,7 @@ async function uploadPreview(id, req, url, env) {
 }
 
 /* ---------- owner pages: all orders, and one order with its photos ---------- */
-/* ---------- the order funnel: books put in a cart → taken to payment → paid ---------- */
+/* ---------- the order funnel: books put in a cart \u2192 taken to payment \u2192 paid ---------- */
 // one small file per day with counts; it stays when the 3-day clean-up deletes unpaid carts
 async function countDay(env, what, product, n = 1) {
   try {
@@ -337,7 +337,7 @@ async function countDay(env, what, product, n = 1) {
 }
 async function adminStats(url, env, req) {
   const cookie = ((req && req.headers.get('cookie')) || '').match(/(?:^|;\s*)mk=([0-9a-f]+)/);
-  if (!env.ADMIN_KEY || !((url.searchParams.get('key') === env.ADMIN_KEY) || (cookie && cookie[1] === await ownerCookie(env)))) return new Response('Giriş yetkisi yok. Önce sipariş listesini ADMIN_KEY ile açın.', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  if (!env.ADMIN_KEY || !((url.searchParams.get('key') === env.ADMIN_KEY) || (cookie && cookie[1] === await ownerCookie(env)))) return new Response('Giri\u015f yetkisi yok. \u00d6nce sipari\u015f listesini ADMIN_KEY ile a\u00e7\u0131n.', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
   const all = async prefix => { const out = []; let cursor; do { const pg = await env.PHOTOS.list({ prefix, cursor }); out.push(...pg.objects.map(o => o.key)); cursor = pg.truncated ? pg.cursor : null; } while (cursor); return out; };
   const items = (await Promise.all((await all('items/')).filter(k => k.endsWith('/kitap.json')).map(k => getJson(env, k)))).filter(Boolean);
   const orders = (await Promise.all((await all('orders/')).filter(k => k.endsWith('/siparis.json')).map(k => getJson(env, k)))).filter(o => o && o.items);
@@ -347,31 +347,31 @@ async function adminStats(url, env, req) {
   const cartOnly = items.filter(it => it.status !== 'odendi' && !inOrder.has(it.id));
   const by = (arr, f) => arr.reduce((m, x) => { const k = f(x); m[k] = (m[k] || 0) + 1; return m; }, {});
   const prodName = id => (CATALOG.books[id] ? CATALOG.books[id].hero + ' ' + CATALOG.books[id].title : id);
-  const rows = (m, label = x => x) => Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<tr><td>${esc(label(k))}</td><td>${n}</td></tr>`).join('') || '<tr><td colspan="2">—</td></tr>';
+  const rows = (m, label = x => x) => Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<tr><td>${esc(label(k))}</td><td>${n}</td></tr>`).join('') || '<tr><td colspan="2">\u2014</td></tr>';
   const tot = days.reduce((t, [, d]) => ({ sepet: t.sepet + (d.sepet || 0), odemeye: t.odemeye + (d.odemeye || 0), odendi: t.odendi + (d.odendi || 0) }), { sepet: 0, odemeye: 0, odendi: 0 });
   const kit = days.reduce((m, [, d]) => { for (const [k, n] of Object.entries(d.kitaplar || {})) m[k] = (m[k] || 0) + n; return m; }, {});
-  const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '—';
-  const opts = items.reduce((m, it) => { m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] = (m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] || 0) + 1; if (it.set && it.set !== 'tek') m[it.setName] = (m[it.setName] || 0) + 1; if (it.giftBox) m['Hediye kutusu'] = (m['Hediye kutusu'] || 0) + 1; if (it.about) m['“Kahraman hakkında” dolu'] = (m['“Kahraman hakkında” dolu'] || 0) + 1; return m; }, {});
-  return page('İstatistik', `<p><a href="/admin">← Siparişler</a></p><h1>Sipariş hunisi</h1>
-    <h2>Şu an kayıtlı olanlar (ödenmeyenler ${UNPAID_DAYS} gün tutulur)</h2>
+  const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '\u2014';
+  const opts = items.reduce((m, it) => { m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] = (m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] || 0) + 1; if (it.set && it.set !== 'tek') m[it.setName] = (m[it.setName] || 0) + 1; if (it.giftBox) m['Hediye kutusu'] = (m['Hediye kutusu'] || 0) + 1; if (it.about) m['\u201cKahraman hakk\u0131nda\u201d dolu'] = (m['\u201cKahraman hakk\u0131nda\u201d dolu'] || 0) + 1; return m; }, {});
+  return page('\u0130statistik', `<p><a href="/admin">\u2190 Sipari\u015fler</a></p><h1>Sipari\u015f hunisi</h1>
+    <h2>\u015eu an kay\u0131tl\u0131 olanlar (\u00f6denmeyenler ${UNPAID_DAYS} g\u00fcn tutulur)</h2>
     <table><tr><th>Sepete eklenen kitap</th><td>${items.length}</td></tr>
-      <tr><th>Sepette kalan, ödemeye geçmeyen</th><td>${cartOnly.length}</td></tr>
-      <tr><th>Ödeme sayfasına giden sipariş</th><td>${orders.length} (${orders.reduce((a, o) => a + o.items.length, 0)} kitap)</td></tr>
-      <tr><th>Ödeme sayfasında bırakılan</th><td>${waiting.length}</td></tr>
-      <tr><th>Ödenen sipariş</th><td>${paid.length} (${paid.reduce((a, o) => a + (o.amountPaid || 0), 0).toLocaleString('tr-TR')} TL)</td></tr>
-      <tr><th>İptal edilen</th><td>${orders.filter(o => o.cancelled).length}</td></tr></table>
-    <h2>Sepete en çok eklenen kitaplar (şu an kayıtlı)</h2><table>${rows(by(items, it => it.product), prodName)}</table>
-    <h2>Seçenekler (şu an kayıtlı)</h2><table>${rows(opts)}</table>
-    <h2>Günlük sayaç (bu sürümden itibaren, silinmez)</h2>
-    <table><tr><th>Toplam</th><td>Sepete: ${tot.sepet} · Ödemeye geçen kitap: ${tot.odemeye} (${pct(tot.odemeye, tot.sepet)}) · Ödenen kitap: ${tot.odendi} (${pct(tot.odendi, tot.sepet)})</td></tr>
-    ${days.slice(0, 30).map(([d, x]) => `<tr><td>${d}</td><td>Sepete ${x.sepet || 0} · Ödemeye ${x.odemeye || 0} · Ödendi ${x.odendi || 0}</td></tr>`).join('')}</table>
-    <h2>Sepete eklenen kitaplar (günlük sayaçtan)</h2><table>${rows(kit, prodName)}</table>`);
+      <tr><th>Sepette kalan, \u00f6demeye ge\u00e7meyen</th><td>${cartOnly.length}</td></tr>
+      <tr><th>\u00d6deme sayfas\u0131na giden sipari\u015f</th><td>${orders.length} (${orders.reduce((a, o) => a + o.items.length, 0)} kitap)</td></tr>
+      <tr><th>\u00d6deme sayfas\u0131nda b\u0131rak\u0131lan</th><td>${waiting.length}</td></tr>
+      <tr><th>\u00d6denen sipari\u015f</th><td>${paid.length} (${paid.reduce((a, o) => a + (o.amountPaid || 0), 0).toLocaleString('tr-TR')} TL)</td></tr>
+      <tr><th>\u0130ptal edilen</th><td>${orders.filter(o => o.cancelled).length}</td></tr></table>
+    <h2>Sepete en \u00e7ok eklenen kitaplar (\u015fu an kay\u0131tl\u0131)</h2><table>${rows(by(items, it => it.product), prodName)}</table>
+    <h2>Se\u00e7enekler (\u015fu an kay\u0131tl\u0131)</h2><table>${rows(opts)}</table>
+    <h2>G\u00fcnl\u00fck saya\u00e7 (bu s\u00fcr\u00fcmden itibaren, silinmez)</h2>
+    <table><tr><th>Toplam</th><td>Sepete: ${tot.sepet} \u00b7 \u00d6demeye ge\u00e7en kitap: ${tot.odemeye} (${pct(tot.odemeye, tot.sepet)}) \u00b7 \u00d6denen kitap: ${tot.odendi} (${pct(tot.odendi, tot.sepet)})</td></tr>
+    ${days.slice(0, 30).map(([d, x]) => `<tr><td>${d}</td><td>Sepete ${x.sepet || 0} \u00b7 \u00d6demeye ${x.odemeye || 0} \u00b7 \u00d6dendi ${x.odendi || 0}</td></tr>`).join('')}</table>
+    <h2>Sepete eklenen kitaplar (g\u00fcnl\u00fck saya\u00e7tan)</h2><table>${rows(kit, prodName)}</table>`);
 }
 const ownerCookie = async env => (await hmac(env.ADMIN_KEY || 'masaliya', 'sahip')).slice(0, 32);
 async function adminList(url, env, req) {
   const cookie = ((req && req.headers.get('cookie')) || '').match(/(?:^|;\s*)mk=([0-9a-f]+)/);
   const byKey = env.ADMIN_KEY && url.searchParams.get('key') === env.ADMIN_KEY, byCookie = env.ADMIN_KEY && cookie && cookie[1] === await ownerCookie(env);
-  if (!byKey && !byCookie) return new Response('Giriş yetkisi yok. Sipariş listesini bir kez ADMIN_KEY ile açın: /admin?key=…', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  if (!byKey && !byCookie) return new Response('Giri\u015f yetkisi yok. Sipari\u015f listesini bir kez ADMIN_KEY ile a\u00e7\u0131n: /admin?key=\u2026', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
   const res = await adminListPage(url, env);
   const h = new Headers(res.headers);
   if (byKey) h.append('set-cookie', `mk=${await ownerCookie(env)}; Path=/admin; Max-Age=${60 * 60 * 24 * 60}; HttpOnly; Secure; SameSite=Lax`);
@@ -386,89 +386,89 @@ async function adminListPage(url, env) {
     cursor = page.truncated ? page.cursor : null;
   } while (cursor);
   orders.sort((a, b) => b.created.localeCompare(a.created));
-  const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">Düzeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin')}</td></tr>`));
+  const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} \u00b7 ${esc(it.contents)}${it.giftBox ? ' \u00b7 hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">D\u00fczeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin')}</td></tr>`));
   const note = url.searchParams.get('not');
-  return page('Siparişler', `<h1>Siparişler <small style="font-size:14px;font-weight:400"><a href="/admin/istatistik">İstatistik →</a></small></h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} ödenmiş sipariş. Ödenmeyenler ${UNPAID_DAYS} gün sonra silinir.</p>
-    <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>Aşama</th><th>Müşteri</th><th></th></tr>${rows.join('')}</table>`);
+  return page('Sipari\u015fler', `<h1>Sipari\u015fler <small style="font-size:14px;font-weight:400"><a href="/admin/istatistik">\u0130statistik \u2192</a></small></h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} \u00f6denmi\u015f sipari\u015f. \u00d6denmeyenler ${UNPAID_DAYS} g\u00fcn sonra silinir.</p>
+    <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>A\u015fama</th><th>M\u00fc\u015fteri</th><th></th></tr>${rows.join('')}</table>`);
 }
 
 async function adminOrder(id, itemId, photo, url, env) {
   const t = url.searchParams.get('t');
-  if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
+  if (t !== await token(env, id)) return new Response('Giri\u015f yetkisi yok', { status: 401 });
   const o = await loadOrder(env, id);
-  if (!o || !o.items) return new Response('Sipariş bulunamadı', { status: 404 });
+  if (!o || !o.items) return new Response('Sipari\u015f bulunamad\u0131', { status: 404 });
   if (photo) {
-    if (!o.items.some(it => it.id === itemId)) return new Response('Fotoğraf bulunamadı', { status: 404 });
+    if (!o.items.some(it => it.id === itemId)) return new Response('Foto\u011fraf bulunamad\u0131', { status: 404 });
     const obj = await env.PHOTOS.get(`items/${itemId}/foto-${photo}.jpg`);
-    if (!obj) return new Response('Fotoğraf bulunamadı', { status: 404 });
+    if (!obj) return new Response('Foto\u011fraf bulunamad\u0131', { status: 404 });
     return new Response(obj.body, { headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, no-store', 'content-disposition': `inline; filename="${id}-${itemId}-foto-${photo}.jpg"` } });
   }
   const note = url.searchParams.get('not'), sent = +url.searchParams.get('gonderildi') || 0;
   const modal = sent ? `<div class="modal" id="sent" role="dialog" aria-modal="true" aria-labelledby="sent-t"><div class="box">
-      <div class="tick">✓</div><h2 id="sent-t">Başarıyla gönderildi</h2>
-      <p>Önizleme (${sent} dosya) müşteriye gönderildi. Müşterinin yanıtını bu sayfada ve sipariş listesinde göreceksiniz.</p>
-      <div class="acts"><button type="button" onclick="document.getElementById('sent').remove(); history.replaceState(null, '', location.href.replace(/&gonderildi=\\d+/, ''))">Geri dön</button><a href="/admin">Siparişlere git</a></div>
+      <div class="tick">\u2713</div><h2 id="sent-t">Ba\u015far\u0131yla g\u00f6nderildi</h2>
+      <p>\u00d6nizleme (${sent} dosya) m\u00fc\u015fteriye g\u00f6nderildi. M\u00fc\u015fterinin yan\u0131t\u0131n\u0131 bu sayfada ve sipari\u015f listesinde g\u00f6receksiniz.</p>
+      <div class="acts"><button type="button" onclick="document.getElementById('sent').remove(); history.replaceState(null, '', location.href.replace(/&gonderildi=\\d+/, ''))">Geri d\u00f6n</button><a href="/admin">Sipari\u015flere git</a></div>
     </div></div>` : '';
   if (o.cancelled) return page(o.id, cancelledPanel(o, t, note) + orderHtml(o, url.origin, t));
-  return page(o.id, modal + `<div class="top"><a href="/admin">← Siparişler</a>${await cancelButton(env, o, `/admin/${o.id}?t=${t}`)}</div>` + await workflow(o, t, url.origin, env, url.searchParams.get('adim'), note) + orderHtml(o, url.origin, t));
+  return page(o.id, modal + `<div class="top"><a href="/admin">\u2190 Sipari\u015fler</a>${await cancelButton(env, o, `/admin/${o.id}?t=${t}`)}</div>` + await workflow(o, t, url.origin, env, url.searchParams.get('adim'), note) + orderHtml(o, url.origin, t));
 }
 
 // the owner's buttons that move a paid order to its next step
 /* the owner's work on a paid order, one step at a time: a row of steps at the top, and under it
-   only what belongs to the step being looked at (?adim=…; by default the current step) */
-const STEP_NAMES = { tasarim: 'Tasarım', onizleme: 'Önizleme', baski: 'Baskı', kargo: 'Kargo', teslim: 'Teslim' };
+   only what belongs to the step being looked at (?adim=\u2026; by default the current step) */
+const STEP_NAMES = { tasarim: 'Tasar\u0131m', onizleme: '\u00d6nizleme', baski: 'Bask\u0131', kargo: 'Kargo', teslim: 'Teslim' };
 async function workflow(o, t, origin, env, view, note) {
   if (o.status !== 'odendi') return '';
   const steps = stagesFor(o), cur = o.stage || 'tasarim', h = o.history || {};
   if (!steps.includes(view)) view = cur;
   const ci = steps.indexOf(cur), href = k => `/admin/${o.id}?t=${t}&adim=${k}`;
-  const bar = `<nav class="flow">${steps.map((k, i) => `<a href="${href(k)}" class="${i < ci ? 'done' : i === ci ? 'cur' : ''}${k === view ? ' view' : ''}"><span>${i < ci ? '✓' : i + 1}</span>${!o.ships && k === 'teslim' ? 'Gönderildi' : STEP_NAMES[k]}</a>`).join('')}</nav>`;
+  const bar = `<nav class="flow">${steps.map((k, i) => `<a href="${href(k)}" class="${i < ci ? 'done' : i === ci ? 'cur' : ''}${k === view ? ' view' : ''}"><span>${i < ci ? '\u2713' : i + 1}</span>${!o.ships && k === 'teslim' ? 'G\u00f6nderildi' : STEP_NAMES[k]}</a>`).join('')}</nav>`;
   const go = (k, label, extra = '') => `<form method="post" action="/admin/${o.id}/asama?t=${t}"${extra}><input type="hidden" name="asama" value="${k}"><button class="next">${label}</button></form>`;
   const r = o.review, c = o.cargo || {};
   let body = '';
   if (view === 'tasarim') {
-    body = `<p class="lead">Müşterinin gönderdikleri aşağıda: kahramanın adı, “Kahraman hakkında” notu ve fotoğraflar. Resimleri hazırladığınızda önizlemeye geçin.</p>
-      <a class="next" href="${href('onizleme')}">Önizlemeyi hazırla →</a>`;
+    body = `<p class="lead">M\u00fc\u015fterinin g\u00f6nderdikleri a\u015fa\u011f\u0131da: kahraman\u0131n ad\u0131, \u201cKahraman hakk\u0131nda\u201d notu ve foto\u011fraflar. Resimleri haz\u0131rlad\u0131\u011f\u0131n\u0131zda \u00f6nizlemeye ge\u00e7in.</p>
+      <a class="next" href="${href('onizleme')}">\u00d6nizlemeyi haz\u0131rla \u2192</a>`;
   } else if (view === 'onizleme') {
     const link = `${env.SITE_URL || 'https://masaliya.com'}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`;
-    const state = !r ? '<span class="pill">Henüz gönderilmedi</span>'
-      : r.state === 'bekliyor' ? `<span class="pill wait">Müşterinin yanıtı bekleniyor</span> <small>${r.round}. önizleme · ${date(r.date)}</small>`
-      : r.state === 'onay' ? `<span class="pill ok">Müşteri onayladı ✓</span> <small>${date(r.date)}</small>`
-      : `<span class="pill no">Müşteri düzeltme istedi</span> <small>${date(r.date)}</small>`;
-    const revs = (o.revisions || []).slice().reverse().map(v => `<li><small>${date(v.date)} · ${v.round}. önizleme için</small><br>${esc(v.text).replace(/\n/g, '<br>')}</li>`).join('');
+    const state = !r ? '<span class="pill">Hen\u00fcz g\u00f6nderilmedi</span>'
+      : r.state === 'bekliyor' ? `<span class="pill wait">M\u00fc\u015fterinin yan\u0131t\u0131 bekleniyor</span> <small>${r.round}. \u00f6nizleme \u00b7 ${date(r.date)}</small>`
+      : r.state === 'onay' ? `<span class="pill ok">M\u00fc\u015fteri onaylad\u0131 \u2713</span> <small>${date(r.date)}</small>`
+      : `<span class="pill no">M\u00fc\u015fteri d\u00fczeltme istedi</span> <small>${date(r.date)}</small>`;
+    const revs = (o.revisions || []).slice().reverse().map(v => `<li><small>${date(v.date)} \u00b7 ${v.round}. \u00f6nizleme i\u00e7in</small><br>${esc(v.text).replace(/\n/g, '<br>')}</li>`).join('');
     const books = o.items.map(it => `<div class="pv-book"><b>${esc(it.title)}</b> <small>${esc(it.setName)}</small>${partsOf(it).map(part => {
       const files = partFiles(o, it, part);
       return `<div class="pv-part"><i>${PART_LABELS[part]}</i>
-        ${files.length ? `<div class="pv-files">${files.map(f => { const src = `${origin}/api/onizleme/${o.id}/${f.file}?t=${t}`; return f.type === 'pdf' ? `<a class="pdf" href="${src}" target="_blank">PDF · ${esc(f.name)}</a>` : `<a href="${src}" target="_blank"><img src="${src}" alt="${esc(f.name)}" loading="lazy"></a>`; }).join('')}</div>` : ''}
-        <label>${files.length ? 'Yeni sürümü seçin (eskisinin yerine geçer)' : 'Sayfaları seçin'} · JPG, PNG ya da PDF, birden fazla dosya<input type="file" name="f-${it.id}-${part}" multiple accept="image/jpeg,image/png,image/webp,application/pdf"></label></div>`;
+        ${files.length ? `<div class="pv-files">${files.map(f => { const src = `${origin}/api/onizleme/${o.id}/${f.file}?t=${t}`; return f.type === 'pdf' ? `<a class="pdf" href="${src}" target="_blank">PDF \u00b7 ${esc(f.name)}</a>` : `<a href="${src}" target="_blank"><img src="${src}" alt="${esc(f.name)}" loading="lazy"></a>`; }).join('')}</div>` : ''}
+        <label>${files.length ? 'Yeni s\u00fcr\u00fcm\u00fc se\u00e7in (eskisinin yerine ge\u00e7er)' : 'Sayfalar\u0131 se\u00e7in'} \u00b7 JPG, PNG ya da PDF, birden fazla dosya<input type="file" name="f-${it.id}-${part}" multiple accept="image/jpeg,image/png,image/webp,application/pdf"></label></div>`;
     }).join('')}</div>`).join('');
     const approved = r && r.state === 'onay';
-    body = `<div class="review"><p>Müşterinin yanıtı: ${state}</p>${revs ? `<p class="sub">Müşterinin düzeltme istekleri</p><ul class="revs">${revs}</ul>` : ''}</div>
+    body = `<div class="review"><p>M\u00fc\u015fterinin yan\u0131t\u0131: ${state}</p>${revs ? `<p class="sub">M\u00fc\u015fterinin d\u00fczeltme istekleri</p><ul class="revs">${revs}</ul>` : ''}</div>
       <form method="post" enctype="multipart/form-data" action="/admin/${o.id}/onizleme?t=${t}" class="pv-form">
         ${books}
-        <button class="next">${r ? 'Yeni önizlemeyi müşteriye gönder' : 'Önizlemeyi müşteriye gönder'}</button>
-        <small>Gönderince sipariş “Önizleme” aşamasına geçer, müşteri sayfalarını görür ve onaylar ya da düzeltme ister. Kitap, boyama kitabı ve yapboz ayrı ayrı yüklenebilir; dosyalar ad sırasıyla gösterilir (01-kapak.jpg, 02-sayfa.jpg …).</small>
+        <button class="next">${r ? 'Yeni \u00f6nizlemeyi m\u00fc\u015fteriye g\u00f6nder' : '\u00d6nizlemeyi m\u00fc\u015fteriye g\u00f6nder'}</button>
+        <small>G\u00f6nderince sipari\u015f \u201c\u00d6nizleme\u201d a\u015famas\u0131na ge\u00e7er, m\u00fc\u015fteri sayfalar\u0131n\u0131 g\u00f6r\u00fcr ve onaylar ya da d\u00fczeltme ister. Kitap, boyama kitab\u0131 ve yapboz ayr\u0131 ayr\u0131 y\u00fcklenebilir; dosyalar ad s\u0131ras\u0131yla g\u00f6sterilir (01-kapak.jpg, 02-sayfa.jpg \u2026).</small>
       </form>
-      ${r ? `<label class="link">Müşterinin önizleme linki (WhatsApp’tan da gönderebilirsiniz)<input readonly value="${link}" onclick="this.select()"></label>` : ''}
+      ${r ? `<label class="link">M\u00fc\u015fterinin \u00f6nizleme linki (WhatsApp\u2019tan da g\u00f6nderebilirsiniz)<input readonly value="${link}" onclick="this.select()"></label>` : ''}
       ${r ? (o.ships
-        ? go('baski', 'Baskıya gönder →', approved ? '' : ` onsubmit="return confirm('Müşteri önizlemeyi henüz onaylamadı. Yine de baskıya gönderilsin mi?')"`)
-        : go('teslim', 'Dijital kitabı gönderdim →', approved ? '' : ` onsubmit="return confirm('Müşteri önizlemeyi henüz onaylamadı. Yine de gönderildi olarak işaretlensin mi?')"`)) : ''}`;
+        ? go('baski', 'Bask\u0131ya g\u00f6nder \u2192', approved ? '' : ` onsubmit="return confirm('M\u00fc\u015fteri \u00f6nizlemeyi hen\u00fcz onaylamad\u0131. Yine de bask\u0131ya g\u00f6nderilsin mi?')"`)
+        : go('teslim', 'Dijital kitab\u0131 g\u00f6nderdim \u2192', approved ? '' : ` onsubmit="return confirm('M\u00fc\u015fteri \u00f6nizlemeyi hen\u00fcz onaylamad\u0131. Yine de g\u00f6nderildi olarak i\u015faretlensin mi?')"`)) : ''}`;
   } else if (view === 'baski') {
     body = cur === 'baski' || ci > steps.indexOf('baski')
-      ? `<p class="lead">Baskıda${h.baski ? ` · ${date(h.baski)}` : ''}. Kitap matbaadan çıkınca kargoya verin.</p><a class="next" href="${href('kargo')}">Kargoya ver →</a>`
-      : `<p class="lead">Müşteri önizlemeyi onaylayınca “Önizleme” adımından baskıya gönderin.</p>`;
+      ? `<p class="lead">Bask\u0131da${h.baski ? ` \u00b7 ${date(h.baski)}` : ''}. Kitap matbaadan \u00e7\u0131k\u0131nca kargoya verin.</p><a class="next" href="${href('kargo')}">Kargoya ver \u2192</a>`
+      : `<p class="lead">M\u00fc\u015fteri \u00f6nizlemeyi onaylay\u0131nca \u201c\u00d6nizleme\u201d ad\u0131m\u0131ndan bask\u0131ya g\u00f6nderin.</p>`;
   } else if (view === 'kargo') {
     body = `<form method="post" action="/admin/${o.id}/asama?t=${t}" class="cargo">
-        <div class="two"><label>Kargo firması<input name="firma" value="${esc(c.firm || 'Aras Kargo')}"></label><label>Takip numarası<input name="takip" value="${esc(c.no || '')}" required></label></div>
-        <input type="hidden" name="asama" value="kargo"><button class="next">${cur === 'kargo' || ci > steps.indexOf('kargo') ? 'Takip bilgisini kaydet' : 'Kargoya verildi olarak kaydet →'}</button>
-        <small>Müşteri takip numarasını sipariş takibi sayfasında görür.</small></form>
-      ${cur === 'kargo' ? go('teslim', 'Teslim edildi →') : ''}`;
+        <div class="two"><label>Kargo firmas\u0131<input name="firma" value="${esc(c.firm || 'Aras Kargo')}"></label><label>Takip numaras\u0131<input name="takip" value="${esc(c.no || '')}" required></label></div>
+        <input type="hidden" name="asama" value="kargo"><button class="next">${cur === 'kargo' || ci > steps.indexOf('kargo') ? 'Takip bilgisini kaydet' : 'Kargoya verildi olarak kaydet \u2192'}</button>
+        <small>M\u00fc\u015fteri takip numaras\u0131n\u0131 sipari\u015f takibi sayfas\u0131nda g\u00f6r\u00fcr.</small></form>
+      ${cur === 'kargo' ? go('teslim', 'Teslim edildi \u2192') : ''}`;
   } else if (view === 'teslim') {
     body = cur === 'teslim'
-      ? `<p class="lead">${o.ships ? 'Teslim edildi' : 'Dijital kitap gönderildi'}${h.teslim ? ` · ${date(h.teslim)}` : ''}. ${o.photosDeleted ? `Fotoğraflar ${date(o.photosDeleted)} tarihinde silindi.` : `Fotoğraflar ${PHOTO_DAYS} gün sonra kendiliğinden silinir.`}</p>`
-      : `<p class="lead">${o.ships ? 'Kargo teslim edilince buradan işaretleyin.' : 'Müşteri onaylayınca “Önizleme” adımından işaretleyin.'}</p>${cur === 'kargo' ? go('teslim', 'Teslim edildi →') : ''}`;
+      ? `<p class="lead">${o.ships ? 'Teslim edildi' : 'Dijital kitap g\u00f6nderildi'}${h.teslim ? ` \u00b7 ${date(h.teslim)}` : ''}. ${o.photosDeleted ? `Foto\u011fraflar ${date(o.photosDeleted)} tarihinde silindi.` : `Foto\u011fraflar ${PHOTO_DAYS} g\u00fcn sonra kendili\u011finden silinir.`}</p>`
+      : `<p class="lead">${o.ships ? 'Kargo teslim edilince buradan i\u015faretleyin.' : 'M\u00fc\u015fteri onaylay\u0131nca \u201c\u00d6nizleme\u201d ad\u0131m\u0131ndan i\u015faretleyin.'}</p>${cur === 'kargo' ? go('teslim', 'Teslim edildi \u2192') : ''}`;
   }
-  return `<section class="work">${bar}${note ? `<p class="note">${esc(note)}</p>` : ''}<div class="panel-in"><h2>${STEP_NAMES[view]}${view === cur ? ' <small>· şu anki aşama</small>' : ''}</h2>${body}</div></section>`;
+  return `<section class="work">${bar}${note ? `<p class="note">${esc(note)}</p>` : ''}<div class="panel-in"><h2>${STEP_NAMES[view]}${view === cur ? ' <small>\u00b7 \u015fu anki a\u015fama</small>' : ''}</h2>${body}</div></section>`;
 }
 
 /* ---------- cancelling an order: the payment goes back to the card through Stripe ---------- */
@@ -478,19 +478,19 @@ const refundOpen = o => o.status !== 'odendi' || Date.now() - Date.parse(o.paid)
 async function cancelButton(env, o, back) {
   if (o.cancelled) return '';
   const paid = o.status === 'odendi';
-  if (!refundOpen(o)) return `<span class="closed" title="İptal ve iade yalnızca ödemeden sonraki ${REFUND_HOURS} saat içinde yapılabilir">İptal süresi doldu</span>`;
+  if (!refundOpen(o)) return `<span class="closed" title="\u0130ptal ve iade yaln\u0131zca \u00f6demeden sonraki ${REFUND_HOURS} saat i\u00e7inde yap\u0131labilir">\u0130ptal s\u00fcresi doldu</span>`;
   const left = paid ? Math.max(1, Math.ceil((REFUND_HOURS * 36e5 - (Date.now() - Date.parse(o.paid))) / 36e5)) : 0;
-  const q = paid ? `${o.id} siparişini iptal etmek istediğinizden emin misiniz?\n\n${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL müşterinin kartına iade edilecek. Bu işlem geri alınamaz.` : `${o.id} siparişini iptal etmek istediğinizden emin misiniz?`;
-  return `<form method="post" action="/admin/${o.id}/iptal?t=${await token(env, o.id)}&geri=${encodeURIComponent(back)}" onsubmit="return confirm(${esc(JSON.stringify(q))})"><button class="cancel">${paid ? 'Siparişi iptal et ve iade et' : 'Siparişi iptal et'}</button>${paid ? `<small class="left">${left} saat kaldı</small>` : ''}</form>`;
+  const q = paid ? `${o.id} sipari\u015fini iptal etmek istedi\u011finizden emin misiniz?\n\n${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL m\u00fc\u015fterinin kart\u0131na iade edilecek. Bu i\u015flem geri al\u0131namaz.` : `${o.id} sipari\u015fini iptal etmek istedi\u011finizden emin misiniz?`;
+  return `<form method="post" action="/admin/${o.id}/iptal?t=${await token(env, o.id)}&geri=${encodeURIComponent(back)}" onsubmit="return confirm(${esc(JSON.stringify(q))})"><button class="cancel">${paid ? 'Sipari\u015fi iptal et ve iade et' : 'Sipari\u015fi iptal et'}</button>${paid ? `<small class="left">${left} saat kald\u0131</small>` : ''}</form>`;
 }
 function cancelledPanel(o, t, note) {
   const r = o.refund || {};
-  return `<div class="stage cancelled"><p><b>Sipariş iptal edildi</b> · ${date(o.cancelled)} ${refundBadge(o)}${note ? ` <span class="note">${esc(note)}</span>` : ''}</p>
-    ${r.state === 'yapildi' ? `<p>${(r.amount || o.amountPaid || 0).toLocaleString('tr-TR')} TL müşterinin kartına iade edildi${r.id ? ` (Stripe: ${esc(r.id)})` : ''}. Kartta görünmesi bankaya göre 5–10 iş günü sürebilir.</p>`
-      : o.status === 'odendi' ? `<p>İade yapılamadı${r.error ? `: ${esc(r.error)}` : ''}. Tekrar deneyin ya da iadeyi Stripe’ta (Payments → bu ödeme → Refund) yapıp aşağıdan işaretleyin.</p>
-        <div class="steps"><form method="post" action="/admin/${o.id}/iptal?t=${t}"><button>İadeyi tekrar dene</button></form>
-        <form method="post" action="/admin/${o.id}/iade-yapildi?t=${t}" onsubmit="return confirm('İadeyi Stripe’ta kendiniz yaptınız mı?')"><button>Stripe’ta iade ettim</button></form></div>`
-      : '<p>Bu sipariş ödenmemişti; iade gerekmiyor.</p>'}
+  return `<div class="stage cancelled"><p><b>Sipari\u015f iptal edildi</b> \u00b7 ${date(o.cancelled)} ${refundBadge(o)}${note ? ` <span class="note">${esc(note)}</span>` : ''}</p>
+    ${r.state === 'yapildi' ? `<p>${(r.amount || o.amountPaid || 0).toLocaleString('tr-TR')} TL m\u00fc\u015fterinin kart\u0131na iade edildi${r.id ? ` (Stripe: ${esc(r.id)})` : ''}. Kartta g\u00f6r\u00fcnmesi bankaya g\u00f6re 5\u201310 i\u015f g\u00fcn\u00fc s\u00fcrebilir.</p>`
+      : o.status === 'odendi' ? `<p>\u0130ade yap\u0131lamad\u0131${r.error ? `: ${esc(r.error)}` : ''}. Tekrar deneyin ya da iadeyi Stripe\u2019ta (Payments \u2192 bu \u00f6deme \u2192 Refund) yap\u0131p a\u015fa\u011f\u0131dan i\u015faretleyin.</p>
+        <div class="steps"><form method="post" action="/admin/${o.id}/iptal?t=${t}"><button>\u0130adeyi tekrar dene</button></form>
+        <form method="post" action="/admin/${o.id}/iade-yapildi?t=${t}" onsubmit="return confirm('\u0130adeyi Stripe\u2019ta kendiniz yapt\u0131n\u0131z m\u0131?')"><button>Stripe\u2019ta iade ettim</button></form></div>`
+      : '<p>Bu sipari\u015f \u00f6denmemi\u015fti; iade gerekmiyor.</p>'}
   </div>`;
 }
 // marks the order cancelled and sends the payment back to the card; who: 'satici' or 'musteri'
@@ -501,7 +501,7 @@ async function cancelAndRefund(env, o, who) {
     try {
       let pi = o.paymentIntent;
       if (!pi && o.stripeSession) pi = (await stripe(env, `checkout/sessions/${o.stripeSession}`)).payment_intent;
-      if (!pi) throw new Error('ödeme bulunamadı');
+      if (!pi) throw new Error('\u00f6deme bulunamad\u0131');
       const r = await stripe(env, 'refunds', new URLSearchParams({ payment_intent: pi, 'metadata[siparis]': o.id }));
       o.refund = { state: r.status === 'failed' || r.status === 'canceled' ? 'yapilmadi' : 'yapildi', id: r.id, amount: r.amount / 100, date: now, stripeStatus: r.status };
     } catch (e) {
@@ -515,43 +515,43 @@ async function cancelAndRefund(env, o, who) {
 /* the customer cancels on the tracking page: only in the first 24 hours after payment and before the preview */
 async function customerCancel(req, env) {
   let b;
-  try { b = await req.json(); } catch (e) { return json({ error: 'İstek okunamadı.' }, 400); }
+  try { b = await req.json(); } catch (e) { return json({ error: '\u0130stek okunamad\u0131.' }, 400); }
   const o = await loadOrder(env, String(b.siparis || '').toUpperCase());
   const who = String(b.iletisim || '').trim().toLowerCase(), key = String(b.k || '');
   const digits = s => String(s || '').replace(/\D/g, '').slice(-10);
   if (!o || !o.items || !((key && key === await ctoken(env, o.id)) || (who && (who === o.contact.email.toLowerCase() || (digits(who).length === 10 && digits(who) === digits(o.contact.phone))))))
-    return json({ error: 'Sipariş bulunamadı.' }, 404);
-  if (o.cancelled) return json({ error: 'Bu sipariş zaten iptal edildi.' }, 409);
-  if (!customerCanCancel(o)) return json({ error: `İptal yalnızca ödemeden sonraki ${REFUND_HOURS} saat içinde, önizleme gönderilmeden önce yapılabilir.` }, 409);
+    return json({ error: 'Sipari\u015f bulunamad\u0131.' }, 404);
+  if (o.cancelled) return json({ error: 'Bu sipari\u015f zaten iptal edildi.' }, 409);
+  if (!customerCanCancel(o)) return json({ error: `\u0130ptal yaln\u0131zca \u00f6demeden sonraki ${REFUND_HOURS} saat i\u00e7inde, \u00f6nizleme g\u00f6nderilmeden \u00f6nce yap\u0131labilir.` }, 409);
   await cancelAndRefund(env, o, 'musteri');
-  await mailOwnerNote(env, `${o.id} · müşteri siparişi iptal etti`, `<p>Müşteri siparişi ${REFUND_HOURS} saat içinde iptal etti.</p><p>${o.refund && o.refund.state === 'yapildi' ? `${(o.refund.amount || o.amountPaid).toLocaleString('tr-TR')} TL kartına iade edildi.` : `İade yapılamadı${o.refund && o.refund.error ? `: ${esc(o.refund.error)}` : ''}. Lütfen Stripe’ta iade edip yönetim sayfasında işaretleyin.`}</p>`);
+  await mailOwnerNote(env, `${o.id} \u00b7 m\u00fc\u015fteri sipari\u015fi iptal etti`, `<p>M\u00fc\u015fteri sipari\u015fi ${REFUND_HOURS} saat i\u00e7inde iptal etti.</p><p>${o.refund && o.refund.state === 'yapildi' ? `${(o.refund.amount || o.amountPaid).toLocaleString('tr-TR')} TL kart\u0131na iade edildi.` : `\u0130ade yap\u0131lamad\u0131${o.refund && o.refund.error ? `: ${esc(o.refund.error)}` : ''}. L\u00fctfen Stripe\u2019ta iade edip y\u00f6netim sayfas\u0131nda i\u015faretleyin.`}</p>`);
   return json({ ok: true, refunded: !!(o.refund && o.refund.state === 'yapildi') });
 }
 const customerCanCancel = o => o.status === 'odendi' && !o.cancelled && (o.stage || 'tasarim') === 'tasarim' && refundOpen(o);
 
 async function cancelOrder(id, action, url, env) {
   const t = url.searchParams.get('t');
-  if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
+  if (t !== await token(env, id)) return new Response('Giri\u015f yetkisi yok', { status: 401 });
   const o = await loadOrder(env, id);
-  if (!o || !o.items) return new Response('Sipariş bulunamadı', { status: 404 });
+  if (!o || !o.items) return new Response('Sipari\u015f bulunamad\u0131', { status: 404 });
   const geri = url.searchParams.get('geri');
   const back = note => Response.redirect(`${url.origin}${geri && /^\/admin/.test(geri) ? geri : `/admin/${id}?t=${t}`}${note ? (geri && geri.includes('?') || !geri ? '&' : '?') + 'not=' + encodeURIComponent(note) : ''}`, 303);
   const now = new Date().toISOString();
   if (action === 'iade-yapildi') {
     if (!o.cancelled) return back('');
-    o.refund = { ...(o.refund || {}), state: 'yapildi', manual: true, date: now }; await saveOrder(env, o); return back('İade yapıldı olarak işaretlendi.');
+    o.refund = { ...(o.refund || {}), state: 'yapildi', manual: true, date: now }; await saveOrder(env, o); return back('\u0130ade yap\u0131ld\u0131 olarak i\u015faretlendi.');
   }
-  if (o.refund && o.refund.state === 'yapildi') return back('Bu siparişin iadesi zaten yapıldı.');
-  if (!o.cancelled && !refundOpen(o)) return back(`İptal ve iade yalnızca ödemeden sonraki ${REFUND_HOURS} saat içinde yapılabilir.`);
+  if (o.refund && o.refund.state === 'yapildi') return back('Bu sipari\u015fin iadesi zaten yap\u0131ld\u0131.');
+  if (!o.cancelled && !refundOpen(o)) return back(`\u0130ptal ve iade yaln\u0131zca \u00f6demeden sonraki ${REFUND_HOURS} saat i\u00e7inde yap\u0131labilir.`);
   await cancelAndRefund(env, o, 'satici');
-  return back(o.status !== 'odendi' ? 'Sipariş iptal edildi.' : o.refund.state === 'yapildi' ? 'Sipariş iptal edildi, ödeme iade edildi.' : 'Sipariş iptal edildi ama iade yapılamadı.');
+  return back(o.status !== 'odendi' ? 'Sipari\u015f iptal edildi.' : o.refund.state === 'yapildi' ? 'Sipari\u015f iptal edildi, \u00f6deme iade edildi.' : 'Sipari\u015f iptal edildi ama iade yap\u0131lamad\u0131.');
 }
 
 async function setStage(id, req, url, env) {
   const t = url.searchParams.get('t');
-  if (t !== await token(env, id)) return new Response('Giriş yetkisi yok', { status: 401 });
+  if (t !== await token(env, id)) return new Response('Giri\u015f yetkisi yok', { status: 401 });
   const o = await loadOrder(env, id);
-  if (!o || !o.items || o.status !== 'odendi' || o.cancelled) return new Response('Sipariş bulunamadı', { status: 404 });
+  if (!o || !o.items || o.status !== 'odendi' || o.cancelled) return new Response('Sipari\u015f bulunamad\u0131', { status: 404 });
   const f = await req.formData(), stage = String(f.get('asama') || '');
   const back = note => Response.redirect(`${url.origin}/admin/${id}?t=${t}${note ? '&not=' + encodeURIComponent(note) : ''}`, 303);
   if (o.ships && f.has('takip')) {
@@ -559,9 +559,9 @@ async function setStage(id, req, url, env) {
     o.cargo = firm || no ? { firm, no } : null;
   }
   if (!stagesFor(o).includes(stage)) { await saveOrder(env, o); return back('Kaydedildi.'); }
-  if (stage === 'kargo' && !(o.cargo && o.cargo.no)) return back('Önce takip numarasını yazın.');
+  if (stage === 'kargo' && !(o.cargo && o.cargo.no)) return back('\u00d6nce takip numaras\u0131n\u0131 yaz\u0131n.');
   // the customer can only answer a preview that has pages: upload them below, that moves the order on by itself
-  if (stage === 'onizleme' && !Object.values(o.previews || {}).flat().length) return back('Önce önizleme sayfalarını yükleyip gönderin.');
+  if (stage === 'onizleme' && !Object.values(o.previews || {}).flat().length) return back('\u00d6nce \u00f6nizleme sayfalar\u0131n\u0131 y\u00fckleyip g\u00f6nderin.');
   if (stage === 'onizleme' && (!o.review || o.review.state !== 'bekliyor')) o.review = { state: 'bekliyor', date: new Date().toISOString(), round: o.previewRound || 1 };
   const changed = stage !== o.stage;
   o.stage = stage;
@@ -576,19 +576,19 @@ function orderHtml(o, origin, t) {
   const items = o.items.map((it, k) => `
     <h2>${k + 1}. ${esc(it.title)}</h2>
     <table>
-      <tr><th>Set</th><td>${esc(it.setName)} · ${esc(it.contents)}</td></tr>
-      ${it.about ? `<tr><th>Kahraman hakkında</th><td>${esc(it.about)}</td></tr>` : ''}
-      <tr><th>Hediye kutusu</th><td>${it.giftBox ? 'Evet' + (it.giftNote ? ` · not: “${esc(it.giftNote)}”` : '') : 'Hayır'}</td></tr>
+      <tr><th>Set</th><td>${esc(it.setName)} \u00b7 ${esc(it.contents)}</td></tr>
+      ${it.about ? `<tr><th>Kahraman hakk\u0131nda</th><td>${esc(it.about)}</td></tr>` : ''}
+      <tr><th>Hediye kutusu</th><td>${it.giftBox ? 'Evet' + (it.giftNote ? ` \u00b7 not: \u201c${esc(it.giftNote)}\u201d` : '') : 'Hay\u0131r'}</td></tr>
       <tr><th>Tutar</th><td>${it.price.total.toLocaleString('tr-TR')} TL</td></tr>
     </table>
-    <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(it.hero)} · fotoğraf ${n}"></a>`; }).join('')}</div>`).join('');
-  return `<h1>${o.id} · ${stageLabel(o)} ${refundBadge(o)}</h1>
+    <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(it.hero)} \u00b7 foto\u011fraf ${n}"></a>`; }).join('')}</div>`).join('');
+  return `<h1>${o.id} \u00b7 ${stageLabel(o)} ${refundBadge(o)}</h1>
     <table>
-      <tr><th>Tutar</th><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL · ${o.items.length} kitap</td></tr>
-      <tr><th>Tarih</th><td>${date(o.created)}${o.paid ? ` · ödendi ${date(o.paid)}` : ''}</td></tr>
-      <tr><th>İletişim</th><td>${esc(o.contact.name || '')} ${esc(o.contact.phone)} · ${esc(o.contact.email)}</td></tr>
-      ${o.cargo && o.cargo.no ? `<tr><th>Kargo</th><td>${esc(o.cargo.firm)} · ${esc(o.cargo.no)}</td></tr>` : ''}
-      <tr><th>Adres</th><td>${a ? esc([a.name, a.line1, a.line2, `${a.postal_code || ''} ${a.city || ''}`, a.state, a.country].filter(Boolean).join(', ')) : (o.ships ? '—' : 'Dijital, kargo yok')}</td></tr>
+      <tr><th>Tutar</th><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL \u00b7 ${o.items.length} kitap</td></tr>
+      <tr><th>Tarih</th><td>${date(o.created)}${o.paid ? ` \u00b7 \u00f6dendi ${date(o.paid)}` : ''}</td></tr>
+      <tr><th>\u0130leti\u015fim</th><td>${esc(o.contact.name || '')} ${esc(o.contact.phone)} \u00b7 ${esc(o.contact.email)}</td></tr>
+      ${o.cargo && o.cargo.no ? `<tr><th>Kargo</th><td>${esc(o.cargo.firm)} \u00b7 ${esc(o.cargo.no)}</td></tr>` : ''}
+      <tr><th>Adres</th><td>${a ? esc([a.name, a.line1, a.line2, `${a.postal_code || ''} ${a.city || ''}`, a.state, a.country].filter(Boolean).join(', ')) : (o.ships ? '\u2014' : 'Dijital, kargo yok')}</td></tr>
     </table>${items}`;
 }
 
@@ -596,12 +596,12 @@ async function mailOwner(env, o, origin) {
   if (!env.RESEND_API_KEY || !env.OWNER_EMAIL) return;
   const t = await token(env, o.id);
   const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#222">
-    <p>Yeni sipariş ödendi.</p>${orderHtml(o, origin, t).replace(/<img /g, '<img style="height:200px;margin:4px" ')}
-    <p><a href="${origin}/admin/${o.id}?t=${t}">Siparişi ve fotoğrafları aç</a></p></div>`;
+    <p>Yeni sipari\u015f \u00f6dendi.</p>${orderHtml(o, origin, t).replace(/<img /g, '<img style="height:200px;margin:4px" ')}
+    <p><a href="${origin}/admin/${o.id}?t=${t}">Sipari\u015fi ve foto\u011fraflar\u0131 a\u00e7</a></p></div>`;
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ from: env.MAIL_FROM || 'Masaliya <onboarding@resend.dev>', to: [env.OWNER_EMAIL], subject: `Yeni sipariş ${o.id} · ${o.items.length} kitap · ${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL`, html })
+    body: JSON.stringify({ from: env.MAIL_FROM || 'Masaliya <onboarding@resend.dev>', to: [env.OWNER_EMAIL], subject: `Yeni sipari\u015f ${o.id} \u00b7 ${o.items.length} kitap \u00b7 ${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL`, html })
   });
   if (!res.ok) console.log('mail failed', res.status, await res.text());
 }
@@ -621,20 +621,20 @@ async function mailOwnerNote(env, subject, body) {
 async function mailCustomer(env, o, stage) {
   if (!env.RESEND_API_KEY || !env.MAIL_FROM || !o.contact.email) return;
   const site = env.SITE_URL || 'https://masaliya.com';
-  const books = o.items.map(it => `<li>${esc(it.title)} <small>(${esc(it.setName)} · ${esc(it.contents)}${it.giftBox ? ' · hediye kutusu' : ''})</small></li>`).join('');
+  const books = o.items.map(it => `<li>${esc(it.title)} <small>(${esc(it.setName)} \u00b7 ${esc(it.contents)}${it.giftBox ? ' \u00b7 hediye kutusu' : ''})</small></li>`).join('');
   const c = o.cargo || {}, link = `${site}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`;
   const lines = {
-    tasarim: `<p>Siparişiniz alındı, teşekkür ederiz. Masalınız atölyemizde hazırlanmaya başladı.</p><ul>${books}</ul><p>Toplam: <b>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</b></p>${o.shipping ? `<p>Teslimat adresi: ${esc([o.shipping.name, o.shipping.line1, o.shipping.city, o.shipping.state].filter(Boolean).join(', '))}</p>` : ''}<p>Ödemeden sonra 5 iş günü içinde bütün sayfaların önizlemesini göndereceğiz.</p><p><a href="${site}/mesafeli-satis.html">Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi</a></p>`,
-    onizleme: `<p>Kitabınızın önizlemesi hazır.</p><p><a href="${link}">Önizlemeyi açın</a></p><p>Bütün sayfaları inceleyin; her şey yolundaysa “Onaylıyorum”a, değiştirmek istediğiniz bir şey varsa “Düzeltme istiyorum”a basın.</p>`,
-    baski: `<p>Onayınız için teşekkürler. Kitabınız baskıda; 5 iş günü içinde kargoya verilecek.</p>`,
-    kargo: `<p>Kitabınız yola çıktı.</p><p>${esc(c.firm)} · takip numarası: <b>${esc(c.no)}</b></p>`,
-    teslim: o.ships ? `<p>Kitabınız teslim edildi. İyi okumalar!</p>` : `<p>Dijital kitabınız e-postanıza gönderildi. İyi okumalar!</p>`,
-    iptal: `<p>Siparişiniz iptal edildi.</p>${o.refund && o.refund.state === 'yapildi' ? `<p>${(o.refund.amount || o.amountPaid).toLocaleString('tr-TR')} TL kartınıza iade edildi; bankanıza göre hesabınızda görünmesi 5–10 iş günü sürebilir.</p>` : '<p>Ödemenizin iadesiyle ilgili size ayrıca bilgi vereceğiz.</p>'}`
+    tasarim: `<p>Sipari\u015finiz al\u0131nd\u0131, te\u015fekk\u00fcr ederiz. Masal\u0131n\u0131z at\u00f6lyemizde haz\u0131rlanmaya ba\u015flad\u0131.</p><ul>${books}</ul><p>Toplam: <b>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</b></p>${o.shipping ? `<p>Teslimat adresi: ${esc([o.shipping.name, o.shipping.line1, o.shipping.city, o.shipping.state].filter(Boolean).join(', '))}</p>` : ''}<p>\u00d6demeden sonra 5 i\u015f g\u00fcn\u00fc i\u00e7inde b\u00fct\u00fcn sayfalar\u0131n \u00f6nizlemesini g\u00f6nderece\u011fiz.</p><p><a href="${site}/mesafeli-satis.html">\u00d6n Bilgilendirme Formu ve Mesafeli Sat\u0131\u015f S\u00f6zle\u015fmesi</a></p>`,
+    onizleme: `<p>Kitab\u0131n\u0131z\u0131n \u00f6nizlemesi haz\u0131r.</p><p><a href="${link}">\u00d6nizlemeyi a\u00e7\u0131n</a></p><p>B\u00fct\u00fcn sayfalar\u0131 inceleyin; her \u015fey yolundaysa \u201cOnayl\u0131yorum\u201da, de\u011fi\u015ftirmek istedi\u011finiz bir \u015fey varsa \u201cD\u00fczeltme istiyorum\u201da bas\u0131n.</p>`,
+    baski: `<p>Onay\u0131n\u0131z i\u00e7in te\u015fekk\u00fcrler. Kitab\u0131n\u0131z bask\u0131da; 5 i\u015f g\u00fcn\u00fc i\u00e7inde kargoya verilecek.</p>`,
+    kargo: `<p>Kitab\u0131n\u0131z yola \u00e7\u0131kt\u0131.</p><p>${esc(c.firm)} \u00b7 takip numaras\u0131: <b>${esc(c.no)}</b></p>`,
+    teslim: o.ships ? `<p>Kitab\u0131n\u0131z teslim edildi. \u0130yi okumalar!</p>` : `<p>Dijital kitab\u0131n\u0131z e-postan\u0131za g\u00f6nderildi. \u0130yi okumalar!</p>`,
+    iptal: `<p>Sipari\u015finiz iptal edildi.</p>${o.refund && o.refund.state === 'yapildi' ? `<p>${(o.refund.amount || o.amountPaid).toLocaleString('tr-TR')} TL kart\u0131n\u0131za iade edildi; bankan\u0131za g\u00f6re hesab\u0131n\u0131zda g\u00f6r\u00fcnmesi 5\u201310 i\u015f g\u00fcn\u00fc s\u00fcrebilir.</p>` : '<p>\u00d6demenizin iadesiyle ilgili size ayr\u0131ca bilgi verece\u011fiz.</p>'}`
   };
-  const subject = { tasarim: `Siparişiniz alındı · ${o.id}`, onizleme: `Önizlemeniz hazır · ${o.id}`, baski: `Kitabınız baskıda · ${o.id}`, kargo: `Kitabınız kargoda · ${o.id}`, teslim: `Masalınız size ulaştı · ${o.id}`, iptal: `Siparişiniz iptal edildi · ${o.id}` }[stage];
+  const subject = { tasarim: `Sipari\u015finiz al\u0131nd\u0131 \u00b7 ${o.id}`, onizleme: `\u00d6nizlemeniz haz\u0131r \u00b7 ${o.id}`, baski: `Kitab\u0131n\u0131z bask\u0131da \u00b7 ${o.id}`, kargo: `Kitab\u0131n\u0131z kargoda \u00b7 ${o.id}`, teslim: `Masal\u0131n\u0131z size ula\u015ft\u0131 \u00b7 ${o.id}`, iptal: `Sipari\u015finiz iptal edildi \u00b7 ${o.id}` }[stage];
   const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#2a1a16;max-width:560px">
     <p>Merhaba${o.contact.name ? ' ' + esc(o.contact.name.split(' ')[0]) : ''},</p>${lines[stage]}
-    <p><a href="${link}">Siparişinizi takip edin</a> · sipariş numaranız ${o.id}</p><p>Masaliya</p></div>`;
+    <p><a href="${link}">Sipari\u015finizi takip edin</a> \u00b7 sipari\u015f numaran\u0131z ${o.id}</p><p>Masaliya</p></div>`;
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST', headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
     body: JSON.stringify({ from: env.MAIL_FROM, to: [o.contact.email], reply_to: env.OWNER_EMAIL || undefined, subject, html })
@@ -716,7 +716,7 @@ function cors(env, res) {
 }
 const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const date = iso => new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-const page = (title, body) => new Response(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)} · Masaliya</title>
+const page = (title, body) => new Response(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)} \u00b7 Masaliya</title>
 <style>body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf6f0;color:#2a1a16}h1{font-size:22px}h2{font-size:18px;margin:28px 0 8px;color:#7a2434}table{border-collapse:collapse;width:100%;max-width:1100px;background:#fff}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid #eadfd3}th{font-weight:600;color:#7a2434;width:130px}small{color:#7a6a60}tr.odeme-bekleniyor{opacity:.55}.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.photos img{height:240px;border:1px solid #eadfd3}a{color:#7a2434}.stage{max-width:1100px;background:#fff;border:2px solid #7a2434;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;gap:12px}.stage p{margin:0}.steps{display:flex;flex-wrap:wrap;gap:8px}.steps button{font:inherit;padding:10px 14px;border:1px solid #7a2434;background:#fff;color:#7a2434;border-radius:6px;cursor:pointer}.steps button.cur{background:#7a2434;color:#fff;cursor:default}.stage label{display:grid;gap:4px;font-size:13px;color:#7a6a60}.stage input{font:inherit;padding:8px 10px;border:1px solid #d9cbbd;border-radius:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{color:#b0412e}.pv-book{display:grid;gap:8px;padding:10px 0;border-top:1px solid #eadfd3}.pv-part{display:grid;gap:6px;padding-left:12px;border-left:3px solid #eadfd3}.pv-part i{font-style:normal;font-weight:600;color:#7a2434}.pv-files{display:flex;flex-wrap:wrap;gap:8px}.pv-files img{height:120px;border:1px solid #eadfd3}.pv-files .pdf{padding:10px;border:1px solid #eadfd3;border-radius:6px}.upload{font:inherit;padding:12px 16px;background:#7a2434;color:#fff;border:0;border-radius:6px;cursor:pointer;justify-self:start}.revs{margin:0;padding-left:18px;display:grid;gap:8px}
 .top{max-width:1100px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.top form{display:flex;align-items:center;gap:8px}.top small.left{margin:0}.work{max-width:1100px;margin-bottom:22px}.modal{position:fixed;inset:0;background:rgba(30,10,14,.55);display:grid;place-items:center;z-index:10;padding:16px}.modal .box{background:#fff;border-radius:12px;padding:26px 24px;max-width:420px;width:100%;text-align:center;display:grid;gap:12px;box-shadow:0 30px 60px rgba(0,0,0,.35)}.modal .tick{width:56px;height:56px;margin:0 auto;border-radius:50%;background:#e3f2e5;color:#2e7d32;display:grid;place-items:center;font-size:28px;font-weight:700}.modal h2{margin:0;color:#2e7d32}.modal p{margin:0;color:#5a4a42}.modal .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px}.modal .acts button,.modal .acts a{font:inherit;font-weight:600;padding:11px 16px;border-radius:6px;cursor:pointer;text-decoration:none}.modal .acts button{background:#fff;border:1px solid #7a2434;color:#7a2434}.modal .acts a{background:#7a2434;color:#fff;border:1px solid #7a2434}.flow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.flow a{flex:1;min-width:110px;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #d9cbbd;border-radius:8px;background:#fff;color:#7a6a60;text-decoration:none}.flow a span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid currentColor;font-size:12px}.flow a.done{color:#2e7d32;border-color:#b9dcbc}.flow a.cur{color:#fff;background:#7a2434;border-color:#7a2434}.flow a.view{box-shadow:0 0 0 3px #e2b56b}
 .panel-in{background:#fff;border:2px solid #7a2434;border-radius:8px;padding:16px;display:grid;gap:14px}.panel-in h2{margin:0;color:#7a2434}.panel-in h2 small{font-weight:400;color:#9a8a80;font-size:14px}.lead{margin:0}
