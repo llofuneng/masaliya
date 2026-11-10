@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611100039">
+<link rel="stylesheet" href="site.css?v=202611100835">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -226,7 +226,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611100039" defer></script>
+<script src="site.js?v=202611100835" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -273,8 +273,8 @@ addEventListener('DOMContentLoaded', () => {
   // the first frame is drawn: let the gold arch loader fade away
   requestAnimationFrame(() => requestAnimationFrame(() => intro.classList.add('ready')));
 
-  // the book opens by itself a moment after the closed cover is shown
-  setTimeout(open, reduce ? 0 : 1300);
+  // the book opens by itself almost as soon as it is drawn
+  setTimeout(open, reduce ? 0 : 250);
   // coming back from a collection page: show the open book with the three heroes straight away
   if (location.hash === '#sec') { if (book) book.jumpOpen(); done(); }
   if (!book) {
@@ -780,6 +780,6 @@ addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "fdd27d4f725045aebd56597c199a8c3f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "fdd27d4f725045aebd56597c199a8c3f", "spa": false}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
