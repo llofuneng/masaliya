@@ -655,6 +655,7 @@ function renderCart() {
       </ul>
       <form class="panel cart-pay" id="pay">
         <div class="total"><span>Toplam <small>${items.length} kitap · Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
+        ${ships ? ETA() : ''}
         ${ships ? `<span class="step">Teslimat adresi</span>
         <label class="field" for="c-name">Alıcının adı soyadı<input id="c-name" autocomplete="shipping name" maxlength="80"></label>
         <div class="field-row">
@@ -720,6 +721,12 @@ function renderCart() {
 const trDate = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
 // n working days from today, skipping Saturdays and Sundays
 const inWorkDays = n => { const d = new Date(); while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; };
+// printed book at the door: 5 working days design + 5 printing + 1–4 for the courier, depending on the region
+const etaRange = () => {
+  const a = inWorkDays(11), b = inWorkDays(14);
+  return a.getMonth() === b.getMonth() ? `${a.getDate()}–${trDate(b)}` : `${trDate(a)} – ${trDate(b)}`;
+};
+const ETA = () => `<p class="eta">Sert kapak tahmini teslim: <b>${etaRange()}</b><small>Kargo süresi bölgeye göre 1–4 iş günü · tarih, önizlemeyi onayladığınız güne göre değişebilir</small></p>`;
 
 // a cover with the visitor's name set in place of the sample hero's name
 const COVER_FONTS = { sans: '"Nunito", "Arial Rounded MT Bold", sans-serif', script: '"Great Vibes", "Snell Roundhand", cursive', sub: '"Lora", Georgia, serif' };
@@ -891,6 +898,7 @@ function renderProduct() {
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
         <div class="total"><span>Toplam <small>Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
+        ${p.type === 'kitap' ? ETA() : ''}
         <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenmesine ve aktarılmasına açık rıza veriyorum.</span></label>
         ${p.type === 'kitap' ? PROMISE : ''}
         <div class="buy-actions">
@@ -938,6 +946,7 @@ function renderProduct() {
         ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>Sert kapak, sayfalar düz açılır</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm fotoğraf kâğıdı</dd></div>' : ''}
         <div><dt>Tasarım</dt><dd>5 iş günü · Önizleme en geç ${trDate(inWorkDays(5))}</dd></div>
         <div><dt>Baskı</dt><dd>Onayınızdan sonra 5 iş günü · Ücretsiz kargo</dd></div>
+        ${p.type === 'kitap' ? `<div><dt>Teslim</dt><dd>Tahmini ${etaRange()} · kargo bölgeye göre 1–4 iş günü</dd></div>` : ''}
         <div><dt>Gönderim</dt><dd>Yalnızca Türkiye içi</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
