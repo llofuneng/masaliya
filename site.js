@@ -732,12 +732,13 @@ function renderCart() {
 const trDate = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
 // n working days from today, skipping Saturdays and Sundays
 const inWorkDays = n => { const d = new Date(); while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; };
-// printed book at the door: 3 working days design + 5 printing + 1–4 for the courier, depending on the region
+// printed book at the door: 3 working days design + 5 printing, then 2–4 calendar days with the courier
 const etaRange = () => {
-  const a = inWorkDays(9), b = inWorkDays(12);
+  const ship = inWorkDays(8), a = new Date(ship), b = new Date(ship);
+  a.setDate(a.getDate() + 2); b.setDate(b.getDate() + 4);
   return a.getMonth() === b.getMonth() ? `${a.getDate()}–${trDate(b)}` : `${trDate(a)} – ${trDate(b)}`;
 };
-const ETA = () => `<p class="eta">Sert kapak tahmini teslim: <b>${etaRange()}</b><small>Kargo süresi ortalama 1–4 iş günü · tarih, önizlemeyi onayladığınız güne göre değişebilir</small></p>`;
+const ETA = () => `<p class="eta">Sert kapak tahmini teslim: <b>${etaRange()}</b><small>Kargo süresi ortalama 2–4 gün · tarih, önizlemeyi onayladığınız güne göre değişebilir</small></p>`;
 
 // a cover with the visitor's name set in place of the sample hero's name
 const COVER_FONTS = { sans: '"Nunito", "Arial Rounded MT Bold", sans-serif', script: '"Great Vibes", "Snell Roundhand", cursive', sub: '"Lora", Georgia, serif' };
@@ -956,7 +957,7 @@ function renderProduct() {
         ${p.type === 'kitap' ? '<div><dt>Cilt</dt><dd>Sert kapak, sayfalar düz açılır</dd></div><div><dt>Kâğıt</dt><dd>Fujifilm fotoğraf kâğıdı</dd></div>' : ''}
         <div><dt>Tasarım</dt><dd>3 iş günü · Önizleme en geç ${trDate(inWorkDays(3))}</dd></div>
         <div><dt>Baskı</dt><dd>Onayınızdan sonra 5 iş günü · Ücretsiz kargo</dd></div>
-        ${p.type === 'kitap' ? `<div><dt>Teslim</dt><dd>Tahmini ${etaRange()} · kargo ortalama 1–4 iş günü</dd></div>` : ''}
+        ${p.type === 'kitap' ? `<div><dt>Teslim</dt><dd>Tahmini ${etaRange()} · kargo ortalama 2–4 gün</dd></div>` : ''}
         <div><dt>Gönderim</dt><dd>Yalnızca Türkiye içi</dd></div>
       </dl>` : '';
     root.innerHTML = `<div class="product">
