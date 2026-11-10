@@ -73,6 +73,8 @@ const WHATSAPP = '905306233782';
 /* The cart: the books put in it, kept in this browser (localStorage). The photos are already on the
    order server; here we keep only what the cart page shows. Books not paid within 3 days are deleted
    there, so they are dropped here too. */
+// what every book order comes with, shown on the book page at once and again by the order buttons
+const PROMISE = `<ul class="promise"><li>Baskıdan önce bütün sayfaları görüp onaylarsınız</li><li>Gerekirse düzeltme yaparız</li><li>Ücretsiz kargo</li></ul>`;
 const CART_KEY = 'masaliya-sepet', CART_DAYS = 3;
 const cart = {
   all() {
@@ -82,8 +84,8 @@ const cart = {
     if (fresh.length !== items.length) cart.save(fresh);
     return fresh;
   },
-  save(items) { try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) {} cart.badge(); },
-  add(item) { cart.save([...cart.all(), { ...item, added: Date.now() }]); },
+  save(items) { let ok = true; try { localStorage.setItem(CART_KEY, JSON.stringify(items)); ok = localStorage.getItem(CART_KEY) === JSON.stringify(items); } catch (e) { ok = false; } cart.badge(); return ok; },
+  add(item) { return cart.save([...cart.all(), { ...item, added: Date.now() }]); },
   remove(id) { cart.save(cart.all().filter(it => it.id !== id)); },
   clear() { cart.save([]); },
   badge() {
@@ -501,6 +503,19 @@ function renderChrome() {
     wa.setAttribute('aria-label', 'WhatsApp’tan danışmanınıza yazın'); wa.title = 'WhatsApp’tan danışmanınıza yazın';
     wa.innerHTML = WA_SVG;
     document.body.appendChild(wa);
+    let waTick = 0;
+    const waPlace = () => {
+      waTick = 0;
+      const bar = document.getElementById('buybar'), barUp = bar && !bar.classList.contains('away') && getComputedStyle(bar).display !== 'none';
+      wa.style.bottom = barUp ? `${bar.offsetHeight + 14}px` : '';
+      const r = wa.getBoundingClientRect();
+      const hit = [...document.querySelectorAll('.buy-actions, #pay-btn')].some(el => { const b = el.getBoundingClientRect(); return b.height && b.left < r.right + 8 && b.right > r.left - 8 && b.top < r.bottom + 8 && b.bottom > r.top - 8; });
+      wa.classList.toggle('wa-off', hit);
+    };
+    const waSoon = () => { if (!waTick) waTick = requestAnimationFrame(waPlace); };
+    addEventListener('scroll', waSoon, { passive: true }); addEventListener('resize', waSoon);
+    document.addEventListener('transitionend', e => { if (e.target.id === 'buybar') waSoon(); });
+    setTimeout(waPlace, 300);
   }
   document.addEventListener('click', e => {
     const w = e.target.closest('a[href="#whatsapp"]');
@@ -678,13 +693,16 @@ function renderCart() {
         if (address.adres.length < 10) return say('Lütfen açık adresi mahalle, sokak, bina ve daire numarasıyla yazın.', document.getElementById('c-adres'));
         if (address.posta && !/^\d{5}$/.test(address.posta)) return say('Posta kodu 5 rakamdan oluşur. Bilmiyorsanız boş bırakabilirsiniz.', document.getElementById('c-posta'));
       }
-      if (!/^[\d\s()+-]+$/.test(rawPhone) || phone.length < 10 || phone.length > 13) return say('Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.', document.getElementById('c-phone'));
+      // Turkish numbers in any common form (0532…, +90 532…, 0090 532…, with dots, dashes or brackets) become 0532 123 45 67
+      const tr = phone.replace(/^(?:00)?90(?=0?\d{10}$)/, '').replace(/^0(?=\d{10}$)/, '');
+      const cleanPhone = tr.length === 10 ? `0${tr.slice(0, 3)} ${tr.slice(3, 6)} ${tr.slice(6, 8)} ${tr.slice(8)}` : /^\s*(\+|00)/.test(rawPhone) && phone.length >= 10 && phone.length <= 15 ? '+' + phone.replace(/^00/, '') : '';
+      if (!/^[\d\s().+\-\u00a0]+$/.test(rawPhone) || !cleanPhone) return say('Lütfen telefon numaranızı yalnızca rakamlarla yazın, örneğin 0532 123 45 67.', document.getElementById('c-phone'));
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return say('Lütfen geçerli bir e-posta adresi yazın.', document.getElementById('c-email'));
       if (!document.getElementById('ok-terms').checked) return say('Devam etmek için Ön Bilgilendirme Formu’nu ve Mesafeli Satış Sözleşmesi’ni onaylayın.', document.getElementById('ok-terms'));
       btn.disabled = true; say('Ödeme sayfası hazırlanıyor…');
       try {
         const res = await fetch(ORDER_API + '/api/order', { method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ items: items.map(it => it.id), name, address, phone: rawPhone, email: mail, consentTerms: true }) });
+          body: JSON.stringify({ items: items.map(it => it.id), name, address, phone: cleanPhone, email: mail, consentTerms: true }) });
         const out = await res.json().catch(() => ({}));
         if (res.status === 409 && out.missing) { out.missing.forEach(id => cart.remove(id)); show(out.error); return; }
         if (!res.ok || !out.url) throw new Error(out.error || 'Sipariş oluşturulamadı.');
@@ -844,7 +862,7 @@ function renderProduct() {
         <label class="field" for="hero-about"><span class="step">2 · Kahraman hakkında <span class="opt">(opsiyonel<sup>*</sup>)</span></span><textarea id="hero-about" rows="1" maxlength="400" placeholder="Örneğin: 5 yaşında, kıvırcık saçlı, dinozor sever"></textarea></label>
         <div class="field"><span class="step">3 · Üç fotoğraf</span>
           <div class="slots">
-            ${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}
+            ${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}
           </div>
           <ul class="slot-msgs" id="slot-msgs" aria-live="polite"></ul>
           <span class="slot-hint">Yüzün net göründüğü, yakından çekilmiş 3 fotoğraf seçin: önden, biraz yandan ve gülümserken. Fotoğrafları seçtiğiniz anda cihazınızda kontrol ediyoruz; uygun olmayanları size söyleriz. Fotoğraflar yalnızca bu kitap için kullanılır.</span>
@@ -873,7 +891,8 @@ function renderProduct() {
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
         <div class="total"><span>Toplam <small>Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
-        <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için işlenmesine ve hizmet sağlayıcılar aracılığıyla yurt dışına aktarılmasına <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a> kapsamında açık rıza veriyorum.</span></label>
+        <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenmesine ve aktarılmasına açık rıza veriyorum.</span></label>
+        ${p.type === 'kitap' ? PROMISE : ''}
         <div class="buy-actions">
           <button class="btn ghost" type="submit" value="sepet" id="cart-btn">Sepete ekle</button>
           <button class="btn" type="submit" value="ode" id="pay-btn">Ödemeye geç</button>
@@ -929,6 +948,7 @@ function renderProduct() {
         <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span><span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
+        ${orderable && p.type === 'kitap' ? PROMISE : ''}
       </div>
 
       <div class="p-buy info">
@@ -1060,6 +1080,10 @@ function renderProduct() {
       if (use) { const i = +use.dataset.use; checked[i].accepted = true; slots[i].dataset.state = 'ok'; showMessages(); }
       if (pick) slots[+pick.dataset.pick].querySelector('input').click();
     });
+    if (slots.length && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(en => { if (en.some(x => x.isIntersecting)) { io.disconnect(); loadChecker().then(m => m.warmUp()).catch(() => {}); } }, { rootMargin: '600px 0px' });
+      io.observe(slots[0]);
+    }
     slots.forEach((slot, i) => {
       const input = slot.querySelector('input'), img = slot.querySelector('.slot-img');
       // start loading the face checker as soon as someone reaches for a photo
@@ -1110,10 +1134,21 @@ function renderProduct() {
       checked.forEach((r, k) => data.append(`photo${k + 1}`, r.blob, `foto-${k + 1}.jpg`));
       btns.forEach(b => { b.disabled = true; }); say('Fotoğraflarınız yükleniyor…');
       try {
-        const res = await fetch(ORDER_API + '/api/item', { method: 'POST', body: data });
-        const out = await res.json().catch(() => ({}));
-        if (!res.ok || !out.id) throw new Error(out.error || 'Kitap sepete eklenemedi.');
-        cart.add({ ...out, img: p.img });
+        const { status, out } = await new Promise((done, fail) => {
+          const x = new XMLHttpRequest();
+          x.open('POST', ORDER_API + '/api/item'); x.timeout = 180000;
+          x.upload.onprogress = ev => { if (ev.lengthComputable) say(`Fotoğraflarınız yükleniyor… %${Math.min(99, Math.round(ev.loaded / ev.total * 100))}`); };
+          x.onload = () => { let o = {}; try { o = JSON.parse(x.responseText); } catch (err) {} done({ status: x.status, out: o }); };
+          x.onerror = () => fail(new Error('Bağlantı kesildi.'));
+          x.ontimeout = () => fail(new Error('Yükleme çok uzun sürdü.'));
+          x.send(data);
+        });
+        if (status !== 200 || !out.id) throw new Error(out.error || 'Kitap sepete eklenemedi.');
+        if (!cart.add({ ...out, img: p.img })) {
+          // the browser (often a private tab) does not let the site keep a cart: the book is saved with us, finish over WhatsApp
+          btns.forEach(b => { b.disabled = false; });
+          return say(`Kitabınız kaydedildi (no: ${esc(out.id)}), ancak tarayıcınız sepeti saklamaya izin vermiyor. Siparişi tamamlamak için <a href="${waLink(`Merhaba, sepete eklenemeyen kitabım: ${out.id}`)}" target="_blank" rel="noopener">WhatsApp’tan yazın</a> ya da sayfayı Safari veya Chrome’da açın.`);
+        }
         // both buttons open the cart; "Ödemeye geç" goes straight to the payment form there
         location.href = goPay ? 'sepet.html#odeme' : 'sepet.html';
       } catch (err) {

@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611100835">
+<link rel="stylesheet" href="site.css?v=202611100911">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -130,6 +130,13 @@
 
 /* Bottom controls */
 .intro-bottom { display: grid; justify-items: center; gap: 10px; padding-block: 10px 30px; z-index: 5; transition: opacity .5s; }
+/* once the book is open, the headline stays on screen under it */
+.after-copy { display: none; text-align: center; max-width: 40rem; }
+.opened .after-copy { display: grid; gap: 4px; animation: acIn .8s ease both; }
+@keyframes acIn { from { opacity: 0; transform: translateY(10px); } }
+.after-copy .ac-title { margin: 0; font: 400 clamp(1.7rem, 1.2rem + 2vw, 2.6rem)/1.05 var(--f-display); color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,.7); }
+.after-copy .ac-title em { font-style: italic; color: var(--gold-pale); }
+.after-copy p:last-child { margin: 0; font-size: clamp(.82rem, .75rem + .3vw, .98rem); line-height: 1.45; color: var(--muted); }
 .after { display: none; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .opened .after { display: flex; }
 .after .adults { display: none; }
@@ -201,6 +208,7 @@
   </div>
 
   <div class="wrap intro-bottom">
+    <div class="after-copy"><p class="ac-title">Herkesin bir <em>masalı</em> var…</p><p>Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan kitaplar!</p></div>
     <div class="after">
       <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
@@ -226,7 +234,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611100835" defer></script>
+<script src="site.js?v=202611100911" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -582,7 +590,8 @@ addEventListener('DOMContentLoaded', () => {
     /* --- camera --- */
     const shots = {
       closed: { pos: new T.Vector3(0, 5.9, 7.9), look: new T.Vector3(0, 1.15, .1) },
-      open: { pos: new T.Vector3(0, 5.9, 9.6), look: new T.Vector3(0, 1.6, -.2) },
+      // a little further back and aimed lower than before, so the headline under the open book has room
+      open: { pos: new T.Vector3(0, 6.4, 10.6), look: new T.Vector3(0, 1.25, -.2) },
       // phone held upright: the book fills the width, the heroes climb the screen above it
       closedTall: { pos: new T.Vector3(0, 8.6, 9.4), look: new T.Vector3(0, 1.05, .2) },
       openTall: { pos: new T.Vector3(0, 6.5, 14.8), look: new T.Vector3(0, 2.6, -.3) }

@@ -263,6 +263,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 }
 .wa svg { width: 26px; height: 26px; color: var(--gold); flex: none; }
 .wa:hover { border-color: var(--gold); transform: translateY(-2px); }
+.wa { transition: border-color .2s, transform .2s, opacity .25s; }
+.wa.wa-off { opacity: 0; pointer-events: none; }
+/* what every order comes with: preview and approval, corrections, free delivery */
+.promise { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; font-size: .86rem; color: var(--cream); }
+.promise li { position: relative; padding-left: 24px; }
+.promise li::before { content: ""; position: absolute; left: 0; top: .2em; width: 15px; height: 15px; border-radius: 50%; background: var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.3l2.6 2.5L12 5.4' fill='none' stroke='%23200f0b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 11px no-repeat; }
+.p-buy .promise { margin: 4px 0 14px; font-size: .8rem; }
 .site-foot { padding-bottom: 96px; }   /* room so the round WhatsApp button never covers the footer */
 .toast { position: fixed; z-index: 90; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; background: var(--wood-2); color: var(--cream); border: 1px solid var(--line-strong); border-radius: 8px; padding: 12px 18px; font-size: .9rem; max-width: calc(100vw - 32px); box-shadow: 0 20px 50px -20px rgba(0,0,0,.9); }
 .foot-wa { display: inline-flex; align-items: center; gap: 10px; color: var(--gold-pale); text-decoration: none; font-size: .9rem; }

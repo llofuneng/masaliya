@@ -76,7 +76,8 @@ export async function checkPhoto(file, slot) {
 
   const look = canvasOf(src, 1024);
   let found;
-  try { found = (await landmarker()).detect(look); }
+  // the face finder comes from a CDN: if it has not loaded in 15 s, go on without it rather than block the order
+  try { found = (await Promise.race([landmarker(), new Promise((_, no) => setTimeout(() => no(new Error('slow')), 15000))])).detect(look); }
   catch (e) {
     // no face check on this device: take the photo, we look at every photo ourselves anyway
     return { level: bad.length ? 'bad' : 'ok', messages: bad.length ? bad : ['Otomatik kontrol bu cihazda çalışmadı; fotoğrafı biz kontrol edeceğiz.'], blob: bad.length ? null : await upload(src) };
