@@ -833,12 +833,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .deal-run:focus-visible { outline: 2px solid var(--cream); outline-offset: -4px; }
 @keyframes dealRun { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .deal-track { animation: none; } }
-.deal-run.band { position: relative; z-index: 51; }
 .deal-banner a { color: var(--burgundy); }
 .p-head .deal-banner { margin: 14px 0 6px; justify-items: start; text-align: left; }
-.has-deal .frame { top: 46px; }
-.has-deal .intro-top { padding-top: 66px; }
-@media (max-width: 520px) { .has-deal .frame { top: 42px; } .has-deal .intro-top { padding-top: 56px; } }
+/* room for the line is kept from the first paint (class set in the page head), so nothing jumps when it appears */
+.deal-on .intro .frame { top: 46px; }
+.deal-on .intro-top { padding-top: 66px; }
+@media (max-width: 520px) { .deal-on .intro .frame { top: 42px; } .deal-on .intro-top { padding-top: 56px; } }
+.deal-on body[data-page="kiz"], .deal-on body[data-page="erkek"], .deal-on body[data-page="urunler"] { padding-top: 34px; }
+.deal-run.band { position: absolute; top: 0; }
 /* collections: the offer, large, under the title */
 .deal-banner { display: grid; justify-items: center; gap: 6px; width: fit-content; max-width: 100%; margin: 22px auto 4px; padding: 16px 26px; border: 1px solid var(--gold); border-radius: 14px; background: linear-gradient(160deg, var(--gold-pale), var(--gold)); color: var(--ink); text-align: center; text-wrap: balance; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .deal-banner b { font: 700 clamp(1.55rem, 1.15rem + 1.7vw, 2.1rem)/1.1 var(--f-display); color: var(--burgundy); }
@@ -852,3 +854,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .deal-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 4px 0 8px; color: var(--cream); }
 .deal-line small { display: block; font-size: .72rem; color: var(--muted); }
 .deal-line strong { color: var(--gold-pale); font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* empty boxes filled by the script keep their size from the first paint, so the page does not jump */
+#site-head:empty { display: block; min-height: 73px; }
+.tabs:empty { min-height: 41px; }
+.price-note:empty { min-height: 1.6em; }
+#crumbs:empty { min-height: 1.2em; }
+#product:empty, #grid:empty { min-height: 100svh; }
+[data-sell]:not(.sell-on) { display: none !important; }

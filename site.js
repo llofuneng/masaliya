@@ -47,7 +47,7 @@ function dealRun() {
   a.className = 'deal-run'; a.href = 'urunler.html';
   a.setAttribute('aria-label', `İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim, ${PAIR_DEAL.untilText}’a kadar. Kitapları gör`);
   a.innerHTML = `<span class="deal-track" aria-hidden="true">${one.repeat(4)}${one.repeat(4)}</span>`;
-  if (intro) { intro.prepend(a); intro.classList.add('has-deal'); }
+  if (intro) intro.prepend(a);
   else { a.classList.add('band'); document.body.prepend(a); }
 }
 /* the book page: the offer as a banner under the title */
@@ -639,10 +639,12 @@ function renderCollection(aud) {
     ? [['hepsi', 'Hepsi'], ...Object.entries(OCCASIONS)]
     : Object.entries(TYPES).filter(([k]) => k !== 'boyama' || SELL.boyama).map(([, t]) => [t.tab, t.name]);
   const items = PRODUCTS.filter(p => p.aud === aud && onSale(p));
-  if (!isAdult && PRICES.kitap.hard && !document.getElementById('price-note')) {
-    const pn = document.createElement('p'); pn.id = 'price-note'; pn.className = 'price-note';
+  // the page keeps an empty line for the prices, so filling it moves nothing
+  const pnOld = document.getElementById('price-note');
+  if (!isAdult && PRICES.kitap.hard && !(pnOld && pnOld.innerHTML.trim())) {
+    const pn = pnOld || document.createElement('p'); pn.id = 'price-note'; pn.className = 'price-note';
     pn.innerHTML = `<span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span><span>Ücretsiz kargo</span>`;
-    tabsEl.after(pn);
+    if (!pnOld) tabsEl.after(pn);
     dealRun();
   }
   function show() {
@@ -1280,7 +1282,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.body.dataset.page === 'tesekkurler' && /siparis=MSL-/.test(location.search)) { cart.clear(); try { sessionStorage.removeItem(DRAFT_KEY); } catch (e) {} }
   document.querySelectorAll('[data-aud]').forEach(el => { if (AUDIENCES[el.dataset.aud] && AUDIENCES[el.dataset.aud].hidden) el.remove(); });
   // data-sell="boyama yapboz": shown while at least one of them is on sale
-  document.querySelectorAll('[data-sell]').forEach(el => { if (!el.dataset.sell.split(' ').some(k => SELL[k])) el.remove(); });
+  // (hidden from the first paint by the style sheet, so a part that is not on sale never shows and then vanishes)
+  document.querySelectorAll('[data-sell]').forEach(el => { if (!el.dataset.sell.split(' ').some(k => SELL[k])) el.remove(); else el.classList.add('sell-on'); });
   const setRows = document.querySelector('tr[data-set-rows]');
   if (setRows) {
     const sets = SETS.filter(st => st.items.length);

@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* Instagram and Facebook open links in their own slow browser: there the home page shows a picture of the open book
+   instead of the 3D one (test with ?lite). And the campaign line gets its room before anything is drawn. */
+(function (d) {
+  if (/Instagram|FBAN|FBAV|FB_IAB|FBIOS|FB4A/i.test(navigator.userAgent) || /[?&]lite\b/.test(location.search)) d.classList.add('lite');
+  if (Date.now() <= Date.parse('2026-12-15T23:59:59+03:00')) d.classList.add('deal-on');   /* DEAL-UNTIL: kept in step by tools/build-pages.js */
+})(document.documentElement);
+</script>
 <link rel="icon" href="img/favicon.png?v=2"><link rel="apple-touch-icon" href="img/logo/masaliya-favicon.png?v=2">
 <title>Masaliya</title>
 <meta name="description" content="Masaliya: değer verdiğiniz insanların yüzüyle resimlenen kişiye özel masal kitapları.">
@@ -17,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611110958">
+<link rel="stylesheet" href="site.css?v=202611111025">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -116,6 +124,18 @@
 .door b { font: 500 clamp(1.05rem, 1rem + .8vw, 1.6rem)/1.1 var(--f-display); }
 .door small { font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
 
+/* Instagram / Facebook browser: a picture of the open book, the two doors standing in its light */
+.lite-book { display: none; }
+.intro.lite { --lw: min(calc(100vw - 60px), 560px, calc((100svh - 285px) * 1.03)); }
+.lite .seal, .lite .hero-copy, .lite #book3d, .lite .loader { display: none; }
+.lite .lite-book { display: block; align-self: end; width: var(--lw); aspect-ratio: 960 / 933; background: url("img/kitap-acik.webp") center / cover no-repeat;
+  -webkit-mask-image: radial-gradient(62% 60% at 50% 58%, #000 62%, transparent 100%); mask-image: radial-gradient(62% 60% at 50% 58%, #000 62%, transparent 100%); }
+.lite .doors { position: relative; z-index: 1; align-self: end; margin-bottom: calc(var(--lw) * .97 * .4); grid-auto-columns: calc(var(--lw) * .3); gap: calc(var(--lw) * .09); visibility: visible; }
+.lite .door { transition-duration: .6s, .7s; width: calc(var(--lw) * .3); }
+.lite .door img { width: calc(var(--lw) * .3); }
+.lite .door b { font-size: clamp(1rem, .8rem + 1vw, 1.3rem); white-space: nowrap; }
+.lite .after-copy { animation: none; }
+
 /* Film mode (when media/intro.mp4 exists) */
 .film-bg { position: absolute; inset: -40px; z-index: -2; background: var(--ink) center / cover no-repeat; filter: blur(40px) brightness(.45); display: none; }
 .film { position: absolute; inset: 0; z-index: -1; display: none; place-items: center; }
@@ -204,10 +224,11 @@
       <svg viewBox="0 0 64 64" aria-hidden="true" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="var(--gold, #e2b56b)" opacity=".6"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)" stroke="var(--ink, #160a0c)" stroke-width="1.2"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="var(--gold, #e2b56b)" stroke="var(--ink, #160a0c)" stroke-width="1.6" stroke-linejoin="round"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg>
       <h1 class="word">MASALİYA</h1>
     </div>
+    <div class="lite-book" aria-hidden="true"></div>
     <nav class="doors" id="doors" aria-label="Koleksiyonlar">
-      <a class="door" href="kizlar.html"><img alt="" data-hero-img="0"><b>Kız Çocukları</b></a>
-      <a class="door" href="erkekler.html"><img alt="" data-hero-img="1"><b>Erkek Çocukları</b></a>
-      <a class="door" href="yetiskinler.html" data-aud="yetiskin"><img alt="" data-hero-img="2"><b>Yetişkinler</b></a>
+      <a class="door" href="kizlar.html"><img alt="" width="512" height="704" data-hero-img="0"><b>Kız Çocukları</b></a>
+      <a class="door" href="erkekler.html"><img alt="" width="512" height="704" data-hero-img="1"><b>Erkek Çocukları</b></a>
+      <a class="door" href="yetiskinler.html" data-aud="yetiskin"><img alt="" width="512" height="704" data-hero-img="2"><b>Yetişkinler</b></a>
     </nav>
   </div>
 
@@ -237,8 +258,8 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611110958" defer></script>
+<script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
+<script src="site.js?v=202611111025" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -291,6 +312,7 @@ addEventListener('DOMContentLoaded', () => {
   if (location.hash === '#sec') { if (book) book.jumpOpen(); done(); }
   if (!book) {
     mode = 'logo'; intro.classList.add('no3d');
+    if (document.documentElement.classList.contains('lite')) { intro.classList.add('lite'); done(); }
     // the fallback doors use the same artwork as the 3D heroes
     document.querySelectorAll('[data-hero-img]').forEach(img => { img.src = drawHeroCard(HEROES[+img.dataset.heroImg]).toDataURL(); });
   }
@@ -302,7 +324,7 @@ addEventListener('DOMContentLoaded', () => {
     let renderer;
     try { renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return null; }
     if (!renderer.getContext()) return null;
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, matchMedia('(pointer: coarse)').matches ? 1.5 : 2));
     renderer.outputEncoding = T.sRGBEncoding;
     renderer.toneMapping = T.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
@@ -764,8 +786,8 @@ addEventListener('DOMContentLoaded', () => {
         if (beside) tmp.set((spot[3] === 'r' ? 1 : -1) * (HW / 2 + .1), 0, 0); else tmp.set(0, -HH / 2, 0);
         h.label.dataset.side = beside ? spot[3] : '';
         h.card.localToWorld(tmp); tmp.project(camera);
-        h.label.style.left = `${(tmp.x + 1) / 2 * rect.width}px`;
-        h.label.style.top = `${(1 - tmp.y) / 2 * rect.height}px`;
+        // moved with translate, not left/top, so the page does not count it as a layout shift
+        h.label.style.translate = `${(tmp.x + 1) / 2 * rect.width}px ${(1 - tmp.y) / 2 * rect.height}px`;
         h.label.style.opacity = lp;
         const lon = lp > .8;
         if (h.label.classList.contains('on') !== lon) {
@@ -780,7 +802,7 @@ addEventListener('DOMContentLoaded', () => {
           const sx = (tmp.x + 1) / 2 * rect.width, sy = (1 - tmp.y) / 2 * rect.height;
           x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy);
         }
-        Object.assign(h.hit.style, { left: `${x0}px`, top: `${y0}px`, width: `${x1 - x0}px`, height: `${y1 - y0}px` });
+        Object.assign(h.hit.style, { translate: `${x0}px ${y0}px`, width: `${x1 - x0}px`, height: `${y1 - y0}px` });
         h.hit.classList.toggle('on', tl >= END - .3);
       });
       // pointer: hover the closed book, or a risen hero

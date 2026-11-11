@@ -52,6 +52,14 @@ const pages = ['', 'urunler', 'kizlar', 'erkekler', ...(AUDIENCES.yetiskin.hidde
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(u => `  <url><loc>${SITE}/${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 
+// the campaign end date, also used in the page heads to keep room for the running line before it is drawn
+for (const f of ['index.html', 'kizlar.html', 'erkekler.html', 'urunler.html']) {
+  const file = path.join(ROOT, f), t = fs.readFileSync(file, 'utf8');
+  const t2 = t.replace(/Date\.parse\('[^']*'\)\) (document\.documentElement|d)\.classList\.add\('deal-on'\)/, (m, who) => `Date.parse('${PAIR_DEAL ? PAIR_DEAL.until : '1970-01-01T00:00:00Z'}')) ${who}.classList.add('deal-on')`);
+  if (t2 === t && !t.includes(PAIR_DEAL ? PAIR_DEAL.until : '1970-01-01')) throw new Error('deal date marker not found in ' + f);
+  fs.writeFileSync(file, t2);
+}
+
 // the order server prices orders itself: give it the same catalogue
 const WORKER = path.join(ROOT, 'worker', 'masaliya-siparis.js');
 const catalog = {
