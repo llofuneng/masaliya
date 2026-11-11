@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611101110">
+<link rel="stylesheet" href="site.css?v=202611110640">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -94,6 +94,8 @@
 .hero-label[data-side="r"] { transform: translate(0, -50%); justify-items: start; text-align: left; }
 .hero-label[data-side="l"] { transform: translate(-100%, -50%); justify-items: end; text-align: right; }
 .phone .hero-label b { font-size: 1.35rem; }
+/* side by side on a phone the two names share the width */
+.phone .hero-label:not([data-side="r"]):not([data-side="l"]) b { font-size: clamp(1rem, .55rem + 2.4vw, 1.25rem); }
 
 
 /* Logo + doors fallback (no WebGL) */
@@ -234,7 +236,7 @@
 <footer id="site-foot"></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="site.js?v=202611101110" defer></script>
+<script src="site.js?v=202611110640" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -596,8 +598,9 @@ addEventListener('DOMContentLoaded', () => {
       closedTall: { pos: new T.Vector3(0, 8.6, 9.4), look: new T.Vector3(0, 1.05, .2) },
       openTall: { pos: new T.Vector3(0, 6.5, 14.8), look: new T.Vector3(0, 2.6, -.3) }
     };
-    // zig-zag "staircase" of heroes for upright phones: [x, y, z, label side]
-    const TALL_SPOTS = n === 2 ? [[-.62, 4.5, -.4, 'r'], [.62, 2.9, -.35, 'l']] : [[-.62, 5.05, -.4, 'r'], [.62, 3.6, -.35, 'l'], [-.62, 2.15, -.3, 'r']];
+    // upright phones: girls and boys side by side with the name under each; three heroes climb a zig-zag
+    // [x, y, z, label side: b = below, r / l = beside]
+    const TALL_SPOTS = n === 2 ? [[-.95, 2.5, -.35, 'b'], [.95, 2.5, -.35, 'b']] : [[-.62, 4.65, -.4, 'r'], [.62, 3.2, -.35, 'l'], [-.62, 1.75, -.3, 'r']];
     let aspect = 1;
     const isPhone = () => aspect < .8;
     function shot(s) { const k = aspect < 1.05 && !isPhone() ? Math.min(s === shots.open ? 2.0 : 2.25, 1.22 / aspect) : 1; return { pos: s.pos.clone().multiplyScalar(k), look: s.look.clone() }; }
@@ -633,6 +636,38 @@ addEventListener('DOMContentLoaded', () => {
         bookG.scale.setScalar(BOOK_SIZE * fit.scale); bookG.updateMatrixWorld(true);
         fitBook(1);
       }
+    }
+    /* upright phone, open book: move the camera in or out and up or down so that everything from the top hero
+       down to the front edge of the open book sits between the logo bar and the headline, with air on both sides */
+    const fitO = { k: 1, shift: 0, ready: false }, cam2 = camera.clone(), up2 = new T.Vector3(), pO = new T.Vector3();
+    const acEl = document.querySelector('.after-copy'), topEl = document.querySelector('.intro-top');
+    function openShot() {
+      const s = shot(shots.openTall), look = s.look.clone();
+      look.y += fitO.shift;
+      return { pos: s.pos.clone().sub(s.look).multiplyScalar(fitO.k).add(look), look };
+    }
+    function fitOpen(iter) {
+      if (!acEl || !topEl || !acEl.offsetParent) return;
+      const r = canvas.getBoundingClientRect();
+      const lim0 = topEl.getBoundingClientRect().bottom - r.top + 16, lim1 = acEl.getBoundingClientRect().top - r.top - 26;
+      if (lim1 - lim0 < 160) return;
+      const bs = BOOK_SIZE * .74;   // the open book's size on a phone (see frame)
+      cam2.fov = camera.fov; cam2.aspect = camera.aspect; cam2.updateProjectionMatrix();
+      const py = () => { pO.project(cam2); return (1 - pO.y) / 2 * r.height; };
+      for (let i = 0; i < iter; i++) {
+        const s = openShot();
+        cam2.position.copy(s.pos); cam2.lookAt(s.look); cam2.updateMatrixWorld();
+        up2.set(0, 1, 0).applyQuaternion(cam2.quaternion);
+        let y0 = Infinity, y1 = -Infinity, x0 = Infinity, x1 = -Infinity;
+        for (const x of [-W * bs, W * bs]) { pO.set(x, 0, D / 2 * bs); y1 = Math.max(y1, py()); x0 = Math.min(x0, (pO.x + 1) / 2 * r.width); x1 = Math.max(x1, (pO.x + 1) / 2 * r.width); }
+        for (let j = 0; j < n; j++) { const sp = TALL_SPOTS[j]; pO.set(sp[0], sp[1] + .05, sp[2]).addScaledVector(up2, HH / 2 * 1.07); y0 = Math.min(y0, py()); }
+        // too tall for the room, or the open book wider than the frame: step back; otherwise come closer
+        const over = Math.max((y1 - y0) / (lim1 - lim0), (x1 - x0) / (r.width - 44));
+        fitO.k = Math.max(.85, Math.min(1.6, fitO.k * (1 + (over - 1) * .8)));
+        const perPx = 2 * s.pos.distanceTo(s.look) * Math.tan(cam2.fov * Math.PI / 360) / r.height;
+        fitO.shift = Math.max(-2, Math.min(2, fitO.shift - ((y0 + y1) / 2 - (lim0 + lim1) / 2) * perPx * .8));
+      }
+      fitO.ready = true;
     }
     function resize() { const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); aspect = w / h; camera.aspect = aspect; camera.updateProjectionMatrix(); }
 
@@ -694,7 +729,8 @@ addEventListener('DOMContentLoaded', () => {
       }
       // camera
       const phone = isPhone();
-      const ce = ease(clamp(tl / 3.2)), a = shot(phone ? shots.closedTall : shots.closed), b = shot(phone ? shots.openTall : shots.open);
+      if (phone && tl > 0) fitOpen(fitO.ready ? 1 : 14);
+      const ce = ease(clamp(tl / 3.2)), a = shot(phone ? shots.closedTall : shots.closed), b = phone ? openShot() : shot(shots.open);
       camera.position.lerpVectors(a.pos, b.pos, ce);
       camera.position.x += Math.sin(t * .23) * .12 * (1 - ce * .6);
       camera.position.y += Math.sin(t * .31) * .05;
@@ -720,8 +756,9 @@ addEventListener('DOMContentLoaded', () => {
         h.halo.material.opacity = .1 + .25 * h.hover;
         // label under the card, or beside it on a phone
         const lp = clamp((tl - 2.4 - h.i * .22) / .6);
-        if (spot) tmp.set((spot[3] === 'r' ? 1 : -1) * (HW / 2 + .1), 0, 0); else tmp.set(0, -HH / 2, 0);
-        h.label.dataset.side = spot ? spot[3] : '';
+        const beside = spot && spot[3] !== 'b';
+        if (beside) tmp.set((spot[3] === 'r' ? 1 : -1) * (HW / 2 + .1), 0, 0); else tmp.set(0, -HH / 2, 0);
+        h.label.dataset.side = beside ? spot[3] : '';
         h.card.localToWorld(tmp); tmp.project(camera);
         h.label.style.left = `${(tmp.x + 1) / 2 * rect.width}px`;
         h.label.style.top = `${(1 - tmp.y) / 2 * rect.height}px`;
