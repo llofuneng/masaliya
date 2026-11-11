@@ -37,7 +37,18 @@ const PRICES = {
 const PAIR_DEAL = { off: 900, until: '2026-12-15T23:59:59+03:00', untilText: '15 Aralık' };
 const pairOn = () => !!PAIR_DEAL && Date.now() <= Date.parse(PAIR_DEAL.until);
 const pairOff = items => pairOn() ? Math.floor(items.filter(it => it.cover === 'hard').length / 2) * PAIR_DEAL.off : 0;
-const PAIR_LINE = () => pairOn() ? `${PAIR_DEAL.untilText}’a kadar: ikinci sert kapak kitap <b>${fmt(PRICES.kitap.hard - PAIR_DEAL.off)}</b> · ikisi birlikte ${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}` : '';
+const PAIR_LINE = () => pairOn() ? `<b>İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim</b> · 2 sert kapak kitap birlikte ${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)} · ${PAIR_DEAL.untilText}’a kadar` : '';
+/* the home page: a running gold line along the top of the first screen */
+function dealRun() {
+  const intro = document.getElementById('intro');
+  if (!pairOn() || !intro || intro.querySelector('.deal-run')) return;
+  const one = `<span>İkinci kitapta <b>${fmt(PAIR_DEAL.off)} indirim</b></span><i>✦</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>✦</i><span>Kaçırmayın!</span><i>✦</i>`;
+  const a = document.createElement('a');
+  a.className = 'deal-run'; a.href = 'urunler.html';
+  a.setAttribute('aria-label', `İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim, ${PAIR_DEAL.untilText}’a kadar. Kitapları gör`);
+  a.innerHTML = `<span class="deal-track" aria-hidden="true">${one.repeat(4)}${one.repeat(4)}</span>`;
+  intro.prepend(a); intro.classList.add('has-deal');
+}
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 /* ON SALE NOW. Only the story books are ready. Switch boyama (coloring books) or yapboz (wooden
@@ -629,7 +640,8 @@ function renderCollection(aud) {
     const pn = document.createElement('p'); pn.id = 'price-note'; pn.className = 'price-note';
     pn.innerHTML = `<span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span><span>Ücretsiz kargo</span>`;
     tabsEl.after(pn);
-    if (pairOn()) { const dl = document.createElement('p'); dl.className = 'deal-strip'; dl.innerHTML = PAIR_LINE(); pn.after(dl); }
+    // the campaign, large, right under the collection's title
+    if (pairOn()) { const dl = document.createElement('p'); dl.className = 'deal-banner'; dl.innerHTML = `<b>İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim</b><span>2 sert kapak kitap birlikte <em>${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}</em> · ${PAIR_DEAL.untilText}’a kadar</span>`; tabsEl.before(dl); }
   }
   function show() {
     let key = location.hash.slice(1);
@@ -665,8 +677,8 @@ function renderCart() {
     const hardN = items.filter(it => it.cover === 'hard').length;
     // the campaign: what was taken off, or how to get it with one more book
     const deal = !pairOn() ? '' : off
-      ? `<div class="deal-line"><span>2 kitap indirimi <small>İkinci sert kapak kitap ${fmt(PRICES.kitap.hard - PAIR_DEAL.off)} · ${PAIR_DEAL.untilText}’a kadar</small></span><strong>−${fmt(off)}</strong></div>`
-      : hardN % 2 === 1 ? `<p class="deal-hint">Bir sert kapak kitap daha ekleyin: ikinci kitap <b>${fmt(PRICES.kitap.hard - PAIR_DEAL.off)}</b>, ikisi birlikte ${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}. <a href="urunler.html">Kitapları gör</a></p>` : '';
+      ? `<div class="deal-line"><span>2 kitap indirimi <small>İkinci sert kapak kitapta ${fmt(PAIR_DEAL.off)} · ${PAIR_DEAL.untilText}’a kadar</small></span><strong>−${fmt(off)}</strong></div>`
+      : hardN % 2 === 1 ? `<p class="deal-hint">Bir sert kapak kitap daha ekleyin: ikinci kitapta <b>${fmt(PAIR_DEAL.off)} indirim</b>, ikisi birlikte ${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}. <a href="urunler.html">Kitapları gör</a></p>` : '';
     root.innerHTML = `<div class="cart-grid">
       <ul class="cart-items">${items.map(it => `<li>
         <img src="${thumb(it.img)}" alt="">
@@ -1284,7 +1296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (g) {
       g.innerHTML = books.map(b => card(b, true)).join('');
       if (books.length === 4) g.classList.add('n2');   // two by two, so no book is left alone on a row
-      if (pairOn()) { const dl = document.createElement('p'); dl.className = 'deal-strip'; dl.innerHTML = PAIR_LINE(); g.before(dl); }
+      dealRun();
     }
   }
   if (page === 'urun') {
