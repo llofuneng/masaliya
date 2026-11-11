@@ -31,6 +31,13 @@ const PRICES = {
   boyama: { print: 590, digital: null },   // only with a book
   yapboz: { std: 640 }    // wooden, 35 pieces; only with a book
 };
+/* Campaign: in one order, the second of every two hardcover books costs 2.000 TL (2.900 + 2.000 = 4.900 TL), until the end of
+   15 Aralık 2026, Türkiye time. The order server gets the same rule from tools/build-pages.js and prices it itself;
+   after the date both sides stop on their own. Set to null to stop it earlier (then rebuild and paste the worker). */
+const PAIR_DEAL = { off: 900, until: '2026-12-15T23:59:59+03:00', untilText: '15 Aralık' };
+const pairOn = () => !!PAIR_DEAL && Date.now() <= Date.parse(PAIR_DEAL.until);
+const pairOff = items => pairOn() ? Math.floor(items.filter(it => it.cover === 'hard').length / 2) * PAIR_DEAL.off : 0;
+const PAIR_LINE = () => pairOn() ? `${PAIR_DEAL.untilText}’a kadar: ikinci sert kapak kitap <b>${fmt(PRICES.kitap.hard - PAIR_DEAL.off)}</b> · ikisi birlikte ${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}` : '';
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 /* ON SALE NOW. Only the story books are ready. Switch boyama (coloring books) or yapboz (wooden
@@ -622,6 +629,7 @@ function renderCollection(aud) {
     const pn = document.createElement('p'); pn.id = 'price-note'; pn.className = 'price-note';
     pn.innerHTML = `<span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span><span>Ücretsiz kargo</span>`;
     tabsEl.after(pn);
+    if (pairOn()) { const dl = document.createElement('p'); dl.className = 'deal-strip'; dl.innerHTML = PAIR_LINE(); pn.after(dl); }
   }
   function show() {
     let key = location.hash.slice(1);
@@ -652,8 +660,13 @@ function renderCart() {
       root.innerHTML = `<div class="panel cart-empty"><p class="lede">Sepetiniz boş.</p><a class="btn" href="urunler.html">Masalını seç</a></div>`;
       return;
     }
-    const total = items.reduce((a, it) => a + it.price.total, 0);
+    const off = pairOff(items), total = items.reduce((a, it) => a + it.price.total, 0) - off;
     const ships = items.some(it => it.cover !== 'digital');
+    const hardN = items.filter(it => it.cover === 'hard').length;
+    // the campaign: what was taken off, or how to get it with one more book
+    const deal = !pairOn() ? '' : off
+      ? `<div class="deal-line"><span>2 kitap indirimi <small>İkinci sert kapak kitap ${fmt(PRICES.kitap.hard - PAIR_DEAL.off)} · ${PAIR_DEAL.untilText}’a kadar</small></span><strong>−${fmt(off)}</strong></div>`
+      : hardN % 2 === 1 ? `<p class="deal-hint">Bir sert kapak kitap daha ekleyin: ikinci kitap <b>${fmt(PRICES.kitap.hard - PAIR_DEAL.off)}</b>, ikisi birlikte ${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}. <a href="urunler.html">Kitapları gör</a></p>` : '';
     root.innerHTML = `<div class="cart-grid">
       <ul class="cart-items">${items.map(it => `<li>
         <img src="${thumb(it.img)}" alt="">
@@ -662,6 +675,7 @@ function renderCart() {
         <span class="cart-price">${fmt(it.price.total)}</span></li>`).join('')}
       </ul>
       <form class="panel cart-pay" id="pay">
+        ${deal}
         <div class="total"><span>Toplam <small>${items.length} kitap · Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
         ${ships ? ETA() : ''}
         ${ships ? `<span class="step">Teslimat adresi</span>
@@ -911,6 +925,7 @@ function renderProduct() {
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
         <div class="total"><span>Toplam <small>Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
+        ${p.type === 'kitap' && pairOn() ? `<p class="deal-hint" id="deal-book">${PAIR_LINE()}<small>Aynı siparişte her 2 sert kapak kitapta geçerli · farklı kitaplar ya da aynı kitap iki çocuk için · <a href="sss.html#kampanya">Koşullar</a></small></p>` : ''}
         ${p.type === 'kitap' ? `<div id="eta-hard">${ETA()}</div><p class="eta" id="eta-digital" hidden>Dijital kitap: <b>3 iş günü içinde</b> e-postanıza gelir<small>Önizlemeyi onayladığınızda PDF hemen gönderilir</small></p>` : ''}
         <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenmesine ve aktarılmasına açık rıza veriyorum.</span></label>
         <div class="buy-actions">
@@ -1031,6 +1046,7 @@ function renderProduct() {
       const digital = !!c && c.value === 'digital';
       const eh = document.getElementById('eta-hard'), ed = document.getElementById('eta-digital');
       if (eh && ed) { eh.hidden = digital; ed.hidden = !digital; }
+      const db = document.getElementById('deal-book'); if (db) db.hidden = digital;
       // the e-book comes alone: sets go with the printed book only
       const setsBox = root.querySelector('.sets'), addons = root.querySelector('.addons'), extras = document.getElementById('extras');
       if (setsBox) {
@@ -1268,6 +1284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (g) {
       g.innerHTML = books.map(b => card(b, true)).join('');
       if (books.length === 4) g.classList.add('n2');   // two by two, so no book is left alone on a row
+      if (pairOn()) { const dl = document.createElement('p'); dl.className = 'deal-strip'; dl.innerHTML = PAIR_LINE(); g.before(dl); }
     }
   }
   if (page === 'urun') {

@@ -821,3 +821,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   #grid .card .card-cta, #home-grid .card .card-cta, #related .card .card-cta { align-self: end; min-height: 38px; padding: 8px 10px; font-size: .7rem; }
   #grid .card .meta, #home-grid .card .meta, #related .card .meta { font-size: .62rem; }
 }
+
+/* Campaign: the second hardcover book for less */
+.deal-strip { margin: 14px auto 0; width: fit-content; max-width: 100%; padding: 8px 18px; border: 1px solid rgba(226,181,107,.45); border-radius: 14px; color: var(--cream); font-size: .86rem; text-align: center; text-wrap: balance; }
+.deal-strip b { color: var(--gold-pale); font-weight: 500; }
+.home-books .deal-strip { margin: 0 auto 22px; }
+.deal-hint { margin: 2px 0 12px; font-size: .86rem; color: var(--cream); }
+.deal-hint b { color: var(--gold-pale); font-weight: 500; }
+.deal-hint small { display: block; margin-top: 2px; font-size: .72rem; color: var(--muted); }
+.deal-hint a { color: var(--gold-pale); }
+.deal-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 4px 0 8px; color: var(--cream); }
+.deal-line small { display: block; font-size: .72rem; color: var(--muted); }
+.deal-line strong { color: var(--gold-pale); font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }

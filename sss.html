@@ -17,8 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
 <link rel="icon" href="img/favicon.png?v=2"><link rel="apple-touch-icon" href="img/logo/masaliya-favicon.png?v=2">
-<link rel="stylesheet" href="site.css?v=202611110640">
-<script src="site.js?v=202611110640" defer></script>
+<link rel="stylesheet" href="site.css?v=202611110653">
+<script src="site.js?v=202611110653" defer></script>
 </head>
 <body data-page="sss">
 <header id="site-head"></header>
@@ -38,6 +38,7 @@
     <!-- hidden until there are books for adults:
     <details><summary>Yetişkinler için de masal yapıyor musunuz?</summary><p>Evet. Çiftler, büyükanne ve büyükbabalar, aileler ve doğum günleri için kişiye özel kitaplar hazırlıyoruz. Bu koleksiyon çok yakında açılıyor.</p></details>
     -->
+    <details id="kampanya"><summary>İkinci kitap kampanyasının koşulları nelerdir?</summary><p>15 Aralık 2026 saat 23:59’a kadar verilen siparişlerde, aynı siparişteki her 2 sert kapak kitaptan ikincisi 2.900 TL yerine 2.000 TL’dir; iki kitap birlikte 4.900 TL. Kitaplar farklı olabilir ya da aynı kitap iki ayrı çocuk için hazırlanabilir. 4 sert kapak kitapta indirim iki kez uygulanır. Dijital kitaplar, hediye kutusu ve setlerdeki boyama kitabı ile puzzle kampanyaya dahil değildir. İndirim sepette ve ödeme sayfasında kendiliğinden uygulanır.</p></details>
     <details><summary>Hediye kutusunda neler var?</summary><p>Sert hediye kutusu, kurdele, Masaliya mührü ve sizin sözlerinizle hazırladığımız el yazısı not kartı. Sipariş sırasında isteğe bağlı olarak eklenir.</p></details>
     <details><summary>Siparişimi nasıl takip ederim?</summary><p><a href="siparis.html">Sipariş takibi</a> sayfasına sipariş numaranızı ve e-posta adresinizi ya da telefonunuzu yazmanız yeterli. Fotoğraflarınızın alınmasından kargoya kadar her adımı orada görürsünüz.</p></details>
     <details><summary>Fotoğraflarım ne kadar süre saklanıyor?</summary><p>Fotoğraflar yalnızca ürününüzün hazırlanması için kullanılır ve ürün size teslim edildikten sonra silinir. Ayrıntılar <a href="gizlilik.html">gizlilik sayfamızda</a>.</p></details>
@@ -46,5 +47,6 @@
 </main>
 <footer id="site-foot"></footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "fdd27d4f725045aebd56597c199a8c3f", "spa": false}'></script><!-- End Cloudflare Web Analytics -->
+<script>/* a link to one question opens it */ (function(){ const d = location.hash && document.querySelector("details" + location.hash); if (d) d.open = true; })();</script>
 </body>
 </html>

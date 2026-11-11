@@ -17,7 +17,7 @@
    The catalogue below is written by tools/build-pages.js from site.js: don't edit it by hand. */
 
 /* CATALOG:START */
-const CATALOG = {"books":{"buz-satosunun-sirri":{"title":"ve Buz \u015eatosunun S\u0131rr\u0131","hero":"Asya"},"gokkusagi-unicornu":{"title":"ve G\u00f6kku\u015fa\u011f\u0131 Unicornu","hero":"Ada"},"sihirli-firca":{"title":"ve Sihirli F\u0131r\u00e7a","hero":"Duru"},"minik-pandalar":{"title":"ve Minik Pandalar","hero":"Ela"},"sihirli-kutuphane":{"title":"ve Sihirli K\u00fct\u00fcphane","hero":"Zeynep"},"deniz-kizi-kralligi":{"title":"ve Deniz K\u0131z\u0131 Krall\u0131\u011f\u0131","hero":"Elif"},"dinozorlarin-dogum-gunu":{"title":"ve Dinozorlar\u0131n Do\u011fum G\u00fcn\u00fc","hero":"Kerem"},"kayip-ay-isigi":{"title":"ve Kay\u0131p Ay I\u015f\u0131\u011f\u0131","hero":"Ege"},"buyuk-yaris":{"title":"ve B\u00fcy\u00fck Yar\u0131\u015f","hero":"Poyraz"},"denizi-kurtariyor":{"title":"Denizi Kurtar\u0131yor","hero":"Mert"},"kaybolan-minik-aslan":{"title":"ve Kaybolan Minik Aslan","hero":"Emir"}},"prices":{"kitap":{"hard":2900,"digital":900},"boyama":{"print":590,"digital":null},"yapboz":{"std":640}},"sets":[{"id":"tek","name":"Yaln\u0131zca kitap","items":[],"discount":0},{"id":"masal-seti","name":"Masal Seti","items":[["boyama","print"]],"discount":0},{"id":"yapboz-seti","name":"Puzzle Seti","items":[["yapboz","std"]],"discount":0},{"id":"super-set","name":"S\u00fcper Set","items":[["boyama","print"],["yapboz","std"]],"discount":0}],"giftBox":300,"covers":{"hard":"Sert kapak","digital":"Dijital kitap (PDF)"}};
+const CATALOG = {"books":{"buz-satosunun-sirri":{"title":"ve Buz \u015eatosunun S\u0131rr\u0131","hero":"Asya"},"gokkusagi-unicornu":{"title":"ve G\u00f6kku\u015fa\u011f\u0131 Unicornu","hero":"Ada"},"sihirli-firca":{"title":"ve Sihirli F\u0131r\u00e7a","hero":"Duru"},"minik-pandalar":{"title":"ve Minik Pandalar","hero":"Ela"},"sihirli-kutuphane":{"title":"ve Sihirli K\u00fct\u00fcphane","hero":"Zeynep"},"deniz-kizi-kralligi":{"title":"ve Deniz K\u0131z\u0131 Krall\u0131\u011f\u0131","hero":"Elif"},"dinozorlarin-dogum-gunu":{"title":"ve Dinozorlar\u0131n Do\u011fum G\u00fcn\u00fc","hero":"Kerem"},"kayip-ay-isigi":{"title":"ve Kay\u0131p Ay I\u015f\u0131\u011f\u0131","hero":"Ege"},"buyuk-yaris":{"title":"ve B\u00fcy\u00fck Yar\u0131\u015f","hero":"Poyraz"},"denizi-kurtariyor":{"title":"Denizi Kurtar\u0131yor","hero":"Mert"},"kaybolan-minik-aslan":{"title":"ve Kaybolan Minik Aslan","hero":"Emir"}},"prices":{"kitap":{"hard":2900,"digital":900},"boyama":{"print":590,"digital":null},"yapboz":{"std":640}},"sets":[{"id":"tek","name":"Yaln\u0131zca kitap","items":[],"discount":0},{"id":"masal-seti","name":"Masal Seti","items":[["boyama","print"]],"discount":0},{"id":"yapboz-seti","name":"Puzzle Seti","items":[["yapboz","std"]],"discount":0},{"id":"super-set","name":"S\u00fcper Set","items":[["boyama","print"],["yapboz","std"]],"discount":0}],"giftBox":300,"pairDeal":{"off":900,"until":"2026-12-15T23:59:59+03:00"},"covers":{"hard":"Sert kapak","digital":"Dijital kitap (PDF)"}};
 /* CATALOG:END */
 
 const PART_NAMES = { boyama: 'boyama kitab\u0131', yapboz: 'ah\u015fap puzzle' };
@@ -148,11 +148,16 @@ async function createOrder(req, env) {
     if (shipping.line1.length < 10 || shipping.city.length < 2 || shipping.state.length < 3) return json({ error: 'Teslimat adresi eksik: il, il\u00e7e ve a\u00e7\u0131k adres gerekli.' }, 400);
     if (shipping.postal_code && !/^\d{5}$/.test(shipping.postal_code)) return json({ error: 'Posta kodu 5 rakamdan olu\u015fur.' }, 400);
   }
-  const total = items.reduce((a, it) => a + it.price.total, 0);
+  // campaign: the second of every two hardcover books costs less (until the date in the catalogue)
+  const deal = CATALOG.pairDeal && Date.now() <= Date.parse(CATALOG.pairDeal.until) ? CATALOG.pairDeal.off : 0;
+  const cut = new Map();
+  if (deal) items.filter(it => it.cover === 'hard').forEach((it, i) => { if (i % 2 === 1) cut.set(it.id, deal); });
+  const discount = [...cut.values()].reduce((a, b) => a + b, 0);
+  const total = items.reduce((a, it) => a + it.price.total, 0) - discount;
   const boxes = items.filter(it => it.giftBox).length;
   const order = {
     id: newId('MSL-', 6), status: 'odeme-bekleniyor', created: new Date().toISOString(),
-    items, ships, shipping, price: { total }, contact: { name, phone, email }
+    items, ships, shipping, price: { total, discount }, contact: { name, phone, email }
   };
   await saveOrder(env, order);
 
@@ -170,8 +175,8 @@ async function createOrder(req, env) {
   for (const it of items) {
     p.set(`line_items[${n}][quantity]`, '1');
     p.set(`line_items[${n}][price_data][currency]`, 'try');
-    p.set(`line_items[${n}][price_data][unit_amount]`, String(it.price.set * 100));
-    p.set(`line_items[${n}][price_data][product_data][name]`, `${it.title} \u00b7 ${it.setName}`);
+    p.set(`line_items[${n}][price_data][unit_amount]`, String((it.price.set - (cut.get(it.id) || 0)) * 100));
+    p.set(`line_items[${n}][price_data][product_data][name]`, `${it.title} \u00b7 ${it.setName}${cut.has(it.id) ? ` \u00b7 ikinci kitap ${(it.price.set - cut.get(it.id)).toLocaleString('tr-TR')} TL` : ''}`);
     p.set(`line_items[${n}][price_data][product_data][description]`, it.contents);
     n++;
   }
@@ -584,7 +589,7 @@ function orderHtml(o, origin, t) {
     <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(it.hero)} \u00b7 foto\u011fraf ${n}"></a>`; }).join('')}</div>`).join('');
   return `<h1>${o.id} \u00b7 ${stageLabel(o)} ${refundBadge(o)}</h1>
     <table>
-      <tr><th>Tutar</th><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL \u00b7 ${o.items.length} kitap</td></tr>
+      <tr><th>Tutar</th><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL \u00b7 ${o.items.length} kitap${o.price.discount ? ` \u00b7 2 kitap indirimi \u2212${o.price.discount.toLocaleString('tr-TR')} TL` : ''}</td></tr>
       <tr><th>Tarih</th><td>${date(o.created)}${o.paid ? ` \u00b7 \u00f6dendi ${date(o.paid)}` : ''}</td></tr>
       <tr><th>\u0130leti\u015fim</th><td>${esc(o.contact.name || '')} ${esc(o.contact.phone)} \u00b7 ${esc(o.contact.email)}</td></tr>
       ${o.cargo && o.cargo.no ? `<tr><th>Kargo</th><td>${esc(o.cargo.firm)} \u00b7 ${esc(o.cargo.no)}</td></tr>` : ''}
