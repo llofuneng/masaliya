@@ -51,7 +51,7 @@ function dealRun() {
   else { a.classList.add('band'); document.body.prepend(a); }
 }
 /* the book page: the offer as a banner under the title */
-const DEAL_BANNER = () => pairOn() ? `<p class="deal-banner"><b>İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim</b><span>2 sert kapak kitap birlikte <em>${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}</em> · ${PAIR_DEAL.untilText}’a kadar · <a href="sss.html#kampanya">Koşullar</a></span></p>` : '';
+const DEAL_BANNER = () => pairOn() ? `<p class="deal-banner"><b>İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim</b><span>Herhangi 2 sert kapak kitap birlikte <em>${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}</em> · ${PAIR_DEAL.untilText}’a kadar · <a href="sss.html#kampanya">Koşullar</a></span></p>` : '';
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 /* ON SALE NOW. Only the story books are ready. Switch boyama (coloring books) or yapboz (wooden
