@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611122018">
+<link rel="stylesheet" href="site.css?v=202611122027">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -37,9 +37,9 @@
 .intro > .wrap { padding-left: max(44px, env(safe-area-inset-left, 0px)); padding-right: max(44px, env(safe-area-inset-right, 0px)); max-width: none; }
 @media (max-width: 520px) { .intro > .wrap { padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); } }
 .intro-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-block: 34px 0; z-index: 5; }
-.lockup { grid-column: 2; display: grid; justify-items: center; gap: 8px; text-decoration: none; color: var(--gold-pale); }
-.lockup svg { width: 40px; height: 40px; display: block; filter: drop-shadow(0 0 10px rgba(226,181,107,.4)); }
-.lockup span { font: 500 .82rem/1 var(--f-display); letter-spacing: .5em; padding-left: .5em; }
+.lockup { grid-column: 2; display: grid; justify-items: center; gap: 10px; text-decoration: none; color: var(--gold-pale); }
+.lockup svg { width: clamp(52px, 4.5vw, 64px); height: clamp(52px, 4.5vw, 64px); display: block; filter: drop-shadow(0 0 10px rgba(226,181,107,.4)); }
+.lockup span { font: 500 clamp(1.02rem, .9rem + .4vw, 1.2rem)/1 var(--f-display); letter-spacing: .5em; padding-left: .5em; }
 .menu-icon { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: 12px; background: none; border: 0; cursor: pointer; color: var(--gold-pale); font: 400 .7rem var(--f-body); letter-spacing: .26em; text-transform: uppercase; min-height: 44px; min-width: 44px; justify-content: flex-end; padding: 0; }
 .menu-icon i { display: grid; gap: 5px; width: 24px; }
 .menu-icon i::before, .menu-icon i::after { content: ""; height: 1px; background: currentColor; }
@@ -261,13 +261,12 @@
       <li><b>3 iş günü</b><span>tasarım ve bütün sayfaların önizlemesi</span></li>
       <li><b>5 iş günü</b><span>baskı, sonra ücretsiz kargo · dijital hemen</span></li>
     </ol>
-    <p class="how-notes"><span>Baskıdan önce tam önizleme</span><span>Fotoğraflar teslimden sonra silinir</span><span>Sert kapak ya da dijital</span></p>
   </div>
 </div></section>
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611122018" defer></script>
+<script src="site.js?v=202611122027" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -625,7 +624,7 @@ addEventListener('DOMContentLoaded', () => {
     const shots = {
       closed: { pos: new T.Vector3(0, 5.9, 7.9), look: new T.Vector3(0, 1.15, .1) },
       // a little further back and aimed lower than before, so the headline under the open book has room
-      open: { pos: new T.Vector3(0, 6.4, 10.6), look: new T.Vector3(0, 1.25, -.2) },
+      open: { pos: new T.Vector3(0, 6.9, 11.5), look: new T.Vector3(0, 1.45, -.2) },
       // phone held upright: the book fills the width, the heroes climb the screen above it
       closedTall: { pos: new T.Vector3(0, 8.6, 9.4), look: new T.Vector3(0, 1.05, .2) },
       openTall: { pos: new T.Vector3(0, 6.5, 14.8), look: new T.Vector3(0, 2.6, -.3) }
