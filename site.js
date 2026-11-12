@@ -78,7 +78,7 @@ const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
   kitap: [
-    ['hard', 'Sert Kapak', '21 × 28 cm · fotoğraf kâğıdı'],
+    ['hard', 'Sert Kapak', '21 × 28 cm · Fotoğraf kâğıdı'],
     ['digital', 'Dijital Kitap', 'E-postanıza gelir <i class="pdf-tag">PDF</i>']
   ],
   boyama: [
