@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611122028">
+<link rel="stylesheet" href="site.css?v=202611122033">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -107,7 +107,7 @@
 .hero-label .soon-tag { display: none; }
 .door.soon { cursor: default; }
 /* three in a row on a phone: the names may take two lines */
-.phone.three .hero-label:not([data-side="r"]):not([data-side="l"]) { white-space: normal; width: 6.2em; }
+.phone.three .hero-label:not([data-side="r"]):not([data-side="l"]) { white-space: normal; width: 5em; }
 .phone.three .hero-label:not([data-side="r"]):not([data-side="l"]) b { font-size: clamp(.95rem, .6rem + 1.6vw, 1.1rem); line-height: 1.05; }
 /* side by side on a phone the two names share the width */
 .phone .hero-label:not([data-side="r"]):not([data-side="l"]) b { font-size: clamp(1rem, .55rem + 2.4vw, 1.25rem); }
@@ -164,12 +164,20 @@
 /* it rises as the book starts to open, not after */
 .playing .after-copy, .opened .after-copy { display: grid; gap: 4px; animation: acIn 1.4s ease both; }
 @keyframes acIn { from { opacity: 0; transform: translateY(10px); } }
-.after-copy .ac-title { margin: 0; font: 400 clamp(1.7rem, 1.2rem + 2vw, 2.6rem)/1.05 var(--f-display); color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,.7); }
+.after-copy .ac-title { margin: 0; font: 500 clamp(1.7rem, 1.2rem + 2vw, 2.6rem)/1.05 var(--f-display); text-wrap: balance; color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,.7); }
 .after-copy .ac-title em { font-style: italic; color: var(--gold-pale); }
-.after-copy .ac-eyebrow { margin: 0 0 2px; font: 500 .74rem/1.3 var(--f-body); letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
+/* what the site makes, said first and set apart: a deep wine plate with a gold hairline behind it */
+.after-copy { padding: 14px 22px 16px; border: 1px solid rgba(226,181,107,.55); border-radius: 16px;
+  background: linear-gradient(180deg, rgba(107,29,42,.88), rgba(58,14,24,.9)); box-shadow: 0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(244,223,179,.18);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.after-copy p:last-child { color: rgba(246,236,220,.86); }
+/* short phone screens (small iPhones with the browser bars): a smaller logo, the slogan left out, so the scene keeps its size */
+@media (max-height: 600px) and (max-width: 560px) { .lockup svg { width: 44px; height: 44px; } .lockup span { font-size: .95rem; } .lockup-tag { display: none; } .after-copy p:last-child { font-size: .78rem; } }
+/* the slogan now sits under the logo */
+.lockup-tag { font: italic 400 clamp(.95rem, .85rem + .35vw, 1.15rem)/1 var(--f-display); color: var(--cream); opacity: .85; letter-spacing: .02em; margin-top: -2px; }
 .after-copy p:last-child { margin: 0; font-size: clamp(.82rem, .75rem + .3vw, .98rem); line-height: 1.45; color: var(--muted); }
 /* phone: a larger headline, and more room between the text and the gold frame below it */
-@media (max-width: 560px) { .after-copy { gap: 8px; } .after-copy .ac-title { font-size: clamp(2.05rem, 1.2rem + 3.6vw, 2.35rem); } .intro-bottom { padding-bottom: max(46px, calc(env(safe-area-inset-bottom, 0px) + 30px)); } }
+@media (max-width: 560px) { .after-copy { gap: 8px; padding: 12px 16px 14px; } .after-copy .ac-title { font-size: clamp(1.8rem, 1.2rem + 2.6vw, 2.05rem); } .intro-bottom { padding-bottom: max(46px, calc(env(safe-area-inset-bottom, 0px) + 30px)); } }
 .after { display: none; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .opened .after { display: flex; }
 .after .adults { display: none; }
@@ -219,7 +227,7 @@
   </div>
 
   <div class="wrap intro-top">
-    <a class="lockup" href="./" aria-label="Masaliya"><svg viewBox="0 0 64 64" aria-hidden="true" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="var(--gold, #e2b56b)" opacity=".6"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)" stroke="var(--ink, #160a0c)" stroke-width="1.2"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="var(--gold, #e2b56b)" stroke="var(--ink, #160a0c)" stroke-width="1.6" stroke-linejoin="round"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg><span>MASALİYA</span></a>
+    <a class="lockup" href="./" aria-label="Masaliya"><svg viewBox="0 0 64 64" aria-hidden="true" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="var(--gold, #e2b56b)" opacity=".6"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)" stroke="var(--ink, #160a0c)" stroke-width="1.2"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="var(--gold, #e2b56b)" stroke="var(--ink, #160a0c)" stroke-width="1.6" stroke-linejoin="round"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg><span>MASALİYA</span><em class="lockup-tag">Herkesin bir masalı var…</em></a>
     <button class="menu-icon" type="button" data-open-menu aria-label="Menü"><span>Menü</span><i></i></button>
   </div>
 
@@ -241,7 +249,7 @@
   </div>
 
   <div class="wrap intro-bottom">
-    <div class="after-copy"><p class="ac-eyebrow">Fotoğraftan kişiye özel masal kitabı</p><p class="ac-title">Herkesin bir <em>masalı</em> var…</p><p>Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan kitaplar!</p></div>
+    <div class="after-copy"><p class="ac-title">Fotoğraftan <em>kişiye özel</em> masal kitabı</p><p>Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan kitaplar!</p></div>
     <div class="after">
       <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
@@ -266,7 +274,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611122028" defer></script>
+<script src="site.js?v=202611122033" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
