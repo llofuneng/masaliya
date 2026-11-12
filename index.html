@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611111025">
+<link rel="stylesheet" href="site.css?v=202611122018">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -102,6 +102,13 @@
 .hero-label[data-side="r"] { transform: translate(0, -50%); justify-items: start; text-align: left; }
 .hero-label[data-side="l"] { transform: translate(-100%, -50%); justify-items: end; text-align: right; }
 .phone .hero-label b { font-size: 1.35rem; }
+/* the adults' window: not open yet */
+.hero-label.soon { pointer-events: none; }
+.hero-label .soon-tag { display: none; }
+.door.soon { cursor: default; }
+/* three in a row on a phone: the names may take two lines */
+.phone.three .hero-label:not([data-side="r"]):not([data-side="l"]) { white-space: normal; width: 6.2em; }
+.phone.three .hero-label:not([data-side="r"]):not([data-side="l"]) b { font-size: clamp(.95rem, .6rem + 1.6vw, 1.1rem); line-height: 1.05; }
 /* side by side on a phone the two names share the width */
 .phone .hero-label:not([data-side="r"]):not([data-side="l"]) b { font-size: clamp(1rem, .55rem + 2.4vw, 1.25rem); }
 
@@ -130,10 +137,10 @@
 .lite .seal, .lite .hero-copy, .lite #book3d, .lite .loader { display: none; }
 .lite .lite-book { display: block; align-self: end; width: var(--lw); aspect-ratio: 960 / 933; background: url("img/kitap-acik.webp") center / cover no-repeat;
   -webkit-mask-image: radial-gradient(62% 60% at 50% 58%, #000 62%, transparent 100%); mask-image: radial-gradient(62% 60% at 50% 58%, #000 62%, transparent 100%); }
-.lite .doors { position: relative; z-index: 1; align-self: end; margin-bottom: calc(var(--lw) * .97 * .4); grid-auto-columns: calc(var(--lw) * .3); gap: calc(var(--lw) * .09); visibility: visible; }
-.lite .door { transition-duration: .6s, .7s; width: calc(var(--lw) * .3); }
-.lite .door img { width: calc(var(--lw) * .3); }
-.lite .door b { font-size: clamp(1rem, .8rem + 1vw, 1.3rem); white-space: nowrap; }
+.lite .doors { position: relative; z-index: 1; align-self: end; margin-bottom: calc(var(--lw) * .97 * .4); grid-auto-columns: calc(var(--lw) * .28); gap: calc(var(--lw) * .05); visibility: visible; }
+.lite .door { transition-duration: .6s, .7s; width: calc(var(--lw) * .28); }
+.lite .door img { width: calc(var(--lw) * .28); }
+.lite .door b { font-size: clamp(.86rem, .7rem + .9vw, 1.2rem); line-height: 1.05; white-space: nowrap; }
 .lite .after-copy { animation: none; }
 
 /* Film mode (when media/intro.mp4 exists) */
@@ -159,6 +166,7 @@
 @keyframes acIn { from { opacity: 0; transform: translateY(10px); } }
 .after-copy .ac-title { margin: 0; font: 400 clamp(1.7rem, 1.2rem + 2vw, 2.6rem)/1.05 var(--f-display); color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,.7); }
 .after-copy .ac-title em { font-style: italic; color: var(--gold-pale); }
+.after-copy .ac-eyebrow { margin: 0 0 2px; font: 500 .74rem/1.3 var(--f-body); letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
 .after-copy p:last-child { margin: 0; font-size: clamp(.82rem, .75rem + .3vw, .98rem); line-height: 1.45; color: var(--muted); }
 /* phone: a larger headline, and more room between the text and the gold frame below it */
 @media (max-width: 560px) { .after-copy { gap: 8px; } .after-copy .ac-title { font-size: clamp(2.05rem, 1.2rem + 3.6vw, 2.35rem); } .intro-bottom { padding-bottom: max(46px, calc(env(safe-area-inset-bottom, 0px) + 30px)); } }
@@ -198,10 +206,10 @@
 
   <a class="hero-label" href="kizlar.html" data-hero="0" tabindex="-1" aria-hidden="true"><b>Kız Çocukları</b></a>
   <a class="hero-label" href="erkekler.html" data-hero="1" tabindex="-1" aria-hidden="true"><b>Erkek Çocukları</b></a>
-  <a class="hero-label" href="yetiskinler.html" data-aud="yetiskin" data-hero="2" tabindex="-1" aria-hidden="true"><b>Yetişkinler</b></a>
+  <span class="hero-label soon" data-hero="2" aria-hidden="true"><b>Yetişkinler</b><small class="soon-tag">Çok yakında</small></span>
   <a class="hero-hit" href="kizlar.html" data-hit="0" tabindex="-1" aria-hidden="true"></a>
   <a class="hero-hit" href="erkekler.html" data-hit="1" tabindex="-1" aria-hidden="true"></a>
-  <a class="hero-hit" href="yetiskinler.html" data-aud="yetiskin" data-hit="2" tabindex="-1" aria-hidden="true"></a>
+  <span class="hero-hit" data-hit="2" aria-hidden="true"></span>
 
   <div class="frame" aria-hidden="true">
     <i><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 22V1h21"/><path d="M6 14V6h8"/><circle cx="10" cy="10" r="1.6" fill="currentColor"/></svg></i>
@@ -228,12 +236,12 @@
     <nav class="doors" id="doors" aria-label="Koleksiyonlar">
       <a class="door" href="kizlar.html"><img alt="" width="512" height="704" data-hero-img="0"><b>Kız Çocukları</b></a>
       <a class="door" href="erkekler.html"><img alt="" width="512" height="704" data-hero-img="1"><b>Erkek Çocukları</b></a>
-      <a class="door" href="yetiskinler.html" data-aud="yetiskin"><img alt="" width="512" height="704" data-hero-img="2"><b>Yetişkinler</b></a>
+      <span class="door soon" aria-label="Yetişkinler: çok yakında"><img alt="" width="512" height="704" data-hero-img="2"><b>Yetişkinler</b></span>
     </nav>
   </div>
 
   <div class="wrap intro-bottom">
-    <div class="after-copy"><p class="ac-title">Herkesin bir <em>masalı</em> var…</p><p>Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan kitaplar!</p></div>
+    <div class="after-copy"><p class="ac-eyebrow">Fotoğraftan kişiye özel masal kitabı</p><p class="ac-title">Herkesin bir <em>masalı</em> var…</p><p>Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan kitaplar!</p></div>
     <div class="after">
       <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
@@ -243,8 +251,8 @@
 <section class="sec home-books" aria-labelledby="hb-title"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Masallarımız</p>
-    <h2 id="hb-title">Yüzüyle resimlenir, adıyla yazılır.</h2>
-    <p class="lede">Her kitap tek bir kişi için hazırlanır: kahramanın yüzü her sayfada, adı her cümlede!</p>
+    <h2 id="hb-title">Fotoğrafını gönderin, masalın kahramanı o olsun.</h2>
+    <p class="lede">3 fotoğraf ve bir isim yeterli. Kitabı onun yüzü ve adıyla hazırlıyor, baskıdan önce bütün sayfaları size gösteriyoruz; sert kapak kitap ücretsiz kargoyla kapınıza gelir.</p>
   </div>
   <div class="grid" id="home-grid"></div>
   <div class="how-box">
@@ -259,7 +267,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611111025" defer></script>
+<script src="site.js?v=202611122018" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -610,7 +618,7 @@ addEventListener('DOMContentLoaded', () => {
       halo.scale.set(HW * 2.4, HW * 2.4, 1); halo.position.z = -.05;
       g.add(halo, card); g.visible = false; scene.add(g);
       const hit = document.querySelector(`.hero-hit[data-hit="${i}"]`);
-      return { g, card, halo, i, hover: 0, label: document.querySelector(`.hero-label[data-hero="${i}"]`), hit, href: h.href };
+      return { g, card, halo, i, hover: 0, label: document.querySelector(`.hero-label[data-hero="${i}"]`), hit, href: h.href, soon: !!h.soon };
     });
 
     /* --- camera --- */
@@ -624,7 +632,8 @@ addEventListener('DOMContentLoaded', () => {
     };
     // upright phones: girls and boys side by side with the name under each; three heroes climb a zig-zag
     // [x, y, z, label side: b = below, r / l = beside]
-    const TALL_SPOTS = n === 2 ? [[-.95, 2.5, -.35, 'b'], [.95, 2.5, -.35, 'b']] : [[-.62, 4.65, -.4, 'r'], [.62, 3.2, -.35, 'l'], [-.62, 1.75, -.3, 'r']];
+    const TALL_SPOTS = n === 2 ? [[-.95, 2.5, -.35, 'b'], [.95, 2.5, -.35, 'b']] : [[-1.16, 2.3, -.35, 'b'], [0, 2.3, -.4, 'b'], [1.16, 2.3, -.35, 'b']];
+    const PHONE_SC = n === 3 ? .82 : 1;   // three in a row need a little less room each
     let aspect = 1;
     const isPhone = () => aspect < .8;
     function shot(s) { const k = aspect < 1.05 && !isPhone() ? Math.min(s === shots.open ? 2.0 : 2.25, 1.22 / aspect) : 1; return { pos: s.pos.clone().multiplyScalar(k), look: s.look.clone() }; }
@@ -684,7 +693,7 @@ addEventListener('DOMContentLoaded', () => {
         up2.set(0, 1, 0).applyQuaternion(cam2.quaternion);
         let y0 = Infinity, y1 = -Infinity, x0 = Infinity, x1 = -Infinity;
         for (const x of [-W * bs, W * bs]) { pO.set(x, 0, D / 2 * bs); y1 = Math.max(y1, py()); x0 = Math.min(x0, (pO.x + 1) / 2 * r.width); x1 = Math.max(x1, (pO.x + 1) / 2 * r.width); }
-        for (let j = 0; j < n; j++) { const sp = TALL_SPOTS[j]; pO.set(sp[0], sp[1] + .05, sp[2]).addScaledVector(up2, HH / 2 * 1.07); y0 = Math.min(y0, py()); }
+        for (let j = 0; j < n; j++) { const sp = TALL_SPOTS[j]; pO.set(sp[0], sp[1] + .05, sp[2]).addScaledVector(up2, HH / 2 * 1.07 * PHONE_SC); y0 = Math.min(y0, py()); }
         // too tall for the room, or the open book wider than the frame: step back; otherwise come closer
         const over = Math.max((y1 - y0) / (lim1 - lim0), (x1 - x0) / (r.width - 44));
         fitO.k = Math.max(.85, Math.min(1.6, fitO.k * (1 + (over - 1) * .8)));
@@ -765,8 +774,9 @@ addEventListener('DOMContentLoaded', () => {
       camera.updateMatrixWorld();
       if (tl === 0) fitBook(.08);   // only small corrections now; the big one was done before showing
       // heroes rise out of the gutter, each a little after the other
-      const tall = aspect < 1.05, spread = tall ? 1.5 : 1.85, sc = phone ? 1 : tall ? .78 : 1;
+      const tall = aspect < 1.05, spread = tall ? 1.5 : 1.85, sc = phone ? PHONE_SC : tall ? .78 : 1;
       intro.classList.toggle('phone', phone);
+      intro.classList.toggle('three', n === 3);
       const rect = canvas.getBoundingClientRect();
       heroes.forEach(h => {
         const p = clamp((tl - 1.35 - h.i * .22) / 1.5), r = outBack(p);
@@ -774,7 +784,7 @@ addEventListener('DOMContentLoaded', () => {
         const spot = phone ? TALL_SPOTS[h.i] : null;
         // side by side, centred; with three the middle one stands a little higher and further back
         const mid = n === 3 && h.i === 1;
-        const fx = spot ? spot[0] : (h.i - (n - 1) / 2) * spread, fy = spot ? spot[1] : (mid ? 2.75 : 2.45) * (tall ? 1.05 : 1), fz = spot ? spot[2] : mid ? -.55 : -.35;
+        const fx = spot ? spot[0] : (h.i - (n - 1) / 2) * spread, fy = spot ? spot[1] : (mid ? 2.5 : 2.45) * (tall ? 1.05 : 1), fz = spot ? spot[2] : mid ? -.55 : -.35;
         h.g.position.set(fx * r, -.95 + (fy + .95) * r + (p === 1 ? Math.sin(t * 1.1 + h.i * 1.7) * .05 : 0), -.1 + (fz + .1) * r);
         h.hover += ((hovered === h ? 1 : 0) - h.hover) * Math.min(1, dt * 8);
         h.g.scale.setScalar(sc * (.35 + .65 * r) * (1 + h.hover * .07));
@@ -803,7 +813,7 @@ addEventListener('DOMContentLoaded', () => {
           x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy);
         }
         Object.assign(h.hit.style, { translate: `${x0}px ${y0}px`, width: `${x1 - x0}px`, height: `${y1 - y0}px` });
-        h.hit.classList.toggle('on', tl >= END - .3);
+        h.hit.classList.toggle('on', tl >= END - .3 && !h.soon);
       });
       // pointer: hover the closed book, or a risen hero
       ray.setFromCamera(mouse, camera);

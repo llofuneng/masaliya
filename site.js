@@ -42,11 +42,11 @@ const pairOff = items => pairOn() ? Math.floor(items.filter(it => it.cover === '
 function dealRun() {
   if (!pairOn() || document.querySelector('.deal-run')) return;
   const intro = document.getElementById('intro');
-  const one = `<span>İkinci kitapta <b>${fmt(PAIR_DEAL.off)} indirim</b></span><i>✦</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>✦</i><span>Kaçırmayın!</span><i>✦</i>`;
+  const one = `<span>İkinci kitapta <b>${fmt(PAIR_DEAL.off)} indirim</b></span><i>✦</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>✦</i>`;
   const a = document.createElement('a');
   a.className = 'deal-run'; a.href = 'urunler.html';
   a.setAttribute('aria-label', `İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim, ${PAIR_DEAL.untilText}’a kadar. Kitapları gör`);
-  a.innerHTML = `<span class="deal-track" aria-hidden="true">${one.repeat(4)}${one.repeat(4)}</span>`;
+  a.innerHTML = `<span class="deal-track" aria-hidden="true">${one.repeat(6)}${one.repeat(6)}</span>`;
   if (intro) intro.prepend(a);
   else { a.classList.add('band'); document.body.prepend(a); }
 }
@@ -317,46 +317,57 @@ const SPREADS_DINO = [
 const PRODUCTS = [
   { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı', font: 'sans', nameSize: 140, subSize: 41, block: 190, top: 14 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
     img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
+    short: 'Kar küresinden çıkan bir buz şatosunda, küçük iyiliklerin büyük gücünü keşfeden bir kış macerası.',   // one sentence for the cards
     desc: 'Karlı bir akşam, masadaki kar küresi sallanınca kahramanımız kendini kapıları anahtarla açılmayan bir buz şatosunun önünde bulur. Burnunu kaybeden kardan adam Kartopu ve hep aç geyik yavrusu Fındık ile her kapının ardında bir sır bekler. Karşılık beklemeden yapılan küçük iyiliklerin büyük gücünü anlatan sıcacık bir kış masalı.',
     extra: [['img/buz-satosunun-sirri-arka.jpg', 'Arka kapak']], spreads: SPREADS_BUZ },
   { id: 'gokkusagi-unicornu', coverTitle: { box: [0, .2], sub: 've Gökkuşağı Unicornu', font: 'sans', nameSize: 122, subSize: 36, block: 165, top: 12, fx: .87 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ada', title: 've Gökkuşağı Unicornu',
     img: 'img/gokkusagi-unicornu-kapak.jpg', clean: 'img/gokkusagi-unicornu-temiz.jpg', alt: 'Ada ve Gökkuşağı Unicornu kapağı: gökkuşağı yeleli yavru unicorna yanak yanağa sarılan kız',
+    short: 'Fırtınada düşen yavru unicornun gökkuşağını, her iyilikle bir renk ekleyerek geri getiren bir masal.',   // one sentence for the cards
     desc: 'Yağmurlu bir akşam kahramanımız balkonda ıslak bir yavru unicorn bulur. Fırtına onu gökkuşağından düşürmüş, boynuzu sönmüş, gökkuşağı kaybolmuş. Ama unicornun boynuzu iyilikle yanar: her iyilik bir renk! Kırmızı, turuncu, sarı... Gökkuşağı geri gelecek mi? İyiliğin, dostluğun ve renklerin masalı.',
     extra: [['img/gokkusagi-unicornu-arka.jpg', 'Arka kapak']], spreads: SPREADS_ADA },
   { id: 'sihirli-firca', coverTitle: { box: [0, .2], sub: 've Sihirli Fırça', font: 'sans', nameSize: 122, subSize: 40, block: 165, top: 12, fx: .87 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Duru', title: 've Sihirli Fırça',
     img: 'img/sihirli-firca-kapak.jpg', clean: 'img/sihirli-firca-temiz.jpg', alt: 'Duru ve Sihirli Fırça kapağı: altın saplı fırçadan renkli boya kurdelesi akıtan kız ve kucağında tavşan',
+    short: 'Çizdiği her şey canlanan sihirli bir fırçayla, renkleri kaybolan bir ülkeye renklerini geri veren bir yolculuk.',   // one sentence for the cards
     desc: 'Bir akşam kahramanımız penceresinde ağlayan gri bir kelebek bulur: ülkesinin bütün renkleri kaybolmuş! Altın saplı sihirli fırçayla ne çizerse canlanır: bir kapı, bir kayık, bir balon, upuzun bir kaydırak... Yolda bir tavşan, bir kirpi ve bir ayıcık da onlara katılır. Renkleri kim aldı? Paylaşmanın, dostluğun ve renklerin masalı.',
     extra: [['img/sihirli-firca-arka.jpg', 'Arka kapak']], spreads: SPREADS_FIRCA },
   { id: 'minik-pandalar', coverTitle: { box: [0, .27], sub: 've Minik Pandalar', font: 'sans', nameSize: 140, subSize: 46, block: 190, top: 14 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Ela', title: 've Minik Pandalar',
     img: 'img/minik-pandalar-kapak.jpg', clean: 'img/minik-pandalar-temiz.jpg', alt: 'Ela ve Minik Pandalar kapağı: bambu ormanında kocaman bir karpuza sarılan kız ve üç minik panda',
+    short: 'Üç minik pandayla kaçan kocaman bir karpuzun peşinde, kahkahalarla dolu bir bambu ormanı şenliği.',   // one sentence for the cards
     desc: 'Bambu ormanında şenlik var: kahramanımız ve üç minik panda, herkes yesin diye kocaman bir karpuz götürüyor. Ama karpuz kaçıyor! Yokuş aşağı, taştan taşa, kütüğün içinden... Bir kovalamaca, bir sürü kahkaha ve paylaşınca büyüyen bir şenliğin masalı.',
     extra: [['img/minik-pandalar-arka.jpg', 'Arka kapak']], spreads: SPREADS_PANDA },
   { id: 'sihirli-kutuphane', coverTitle: { box: [0, .27], sub: 've Sihirli Kütüphane', font: 'script', nameSize: 141, subSize: 29, block: 166, top: 10, glow: 4.3, gold: 1.5 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Zeynep', title: 've Sihirli Kütüphane',
     img: 'img/sihirli-kutuphane-kapak.jpg', clean: 'img/sihirli-kutuphane-temiz.jpg', alt: 'Zeynep ve Sihirli Kütüphane kapağı: parlayan bir kitap tutan kız ve kedi',
+    short: 'Tozlu bir kitabın içinde, sonları kaybolmuş masalları cesaretiyle tamamlayan bir kütüphane macerası.',   // one sentence for the cards
     desc: 'Yağmurlu bir öğleden sonra, okul kütüphanesinde tozlu bir kitap açılır ve kahramanımız kendini sonları kaybolmuş masalların içinde bulur. Korkan küçük bir şövalye, yalnız bir dev ve yüz yıldır bekleyen bir taş aslan: hepsinin masalı onun yardımını bekliyor. Cesaretin, iyiliğin, dürüstlüğün ve kendine inanmanın masalı.',
     extra: [['img/sihirli-kutuphane-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUA },
   { id: 'deniz-kizi-kralligi', coverTitle: { box: [0, .25], sub: 've Deniz Kızı Krallığı', font: 'script', nameSize: 116, subSize: 24, block: 136, top: 11, glow: 3.5, gold: 1.2 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-kapak.jpg', clean: 'img/deniz-kizi-kralligi-temiz.jpg', alt: 'Elif ve Deniz Kızı Krallığı kapağı: parlayan deniz kabuğu tutan kız ve deniz kızı',
+    short: 'Küçük deniz kızı Mira’yla, krallığın kaybolan üç incisini aramak için denizin derinliklerine bir yolculuk.',   // one sentence for the cards
     desc: 'Bir yaz sabahı kumsalda bulunan deniz kabuğu kulağa bir şarkı fısıldar ve kahramanımız kendini dalgaların altında bulur. Küçük deniz kızı Mira, yan yan yürüyen yengeç ve bilge kaplumbağayla birlikte, krallığın kaybolan üç incisini aramak için denizin derinliklerine yolculuk başlar. Dostluğun ve cesaretin parıl parıl bir deniz masalı.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', nameSize: 140, subSize: 31, block: 190, top: 14 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
+    short: 'Yemyeşil bir ormanda, yüz yaşına giren Koca Dede’ye dinozor arkadaşlarıyla hazırlanan sürpriz bir parti.',   // one sentence for the cards
     desc: 'Bir akşam dinozor kitabının sayfasındaki küçük dinozor göz kırpar ve kahramanımız kendini yemyeşil bir ormanda bulur. Koca Dede yüz yaşına giriyor; Fıstık, Rüzgâr ve Minik ile birlikte ona sürpriz bir parti hazırlanır. Paylaşınca büyüyen mutluluğun masalı.',
     extra: [['img/dinozorlarin-dogum-gunu-arka.jpg', 'Arka kapak']], spreads: SPREADS_DINO },
   { id: 'kayip-ay-isigi', coverTitle: { box: [0, .17], sub: 've Kayıp Ay Işığı', font: 'sans', nameSize: 122, subSize: 40, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Ege', title: 've Kayıp Ay Işığı',
     img: 'img/kayip-ay-isigi-kapak.jpg', clean: 'img/kayip-ay-isigi-temiz.jpg', alt: 'Ege ve Kayıp Ay Işığı kapağı: astronot kıyafetli çocuk, gülümseyen Ay ve küçük yıldız',
+    short: 'Kaybolan Ay’ı bulmak için oyuncak bir roketle Ay’ın karanlık tarafına cesur bir uzay yolculuğu.',   // one sentence for the cards
     desc: 'Bir gece Ay kaybolur ve dünyanın her yerinde çocuklar korkulu rüyalar görmeye başlar. Penceredeki oyuncak roket gerçek bir uzay gemisine dönüşünce kahramanımız, küçük bir yıldızla birlikte Ay’ın karanlık tarafına cesur bir yolculuğa çıkar. Cesaretin, iyiliğin ve kendine inanmanın masalı.',
     extra: [['img/kayip-ay-isigi-arka.jpg', 'Arka kapak']], spreads: SPREADS_AY },
   { id: 'buyuk-yaris', coverTitle: { box: [0, .26], sub: 've Büyük Yarış', font: 'sans', nameSize: 123, subSize: 43, block: 180, top: 13, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Poyraz', title: 've Büyük Yarış',
     img: 'img/buyuk-yaris-kapak.jpg', clean: 'img/buyuk-yaris-temiz.jpg', alt: 'Poyraz ve Büyük Yarış kapağı: yarış tulumlu çocuk, kırmızı spor araba ve start çizgisindeki robotlar',
+    short: 'Neon ışıklı bir şehirde robotlarla yarışılan, turbonun yalnızca iyiliklerle dolduğu Büyük Yarış.',   // one sentence for the cards
     desc: 'Bir akşam raftaki oyuncak kırmızı araba vınlar, farları yanıp söner ve kocaman, gerçek bir spor arabaya dönüşür. Kahramanımız, neon ışıklı bir şehirde robotlarla Büyük Yarış’a katılır. Ama bu yarışta en hızlı olmak yetmez: Kıvılcım’ın altın turbosu yalnızca iyiliklerle dolar. İyiliğin, dostluğun ve cesaretin masalı.',
     extra: [['img/buyuk-yaris-arka.jpg', 'Arka kapak']], spreads: SPREADS_YARIS },
   { id: 'denizi-kurtariyor', coverTitle: { box: [0, .23], sub: 'Denizi Kurtarıyor', font: 'sans', nameSize: 125, subSize: 41, block: 170, top: 13, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Mert', title: 'Denizi Kurtarıyor',
     img: 'img/denizi-kurtariyor-kapak.jpg', clean: 'img/denizi-kurtariyor-temiz.jpg', alt: 'Mert Denizi Kurtarıyor kapağı: sarı denizaltının lombozundan sarkan çocuk yavru balinaya sarılıyor',
+    short: 'Yolunu kaybeden yavru balina Köpük’ü evine kavuşturmak için çöple dolan Mavi Koy’u temizleyen bir deniz macerası.',   // one sentence for the cards
     desc: 'Bir akşam raftaki oyuncak sarı denizaltı mavi mavi parlar ve büyür. Kahramanımız denizin altında, evinin yolunu kaybetmiş yavru balina Köpük’ü bulur. Ama Köpük’ün evi Mavi Koy çöple dolmuştur. Birlikte temizlerlerse anne balina yavrusunu bulabilir mi? Doğayı korumanın, iyiliğin ve dostluğun masalı.',
     extra: [['img/denizi-kurtariyor-arka.jpg', 'Arka kapak']], spreads: SPREADS_BALINA },
   { id: 'kaybolan-minik-aslan', coverTitle: { box: [0, .22], sub: 've Kaybolan Minik Aslan', font: 'sans', nameSize: 124, subSize: 34, block: 168, top: 12.4, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Emir', title: 've Kaybolan Minik Aslan',
     img: 'img/kaybolan-minik-aslan-kapak.jpg', clean: 'img/kaybolan-minik-aslan-temiz.jpg', alt: 'Emir ve Kaybolan Minik Aslan kapağı: futbol kalesinin önünde topuyla oturan çocuk ve yanağını ona yaslayan minik aslan',
+    short: 'Fırtınadan sonra bulunan minik aslanı takımının büyük maçına yetiştirmek için tarlalardan, tepelerden geçen bir yolculuk.',   // one sentence for the cards
     desc: 'Bütün gece süren fırtınanın sabahında kahramanımız, top sepetinde ağlayan minik bir aslan bulur. Akşam aslancığın takımının büyük maçı vardır, ama köyü çok uzaktadır. Gelincik yollarından, mısır tarlalarından ve rüzgârlı tepelerden geçen bir yolculuk: arkadaşını asla yarı yolda bırakmamanın masalı.',
     extra: [['img/kaybolan-minik-aslan-arka.jpg', 'Arka kapak']], spreads: SPREADS_ASLAN },
 
@@ -421,7 +432,7 @@ function priceLine(p) {
 
 /* ---------- Gold paper-cut heroes: girls, boys, adults (home page 3D scene, Ürünlerimiz page) ---------- */
 // the heroes on the home page and on Ürünlerimiz, without hidden collections
-const shownHeroes = () => HEROES.filter(h => !(h.aud && AUDIENCES[h.aud].hidden));
+const shownHeroes = () => HEROES.filter(h => h.soon || !(h.aud && AUDIENCES[h.aud].hidden));
 const HEROES = [
   { href: 'kizlar.html', jewel: ['#7d3442', '#521a26', '#24090f'], parts: [
     ['c', 60, 31, 7.5], ['p', 'M66 27 l-5 -3.5 v7z M66 27 l5 -3.5 v7z'], ['c', 60, 47, 14],
@@ -435,20 +446,19 @@ const HEROES = [
     ['p', 'M47 65 h26 l3 50 h-32z'], ['p', 'M44 112 h32 v5 h-32z'], ['p', 'M48 70 q-8 14 -8 30 l5 0 q1 -14 8 -24z'],
     ['p', 'M72 70 l16 -12 4 4 -15 15z'], ['s', 'M89 59 l14 -30', 3.2], ['p', 'M84 56 l12 6 -1.6 3 -12 -6z'],
     ['r', 50, 117, 7, 25], ['r', 63, 117, 7, 25], ['e', 52, 143, 6.5, 3], ['e', 68, 143, 6.5, 3]] },
-  { href: 'yetiskinler.html', aud: 'yetiskin', jewel: ['#3a6458', '#1f3f37', '#0a1a17'], parts: [
-    // a family: two grown-ups with a child between them, hand in hand, a star above
-    ['p', 'M61 18 l2.4 5.6 6 .6 -4.6 4 1.4 6 -5.2 -3.2 -5.2 3.2 1.4 -6 -4.6 -4 6 -.6z'],
-    ['c', 33, 37, 4.5], ['c', 33, 50, 10], ['p', 'M23 48 q-4 14 3 22 q2 -8 3 -14z M43 48 q4 14 -3 22 q-2 -8 -3 -14z'], ['r', 30.5, 59, 5, 6],
-    ['p', 'M24 65 h18 l10 60 q-19 6 -38 0z'], ['p', 'M25 70 q-7 13 -7 26 l4 0 q1 -11 7 -20z'],
-    ['p', 'M41 69 l12 33 -4 2 -12 -32z'],
-    ['r', 29, 125, 4, 16], ['r', 36, 125, 4, 16], ['e', 31, 142, 4.5, 2.5], ['e', 39, 142, 4.5, 2.5],
-    ['c', 89, 48, 11], ['p', 'M78 46 q0 -13 11 -13 q11 0 11 12 q-5 -5 -11 -5 q-6 0 -11 6z'], ['r', 86, 58, 6, 6],
-    ['p', 'M76 64 h26 l2 50 h-30z'], ['p', 'M101 69 q7 13 6 28 l-5 0 q0 -13 -5 -22z'],
-    ['p', 'M77 69 l-7 34 4 1 8 -33z'],
-    ['r', 79, 114, 8, 28], ['r', 91, 114, 8, 28], ['e', 82, 143, 6.5, 3], ['e', 96, 143, 6.5, 3],
-    ['c', 61, 92, 8], ['p', 'M53 89 q1 -10 8 -10 q8 0 8 9 q-4 -3 -8 -3 q-4 0 -8 4z'],
-    ['p', 'M54 101 h14 l5 26 h-24z'], ['p', 'M55 104 l-6 2 1 3 6 -2z M67 104 l6 2 -1 3 -6 -2z'],
-    ['r', 56, 127, 4, 14], ['r', 62, 127, 4, 14], ['e', 58, 142, 4, 2.3], ['e', 64, 142, 4, 2.3]] }
+  { href: 'yetiskinler.html', aud: 'yetiskin', soon: true, jewel: ['#3a6458', '#1f3f37', '#0a1a17'], parts: [
+    // two grown-ups hand in hand under a star (everyday clothes, not a bride and groom)
+    ['p', 'M61 12 l2.4 5.6 6 .6 -4.6 4 1.4 6 -5.2 -3.2 -5.2 3.2 1.4 -6 -4.6 -4 6 -.6z'],
+    // her: long hair, a dress to the knee
+    ['p', 'M30 44 q-3 -20 12 -20 q15 0 12 20 q2 14 -3 22 q-1 -10 -3 -15 h-12 q-2 5 -3 15 q-5 -8 -3 -22z'], ['c', 42, 40, 10.5], ['r', 39, 50, 6, 7],
+    ['p', 'M33 57 h18 l9 58 q-18 5 -36 0z'], ['p', 'M34 61 q-8 14 -8 30 l4.5 0 q1 -12 7 -21z'], ['p', 'M49 60 l13 31 -4 2.4 -12.5 -28z'],
+    ['r', 36, 114, 4.5, 26], ['r', 44, 114, 4.5, 26], ['e', 38.5, 141, 5, 2.6], ['e', 47, 141, 5, 2.6],
+    // him: short hair, jacket and trousers
+    ['c', 81, 37, 11], ['p', 'M70 35 q0 -13 11 -13 q11 0 11 12 q-5 -5 -11 -5 q-6 0 -11 6z'], ['r', 78, 47, 6, 7],
+    ['p', 'M68 54 h26 l2 52 h-30z'], ['p', 'M93 58 q7 14 6 31 l-5 0 q0 -14 -5 -24z'], ['p', 'M70 58 l-9 33 4 1.6 10 -31z'],
+    ['r', 70, 105, 8.5, 36], ['r', 83, 105, 8.5, 36], ['e', 73, 142, 6.5, 3], ['e', 89, 142, 6.5, 3],
+    // the joined hands
+    ['c', 61.5, 93, 3.4]] }
 ];
 function drawHeroCard(h, W = 512, H = 704) {
   const c = document.createElement('canvas'); c.width = W; c.height = H;
@@ -477,6 +487,16 @@ function drawHeroCard(h, W = 512, H = 704) {
     else if (p[0] === 'r') { x.fillRect(p[1], p[2], p[3], p[4]); }
     else if (p[0] === 's') { x.lineWidth = p[2]; x.stroke(new Path2D(p[1])); }
     else x.fill(new Path2D(p[1]));
+  }
+  if (h.soon) {
+    // a gold sash across the upper corner: not open yet
+    x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'rgba(0,0,0,.4)'; x.shadowBlur = 8; x.shadowOffsetY = 2;
+    x.translate(W * .72, H * .19); x.rotate(Math.PI / 4.6);
+    const sg = x.createLinearGradient(0, -28, 0, 28); sg.addColorStop(0, '#f6e2b4'); sg.addColorStop(1, '#d4a960');
+    x.fillStyle = sg; x.fillRect(-W, -27, W * 2, 54);
+    x.shadowColor = 'transparent'; x.fillStyle = '#3a1e14'; x.font = '600 25px Jost, "Avenir Next", "Segoe UI", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    if ('letterSpacing' in x) x.letterSpacing = '5px';
+    x.fillText('ÇOK YAKINDA', 0, 1);
   }
   x.restore();
   // double gold frame
@@ -609,10 +629,9 @@ function card(p, withPrice = false) {
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
   return `<a class="card${p.type === 'kitap' ? ' book' : ''}" href="${productHref(p)}">
     <div class="visual">${p.status === 'yakinda' ? '<span class="badge">Yakında</span>' : ''}${visual}</div>
-    <div class="meta"><span>${kind}</span></div>
+    ${p.type === 'kitap' ? '' : `<div class="meta"><span>${kind}</span></div>`}
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
-    <p>${esc(p.desc)}</p>
-    ${withPrice && p.type === 'kitap' && p.status === 'hazir' ? `<span class="card-from">${fmt(Math.min(...Object.values(PRICES.kitap).filter(Boolean)))}’den başlayan</span>` : ''}
+    <p>${esc(p.short || p.desc)}</p>
     ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">İncele</span>' : ''}
   </a>`;
 }
@@ -1296,7 +1315,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (page === 'urunler') dealRun();
   if (page === 'home') {
     // the story books, with their prices, just below the opening scene
-    const books = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p));
+    // the story books, a boy's and a girl's in turn
+    const all = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p));
+    const boys = all.filter(p => p.aud === 'erkek'), girls = all.filter(p => p.aud === 'kiz');
+    const books = [];
+    for (let i = 0; i < Math.max(boys.length, girls.length); i++) { if (boys[i]) books.push(boys[i]); if (girls[i]) books.push(girls[i]); }
+    books.push(...all.filter(p => !books.includes(p)));
     const g = document.getElementById('home-grid');
     if (g) {
       g.innerHTML = books.map(b => card(b, true)).join('');

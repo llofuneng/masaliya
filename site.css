@@ -862,3 +862,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 #crumbs:empty { min-height: 1.2em; }
 #product:empty, #grid:empty { min-height: 100svh; }
 [data-sell]:not(.sell-on) { display: none !important; }
+
+/* book cards: the title large at the top, a one-sentence summary, the button */
+.card.book h3 { font-size: clamp(1.6rem, 1.2rem + 1.1vw, 2.05rem); line-height: 1.1; }
+.card.book p { color: var(--cream); opacity: .82; }
+@media (max-width: 620px) {
+  #grid .card.book:has(.card-cta), #home-grid .card.book:has(.card-cta), #related .card.book:has(.card-cta) { grid-template-rows: auto 1fr auto; row-gap: 8px; }
+  #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3 { font-size: 1.38rem; line-height: 1.1; }
+  #grid .card.book p, #home-grid .card.book p, #related .card.book p { -webkit-line-clamp: 4; font-size: .84rem; }
+}
