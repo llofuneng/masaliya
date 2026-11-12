@@ -871,3 +871,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3 { font-size: 1.38rem; line-height: 1.1; }
   #grid .card.book p, #home-grid .card.book p, #related .card.book p { -webkit-line-clamp: 4; font-size: .84rem; }
 }
+
+/* the small 'PDF' mark on the digital option */
+.pdf-tag { display: inline-block; margin-left: 4px; padding: 0 5px; border: 1px solid currentColor; border-radius: 3px; font: 600 .62rem/1.5 var(--f-body); font-style: normal; letter-spacing: .08em; opacity: .8; vertical-align: 1px; }

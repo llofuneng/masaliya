@@ -78,8 +78,8 @@ const puzzleImg = p => `img/${p.id}-yapboz.jpg`;
 /* Formats per product type, in the order shown: [key, name, note]. A 'digital' format never gets a gift box. */
 const FORMATS = {
   kitap: [
-    ['hard', 'Sert Kapak', '21 × 28 cm · sayfalar düz açılır'],
-    ['digital', 'Dijital Kitap', 'PDF · e-postanıza gelir']
+    ['hard', 'Sert Kapak', '21 × 28 cm · fotoğraf kâğıdı'],
+    ['digital', 'Dijital Kitap', 'E-postanıza gelir <i class="pdf-tag">PDF</i>']
   ],
   boyama: [
     ['print', 'Basılı Boyama Kitabı', 'Kalın, boyamaya uygun kâğıt'],
@@ -914,7 +914,7 @@ function renderProduct() {
         </div>` : '';
     const coloring = PRODUCTS.find(x => x.book === p.id && onSale(x));
     // the add-ons as "+" choices; together they pick the set (none = the book alone)
-    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik', coloring && coloring.img], yapboz: ['Ahşap Puzzle Ekle', '35 parça · Kitaptan bir sahne', puzzleImg(p)] };
+    const EXTRAS = { boyama: ['Boyama Kitabı', 'Aynı kahramanla boyama ve etkinlik', coloring && coloring.img], yapboz: ['35 Parça Ahşap Puzzle', 'Kitaptan bir sahne', puzzleImg(p)] };
     const extraParts = Object.keys(EXTRAS).filter(k => SELL[k] && SETS.some(st => st.items.some(([t]) => t === k)));
     const askedParts = ((SETS.find(st => st.id === new URLSearchParams(location.search).get('set')) || {}).items || []).map(([t]) => t);
     const extrasHtml = p.type === 'kitap' && extraParts.length ? `<div class="extras" id="extras">${extraParts.map(k => {
