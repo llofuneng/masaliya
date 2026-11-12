@@ -190,7 +190,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .cover-opt:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
 .cover-opt b { font: 500 1.3rem var(--f-display); }
 .cover-opt span { font-family: var(--f-display); font-size: 1.5rem; color: var(--gold-pale); font-variant-numeric: tabular-nums; }
-.cover-opt small { color: var(--muted); font-size: .82rem; }
+.cover-opt small { color: var(--muted); font-size: .82rem; white-space: nowrap; }
 .form-note { font-size: .88rem; color: var(--gold-pale); min-height: 1.4em; }
 .assure { display: grid; gap: 8px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .92rem; }
 .assure li { list-style: none; }
