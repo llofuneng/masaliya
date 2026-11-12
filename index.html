@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611122044">
+<link rel="stylesheet" href="site.css?v=202611122049">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -133,11 +133,11 @@
 /* The home page without the book: what we make first (the wine plate), then the three windows to choose from.
    (The 3D book is kept in this file but no longer shown: the 'lite' class is set for every visitor in the head.) */
 .doors-q { display: none; }
-.lite .intro { grid-template-rows: auto auto minmax(0, 1fr); --dw: min(calc((100vw - 64px) * .3), 230px, calc((100svh - 400px) * .66)); }
+.lite .intro { grid-template-rows: auto auto minmax(0, 1fr); --dw: min(calc((100vw - 64px) * .3), 230px, max(84px, calc((100svh - 480px) * .66))); }
 .lite .seal, .lite .hero-copy, .lite #book3d, .lite .loader { display: none; }
 .lite .intro-top { order: 0; } .lite .intro-bottom { order: 1; padding-block: clamp(8px, 2.2svh, 26px) 0; } .lite .stage-mid { order: 2; }
 /* the question sits halfway between the sentence above and the windows below: the free room is shared evenly */
-.lite .stage-mid { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: clamp(14px, 2.4svh, 26px); padding-block: 0 clamp(26px, 4svh, 48px); }
+.lite .stage-mid { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: clamp(14px, 2.4svh, 26px); padding-block: clamp(14px, 2.6svh, 30px) clamp(26px, 4svh, 48px); }
 .lite .stage-mid > * { grid-area: auto; }
 /* a warm light behind the windows */
 .lite .stage-mid { background: radial-gradient(48% 50% at 50% 62%, rgba(255,196,128,.17), transparent 72%); }
@@ -181,18 +181,25 @@
 @keyframes acIn { from { opacity: 0; transform: translateY(10px); } }
 .after-copy .ac-title { margin: 0; font: 500 clamp(1.7rem, 1.2rem + 2vw, 2.6rem)/1.05 var(--f-display); text-wrap: balance; color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,.7); }
 .after-copy .ac-title em { font-style: italic; color: var(--gold-pale); }
-/* what the site makes, said first and set apart: a deep wine plate with a gold hairline behind it */
-.after-copy { padding: 14px 22px 16px; border: 1px solid rgba(226,181,107,.55); border-radius: 16px;
-  background: linear-gradient(180deg, rgba(107,29,42,.88), rgba(58,14,24,.9)); box-shadow: 0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(244,223,179,.18);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+/* what the site makes, said first: large gold-foil letters under a small star, a gold divider below (no box) */
+.after-copy { padding: 0 8px; }
+.lite .after-copy .ac-title { font: 600 clamp(2.4rem, 1.4rem + 3.6vw, 3.8rem)/1.02 var(--f-display); text-wrap: balance;
+  background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none;
+  filter: drop-shadow(0 3px 14px rgba(0,0,0,.6)); }
+.lite .after-copy .ac-title em { color: transparent; }
+.lite .after-copy::before { content: "✦"; display: block; text-align: center; color: var(--gold); font-size: .8rem; margin-bottom: 4px; }
+/* the divider: two fine gold lines with a dot between them */
+.lite .after-copy::after { content: ""; display: block; justify-self: center; width: min(220px, 50%); height: 12px; margin-top: 10px; background:
+  linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
+  radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; }
 .after-copy p.ac-note { color: rgba(246,236,220,.86); }
 /* short phone screens (small iPhones with the browser bars): a smaller logo, the slogan left out, so the scene keeps its size */
-@media (max-height: 600px) and (max-width: 560px) { .lockup svg { width: 44px; height: 44px; } .lockup span { font-size: .95rem; } .lockup-tag { display: none; } .after-copy p.ac-note { font-size: .78rem; } }
+@media (max-height: 600px) and (max-width: 560px) { .lite .door b { font-size: .82rem; white-space: normal; text-align: center; } .lite .doors { gap: 18px; } .lockup svg { width: 44px; height: 44px; } .lockup span { font-size: .95rem; } .lockup-tag { display: none; } .after-copy p.ac-note { font-size: .78rem; } }
 /* the slogan now sits under the logo */
 .lockup-tag { font: italic 400 clamp(.95rem, .85rem + .35vw, 1.15rem)/1 var(--f-display); color: var(--cream); opacity: .85; letter-spacing: .02em; margin-top: -2px; }
 .after-copy p.ac-note { margin: 0; font-size: clamp(.82rem, .75rem + .3vw, .98rem); line-height: 1.45; color: var(--muted); }
 /* phone: a larger headline, and more room between the text and the gold frame below it */
-@media (max-width: 560px) { .after-copy { gap: 8px; padding: 12px 16px 14px; } .after-copy .ac-title { font-size: clamp(1.8rem, 1.2rem + 2.6vw, 2.05rem); } .intro-bottom { padding-bottom: max(46px, calc(env(safe-area-inset-bottom, 0px) + 30px)); } }
+@media (max-width: 560px) { .after-copy { gap: 8px; padding: 12px 16px 14px; }  .intro-bottom { padding-bottom: max(46px, calc(env(safe-area-inset-bottom, 0px) + 30px)); } }
 .after { display: none; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .opened .after { display: flex; }
 .after .adults { display: none; }
@@ -290,7 +297,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611122044" defer></script>
+<script src="site.js?v=202611122049" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
