@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611122039">
+<link rel="stylesheet" href="site.css?v=202611122042">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -136,11 +136,12 @@
 .lite .intro { grid-template-rows: auto auto minmax(0, 1fr); --dw: min(calc((100vw - 64px) * .3), 230px, calc((100svh - 400px) * .66)); }
 .lite .seal, .lite .hero-copy, .lite #book3d, .lite .loader { display: none; }
 .lite .intro-top { order: 0; } .lite .intro-bottom { order: 1; padding-block: clamp(8px, 2.2svh, 26px) 0; } .lite .stage-mid { order: 2; }
-.lite .stage-mid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(10px, 2svh, 22px); padding-block: 8px clamp(30px, 5svh, 56px); }
+/* the question sits halfway between the sentence above and the windows below: the free room is shared evenly */
+.lite .stage-mid { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: clamp(14px, 2.4svh, 26px); padding-block: 0 clamp(26px, 4svh, 48px); }
 .lite .stage-mid > * { grid-area: auto; }
 /* a warm light behind the windows */
 .lite .stage-mid { background: radial-gradient(48% 50% at 50% 62%, rgba(255,196,128,.17), transparent 72%); }
-.lite .doors-q { display: block; margin: 0 0 clamp(8px, 2svh, 18px); font: 500 .74rem/1.3 var(--f-body); letter-spacing: .26em; text-transform: uppercase; color: var(--gold); text-align: center; }
+.lite .doors-q { display: block; margin: 0; font: 500 .74rem/1.3 var(--f-body); letter-spacing: .26em; text-transform: uppercase; color: var(--gold); text-align: center; }
 .lite .doors { display: grid; grid-auto-flow: column; justify-content: center; position: relative; z-index: 1; grid-auto-columns: var(--dw); gap: calc(var(--dw) * .14); visibility: visible; }
 .lite .door { width: var(--dw); gap: 10px; opacity: 1; transform: none; transition: none; }
 .lite .door img { width: var(--dw); }
@@ -153,7 +154,7 @@
 .lite .after-copy { max-width: min(52rem, 100%); }
 /* the line under the plate, outside it */
 .ac-sub { display: none; }
-.lite .ac-sub { display: block; margin: 0; max-width: 36rem; text-align: center; font-size: clamp(.86rem, .8rem + .3vw, 1rem); line-height: 1.5; color: rgba(246,236,220,.82); text-shadow: 0 2px 12px rgba(0,0,0,.7); }
+.lite .ac-sub { display: block; margin: 0; max-width: 46rem; text-wrap: balance; text-align: center; font-size: clamp(.86rem, .8rem + .3vw, 1rem); line-height: 1.5; color: rgba(246,236,220,.82); text-shadow: 0 2px 12px rgba(0,0,0,.7); }
 @media (max-width: 560px) { .lite .after-copy { gap: 8px; } }
 .lite .after-copy { animation: none; }
 
@@ -264,7 +265,7 @@
 
   <div class="wrap intro-bottom">
     <div class="after-copy"><p class="ac-title">Fotoğraftan <em>kişiye özel</em> masal kitapları</p></div>
-    <p class="ac-sub">Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan masallar!</p>
+    <p class="ac-sub">Değer verdiğiniz insanların yüzüyle resimlenen, yalnızca onlar için yazılan ve basılan masallar!</p>
     <div class="after">
       <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
@@ -289,7 +290,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611122039" defer></script>
+<script src="site.js?v=202611122042" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
