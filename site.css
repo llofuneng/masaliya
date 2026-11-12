@@ -839,7 +839,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .deal-on .intro .frame { top: 46px; }
 .deal-on .intro-top { padding-top: 66px; }
 @media (max-width: 520px) { .deal-on .intro .frame { top: 42px; } .deal-on .intro-top { padding-top: 56px; } }
-.deal-on body[data-page="kiz"], .deal-on body[data-page="erkek"], .deal-on body[data-page="urunler"] { padding-top: 34px; }
+.deal-on body[data-page="kiz"], .deal-on body[data-page="erkek"], .deal-on body[data-page="urunler"], .deal-on body[data-page="urun"] { padding-top: 34px; }
 .deal-run.band { position: absolute; top: 0; }
 /* collections: the offer, large, under the title */
 .deal-banner { display: grid; justify-items: center; gap: 6px; width: fit-content; max-width: 100%; margin: 22px auto 4px; padding: 16px 26px; border: 1px solid var(--gold); border-radius: 14px; background: linear-gradient(160deg, var(--gold-pale), var(--gold)); color: var(--ink); text-align: center; text-wrap: balance; box-shadow: 0 10px 30px rgba(0,0,0,.35); }

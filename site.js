@@ -44,14 +44,13 @@ function dealRun() {
   const intro = document.getElementById('intro');
   const one = `<span>İkinci kitapta <b>${fmt(PAIR_DEAL.off)} indirim</b></span><i>✦</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>✦</i>`;
   const a = document.createElement('a');
-  a.className = 'deal-run'; a.href = 'urunler.html';
+  // on a book page it leads to the conditions (the book is already open); elsewhere to the books
+  a.className = 'deal-run'; a.href = document.body.dataset.page === 'urun' ? 'sss.html#kampanya' : 'urunler.html';
   a.setAttribute('aria-label', `İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim, ${PAIR_DEAL.untilText}’a kadar. Kitapları gör`);
   a.innerHTML = `<span class="deal-track" aria-hidden="true">${one.repeat(6)}${one.repeat(6)}</span>`;
   if (intro) intro.prepend(a);
   else { a.classList.add('band'); document.body.prepend(a); }
 }
-/* the book page: the offer as a banner under the title */
-const DEAL_BANNER = () => pairOn() ? `<p class="deal-banner"><b>İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim</b><span>Herhangi 2 sert kapak kitap birlikte <em>${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}</em> · ${PAIR_DEAL.untilText}’a kadar · <a href="sss.html#kampanya">Koşullar</a></span></p>` : '';
 const GIFT_BOX_PRICE = 300;   // gift box add-on, TL; null shows "Fiyat yakında"
 const PDF_ADDON_PRICE = null;  // digital copy added to a printed book, TL
 /* ON SALE NOW. Only the story books are ready. Switch boyama (coloring books) or yapboz (wooden
@@ -1017,7 +1016,6 @@ function renderProduct() {
         <p class="eyebrow" id="crumbs-inline">${a.name}</p>
         <h1 id="p-title">${fullTitle(p)}</h1>
         <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span><span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
-        ${orderable && p.type === 'kitap' ? DEAL_BANNER() : ''}
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
         ${orderable && p.type === 'kitap' ? PROMISE : ''}
@@ -1329,6 +1327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   if (page === 'urun') {
+    dealRun();   // the running campaign line at the top, as on the home page
     // old urun.html#id links forward to the product's own page
     const p = currentProduct();
     if (!document.body.dataset.product && p) { location.replace(productHref(p)); return; }
