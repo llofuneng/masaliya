@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611162306">
+<link rel="stylesheet" href="site.css?v=202611162341">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -252,6 +252,15 @@
 .how-notes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 30px; margin: 0; padding: 16px 10px 20px; border-top: 1px dashed var(--line); color: var(--muted); font-size: .88rem; }
 .how-notes span::before { content: "✦"; color: var(--gold); margin-right: .6em; font-size: .7em; }
 @media (prefers-reduced-motion: reduce) { .door, .seal { transition: none !important; } }
+
+/* phones (16.11, her choice V1): the first screen is as tall as its content, so the windows come up and the books peek in below */
+@media (max-width: 560px) {
+  .lite .intro { min-height: auto; grid-template-rows: auto 8px auto 16px auto 12px auto 26px; }
+  .lockup svg { width: 40px; height: 40px; }
+  .lockup span { font-size: .92rem; }
+  .lite .after-copy .ac-title { font-size: 2.05rem; }
+  .psy-seal { width: 58px; height: 58px; margin-top: 8px; }
+}
 </style>
 
 </head>
@@ -340,7 +349,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611162306" defer></script>
+<script src="site.js?v=202611162341" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {

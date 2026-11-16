@@ -824,13 +824,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* Campaign: the second hardcover book for less */
 /* home: a gold line running along the top of the first screen */
-.deal-run { position: absolute; top: 0; left: 0; right: 0; z-index: 6; height: 34px; display: flex; align-items: center; overflow: hidden; background: var(--gold); color: var(--ink); text-decoration: none; font: 500 .74rem/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+.deal-run { position: absolute; top: 0; left: 0; right: 0; z-index: 6; height: 34px; display: flex; align-items: center; overflow: hidden; background: var(--burgundy); color: var(--gold-pale); text-decoration: none; font: 500 .74rem/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
 .deal-track { display: flex; width: max-content; animation: dealRun 36s linear infinite; }
 .deal-track span, .deal-track i { padding: 0 14px; }
-.deal-track b { font-weight: 700; color: var(--burgundy); }
-.deal-track i { font-style: normal; font-size: .75em; opacity: .65; }
+.deal-track b { font-weight: 700; color: #fff3d6; }
+.deal-track i { display: inline-flex; align-items: center; color: var(--gold); }
+.deal-track i svg { display: block; }
 .deal-run:hover .deal-track, .deal-run:focus-visible .deal-track { animation-play-state: paused; }
-.deal-run:focus-visible { outline: 2px solid var(--cream); outline-offset: -4px; }
+.deal-run:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; }
 @keyframes dealRun { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .deal-track { animation: none; } }
 .deal-banner a { color: var(--burgundy); }

@@ -34,7 +34,9 @@ const PRICES = {
 /* Campaign: in one order, the second of every two hardcover books costs 2.000 TL (2.900 + 2.000 = 4.900 TL), until the end of
    15 Aralık 2026, Türkiye time. The order server gets the same rule from tools/build-pages.js and prices it itself;
    after the date both sides stop on their own. Set to null to stop it earlier (then rebuild and paste the worker). */
-const PAIR_DEAL = { off: 900, until: '2026-12-15T23:59:59+03:00', untilText: '15 Aralık' };
+const PAIR_DEAL = { off: 900, pct: 30, until: '2026-12-15T23:59:59+03:00', untilText: '15 Aralık' };
+// pct: how the campaign is described on the running line, in the cart and in SSS (16.11, her words «%30 indirim yazalım»,
+// «Sepet ve SSS'deki… yüzde olarak yazalım. TL olarak yazma»); 900 of 2.900 TL is 31%, so %30 is rounded down
 const pairOn = () => !!PAIR_DEAL && Date.now() <= Date.parse(PAIR_DEAL.until);
 const pairOff = items => pairOn() ? Math.floor(items.filter(it => it.cover === 'hard').length / 2) * PAIR_DEAL.off : 0;
 /* the home page: a running gold line along the top of the first screen */
@@ -42,11 +44,14 @@ const pairOff = items => pairOn() ? Math.floor(items.filter(it => it.cover === '
 function dealRun() {
   if (!pairOn() || document.querySelector('.deal-run')) return;
   const intro = document.getElementById('intro');
-  const one = `<span>İkinci kitapta <b>${fmt(PAIR_DEAL.off)} indirim</b></span><i>✦</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>✦</i>`;
+  // New Year look (16.11): burgundy line, a gold bell and a gold snowflake between the phrases
+  const BELL = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 3c-3.3 0-6 2.7-6 6v4l-2 3h16l-2-3V9c0-3.3-2.7-6-6-6zm0 19a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 22z"/></svg>';
+  const SNOW = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10M9 4l3 3 3-3M9 20l3-3 3 3"/></svg>';
+  const one = `<span>Yılbaşına özel: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b></span><i>${BELL}</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>${SNOW}</i>`;
   const a = document.createElement('a');
   // on a book page it leads to the conditions (the book is already open); elsewhere to the books
   a.className = 'deal-run'; a.href = document.body.dataset.page === 'urun' ? 'sss.html#kampanya' : 'urunler.html';
-  a.setAttribute('aria-label', `İkinci kitapta ${fmt(PAIR_DEAL.off)} indirim, ${PAIR_DEAL.untilText}’a kadar. Kitapları gör`);
+  a.setAttribute('aria-label', `Yılbaşına özel: ikinci kitapta %${PAIR_DEAL.pct} indirim, ${PAIR_DEAL.untilText}’a kadar. Kitapları gör`);
   a.innerHTML = `<span class="deal-track" aria-hidden="true">${one.repeat(6)}${one.repeat(6)}</span>`;
   if (intro) intro.prepend(a);
   else { a.classList.add('band'); document.body.prepend(a); }
@@ -728,8 +733,8 @@ function renderCart() {
     const hardN = items.filter(it => it.cover === 'hard').length;
     // the campaign: what was taken off, or how to get it with one more book
     const deal = !pairOn() ? '' : off
-      ? `<div class="deal-line"><span>2 kitap indirimi <small>İkinci sert kapak kitapta ${fmt(PAIR_DEAL.off)} · ${PAIR_DEAL.untilText}’a kadar</small></span><strong>−${fmt(off)}</strong></div>`
-      : hardN % 2 === 1 ? `<p class="deal-hint">Bir sert kapak kitap daha ekleyin: ikinci kitapta <b>${fmt(PAIR_DEAL.off)} indirim</b>, ikisi birlikte ${fmt(2 * PRICES.kitap.hard - PAIR_DEAL.off)}. <a href="urunler.html">Kitapları gör</a></p>` : '';
+      ? `<div class="deal-line"><span>2 kitap indirimi <small>İkinci sert kapak kitapta %${PAIR_DEAL.pct} · ${PAIR_DEAL.untilText}’a kadar</small></span><strong>−${fmt(off)}</strong></div>`
+      : hardN % 2 === 1 ? `<p class="deal-hint">Bir sert kapak kitap daha ekleyin: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b>, ${PAIR_DEAL.untilText}’a kadar. <a href="urunler.html">Kitapları gör</a></p>` : '';
     root.innerHTML = `<div class="cart-grid">
       <ul class="cart-items">${items.map(it => `<li>
         <img src="${thumb(it.img)}" alt="">
