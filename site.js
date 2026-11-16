@@ -709,7 +709,8 @@ function renderCollection(aud) {
   const pnOld = document.getElementById('price-note');
   if (!isAdult && PRICES.kitap.hard && !(pnOld && pnOld.innerHTML.trim())) {
     const pn = pnOld || document.createElement('p'); pn.id = 'price-note'; pn.className = 'price-note';
-    pn.innerHTML = `<span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span><span>Ücretsiz kargo</span>`;
+    // 17.11, her words: no «Ücretsiz kargo» here; «Sert kapak – basılı» so it reads as the printed book next to the digital one
+    pn.innerHTML = `<span>Basılı Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span><span>Dijital PDF <b>${fmt(PRICES.kitap.digital)}</b></span>`;   // «Basılı» / «Dijital» side by side (17.11)
     if (!pnOld) tabsEl.after(pn);
     dealRun();
   }
@@ -1077,7 +1078,7 @@ function renderProduct() {
       </div>
     </div>
     ${orderable ? `<div class="buybar hold" id="buybar"><span><small>Toplam</small><b id="buybar-total"></b></span><a class="btn" href="#buy">Masalını oluştur</a></div>
-    <button type="button" class="scroll-cue" id="scroll-cue" aria-label="Aşağı kaydır"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.5l6 6 6-6"/><path d="M6 3.5l6 6 6-6" opacity=".45"/></svg></button>` : ''}`;
+    <button type="button" class="scroll-cue" id="scroll-cue" aria-label="Aşağı kaydır"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>` : ''}`;
 
     // the description shows three lines; the rest opens on request
     const desc = document.getElementById('p-desc'), more = document.getElementById('desc-more');
@@ -1296,7 +1297,12 @@ function renderProduct() {
     if (bar && cue) {
       const reveal = () => { if (scrollY > 60) { cue.classList.add('gone'); bar.classList.remove('hold'); removeEventListener('scroll', reveal); } };
       addEventListener('scroll', reveal, { passive: true });
-      cue.addEventListener('click', () => document.querySelector('.p-head').scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      // to step 1, the hero's name (her words «Kahramanın adı bölümüne… itelim»); no focus, so the phone keyboard does not jump up
+      cue.addEventListener('click', () => {
+        const t = document.querySelector('label[for="hero-name"]') || document.querySelector('.p-head');
+        const head = document.getElementById('site-head'), stick = head && getComputedStyle(head).position === 'sticky' ? head.offsetHeight : 0;   // the header stays on top
+        scrollTo({ top: t.getBoundingClientRect().top + scrollY - stick - 16, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      });
     }
 
     // Related
