@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611161528">
+<link rel="stylesheet" href="site.css?v=202611161533">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -150,7 +150,25 @@
 @media (prefers-reduced-motion: reduce) { .lite .doors-q { animation: none; } .lite .fairy-dust { display: none; } }
 .lite .doors { display: grid; grid-auto-flow: column; justify-content: center; position: relative; z-index: 1; grid-auto-columns: var(--dw); gap: calc(var(--dw) * .14); visibility: visible; }
 .lite .door { width: var(--dw); gap: 10px; opacity: 1; transform: none; transition: none; }
-.lite .door img { width: var(--dw); }
+.lite .door img { width: var(--dw); display: block; }
+/* depth for the windows: a soft shadow on the floor, a slow float, and on a mouse a tilt toward the pointer with a lift and a gleam */
+.door-art { position: relative; display: block; --rx: 0deg; --ry: 0deg; --up: 0; --mx: 50%; --my: 30%; --gl: 0;
+  transform: perspective(900px) translateY(calc(var(--up) * -12px)) rotateX(var(--rx)) rotateY(var(--ry)); transform-style: preserve-3d;
+  transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+.door-art img { transition: filter .45s ease; }
+.door-art::before { content: ""; position: absolute; left: 12%; right: 12%; bottom: -14px; height: 18px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0,0,0,.65), transparent); transform: translateY(calc(var(--up) * 12px)) scale(calc(1 - var(--up) * .18)); opacity: calc(.9 - var(--up) * .35); transition: transform .45s, opacity .45s; z-index: -1; }
+/* the gleam follows the pointer, kept inside the arch */
+.door-shine { position: absolute; inset: 2.7% 2.7% 2.7% 2.7%; border-radius: 50% 50% 2px 2px / 37.5% 37.5% 2px 2px; pointer-events: none; mix-blend-mode: screen; opacity: var(--gl);
+  background: radial-gradient(55% 42% at var(--mx) var(--my), rgba(255,222,160,.3), transparent 70%); transition: opacity .45s; }
+@keyframes doorFloat { 50% { translate: 0 -5px; } }
+.lite .door .door-art { animation: doorFloat 5.5s ease-in-out infinite; }
+.lite .door:nth-child(2) .door-art { animation-delay: -1.8s; } .lite .door:nth-child(3) .door-art { animation-delay: -3.6s; }
+.lite a.door:hover .door-art, .lite a.door:focus-visible .door-art { --up: 1; --gl: 1; }
+.lite .door.soon:hover .door-art { --up: .4; --gl: .5; }
+.lite a.door:hover .door-art img, .lite a.door:focus-visible .door-art img { filter: drop-shadow(0 34px 40px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(226,181,107,.35)); }
+.lite a.door:active .door-art { --up: .35; transition-duration: .12s; }
+@media (prefers-reduced-motion: reduce) { .lite .door .door-art { animation: none; transition: none; } }
 .lite .door b { font-size: clamp(1rem, .75rem + 1.1vw, 1.55rem); line-height: 1.05; white-space: nowrap; color: var(--gold-pale); }
 .lite a.door:hover b { color: var(--cream); }
 .lite .door.soon b { color: var(--muted); }
@@ -280,9 +298,9 @@
     <canvas class="fairy-dust" aria-hidden="true"></canvas>
     <p class="doors-q">Kimin masalını yazalım?</p>
     <nav class="doors" id="doors" aria-label="Koleksiyonlar">
-      <a class="door" href="kizlar.html"><img alt="" width="512" height="704" data-hero-img="0"><b>Kız Çocukları</b></a>
-      <a class="door" href="erkekler.html"><img alt="" width="512" height="704" data-hero-img="1"><b>Erkek Çocukları</b></a>
-      <span class="door soon" aria-label="Yetişkinler: çok yakında"><img alt="" width="512" height="704" data-hero-img="2"><b>Yetişkinler</b></span>
+      <a class="door" href="kizlar.html"><span class="door-art"><img alt="" width="512" height="704" data-hero-img="0"><i class="door-shine" aria-hidden="true"></i></span><b>Kız Çocukları</b></a>
+      <a class="door" href="erkekler.html"><span class="door-art"><img alt="" width="512" height="704" data-hero-img="1"><i class="door-shine" aria-hidden="true"></i></span><b>Erkek Çocukları</b></a>
+      <span class="door soon" aria-label="Yetişkinler: çok yakında"><span class="door-art"><img alt="" width="512" height="704" data-hero-img="2"><i class="door-shine" aria-hidden="true"></i></span><b>Yetişkinler</b></span>
     </nav>
   </div>
 
@@ -313,7 +331,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611161528" defer></script>
+<script src="site.js?v=202611161533" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -369,6 +387,21 @@ addEventListener('DOMContentLoaded', () => {
     if (document.documentElement.classList.contains('lite')) { intro.classList.add('lite'); done(); fairyDust(); }
     // the fallback doors use the same artwork as the 3D heroes
     document.querySelectorAll('[data-hero-img]').forEach(img => { img.src = drawHeroCard(HEROES[+img.dataset.heroImg]).toDataURL(); });
+  }
+
+  /* ---------- the windows lean toward the mouse ---------- */
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.door').forEach(d => {
+      const art = d.querySelector('.door-art'); if (!art) return;
+      const tilt = d.classList.contains('soon') ? 4 : 9;
+      d.addEventListener('pointermove', e => {
+        const r = art.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        art.style.setProperty('--ry', `${((x - .5) * 2 * tilt).toFixed(2)}deg`);
+        art.style.setProperty('--rx', `${((.5 - y) * 2 * tilt * .7).toFixed(2)}deg`);
+        art.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`); art.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+      });
+      d.addEventListener('pointerleave', () => { art.style.setProperty('--rx', '0deg'); art.style.setProperty('--ry', '0deg'); });
+    });
   }
 
   /* ---------- Fairy dust: gold sparks fall from "Kimin masalını yazalım?" onto the three windows ---------- */
