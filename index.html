@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611161525">
+<link rel="stylesheet" href="site.css?v=202611161528">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -133,7 +133,7 @@
 /* The home page without the book: what we make first (the wine plate), then the three windows to choose from.
    (The 3D book is kept in this file but no longer shown: the 'lite' class is set for every visitor in the head.) */
 .doors-q { display: none; }
-.lite .intro { grid-template-rows: auto auto minmax(0, 1fr); --dw: min(calc((100vw - 64px) * .3), 230px, max(84px, calc((100svh - 480px) * .66))); }
+.lite .intro { grid-template-rows: auto auto minmax(0, 1fr); --dw: min(calc((100vw - 64px) * .3), 230px, max(76px, calc((100svh - 520px) * .62))); }
 .lite .seal, .lite .hero-copy, .lite #book3d, .lite .loader { display: none; }
 .lite .intro-top { order: 0; } .lite .intro-bottom { order: 1; padding-block: clamp(8px, 2.2svh, 26px) 0; } .lite .stage-mid { order: 2; }
 /* the question sits halfway between the sentence above and the windows below: the free room is shared evenly */
@@ -163,6 +163,16 @@
 .lite .ac-sub { display: block; margin: 0; max-width: 46rem; text-wrap: balance; text-align: center; font-size: clamp(.86rem, .8rem + .3vw, 1rem); line-height: 1.5; color: rgba(246,236,220,.82); text-shadow: 0 2px 12px rgba(0,0,0,.7); }
 @media (max-width: 560px) { .lite .after-copy { gap: 8px; } }
 .lite .after-copy { animation: none; }
+/* even spacing on every screen: logo | room | headline and sentence | room | invitation | room | windows | room.
+   The four rooms share the free height equally, so the page looks balanced from phone to large desktop. */
+.lite .intro { grid-template-rows: auto minmax(14px, 1fr) auto minmax(18px, 1fr) auto minmax(18px, 1fr) auto minmax(22px, 1fr); }
+.lite .stage-mid { display: contents; }
+.lite .intro-top { grid-row: 1; }
+.lite .intro-bottom { grid-row: 3; padding-block: 0; }
+.lite .doors-q { grid-row: 5; justify-self: center; padding-inline: 20px; }
+.lite .doors { grid-row: 7; justify-self: center; margin-bottom: 12px; }   /* the gold frame sits 12px in: the room under the windows matches the others */
+@media (max-width: 520px) { .lite .doors { margin-bottom: 8px; } .lite .intro { --dw: min(calc((100vw - 64px) * .3), max(76px, calc((100svh - 470px) * .66))); } }   /* on phones the frame sits 8px in */
+@media (max-height: 600px) { .lite .intro { grid-template-rows: auto minmax(10px, 1fr) auto minmax(14px, 1fr) auto minmax(14px, 1fr) auto minmax(14px, 1fr); } }
 
 /* Film mode (when media/intro.mp4 exists) */
 .film-bg { position: absolute; inset: -40px; z-index: -2; background: var(--ink) center / cover no-repeat; filter: blur(40px) brightness(.45); display: none; }
@@ -199,12 +209,12 @@
   radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; }
 .after-copy p.ac-note { color: rgba(246,236,220,.86); }
 /* short phone screens (small iPhones with the browser bars): a smaller logo, the slogan left out, so the scene keeps its size */
-@media (max-height: 600px) and (max-width: 560px) { .lite .door b { font-size: .82rem; white-space: normal; text-align: center; } .lite .doors { gap: 18px; } .lockup svg { width: 44px; height: 44px; } .lockup span { font-size: .95rem; } .lockup-tag { display: none; } .after-copy p.ac-note { font-size: .78rem; } }
+@media (max-height: 600px) and (max-width: 560px) { .lite .after-copy .ac-title { font-size: 2rem; } .lite .doors-q { font-size: 1.3rem; } .lite .door b { font-size: .82rem; white-space: normal; text-align: center; } .lite .doors { gap: 18px; } .lockup svg { width: 44px; height: 44px; } .lockup span { font-size: .95rem; } .lockup-tag { display: none; } .after-copy p.ac-note { font-size: .78rem; } }
 /* the slogan now sits under the logo */
 .lockup-tag { font: italic 400 clamp(.95rem, .85rem + .35vw, 1.15rem)/1 var(--f-display); color: var(--cream); opacity: .85; letter-spacing: .02em; margin-top: -2px; }
 .after-copy p.ac-note { margin: 0; font-size: clamp(.82rem, .75rem + .3vw, .98rem); line-height: 1.45; color: var(--muted); }
 /* phone: a larger headline, and more room between the text and the gold frame below it */
-@media (max-width: 560px) { .after-copy { gap: 8px; padding: 12px 16px 14px; }  .intro-bottom { padding-bottom: max(46px, calc(env(safe-area-inset-bottom, 0px) + 30px)); } }
+@media (max-width: 560px) { .after-copy { gap: 8px; padding: 12px 16px 14px; }  .intro-bottom { padding-bottom: max(46px, calc(env(safe-area-inset-bottom, 0px) + 30px)); } .lite .intro-bottom { padding-bottom: 0; } }
 .after { display: none; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .opened .after { display: flex; }
 .after .adults { display: none; }
@@ -303,7 +313,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611161525" defer></script>
+<script src="site.js?v=202611161528" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
