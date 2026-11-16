@@ -13,7 +13,7 @@ const AUDIENCES = {
 
 /* Product types for the children's collections */
 const TYPES = {
-  kitap:  { tab: 'kitaplar', name: 'Kitaplar',         one: 'Masal kitabı' },
+  kitap:  { tab: 'kitaplar', name: 'Kitaplar',         one: 'Masal kitabı', label: 'Kitap Seçeneklerimiz' },   // label: the tab on the collection page (17.11)
   boyama: { tab: 'boyama',   name: 'Boyama Kitapları', one: 'Boyama kitabı' }
 };
 
@@ -721,7 +721,7 @@ function renderCollection(aud) {
   const isAdult = aud === 'yetiskin';
   const filters = isAdult
     ? [['hepsi', 'Hepsi'], ...Object.entries(OCCASIONS)]
-    : Object.entries(TYPES).filter(([k]) => k !== 'boyama' || SELL.boyama).map(([, t]) => [t.tab, t.name]);
+    : Object.entries(TYPES).filter(([k]) => k !== 'boyama' || SELL.boyama).map(([, t]) => [t.tab, t.label || t.name]);
   const items = PRODUCTS.filter(p => p.aud === aud && onSale(p));
   // the page keeps an empty line for the prices, so filling it moves nothing
   const pnOld = document.getElementById('price-note');

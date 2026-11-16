@@ -131,6 +131,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .page-head .wrap { display: grid; justify-items: center; text-align: center; gap: 14px; padding-block: clamp(40px, 5vw, 72px) clamp(28px, 3.5vw, 44px); }
 /* the collection pages (17.11): «Kız Çocuklarına Özel» in gold, no «Koleksiyon» line above it, a shorter head */
 .coll-title { color: var(--gold); font-size: var(--t-2xl-r); line-height: 1.08; }
+@media (max-width: 620px) { .coll-title .coll-top { display: block; } }   /* on a phone «Kız» / «Erkek» on its own line above, both lines centred (17.11) */
 body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap, body[data-page="yetiskin"] .page-head .wrap { gap: 10px; padding-block: clamp(20px, 3vw, 44px) clamp(16px, 2.4vw, 30px); }
 body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-top: 8px; }
 
