@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611161537">
+<link rel="stylesheet" href="site.css?v=202611161540">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -148,7 +148,9 @@
 .fairy-dust { display: none; }
 .lite .fairy-dust { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .lite .doors-q { animation: none; } .lite .fairy-dust { display: none; } }
-.lite .doors { display: grid; grid-auto-flow: column; justify-content: center; position: relative; z-index: 1; grid-auto-columns: var(--dw); gap: calc(var(--dw) * .14); visibility: visible; }
+/* three windows of exactly the same width with exactly the same gaps, whatever the length of their names (flex, fixed widths: the same in every browser) */
+.lite .doors { display: flex; justify-content: center; align-items: flex-start; position: relative; z-index: 1; gap: calc(var(--dw) * .14); visibility: visible; }
+.lite .doors > .door { flex: 0 0 var(--dw); min-width: 0; }
 .lite .door { width: var(--dw); gap: 10px; opacity: 1; transform: none; transition: none; grid-template-columns: minmax(0, 1fr); }   /* a long name overflows evenly on both sides, the window stays centred */
 .lite .door img { width: var(--dw); display: block; }
 /* depth for the windows: a soft shadow on the floor; they move only when the mouse comes over them: a tilt toward the pointer, a lift and a gleam */
@@ -166,7 +168,9 @@
 .lite a.door:hover .door-art img, .lite a.door:focus-visible .door-art img { filter: drop-shadow(0 34px 40px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(226,181,107,.35)); }
 .lite a.door:active .door-art { --up: .35; transition-duration: .12s; }
 @media (prefers-reduced-motion: reduce) { .lite .door .door-art { transition: none; } }
-.lite .door b { font-size: clamp(1rem, .75rem + 1.1vw, 1.55rem); line-height: 1.05; white-space: nowrap; color: var(--gold-pale); }
+/* the name is never wider than its window: its size follows the window's width ("Erkek Çocukları" is about 6.6 letters-heights long),
+   and on the very smallest windows it may take two lines rather than spill out */
+.lite .door b { max-width: 100%; font-size: clamp(.78rem, calc(var(--dw) / 7.2), 1.55rem); line-height: 1.08; white-space: normal; text-wrap: balance; color: var(--gold-pale); }
 .lite a.door:hover b { color: var(--cream); }
 .lite .door.soon b { color: var(--muted); }
 /* drawn from the first paint, so nothing below it moves when the page settles */
@@ -186,7 +190,6 @@
 .lite .intro-bottom { grid-row: 3; padding-block: 0; }
 .lite .doors-q { grid-row: 5; justify-self: center; padding-inline: 20px; }
 .lite .doors { grid-row: 7; justify-self: center; margin-bottom: 12px; }   /* the gold frame sits 12px in: the room under the windows matches the others */
-@media (max-width: 380px) { .lite .door b { font-size: .9rem; } }
 @media (max-width: 520px) { .lite .doors { margin-bottom: 8px; } .lite .intro { --dw: min(calc((100vw - 64px) * .3), max(76px, calc((100svh - 470px) * .66))); } }   /* on phones the frame sits 8px in */
 @media (max-height: 600px) { .lite .intro { grid-template-rows: auto minmax(10px, 1fr) auto minmax(14px, 1fr) auto minmax(14px, 1fr) auto minmax(14px, 1fr); } }
 
@@ -225,7 +228,7 @@
   radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; }
 .after-copy p.ac-note { color: rgba(246,236,220,.86); }
 /* short phone screens (small iPhones with the browser bars): a smaller logo, the slogan left out, so the scene keeps its size */
-@media (max-height: 600px) and (max-width: 560px) { .lite .after-copy .ac-title { font-size: 2rem; } .lite .doors-q { font-size: 1.3rem; } .lite .door b { font-size: .82rem; white-space: normal; text-align: center; } .lite .doors { gap: 18px; } .lockup svg { width: 44px; height: 44px; } .lockup span { font-size: .95rem; } .lockup-tag { display: none; } .after-copy p.ac-note { font-size: .78rem; } }
+@media (max-height: 600px) and (max-width: 560px) { .lite .after-copy .ac-title { font-size: 2rem; } .lite .doors-q { font-size: 1.3rem; } .lockup svg { width: 44px; height: 44px; } .lockup span { font-size: .95rem; } .lockup-tag { display: none; } .after-copy p.ac-note { font-size: .78rem; } }
 /* the slogan now sits under the logo */
 .lockup-tag { font: italic 400 clamp(.95rem, .85rem + .35vw, 1.15rem)/1 var(--f-display); color: var(--cream); opacity: .85; letter-spacing: .02em; margin-top: -2px; }
 .after-copy p.ac-note { margin: 0; font-size: clamp(.82rem, .75rem + .3vw, .98rem); line-height: 1.45; color: var(--muted); }
@@ -329,7 +332,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611161537" defer></script>
+<script src="site.js?v=202611161540" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
