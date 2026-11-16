@@ -291,6 +291,15 @@ const SPREADS_NOEL = [
   ['img/noel-babaya-hediye-s6.jpg', 'SÜRPRİZ! Noel Baba hayatındaki ilk hediyeyi açıyor'],
   ['img/noel-babaya-hediye-s7.jpg', 'Sabah yatakta: gümüş bir çan ve bir teşekkür notu']
 ];
+const SPREADS_NOEL_KIZ = [
+  ['img/noel-babaya-surpriz-kiz-s1.jpg', 'Yılbaşı gecesi balkon kapısında minik bir ren geyiği'],
+  ['img/noel-babaya-surpriz-kiz-s2.jpg', 'Karlar Ülkesi: herkes başka bir hediye istiyor'],
+  ['img/noel-babaya-surpriz-kiz-s3.jpg', 'Noel Baba\'nın evinde bir ipucu: tozlu kutudaki ilk oyuncak'],
+  ['img/noel-babaya-surpriz-kiz-s4.jpg', 'Atölyede tamir: minik ren geyiği kendi çanını veriyor'],
+  ['img/noel-babaya-surpriz-kiz-s5.jpg', 'Çam süsleniyor: buz topları, ışıklar ve kocaman bir yıldız'],
+  ['img/noel-babaya-surpriz-kiz-s6.jpg', 'SÜRPRİZ! Noel Baba hayatındaki ilk hediyeyi açıyor'],
+  ['img/noel-babaya-surpriz-kiz-s7.jpg', 'Sabah yatakta: gümüş bir çan ve bir teşekkür notu']
+];
 const SPREADS_LAVIN = [
   ['img/deniz-kizi-kralligi-s1.jpg', 'Elif kumsalda deniz kabuğunu kulağına tutuyor'],
   ['img/deniz-kizi-kralligi-s2.jpg', 'Deniz kızı Mira dalgaların arasından çıkıyor'],
@@ -323,6 +332,11 @@ const SPREADS_DINO = [
 /* status: 'hazir' = can be ordered now, 'yakinda' = coming soon (interest list).
    book: a coloring book is sold only with its story book, as a Masal Seti */
 const PRODUCTS = [
+  { id: 'noel-babaya-surpriz-kiz', coverTitle: { box: [0, .22], sub: "ve Noel Baba'ya Sürpriz", font: 'sans', nameSize: 122, subSize: 33.5, block: 165, top: 12, fx: .87 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Lina', title: "ve Noel Baba'ya Sürpriz",
+    img: 'img/noel-babaya-surpriz-kiz-kapak.jpg', clean: 'img/noel-babaya-surpriz-kiz-temiz.jpg', alt: "Lina ve Noel Baba'ya Sürpriz kapağı: yeşil hediye kutusunu tutan kız, yanında Noel Baba, ren geyiği ve kutup hayvanları",
+    short: "Herkese hediye getiren Noel Baba'ya ilk kez gizlice bir sürpriz hazırlayan bir kızın yılbaşı masalı.",   // one sentence for the cards
+    desc: "Noel Baba herkese hediye getirir. Peki ona kim hediye verir? Hiç kimse! Yılbaşı gecesi kahramanımız en küçük ren geyiğiyle Karlar Ülkesi'ne uçar. Dostlarıyla birlikte Noel Baba'nın sırrını bulacak, çamını süsleyecek ve şafak sökmeden ona gizlice bir sürpriz hazırlayacak. Noel Baba ne diyecek? Sürprizin, dostluğun ve sevindirmenin masalı.",
+    extra: [['img/noel-babaya-surpriz-kiz-arka.jpg', 'Arka kapak']], spreads: SPREADS_NOEL_KIZ },
   { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı', font: 'sans', nameSize: 140, subSize: 41, block: 190, top: 14 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
     img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
     short: 'Kar küresinden çıkan bir buz şatosunda, küçük iyiliklerin büyük gücünü keşfeden bir kış macerası.',   // one sentence for the cards
@@ -353,8 +367,8 @@ const PRODUCTS = [
     short: 'Küçük deniz kızı Mira’yla, krallığın kaybolan üç incisini aramak için denizin derinliklerine bir yolculuk.',   // one sentence for the cards
     desc: 'Bir yaz sabahı kumsalda bulunan deniz kabuğu kulağa bir şarkı fısıldar ve kahramanımız kendini dalgaların altında bulur. Küçük deniz kızı Mira, yan yan yürüyen yengeç ve bilge kaplumbağayla birlikte, krallığın kaybolan üç incisini aramak için denizin derinliklerine yolculuk başlar. Dostluğun ve cesaretin parıl parıl bir deniz masalı.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
-  { id: 'noel-babaya-hediye', coverTitle: { box: [0, .22], sub: "ve Noel Baba'ya Hediye", font: 'sans', nameSize: 122, subSize: 34, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Edis', title: "ve Noel Baba'ya Hediye",
-    img: 'img/noel-babaya-hediye-kapak.jpg', clean: 'img/noel-babaya-hediye-temiz.jpg', alt: "Edis ve Noel Baba'ya Hediye kapağı: yeşil hediye paketini tutan çocuk, yanında Noel Baba, ren geyiği ve kutup hayvanları",
+  { id: 'noel-babaya-hediye', coverTitle: { box: [0, .22], sub: "ve Noel Baba'ya Sürpriz", font: 'sans', nameSize: 122, subSize: 33.5, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Edis', title: "ve Noel Baba'ya Sürpriz",
+    img: 'img/noel-babaya-hediye-kapak.jpg', clean: 'img/noel-babaya-hediye-temiz.jpg', alt: "Edis ve Noel Baba'ya Sürpriz kapağı: yeşil hediye kutusunu tutan çocuk, yanında Noel Baba, ren geyiği ve kutup hayvanları",
     short: "Herkese hediye getiren Noel Baba'ya ilk kez gizlice bir sürpriz hazırlayan bir çocuğun yılbaşı masalı.",   // one sentence for the cards
     desc: "Noel Baba herkese hediye getirir. Peki ona kim hediye verir? Hiç kimse! Yılbaşı gecesi kahramanımız en küçük ren geyiğiyle Karlar Ülkesi'ne uçar. Dostlarıyla birlikte Noel Baba'nın sırrını bulacak, çamını süsleyecek ve şafak sökmeden ona gizlice bir sürpriz hazırlayacak. Noel Baba ne diyecek? Sürprizin, dostluğun ve sevindirmenin masalı.",
     extra: [['img/noel-babaya-hediye-arka.jpg', 'Arka kapak']], spreads: SPREADS_NOEL },
