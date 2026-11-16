@@ -687,7 +687,7 @@ function card(p, withPrice = false) {
     ${p.type === 'kitap' ? '' : `<div class="meta"><span>${kind}</span></div>`}
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.short || p.desc)}</p>
-    ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">İncele + Sipariş ver</span>' : ''}
+    ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">İncele<span class="cta-plus" aria-hidden="true">+</span>Sipariş ver</span>' : ''}
   </a>`;
 }
 

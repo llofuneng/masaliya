@@ -478,7 +478,9 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 /* Product page: gallery and the book's pages on the left, choosing and ordering on the right */
 .product { grid-template-areas: "g h" "g b" "v b"; grid-template-rows: auto auto 1fr; align-items: start; row-gap: 28px; }
 .p-gallery { grid-area: g; } .p-head { grid-area: h; display: grid; gap: 16px; min-width: 0; } .p-viewer { grid-area: v; min-width: 0; } .p-buy { grid-area: b; min-width: 0; }
-.p-head h1 { font-size: clamp(2.2rem, 1.6rem + 2.4vw, 3.4rem); font-weight: 500; }
+.p-head h1 { font-size: clamp(2.2rem, 1.6rem + 2.4vw, 3.4rem); font-weight: 600; background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }   /* like the cards and the first screen's headline (17.11) */
+.p-head h1 .ad { font-style: italic; font-weight: 600; font-size: 1em; }
 .p-head .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .78rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
 .p-head .desc { color: var(--muted); max-width: 56ch; }
 @media (max-width: 860px) { .product { grid-template-areas: "g" "h" "v" "b"; grid-template-rows: none; } }
@@ -519,7 +521,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
   body[data-page="urun"] main > .sec:first-child { padding-top: 4px !important; }
   body[data-page="urun"] #crumbs { margin-bottom: 8px !important; }
   body[data-page="urun"] #crumbs a { padding-block: 6px; }
-  .p-head h1 { font-size: 2.6rem; line-height: 1.04; }
+  .p-head h1 { font-size: 2.6rem; line-height: 1.06; }   /* fitTitles() keeps two lines */
 }
 @media (max-width: 860px) {
   .buybar { position: fixed; z-index: 44; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 14px;
@@ -834,6 +836,8 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .card:has(.card-cta) { display: flex; flex-direction: column; }
 .card .card-cta { justify-self: stretch; margin-top: auto; text-align: center; pointer-events: none; }
 .card:hover .card-cta { background: var(--gold); color: var(--ink); }
+/* the «+» of «İncele + Sipariş ver» in the middle between the words and at the height of the capitals (17.11) */
+.card-cta .cta-plus { display: inline-block; margin: 0 .42em 0 .32em; letter-spacing: 0; font-size: 1.15em; line-height: 1; transform: translateY(-.06em); }
 
 /* phones: compact book tiles in the lists (cover beside the text), so several stories fit on a screen */
 @media (max-width: 620px) {
@@ -889,19 +893,15 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 
 /* book cards: the title large at the top, a one-sentence summary, the button */
 .card.book h3 { font-size: clamp(1.6rem, 1.2rem + 1.1vw, 2.05rem); line-height: 1.1; }
-/* the tale's name in capitals on the windows' gold plaque, letters in the collection's colour (17.11, her words
-   «büyük harflerle», «arka plan olarak… onları mı yapsak»; before: burgundy box, gold letters) */
-.card.book h3 { padding: .34em .5em .38em; border-radius: 8px; border: 1px solid #f8e7bf; color: #5a1622;
-  font-weight: 600; text-transform: uppercase; letter-spacing: .02em; text-shadow: 0 1px 0 rgba(255,240,210,.5);
-  background: linear-gradient(180deg, #f8e7bf 0%, #e9c27a 55%, #c9964c 100%);
-  box-shadow: 0 6px 14px -6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 4px rgba(120,70,20,.25); }
-.card.book.aud-erkek h3 { color: #1c2550; }
-.card.book.aud-yetiskin h3 { color: #173326; }
-.card.book h3 .ad { color: inherit; }
+/* the tale's name like the first screen's headline «Fotoğraftan kişiye özel masal kitapları» (17.11, her «o tarzda… Ok»):
+   gold-gradient letters, a soft shadow, the hero's name in italic, no plaque (before that: capitals on a gold plaque) */
+.card.book h3 { font-weight: 600; background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
+.card.book h3 .ad { font-style: italic; font-weight: 600; font-size: 1em; }
 .card.book p { color: var(--cream); opacity: .82; }
 @media (max-width: 620px) {
   #grid .card.book:has(.card-cta), #home-grid .card.book:has(.card-cta), #related .card.book:has(.card-cta) { grid-template-rows: auto 1fr auto; row-gap: 8px; }
-  #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3 { font-size: 1.3rem; line-height: 1.1; }   /* capitals (17.11): 1.3rem keeps short and long names closer in size; fitTitles() keeps it to two lines */
+  #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3 { font-size: 1.7rem; line-height: 1.08; }   /* the headline style (17.11); fitTitles() keeps it to two lines */
   /* phones: the text sits on the right, away from the cover (17.11, her choice) */
   #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3, #grid .card.book p, #home-grid .card.book p, #related .card.book p { text-align: right; }
   /* 17.11: three lines at most, so the text column is never taller than the cover and the cover reaches the button line */
