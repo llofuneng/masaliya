@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170145">
+<link rel="stylesheet" href="site.css?v=202611170203">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -143,10 +143,10 @@
 .lite .stage-mid { background: radial-gradient(48% 50% at 50% 62%, rgba(255,196,128,.17), transparent 72%); }
 /* the invitation: large gold italic with a soft glow; fairy dust falls from it onto the windows */
 .lite .doors-q { display: block; position: relative; z-index: 3; margin: 0; font: italic 600 clamp(1.25rem, .9rem + 1.5vw, 1.8rem)/1.15 var(--f-display); letter-spacing: .01em; color: var(--gold-pale); text-align: center;
-  text-shadow: 0 0 18px rgba(226,181,107,.55), 0 2px 12px rgba(0,0,0,.7); animation: qGlow 3.6s ease-in-out infinite; }
-@keyframes qGlow { 50% { text-shadow: 0 0 28px rgba(244,223,179,.8), 0 2px 12px rgba(0,0,0,.7); } }
+  text-shadow: 0 0 14px rgba(226,181,107,.41), 0 2px 12px rgba(0,0,0,.7); animation: qGlow 3.6s ease-in-out infinite; }   /* 17.11: the glow 25% softer */
+@keyframes qGlow { 50% { text-shadow: 0 0 21px rgba(244,223,179,.6), 0 2px 12px rgba(0,0,0,.7); } }
 .fairy-dust { display: none; }
-.lite .fairy-dust { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+.lite .fairy-dust { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; opacity: .75; }   /* 17.11: the gold dust 25% softer */
 @media (prefers-reduced-motion: reduce) { .lite .doors-q { animation: none; } .lite .fairy-dust { display: none; } }
 /* three windows of exactly the same width with exactly the same gaps, whatever the length of their names (flex, fixed widths: the same in every browser) */
 .lite .doors { display: flex; justify-content: center; align-items: flex-start; position: relative; z-index: 1; gap: calc(var(--dw) * .14); visibility: visible; }
@@ -180,8 +180,8 @@
 .lite .door.soon.nudge::after { opacity: 1; translate: 0 7px; }
 @media (prefers-reduced-motion: reduce) { .lite .door .door-art { transition: none; } }
 /* the name is never wider than its window and always on one line: its size follows the window's width */
-.lite .door b { font-size: min(calc(var(--dw) / 7.2), 1.55rem); line-height: 1.08; white-space: nowrap; color: var(--gold-pale); }   /* always one line; the script below makes sure it fits */
-.lite a.door:hover b { color: var(--cream); }
+.lite .door b { font-size: min(calc(var(--dw) / 6.2), 1.5rem); line-height: 1.08; white-space: nowrap; color: var(--gold-pale); }   /* always one line; the script below makes sure it fits */
+@media (hover: hover) and (pointer: fine) { .lite a.door:hover b { color: var(--cream); } }
 .lite .door.soon b { color: var(--gold-pale); }   /* same as the others: the "Çok yakında" sash already says it is not open yet */
 /* drawn from the first paint, so nothing below it moves when the page settles */
 .lite .after-copy { display: grid; gap: 4px; }
@@ -264,28 +264,30 @@
 .how-notes span::before { content: "✦"; color: var(--gold); margin-right: .6em; font-size: .7em; }
 @media (prefers-reduced-motion: reduce) { .door, .seal { transition: none !important; } }
 
-/* the names as plaques fixed to the foot of each window, in capitals on one line, inside the window's gold rim
-   (17.11, her choice A, «çerçeve tüm tabanı kaplasın», then «Büyük harfle… tek satır… pencerenin yanından taşıyor gibi»):
-   17.11, her choice after that: a gold plaque (light from above, a soft inner shade) with bold letters in the window's colour:
-   girls deep burgundy, boys navy, adults deep green; the plaque overlaps the window's bottom edge */
+/* the names (17.11, her choice «A ve C arası»): long names on one line in the site's display font (Cormorant 600, narrow, so they
+   come out about 16 px on a phone instead of 9 px in capitals), gold, between two thin gold rules that fade at the ends (as the divider
+   under the headline), with a small gold diamond on the upper rule, like the clasp of a sign (as the window's own double gold frame) */
 .lite .door { gap: 0; }
-.lite .door b { position: relative; z-index: 2; display: block; width: 92%; margin-top: calc(var(--dw) * -.11); padding: calc(var(--dw) * .06) 4px calc(var(--dw) * .065); text-align: center;
-  font-family: var(--f-body); font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
-  border: 1px solid #f8e7bf; border-radius: 999px; color: #5a1622; text-shadow: 0 1px 0 rgba(255,240,210,.6);
-  background: linear-gradient(180deg, #f8e7bf 0%, #e9c27a 55%, #c9964c 100%);
-  box-shadow: 0 8px 16px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 4px rgba(120,70,20,.25); }
-.lite .door[href="erkekler.html"] b { color: #1c2550; }
-.lite .door.soon b { color: #173326; }
-.lite a.door:hover b { color: #5a1622; box-shadow: 0 10px 18px rgba(0,0,0,.6), 0 0 22px rgba(244,223,179,.55), inset 0 1px 0 rgba(255,255,255,.6); }
-.lite a.door[href="erkekler.html"]:hover b { color: #1c2550; }
+.lite .door b { position: relative; z-index: 2; display: block; width: 100%; margin-top: 10px; padding: .45em 2px .5em; text-align: center;
+  font-family: var(--f-display); font-weight: 600; text-transform: none; letter-spacing: .01em; color: var(--gold-pale);
+  text-shadow: 0 1px 8px rgba(0,0,0,.85);
+  background:
+    linear-gradient(90deg, transparent, #cfa461 18%, #cfa461 82%, transparent) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(207,164,97,.6) 18%, rgba(207,164,97,.6) 82%, transparent) bottom / 100% 1px no-repeat,
+    radial-gradient(60% 70% at 50% 50%, rgba(0,0,0,.4), transparent 75%); }
+.lite .door b::before { content: ""; position: absolute; left: 50%; top: 0; width: 7px; height: 7px; translate: -50% -50%; rotate: 45deg;
+  background: #e2b56b; box-shadow: 0 0 0 2px #1a0d0b; }
+.lite .door.soon b { color: rgba(244,223,179,.5); }   /* not open yet: the name dimmed too */
+.lite .door.soon b::before { background: rgba(226,181,107,.5); }
 /* phones (16.11, her choice V1): the first screen is as tall as its content, so the windows come up and the books peek in below */
 @media (max-width: 560px) {
   /* 17.11, her choice A: no sentence under the headline; the first screen fills the phone minus one line, so only «Masallarımız»
      shows at the bottom (not the heading below it); the free height is shared by the rooms between logo, headline, question and windows */
   .lite .intro { min-height: calc(100svh - 44px); grid-template-rows: auto minmax(8px, 1fr) auto minmax(16px, 1fr) auto minmax(12px, 1fr) auto minmax(16px, .6fr); }
   .lite .intro { --dw: min(calc((100vw - 40px) * .315), max(86px, calc((100svh - 470px) * .7))); }   /* larger windows, so the names in capitals stay readable (17.11) */
-  .lockup svg { width: 40px; height: 40px; }
-  .lockup span { font-size: .92rem; }
+  .lockup svg { width: 32px; height: 32px; }   /* 17.11: a smaller logo, so the windows lead */
+  .lockup span { font-size: .78rem; }
+  .lite .doors-q { font-size: 1.06rem; }   /* 17.11: the question a little smaller (17 px) */
   .lite .after-copy .ac-title { font-size: 2.05rem; }
   .psy-seal { width: 58px; height: 58px; margin-top: 8px; }
 }
@@ -386,7 +388,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170145" defer></script>
+<script src="site.js?v=202611170203" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -456,24 +458,59 @@ addEventListener('DOMContentLoaded', () => {
       return (img._jl = { bg, fig, foot, cx: r > l ? (l + r) / 2 : 256 });
     };
     (window.requestIdleCallback || (f => setTimeout(f, 1200)))(() => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach(jumpLayers));
-    const KEYS = [[0, 1, 1], [130, 1.05, .91], [190, .95, 1.07], [330, 1, 1], [470, .96, 1.06], [530, 1.06, .92], [640, .99, 1.02], [760, 1, 1]];   // [ms, width, height]
+    // two different jumps (17.11): [ms, width, height] keys for the squash and stretch, the time in the air, the height
+    const JUMPS = {
+      // the girl: a light, floaty jump with one twirl; her wand throws little sparkles
+      'kizlar.html': { end: 900, keys: [[0, 1, 1], [120, 1.03, .95], [170, .97, 1.04], [300, 1, 1], [560, .99, 1.02], [640, 1.04, .95], [740, .99, 1.01], [900, 1, 1]],
+        air: [150, 620], high: 44, spin: 1, lean: 0, tip: [99, 38], sparks: 16, ink: ['#c99640', '#d4607a', '#e9b44c'] },
+      // the boy: a deep crouch, a high, quick leap leaning toward his sword (a gleam at its tip), a firm landing with a puff of dust
+      'erkekler.html': { end: 820, keys: [[0, 1, 1], [150, 1.08, .86], [200, .93, 1.1], [330, 1, 1], [460, .95, 1.08], [520, 1.1, .86], [640, .98, 1.03], [820, 1, 1]],
+        air: [175, 495], high: 64, spin: 0, lean: .11, tip: [103, 29], dust: 8 }
+    };
     const smooth = t => t * t * (3 - 2 * t);
-    const jump = (img, art) => {
+    const star = (x, X, Y, r) => { x.beginPath(); x.moveTo(X, Y - r); x.quadraticCurveTo(X, Y, X + r, Y); x.quadraticCurveTo(X, Y, X, Y + r); x.quadraticCurveTo(X, Y, X - r, Y); x.quadraticCurveTo(X, Y, X, Y - r); x.fill(); };
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const jump = (img, art, href) => {
+      const J = JUMPS[href]; if (!J) return 0;
       const L = jumpLayers(img), c = document.createElement('canvas'); c.width = 512; c.height = 704; c.className = 'door-jump';
-      art.insertBefore(c, img.nextSibling); const x = c.getContext('2d'), t0 = performance.now();
+      art.insertBefore(c, img.nextSibling); const x = c.getContext('2d'), t0 = performance.now(), K = J.keys;
+      const tipX = 256 - 60 * 3.15 + J.tip[0] * 3.15, tipY = 704 - 14 - 160 * 3.15 - 18 + J.tip[1] * 3.15;   // the wand or the sword tip, as drawHeroCard places the figure
+      const sparks = Array.from({ length: J.sparks || 0 }, (_, i) => ({ at: 230 + i * 22, vx: (rnd() - .5) * 620, vy: -260 + rnd() * 300, r: 11 + rnd() * 12, col: J.ink[i % 3], life: 340 + rnd() * 160 }));
+      const dust = Array.from({ length: J.dust || 0 }, (_, i) => ({ dir: i % 2 ? 1 : -1, v: 160 + rnd() * 220, up: 30 + rnd() * 70, r: 12 + rnd() * 10 }));
       const frame = now => {
-        const t = Math.min(now - t0, 760); let i = 0; while (i < KEYS.length - 2 && t > KEYS[i + 1][0]) i++;
-        const [ta, wa, ha] = KEYS[i], [tb, wb, hb] = KEYS[i + 1], q = smooth(Math.min(1, Math.max(0, (t - ta) / (tb - ta))));
-        const sx = wa + (wb - wa) * q, sy = ha + (hb - ha) * q;
-        const p = (t - 170) / 330, air = p > 0 && p < 1, lift = air ? 4 * 46 * p * (1 - p) : 0, tilt = air ? .045 * Math.sin(p * 2 * Math.PI) : 0;
+        const t = Math.min(now - t0, J.end); let i = 0; while (i < K.length - 2 && t > K[i + 1][0]) i++;
+        const [ta, wa, ha] = K[i], [tb, wb, hb] = K[i + 1], q = smooth(Math.min(1, Math.max(0, (t - ta) / (tb - ta))));
+        const p = (t - J.air[0]) / (J.air[1] - J.air[0]), inAir = p > 0 && p < 1;
+        const lift = inAir ? 4 * J.high * p * (1 - p) : 0;
+        const turn = J.spin && inAir ? Math.cos(2 * Math.PI * smooth(p)) : 1;   // one twirl: the silhouette turns round once
+        const sx = (wa + (wb - wa) * q) * turn, sy = ha + (hb - ha) * q;
+        const tilt = inAir ? (J.lean ? J.lean * Math.sin(Math.PI * p) : .035 * Math.sin(p * 2 * Math.PI)) : 0;
         x.clearRect(0, 0, 512, 704); x.drawImage(L.bg, 0, 0);
         // a soft shadow under the feet, smaller while the child is in the air
-        const sh = 1 - lift / 46 * .45; x.fillStyle = `rgba(110,70,30,${(.16 * sh).toFixed(3)})`;
+        const sh = 1 - lift / J.high * .45; x.fillStyle = `rgba(110,70,30,${(.16 * sh).toFixed(3)})`;
         x.beginPath(); x.ellipse(L.cx, L.foot - 2, 70 * sh, 5 * sh, 0, 0, 6.283); x.fill();
         x.save(); x.translate(L.cx, L.foot - lift); x.rotate(tilt); x.scale(sx, sy); x.translate(-L.cx, -L.foot); x.drawImage(L.fig, 0, 0); x.restore();
-        if (t < 760 && c.isConnected) requestAnimationFrame(frame);
+        // where the tip is now (the same moves as the figure)
+        const dx = (tipX - L.cx) * sx, dy = (tipY - L.foot) * sy, TX = L.cx + dx * Math.cos(tilt) - dy * Math.sin(tilt), TY = L.foot - lift + dx * Math.sin(tilt) + dy * Math.cos(tilt);
+        sparks.forEach(s => {
+          if (t < s.at) return; if (s.x0 === undefined) { s.x0 = TX; s.y0 = TY; }
+          const d = (t - s.at) / 1000, k = d * 1000 / s.life; if (k >= 1) return;
+          x.globalAlpha = 1 - k; x.fillStyle = s.col; star(x, s.x0 + s.vx * d, s.y0 + s.vy * d + 900 * d * d, s.r * (1 - k * .5)); x.globalAlpha = 1;
+        });
+        if (J.lean && t > 270 && t < 460) {   // the sword flashes at the top of the leap
+          const g = Math.sin(Math.PI * (t - 270) / 190); x.globalAlpha = g; x.fillStyle = '#d9a441'; star(x, TX, TY, 12 + 30 * g);
+          x.fillStyle = '#fff4d6'; star(x, TX, TY, 5 + 12 * g); x.globalAlpha = 1;
+        }
+        if (J.dust && t > J.air[1] - 10) {   // a puff of dust where he lands
+          const d = (t - J.air[1] + 10) / 1000, k = d / .32;
+          if (k < 1) dust.forEach(u => {   // soft little clouds, not blots
+            const X = L.cx + u.dir * (40 + u.v * d), Y = L.foot - 6 - u.up * d * (1 - k), rr = u.r * (1.2 + 1.6 * k), g = x.createRadialGradient(X, Y, 0, X, Y, rr);
+            g.addColorStop(0, `rgba(170,130,80,${(.22 * (1 - k)).toFixed(3)})`); g.addColorStop(1, 'rgba(170,130,80,0)'); x.fillStyle = g; x.beginPath(); x.arc(X, Y, rr, 0, 6.283); x.fill(); });
+        }
+        if (t < J.end && c.isConnected) requestAnimationFrame(frame);
       };
       requestAnimationFrame(frame);
+      return J.end;
     };
     // a tap on a window (17.11): it lifts and turns light with the figure in its colour, then the collection opens
     document.querySelectorAll('.lite a.door').forEach(a => a.addEventListener('click', e => {
@@ -482,8 +519,8 @@ addEventListener('DOMContentLoaded', () => {
       e.preventDefault(); if (a.classList.contains('picked')) return;
       img.src = img.dataset.picked; a.classList.add('picked');
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!calm) jump(img, a.querySelector('.door-art'));
-      setTimeout(() => { location.href = a.href; }, calm ? 150 : 800);
+      const took = calm ? 0 : jump(img, a.querySelector('.door-art'), a.getAttribute('href'));
+      setTimeout(() => { location.href = a.href; }, took ? took + 40 : 150);
     }));
     // the adults' window is not open yet: a tap lifts it a little and says so for a moment
     document.querySelectorAll('.lite .door.soon').forEach(d => d.addEventListener('click', () => {

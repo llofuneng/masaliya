@@ -531,6 +531,14 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all') {
   }
   }
   if (h.soon && layer !== 'fig') {
+    // not open yet (17.11): like an unexplored part of a map in a game — a dark veil with drifting mist, the figures only faintly seen
+    x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'transparent';
+    x.fillStyle = 'rgba(4,6,6,.64)'; x.fillRect(0, 0, W, H);
+    let f = 11; const fr = () => (f = (f * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 10; i++) {
+      const fx = fr() * W, fy = H * (.2 + fr() * .8), rr = 70 + fr() * 150, fg = x.createRadialGradient(fx, fy, 0, fx, fy, rr);
+      fg.addColorStop(0, 'rgba(150,168,160,.15)'); fg.addColorStop(1, 'rgba(150,168,160,0)'); x.fillStyle = fg; x.fillRect(0, 0, W, H);
+    }
     // a gold sash across the upper corner: not open yet
     x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'rgba(0,0,0,.4)'; x.shadowBlur = 8; x.shadowOffsetY = 2;
     x.translate(W * .72, H * .19); x.rotate(Math.PI / 4.6);
@@ -1099,8 +1107,7 @@ function renderProduct() {
         ${specs ? `<div class="about"><p class="eyebrow">Kitap hakkında</p>${specs}</div>` : ''}
       </div>
     </div>
-    ${orderable ? `<div class="buybar hold" id="buybar"><a class="btn" href="#buy">Masalını oluştur<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></a></div>
-    <button type="button" class="scroll-cue" id="scroll-cue" aria-label="Aşağı kaydır"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>` : ''}`;
+    ${orderable ? `<div class="buybar" id="buybar"><a class="btn" href="#buy">Masalını oluştur<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></a></div>` : ''}`;   // 17.11, her words: the bar at once, no arrow first
 
     // the description shows three lines; the rest opens on request
     const desc = document.getElementById('p-desc'), more = document.getElementById('desc-more');
@@ -1324,14 +1331,6 @@ function renderProduct() {
         const inp = document.getElementById('hero-name'); if (inp) { try { inp.focus({ preventScroll: true }); } catch (x) { inp.focus(); } }
       });
     }
-    // phone, on opening (17.11): a gold down arrow instead of the bar; the first scroll puts the bar back
-    const cue = document.getElementById('scroll-cue');
-    if (bar && cue) {
-      const reveal = () => { if (scrollY > 60) { cue.classList.add('gone'); bar.classList.remove('hold'); removeEventListener('scroll', reveal); } };
-      addEventListener('scroll', reveal, { passive: true });
-      // to step 1, the hero's name (her words «Kahramanın adı bölümüne… itelim»); no focus, so the phone keyboard does not jump up
-      cue.addEventListener('click', () => toName());   // no focus here: the arrow only shows the way
-    }
 
     // Related
     // all our other stories: this collection first, then the others
@@ -1380,7 +1379,9 @@ function setupViewer(slides, onCover) {
   const all = slides.map(([src, alt]) => [src, alt]);
   document.getElementById('zoom').onclick = () => openLightbox(all, cur);
   swipe(frame, () => go(cur + 1), () => go(cur - 1));
-  frame.addEventListener('click', () => { if (frame.dataset.swiped) { delete frame.dataset.swiped; return; } openLightbox(all, cur); });
+  // 17.11, her words «görseli tıklayınca… görsel yukarı kalkıyor, kalkmasın»: on a phone a tap on the picture opens nothing
+  // (the zoom view is the same width there and only jumped the picture up); «Büyüt» still opens it
+  frame.addEventListener('click', () => { if (frame.dataset.swiped) { delete frame.dataset.swiped; return; } if (matchMedia('(max-width: 620px)').matches) return; openLightbox(all, cur); });
   frame.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') go(cur - 1);
     if (e.key === 'ArrowRight') go(cur + 1);

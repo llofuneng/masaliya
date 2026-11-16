@@ -170,7 +170,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 }
 .card .visual img { width: 100%; height: 100%; object-fit: cover; }
 .card.book .visual::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 6%; background: linear-gradient(90deg, rgba(0,0,0,.35), rgba(255,255,255,.08), transparent); }
-.card:hover .visual { transform: translateY(-6px); box-shadow: 0 40px 60px -28px rgba(0,0,0,.95), 0 0 0 1px rgba(226,181,107,.5), 0 0 60px -20px rgba(226,181,107,.35); }
+@media (hover: hover) and (pointer: fine) { .card:hover .visual { transform: translateY(-6px); box-shadow: 0 40px 60px -28px rgba(0,0,0,.95), 0 0 0 1px rgba(226,181,107,.5), 0 0 60px -20px rgba(226,181,107,.35); } }   /* the lift only with a real mouse: on a phone a tap left the picture lifted (17.11) */
 .badge { position: absolute; top: 12px; left: 12px; z-index: 2; background: rgba(20,11,9,.82); color: var(--gold-pale); border: 1px solid var(--line-strong); font-size: .66rem; letter-spacing: .22em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
 .card .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--t-xs); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
 .card h3 { font-size: var(--t-lg-r); }
@@ -409,7 +409,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .choices { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 250px); gap: clamp(18px, 4vw, 64px); justify-content: center; }
 .choice { display: grid; justify-items: center; gap: 16px; text-decoration: none; color: var(--cream); text-align: center; }
 .choice img { width: 100%; height: auto; filter: drop-shadow(0 30px 40px rgba(0,0,0,.6)); transition: transform .6s ease; }
-.choice:hover img { transform: translateY(-6px); }
+@media (hover: hover) and (pointer: fine) { .choice:hover img { transform: translateY(-6px); } }
 .choice b { font: 600 var(--t-lg-r)/1.1 var(--f-display); }
 .choice:hover b { color: var(--gold-pale); }
 @media (max-width: 620px) { .choices { grid-auto-flow: row; grid-auto-columns: minmax(0, 220px); } }
@@ -941,10 +941,10 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .psy-seal { animation: psyGlow 8s ease-in-out infinite; }
 .psy-seal::after { content: ""; position: absolute; inset: 3%; border-radius: 50%; pointer-events: none; mix-blend-mode: screen;
   background: linear-gradient(115deg, transparent 38%, rgba(255,240,205,.0) 42%, rgba(255,240,205,.55) 50%, rgba(255,240,205,0) 58%, transparent 62%) no-repeat;
-  background-size: 300% 100%; background-position: 130% 0; animation: psySheen 9s ease-in-out 1.2s infinite; }
+  background-size: 300% 100%; background-position: 130% 0; animation: psySheen 9s ease-in-out 1.2s infinite; opacity: .75; }
 .psy-seal:hover, .psy-seal:focus-visible { animation: none; transform: scale(1.07) rotate(-4deg); filter: drop-shadow(0 0 30px rgba(244,223,179,.7)) drop-shadow(0 8px 16px rgba(0,0,0,.55)); outline: none; }
-@keyframes psyGlow { 0%, 100% { filter: drop-shadow(0 0 10px rgba(226,181,107,.22)) drop-shadow(0 8px 16px rgba(0,0,0,.5)); }
-  50% { filter: drop-shadow(0 0 26px rgba(244,223,179,.5)) drop-shadow(0 8px 16px rgba(0,0,0,.5)); } }
+@keyframes psyGlow { 0%, 100% { filter: drop-shadow(0 0 8px rgba(226,181,107,.16)) drop-shadow(0 8px 16px rgba(0,0,0,.5)); }   /* 17.11: 25% softer */
+  50% { filter: drop-shadow(0 0 20px rgba(244,223,179,.37)) drop-shadow(0 8px 16px rgba(0,0,0,.5)); } }
 @keyframes psySheen { 0%, 55% { background-position: 130% 0; } 85%, 100% { background-position: -30% 0; } }
 @media (prefers-reduced-motion: reduce) { .psy-seal::after, .psy-seal { animation: none; } .psy-seal { transition: none; } }
 .intro-bottom { position: relative; }
