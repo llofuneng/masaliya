@@ -94,6 +94,8 @@ const WHATSAPP = '905306233782';
    order server; here we keep only what the cart page shows. Books not paid within 3 days are deleted
    there, so they are dropped here too. */
 // what every book order comes with, shown on the book page at once and again by the order buttons
+// the psychologist's approval on every book page (16.11)
+const PSY_OK = `<div class="psy-ok"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24.00,1.00L27.51,4.11L31.87,2.39L34.10,6.51L38.78,6.38L39.47,11.02L43.92,12.50L42.98,17.09L46.65,20.01L44.20,24.00L46.65,27.99L42.98,30.91L43.92,35.50L39.47,36.98L38.78,41.62L34.10,41.49L31.87,45.61L27.51,43.89L24.00,47.00L20.49,43.89L16.13,45.61L13.90,41.49L9.22,41.62L8.53,36.98L4.08,35.50L5.02,30.91L1.35,27.99L3.80,24.00L1.35,20.01L5.02,17.09L4.08,12.50L8.53,11.02L9.22,6.38L13.90,6.51L16.13,2.39L20.49,4.11L24.00,1.00Z" fill="#e2b56b"/><circle cx="24" cy="24" r="16.5" fill="#6b1d2a"/><circle cx="24" cy="24" r="14.3" fill="none" stroke="#e2b56b" stroke-width=".9" opacity=".8"/> <path d="M17.5 24.3 L22 28.8 L30.8 19.4" fill="none" stroke="#f4dfb3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><p><b>Uzman Psikolog Şeyda Kaplanoğlu</b> tarafından onaylandı.</p></div>`;
 const PROMISE = `<ul class="promise"><li>Baskıdan önce bütün sayfaları görüp onaylarsınız</li><li>Gerekirse düzeltme yaparız</li><li>Ücretsiz kargo</li></ul>`;
 // simple acceptance marks for the cards Stripe takes
 const CARD_MARKS = [
@@ -1045,6 +1047,7 @@ function renderProduct() {
         <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span><span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
+        ${p.type === 'kitap' ? PSY_OK : ''}
         ${orderable && p.type === 'kitap' ? PROMISE : ''}
       </div>
 
@@ -1339,6 +1342,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (AUDIENCES[page]) renderCollection(page);
   if (page === 'urunler') dealRun();
   if (page === 'home') {
+    // the seal on the first screen is a button: it glides to the psychologist's strip at the bottom of the page
+    const seal = document.querySelector('.psy-seal'), strip = document.getElementById('uzman-onayi');
+    if (seal && strip) seal.addEventListener('click', e => {
+      e.preventDefault();
+      strip.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: innerWidth < 720 ? 'start' : 'center' });
+      strip.classList.remove('flash'); void strip.offsetWidth; strip.classList.add('flash');
+    });
     // the story books, with their prices, just below the opening scene
     // the story books, a boy's and a girl's in turn
     const all = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p));

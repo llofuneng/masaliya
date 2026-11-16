@@ -874,3 +874,33 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* the small 'PDF' mark on the digital option */
 .pdf-tag { display: inline-block; margin-left: 4px; padding: 0 5px; border: 1px solid currentColor; border-radius: 3px; font: 600 .62rem/1.5 var(--f-body); font-style: normal; letter-spacing: .08em; opacity: .8; vertical-align: 1px; }
+
+/* ---- Uzman Psikolog onayı (16.11): seal-button on the first screen, strip at the bottom of the home page, line on book pages ---- */
+.psy-seal { pointer-events: auto; position: absolute; z-index: 8; top: 13px; left: calc(50% + 332px); width: 150px; height: 150px; display: block; border-radius: 50%;
+  filter: drop-shadow(0 0 22px rgba(226,181,107,.45)) drop-shadow(0 8px 16px rgba(0,0,0,.55)); transition: transform .35s ease, filter .35s ease; cursor: pointer; }
+.psy-seal svg { width: 100%; height: 100%; display: block; }
+.psy-seal::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; border: 2px solid rgba(244,223,179,.75); opacity: 0; animation: psyPulse 3.6s ease-out 1.5s infinite; pointer-events: none; }
+.psy-seal:hover, .psy-seal:focus-visible { transform: scale(1.07) rotate(-4deg); filter: drop-shadow(0 0 30px rgba(244,223,179,.7)) drop-shadow(0 8px 16px rgba(0,0,0,.55)); outline: none; }
+@keyframes psyPulse { 0% { transform: scale(.92); opacity: .85; } 70% { transform: scale(1.28); opacity: 0; } 100% { transform: scale(1.28); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .psy-seal::after { animation: none; } .psy-seal { transition: none; } }
+.intro-bottom { position: relative; }
+@media (max-width: 1000px) { .psy-seal { position: relative; top: auto; left: auto; width: 70px; height: 70px; margin: 12px auto 0; } }
+.psy-strip { display: flex; align-items: center; gap: 24px; max-width: 900px; margin: 36px auto 0; padding: 22px 28px; border: 1px solid var(--line-strong);
+  border-radius: 18px; background: rgba(246,236,220,.035); scroll-margin-top: 120px; }
+.psy-strip .psy-face { flex: none; width: 88px; height: 88px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--gold), 0 0 0 7px rgba(226,181,107,.14); }
+.psy-strip .eyebrow { margin: 0 0 4px; }
+.psy-strip h3 { margin: 2px 0 20px; font-family: var(--f-display); font-weight: 600; font-size: 36px; line-height: 1.08; color: var(--cream); text-wrap: balance; }
+.psy-strip h3 em { font-style: italic; color: var(--gold-pale); }
+.psy-strip p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.psy-strip ul { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.psy-strip li { border: 1px solid var(--line-strong); border-radius: 999px; padding: 5px 12px; color: var(--gold-pale); font-size: 12.5px; }
+.psy-strip li::before { content: "✓ "; color: var(--gold); }
+.psy-strip.flash { animation: psyFlash 1.6s ease; }
+@keyframes psyFlash { 0%, 100% { box-shadow: none; } 30% { box-shadow: 0 0 0 2px var(--gold), 0 0 40px rgba(226,181,107,.35); } }
+@media (max-width: 720px) { .psy-strip { flex-direction: column; text-align: center; margin: 28px 16px 0; padding: 20px 18px; gap: 14px; scroll-margin-top: 80px; }
+  .psy-strip .psy-face { width: 76px; height: 76px; } .psy-strip h3 { font-size: 30px; margin-bottom: 18px; } .psy-strip ul { justify-content: center; }
+  .psy-strip > div > p:not(.eyebrow) { text-align: justify; text-align-last: left; hyphens: auto; -webkit-hyphens: auto; margin-top: 4px; } }
+.psy-ok { display: flex; gap: 14px; align-items: center; margin: 16px 0 4px; padding: 11px 14px; border-left: 2px solid var(--gold); background: rgba(246,236,220,.04); border-radius: 0 12px 12px 0; }
+.psy-ok svg { flex: none; width: 44px; height: 44px; }
+.psy-ok p { margin: 0; color: var(--cream); font-size: 15px; line-height: 1.45; }
+.psy-ok b { font-weight: 500; color: var(--gold-pale); }
