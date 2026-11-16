@@ -494,11 +494,13 @@ const HEROES = [
     ['c', 61.5, 93, 3.4]] }
 ];
 // picked = the window just tapped (17.11): a light ivory window, the figure in the window's own colour
-function drawHeroCard(h, W = 512, H = 704, picked = false, hop = 0) {   // hop: how far the figure jumps up, in figure units
+// layer: 'all' (the whole card), 'bg' (window and frame without the figure), 'fig' (only the figure, on a transparent card) — for the jump on a tap
+function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all') {
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d'), m = 14, R = (W - 2 * m) / 2;
   const arch = new Path2D(); arch.moveTo(m, H - m); arch.lineTo(m, m + R); arch.arc(W / 2, m + R, R, Math.PI, 0); arch.lineTo(W - m, H - m); arch.closePath();
   x.save(); x.clip(arch);
+  if (layer !== 'fig') {
   const g = x.createRadialGradient(W / 2, H * .42, 10, W / 2, H * .45, H * .7);
   const bg = picked ? ['#fffaf0', '#f5e6c8', '#dcc49a'] : h.jewel;
   g.addColorStop(0, bg[0]); g.addColorStop(.45, bg[1]); g.addColorStop(1, bg[2]);
@@ -510,8 +512,10 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, hop = 0) {   // hop: 
   const vign = x.createRadialGradient(W / 2, H * .5, W * .2, W / 2, H * .5, H * .75);
   vign.addColorStop(0, 'rgba(0,0,0,0)'); vign.addColorStop(1, picked ? 'rgba(120,80,30,.18)' : 'rgba(0,0,0,.45)');
   x.fillStyle = vign; x.fillRect(0, 0, W, H);
+  }
   // the figure in gold
-  const k = 3.15, ox = W / 2 - 60 * k, oy = H - m - 160 * k - 18 - hop * k;
+  if (layer !== 'bg') {
+  const k = 3.15, ox = W / 2 - 60 * k, oy = H - m - 160 * k - 18;
   x.translate(ox, oy); x.scale(k, k);
   const gold = x.createLinearGradient(0, 10, 0, 150);
   if (picked && h.ink) { gold.addColorStop(0, h.ink[0]); gold.addColorStop(1, h.ink[1]); }
@@ -525,7 +529,8 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, hop = 0) {   // hop: 
     else if (p[0] === 's') { x.lineWidth = p[2]; x.stroke(new Path2D(p[1])); }
     else x.fill(new Path2D(p[1]));
   }
-  if (h.soon) {
+  }
+  if (h.soon && layer !== 'fig') {
     // a gold sash across the upper corner: not open yet
     x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'rgba(0,0,0,.4)'; x.shadowBlur = 8; x.shadowOffsetY = 2;
     x.translate(W * .72, H * .19); x.rotate(Math.PI / 4.6);
@@ -536,6 +541,7 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, hop = 0) {   // hop: 
     x.fillText('ÇOK YAKINDA', 0, 1);
   }
   x.restore();
+  if (layer === 'fig') return c;
   // double gold frame
   x.strokeStyle = '#cfa461'; x.lineWidth = 4; x.stroke(arch);
   const inner = new Path2D(); const m2 = m + 16, R2 = (W - 2 * m2) / 2;
@@ -752,8 +758,12 @@ function renderCart() {
   try { draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY)) || {}; } catch (e) {}
   function show(msg) {
     const items = cart.all();
+    // the page heading says «Masalınız neredeyse hazır» (17.11); with an empty cart that would not be true
+    const head = document.querySelector('.page-head h1');
+    if (head) head.textContent = items.length ? 'Masalınız neredeyse hazır' : 'Sepetiniz henüz boş';
+    const lede = document.querySelector('.page-head .lede'); if (lede) lede.hidden = !items.length;   // «after you pay…» only with books in the cart
     if (!items.length) {
-      root.innerHTML = `<div class="panel cart-empty"><p class="lede">Sepetiniz boş.</p><a class="btn" href="urunler.html">Masalını seç</a></div>`;
+      root.innerHTML = `<div class="panel cart-empty"><p class="lede">Bir masal seçin, kahramanın adını ve 3 fotoğrafını ekleyin.</p><a class="btn" href="urunler.html">Masalını seç</a></div>`;
       return;
     }
     const off = pairOff(items), total = items.reduce((a, it) => a + it.price.total, 0) - off;
