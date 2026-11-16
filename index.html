@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611161543">
+<link rel="stylesheet" href="site.css?v=202611161544">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -171,7 +171,7 @@
 /* the name is never wider than its window and always on one line: its size follows the window's width */
 .lite .door b { font-size: min(calc(var(--dw) / 7.2), 1.55rem); line-height: 1.08; white-space: nowrap; color: var(--gold-pale); }   /* always one line; the script below makes sure it fits */
 .lite a.door:hover b { color: var(--cream); }
-.lite .door.soon b { color: var(--muted); }
+.lite .door.soon b { color: var(--gold-pale); }   /* same as the others: the "Çok yakında" sash already says it is not open yet */
 /* drawn from the first paint, so nothing below it moves when the page settles */
 .lite .after-copy { display: grid; gap: 4px; }
 .lite .after { display: none !important; }
@@ -331,7 +331,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611161543" defer></script>
+<script src="site.js?v=202611161544" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
