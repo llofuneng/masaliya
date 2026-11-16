@@ -460,8 +460,7 @@ const HEROES = [
     ['p', 'M72 70 l16 -12 4 4 -15 15z'], ['s', 'M89 59 l14 -30', 3.2], ['p', 'M84 56 l12 6 -1.6 3 -12 -6z'],
     ['r', 50, 117, 7, 25], ['r', 63, 117, 7, 25], ['e', 52, 143, 6.5, 3], ['e', 68, 143, 6.5, 3]] },
   { href: 'yetiskinler.html', aud: 'yetiskin', soon: true, jewel: ['#3a6458', '#1f3f37', '#0a1a17'], parts: [
-    // two grown-ups hand in hand under a star (everyday clothes, not a bride and groom)
-    ['p', 'M61 12 l2.4 5.6 6 .6 -4.6 4 1.4 6 -5.2 -3.2 -5.2 3.2 1.4 -6 -4.6 -4 6 -.6z'],
+    // two grown-ups hand in hand (everyday clothes, not a bride and groom)
     // her: long hair, a dress to the knee
     ['p', 'M30 44 q-3 -20 12 -20 q15 0 12 20 q2 14 -3 22 q-1 -10 -3 -15 h-12 q-2 5 -3 15 q-5 -8 -3 -22z'], ['c', 42, 40, 10.5], ['r', 39, 50, 6, 7],
     ['p', 'M33 57 h18 l9 58 q-18 5 -36 0z'], ['p', 'M34 61 q-8 14 -8 30 l4.5 0 q1 -12 7 -21z'], ['p', 'M49 60 l13 31 -4 2.4 -12.5 -28z'],
