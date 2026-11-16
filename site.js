@@ -663,9 +663,17 @@ function fitTitles() {
   document.querySelectorAll('.card.book h3, #p-title').forEach(h => {
     h.style.fontSize = '';
     if (!h.offsetParent) return;   // not on screen (hidden tab)
-    const lines = () => { const cs = getComputedStyle(h); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.1; return (h.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)) / lh; };
+    const lines = () => { const cs = getComputedStyle(h); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.1; return (h.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth)) / lh; };
     let fs = parseFloat(getComputedStyle(h).fontSize), n = 0;
-    while (lines() > 2.2 && n++ < 40) { fs *= .96; h.style.fontSize = fs.toFixed(2) + 'px'; }
+    while (lines() > 2.5 && n++ < 40) { fs *= .96; h.style.fontSize = fs.toFixed(2) + 'px'; }   // 2.5: two lines plus rounding, a third line is 3
+  });
+  // phones (17.11): a card's summary keeps to three lines, so the cover reaches the button line; rather a slightly
+  // smaller font than a cut sentence (down to 11.5 px; below that the line clamp cuts it)
+  document.querySelectorAll('.card.book > p').forEach(p => {
+    p.style.fontSize = '';
+    if (!p.offsetParent || getComputedStyle(p).webkitLineClamp === 'none') return;
+    let fs = parseFloat(getComputedStyle(p).fontSize), n = 0;
+    while (p.scrollHeight > p.clientHeight + 1 && fs > 11.5 && n++ < 12) { fs *= .96; p.style.fontSize = fs.toFixed(2) + 'px'; }
   });
 }
 let fitTimer;
