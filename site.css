@@ -513,7 +513,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 
 /* phone: total and a way to the form, always at hand */
 .buybar, .scroll-cue { display: none; }
-@media (prefers-reduced-motion: reduce) { .scroll-cue { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .scroll-cue, .buybar .btn svg { animation: none !important; } }
 /* the book page on phones (17.11): the collection line close under the header, the back button in line with it,
    the cover filling the screen, the title larger (fitTitles keeps it to two lines) */
 @media (max-width: 620px) {
@@ -531,6 +531,11 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
   .buybar small { font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
   .buybar b { font: 500 1.35rem var(--f-display); color: var(--gold-pale); }
   .buybar .btn { padding: .95em 1.4em; }
+  /* 17.11: only «Masalını oluştur», centred, with the same down arrow as the gold arrow shown on opening */
+  .buybar { justify-content: center; }
+  .buybar .btn { min-width: min(300px, 100%); gap: 10px; background: linear-gradient(180deg, #f6e2b5, #e2b56b); color: var(--ink); border-color: #f6e2b5; font-weight: 600; }
+  .buybar .btn svg { width: 16px; height: 16px; flex: none; animation: btnNod 1.8s ease-in-out infinite; }
+  @keyframes btnNod { 0%, 100% { transform: translateY(-1px); } 50% { transform: translateY(2px); } }
   .buybar.away, .buybar.hold { transform: translateY(110%); }
   body:has(.buybar:not(.away):not(.hold)) .wa { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
   /* on opening a book page: a gold arrow that nods down, instead of the bar (17.11) */

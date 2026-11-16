@@ -1085,7 +1085,7 @@ function renderProduct() {
         ${specs ? `<div class="about"><p class="eyebrow">Kitap hakkında</p>${specs}</div>` : ''}
       </div>
     </div>
-    ${orderable ? `<div class="buybar hold" id="buybar"><span><small>Toplam</small><b id="buybar-total"></b></span><a class="btn" href="#buy">Masalını oluştur</a></div>
+    ${orderable ? `<div class="buybar hold" id="buybar"><a class="btn" href="#buy">Masalını oluştur<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></a></div>
     <button type="button" class="scroll-cue" id="scroll-cue" aria-label="Aşağı kaydır"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>` : ''}`;
 
     // the description shows three lines; the rest opens on request
@@ -1294,11 +1294,21 @@ function renderProduct() {
 
     // inside the book: spreads for story books, single pages for coloring books
     if (inner) setupViewer([[shots[0][0], shots[0][1], 'cover'], ...inner, ...shots.slice(1).map(([src, alt]) => [src, alt, 'back'])], on => { coverShown = on; paintCover(); });
-    // phone: a slim bar with the total stays at hand until the order form is on screen
+    // to step 1 of the order form, the hero's name, just under the sticky header (17.11)
+    function toName() {
+      const t = document.querySelector('label[for="hero-name"]') || document.querySelector('.p-head');
+      const head = document.getElementById('site-head'), stick = head && getComputedStyle(head).position === 'sticky' ? head.offsetHeight : 0;
+      scrollTo({ top: t.getBoundingClientRect().top + scrollY - stick - 16, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+    // phone: a slim bar with «Masalını oluştur» stays at hand until the order form is on screen
     const bar = document.getElementById('buybar');
     if (bar && buyF && 'IntersectionObserver' in window) {
       new IntersectionObserver(([en]) => bar.classList.toggle('away', en.isIntersecting), { rootMargin: '0px 0px -20% 0px' }).observe(buyF);
-      bar.querySelector('a').addEventListener('click', e => { e.preventDefault(); buyF.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+      // «Masalını oluştur» (17.11): straight to step 1, the hero's name, ready to type (the phone keyboard opens)
+      bar.querySelector('a').addEventListener('click', e => {
+        e.preventDefault(); toName();
+        const inp = document.getElementById('hero-name'); if (inp) { try { inp.focus({ preventScroll: true }); } catch (x) { inp.focus(); } }
+      });
     }
     // phone, on opening (17.11): a gold down arrow instead of the bar; the first scroll puts the bar back
     const cue = document.getElementById('scroll-cue');
@@ -1306,11 +1316,7 @@ function renderProduct() {
       const reveal = () => { if (scrollY > 60) { cue.classList.add('gone'); bar.classList.remove('hold'); removeEventListener('scroll', reveal); } };
       addEventListener('scroll', reveal, { passive: true });
       // to step 1, the hero's name (her words «Kahramanın adı bölümüne… itelim»); no focus, so the phone keyboard does not jump up
-      cue.addEventListener('click', () => {
-        const t = document.querySelector('label[for="hero-name"]') || document.querySelector('.p-head');
-        const head = document.getElementById('site-head'), stick = head && getComputedStyle(head).position === 'sticky' ? head.offsetHeight : 0;   // the header stays on top
-        scrollTo({ top: t.getBoundingClientRect().top + scrollY - stick - 16, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-      });
+      cue.addEventListener('click', () => toName());   // no focus here: the arrow only shows the way
     }
 
     // Related
