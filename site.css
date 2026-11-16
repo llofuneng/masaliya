@@ -486,8 +486,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .p-viewer .spread { max-width: none; cursor: zoom-in; touch-action: pan-y; }
 .p-viewer .spread.portrait { max-width: 420px; justify-self: center; }
 .p-viewer .viewer-bar { justify-content: center; }
-.zoom { background: none; border: 1px solid var(--line-strong); color: var(--gold-pale); font: 500 .7rem var(--f-body); letter-spacing: .2em; text-transform: uppercase; padding: 0 14px; height: 46px; cursor: pointer; border-radius: 1px; }
+.zoom { display: inline-flex; align-items: center; gap: 8px; background: none; border: 1px solid var(--line-strong); color: var(--gold-pale); font: 500 .7rem var(--f-body); letter-spacing: .2em; text-transform: uppercase; padding: 0 14px; height: 46px; cursor: pointer; border-radius: 1px; }
 .zoom:hover { border-color: var(--gold); }
+.counter:empty { display: none; }   /* the cover has no label under it (17.11) */
 .p-viewer .vthumbs { justify-self: stretch; }
 .sample-note { text-align: center; color: var(--muted); font-size: .86rem; font-style: italic; }
 .hint { color: var(--muted); font-size: .82rem; letter-spacing: normal; text-transform: none; }
@@ -505,7 +506,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (max-width: 620px) { .lb-prev, .lb-next { top: auto; translate: none; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); } }
 
 /* phone: total and a way to the form, always at hand */
-.buybar { display: none; }
+.buybar, .scroll-cue { display: none; }
+@media (prefers-reduced-motion: reduce) { .scroll-cue { animation: none !important; } }
+/* the book page on phones (17.11): the collection line close under the header, the back button in line with it,
+   the cover filling the screen, the title larger (fitTitles keeps it to two lines) */
+@media (max-width: 620px) {
+  .site-head .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  body[data-page="urun"] main > .sec:first-child { padding-top: 4px !important; }
+  body[data-page="urun"] #crumbs { margin-bottom: 8px !important; }
+  body[data-page="urun"] #crumbs a { padding-block: 6px; }
+  .p-head h1 { font-size: 2.6rem; line-height: 1.04; }
+}
 @media (max-width: 860px) {
   .buybar { position: fixed; z-index: 44; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 14px;
     padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
@@ -514,8 +525,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .buybar small { font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
   .buybar b { font: 500 1.35rem var(--f-display); color: var(--gold-pale); }
   .buybar .btn { padding: .95em 1.4em; }
-  .buybar.away { transform: translateY(110%); }
-  body:has(.buybar:not(.away)) .wa { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
+  .buybar.away, .buybar.hold { transform: translateY(110%); }
+  body:has(.buybar:not(.away):not(.hold)) .wa { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
+  /* on opening a book page: a gold arrow that nods down, instead of the bar (17.11) */
+  .scroll-cue { position: fixed; z-index: 45; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; display: grid; place-items: center;
+    width: 48px; height: 48px; padding: 0; border-radius: 50%; border: 1px solid var(--gold); background: rgba(20,11,9,.85); color: var(--gold-pale); cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0,0,0,.55), 0 0 18px rgba(226,181,107,.28); transition: opacity .35s ease; animation: cueNod 1.8s ease-in-out infinite; }
+  .scroll-cue svg { width: 24px; height: 24px; }
+  .scroll-cue.gone { opacity: 0; pointer-events: none; }
+  @keyframes cueNod { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 }
 
 /* tap targets of at least 44px on phones */
@@ -818,7 +836,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   #grid .card .visual, #home-grid .card .visual, #related .card .visual { grid-row: 1 / -1; width: 100%; }
   #grid .card h3, #home-grid .card h3, #related .card h3 { font-size: 1.15rem; line-height: 1.2; }
   #grid .card p, #home-grid .card p, #related .card p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: .82rem; line-height: 1.45; margin: 0; }
-  #grid .card .card-cta, #home-grid .card .card-cta, #related .card .card-cta { align-self: end; min-height: 38px; padding: 8px 10px; font-size: .7rem; }
+  #grid .card .card-cta, #home-grid .card .card-cta, #related .card .card-cta { align-self: end; min-height: 38px; padding: 8px 6px; font-size: .7rem; letter-spacing: .1em; white-space: nowrap; }   /* «İncele + Sipariş ver» on one line (16.11) */
   #grid .card .meta, #home-grid .card .meta, #related .card .meta { font-size: .62rem; }
 }
 
@@ -866,10 +884,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* book cards: the title large at the top, a one-sentence summary, the button */
 .card.book h3 { font-size: clamp(1.6rem, 1.2rem + 1.1vw, 2.05rem); line-height: 1.1; }
+/* the tale's name on a brand-burgundy plaque, gold letters and a gold rim (17.11, her choice A «şimdilik»;
+   the yellow box with red letters she did not like; girls red / boys navy (D) was tried — the cards carry aud-kiz / aud-erkek for it) */
+.card.book h3 { padding: .28em .45em .32em; border-radius: 6px; border: 1px solid rgba(226,181,107,.75); color: var(--gold-pale);
+  background: linear-gradient(180deg, #7a2433, #4d1421); box-shadow: 0 6px 14px -6px rgba(0,0,0,.6); }
+.card.book h3 .ad { color: #f6e2b5; }
 .card.book p { color: var(--cream); opacity: .82; }
 @media (max-width: 620px) {
   #grid .card.book:has(.card-cta), #home-grid .card.book:has(.card-cta), #related .card.book:has(.card-cta) { grid-template-rows: auto 1fr auto; row-gap: 8px; }
-  #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3 { font-size: 1.38rem; line-height: 1.1; }
+  #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3 { font-size: 1.62rem; line-height: 1.08; }   /* bigger (17.11); fitTitles() keeps it to two lines */
+  /* phones: the text sits on the right, away from the cover (17.11, her choice) */
+  #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3, #grid .card.book p, #home-grid .card.book p, #related .card.book p { text-align: right; }
   #grid .card.book p, #home-grid .card.book p, #related .card.book p { -webkit-line-clamp: 4; font-size: .84rem; }
 }
 

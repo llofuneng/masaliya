@@ -587,7 +587,7 @@ function renderChrome() {
     let waTick = 0;
     const waPlace = () => {
       waTick = 0;
-      const bar = document.getElementById('buybar'), barUp = bar && !bar.classList.contains('away') && getComputedStyle(bar).display !== 'none';
+      const bar = document.getElementById('buybar'), barUp = bar && !bar.classList.contains('away') && !bar.classList.contains('hold') && getComputedStyle(bar).display !== 'none';
       wa.style.bottom = barUp ? `${bar.offsetHeight + 14}px` : '';
       const r = wa.getBoundingClientRect();
       const hit = [...document.querySelectorAll('.buy-actions, #pay-btn')].some(el => { const b = el.getBoundingClientRect(); return b.height && b.left < r.right + 8 && b.right > r.left - 8 && b.top < r.bottom + 8 && b.bottom > r.top - 8; });
@@ -657,15 +657,29 @@ function renderChrome() {
 }
 
 /* ---------- Product card ---------- */
+/* tale titles never run to a third line (16.11, her words «Masal isimleri 3 satır olmasın… her zaman 2 satıra sığdır»):
+   a title that would take three lines gets a slightly smaller font, step by step, until it fits two */
+function fitTitles() {
+  document.querySelectorAll('.card.book h3, #p-title').forEach(h => {
+    h.style.fontSize = '';
+    if (!h.offsetParent) return;   // not on screen (hidden tab)
+    const lines = () => { const cs = getComputedStyle(h); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.1; return (h.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)) / lh; };
+    let fs = parseFloat(getComputedStyle(h).fontSize), n = 0;
+    while (lines() > 2.2 && n++ < 40) { fs *= .96; h.style.fontSize = fs.toFixed(2) + 'px'; }
+  });
+}
+let fitTimer;
+addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitTitles, 120); });
+if (document.fonts) document.fonts.ready.then(() => fitTitles());
 function card(p, withPrice = false) {
   const visual = `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
-  return `<a class="card${p.type === 'kitap' ? ' book' : ''}" href="${productHref(p)}">
+  return `<a class="card${p.type === 'kitap' ? ' book' : ''}${p.aud ? ' aud-' + p.aud : ''}" href="${productHref(p)}">
     <div class="visual">${p.status === 'yakinda' ? '<span class="badge">Yakında</span>' : ''}${visual}</div>
     ${p.type === 'kitap' ? '' : `<div class="meta"><span>${kind}</span></div>`}
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.short || p.desc)}</p>
-    ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">İncele</span>' : ''}
+    ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">İncele + Sipariş ver</span>' : ''}
   </a>`;
 }
 
@@ -708,6 +722,7 @@ function renderCollection(aud) {
       : items.filter(p => TYPES[p.type].tab === key);
     grid.className = `grid${list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : ''}`;
     grid.innerHTML = list.length ? list.map(p => card(p)).join('') : '<p class="empty">Bu bölüm için yeni ürünler hazırlanıyor.</p>';
+    fitTitles();
   }
   addEventListener('hashchange', show);
   show();
@@ -1028,9 +1043,9 @@ function renderProduct() {
           <img id="spread-img" src="" alt="" hidden>
           <button class="arrow ov ov-prev" id="prev" type="button" aria-label="Önceki sayfa">←</button><button class="arrow ov ov-next" id="next" type="button" aria-label="Sonraki sayfa">→</button>
         </div>
-        <div class="viewer-bar"><span class="counter" id="counter" aria-live="polite"></span><button class="zoom" id="zoom" type="button" aria-label="Büyüt">Büyüt</button></div>
+        <div class="viewer-bar"><span class="counter" id="counter" aria-live="polite"></span><button class="zoom" id="zoom" type="button" aria-label="Büyüt"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.3 15.3 21 21M10.5 7.8v5.4M7.8 10.5h5.4"/></svg>Büyüt</button></div>
         <div class="vthumbs${p.spreads ? '' : ' portrait'}" id="vthumbs" aria-label="Bütün sayfalar"></div>
-        <p class="sample-note">Örnek kitap. Sizin kitabınızda kahramanın yüzü ve adı her sayfada yer alır.</p>
+        <p class="sample-note">Sizin kitabınızda kahramanın yüzü ve adı her sayfada yer alır.</p>
       </section>` : '';
     // what is in it, and when it arrives if ordered today
     const content = p.spreads ? `${p.spreads.length * 2} iç sayfa ve kapak`
@@ -1061,7 +1076,8 @@ function renderProduct() {
         ${specs ? `<div class="about"><p class="eyebrow">Kitap hakkında</p>${specs}</div>` : ''}
       </div>
     </div>
-    ${orderable ? `<div class="buybar" id="buybar"><span><small>Toplam</small><b id="buybar-total"></b></span><a class="btn" href="#buy">Masalını oluştur</a></div>` : ''}`;
+    ${orderable ? `<div class="buybar hold" id="buybar"><span><small>Toplam</small><b id="buybar-total"></b></span><a class="btn" href="#buy">Masalını oluştur</a></div>
+    <button type="button" class="scroll-cue" id="scroll-cue" aria-label="Aşağı kaydır"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.5l6 6 6-6"/><path d="M6 3.5l6 6 6-6" opacity=".45"/></svg></button>` : ''}`;
 
     // the description shows three lines; the rest opens on request
     const desc = document.getElementById('p-desc'), more = document.getElementById('desc-more');
@@ -1094,6 +1110,7 @@ function renderProduct() {
       const sync = () => {
         const n = cap(nameIn.value.trim());
         document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim());
+        fitTitles();
         clearTimeout(coverTimer); coverTimer = setTimeout(paintCover, 200);
       };
       nameIn.value = '';   // every visit starts empty, also after a reload
@@ -1274,12 +1291,20 @@ function renderProduct() {
       new IntersectionObserver(([en]) => bar.classList.toggle('away', en.isIntersecting), { rootMargin: '0px 0px -20% 0px' }).observe(buyF);
       bar.querySelector('a').addEventListener('click', e => { e.preventDefault(); buyF.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
     }
+    // phone, on opening (17.11): a gold down arrow instead of the bar; the first scroll puts the bar back
+    const cue = document.getElementById('scroll-cue');
+    if (bar && cue) {
+      const reveal = () => { if (scrollY > 60) { cue.classList.add('gone'); bar.classList.remove('hold'); removeEventListener('scroll', reveal); } };
+      addEventListener('scroll', reveal, { passive: true });
+      cue.addEventListener('click', () => document.querySelector('.p-head').scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
 
     // Related
     // all our other stories: this collection first, then the others
     const others = PRODUCTS.filter(x => x.id !== p.id && x.type === p.type && x.status === 'hazir' && onSale(x) && !(x.aud && AUDIENCES[x.aud] && AUDIENCES[x.aud].hidden));
     const rel = [...others.filter(x => x.aud === p.aud), ...others.filter(x => x.aud !== p.aud)];
     document.getElementById('related').innerHTML = rel.map(p => card(p)).join('');
+    fitTitles();
     const rh = document.getElementById('related-head'); if (rh) rh.hidden = !rel.length;
     if (location.hash === '#inside' && document.getElementById('inside')) requestAnimationFrame(() => document.getElementById('inside').scrollIntoView());
     else scrollTo(0, 0);
@@ -1308,7 +1333,7 @@ function setupViewer(slides, onCover) {
       frame.style.opacity = 1;
     };
     if (fade) { frame.style.opacity = .35; setTimeout(apply, 180); } else apply();
-    counter.textContent = label(cur);
+    counter.textContent = kind === 'cover' ? '' : label(cur);   // no «Kapak» under the cover (17.11)
     strip.querySelectorAll('button').forEach((b, k) => b.setAttribute('aria-current', String(k === cur)));
     const active = strip.children[cur];
     if (active && fade) strip.scrollTo({ left: active.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
@@ -1364,6 +1389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const g = document.getElementById('home-grid');
     if (g) {
       g.innerHTML = books.map(b => card(b, true)).join('');
+      fitTitles();
       if (books.length === 4) g.classList.add('n2');   // two by two, so no book is left alone on a row
       dealRun();
     }
