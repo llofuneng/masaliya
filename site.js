@@ -396,12 +396,12 @@ const PRODUCTS = [
     extra: [['img/buyuk-yaris-arka.jpg', 'Arka kapak']], spreads: SPREADS_YARIS },
   { id: 'denizi-kurtariyor', coverTitle: { box: [0, .23], sub: 'Denizi Kurtarıyor', font: 'sans', nameSize: 125, subSize: 41, block: 170, top: 13, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Mert', title: 'Denizi Kurtarıyor',
     img: 'img/denizi-kurtariyor-kapak.jpg', clean: 'img/denizi-kurtariyor-temiz.jpg', alt: 'Mert Denizi Kurtarıyor kapağı: sarı denizaltının lombozundan sarkan çocuk yavru balinaya sarılıyor',
-    short: 'Yolunu kaybeden yavru balina Köpük’ü evine kavuşturmak için çöple dolan Mavi Koy’u temizleyen bir deniz macerası.',   // one sentence for the cards
+    short: 'Yavru balina Köpük’ü evine kavuşturmak için Mavi Koy’u temizleyen bir deniz macerası.',   // one sentence for the cards
     desc: 'Bir akşam raftaki oyuncak sarı denizaltı mavi mavi parlar ve büyür. Kahramanımız denizin altında, evinin yolunu kaybetmiş yavru balina Köpük’ü bulur. Ama Köpük’ün evi Mavi Koy çöple dolmuştur. Birlikte temizlerlerse anne balina yavrusunu bulabilir mi? Doğayı korumanın, iyiliğin ve dostluğun masalı.',
     extra: [['img/denizi-kurtariyor-arka.jpg', 'Arka kapak']], spreads: SPREADS_BALINA },
   { id: 'kaybolan-minik-aslan', coverTitle: { box: [0, .22], sub: 've Kaybolan Minik Aslan', font: 'sans', nameSize: 124, subSize: 34, block: 168, top: 12.4, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Emir', title: 've Kaybolan Minik Aslan',
     img: 'img/kaybolan-minik-aslan-kapak.jpg', clean: 'img/kaybolan-minik-aslan-temiz.jpg', alt: 'Emir ve Kaybolan Minik Aslan kapağı: futbol kalesinin önünde topuyla oturan çocuk ve yanağını ona yaslayan minik aslan',
-    short: 'Fırtınadan sonra bulunan minik aslanı takımının büyük maçına yetiştirmek için tarlalardan, tepelerden geçen bir yolculuk.',   // one sentence for the cards
+    short: 'Kaybolan minik aslanı takımının büyük maçına yetiştiren bir yolculuk.',   // one sentence for the cards
     desc: 'Bütün gece süren fırtınanın sabahında kahramanımız, top sepetinde ağlayan minik bir aslan bulur. Akşam aslancığın takımının büyük maçı vardır, ama köyü çok uzaktadır. Gelincik yollarından, mısır tarlalarından ve rüzgârlı tepelerden geçen bir yolculuk: arkadaşını asla yarı yolda bırakmamanın masalı.',
     extra: [['img/kaybolan-minik-aslan-arka.jpg', 'Arka kapak']], spreads: SPREADS_ASLAN },
 
