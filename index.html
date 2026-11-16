@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611161533">
+<link rel="stylesheet" href="site.css?v=202611161534">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -331,7 +331,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611161533" defer></script>
+<script src="site.js?v=202611161534" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -419,7 +419,7 @@ addEventListener('DOMContentLoaded', () => {
       const y0 = qr.bottom - c.top - qr.height * .25, y1 = dr.top - c.top + dr.height * (.1 + Math.random() * .75);
       // each spark leaves the words and drifts out to a point over one of the windows
       const x0 = qr.left - c.left + qr.width * (.08 + Math.random() * .84), x1 = dr.left - c.left + dr.width * (.04 + Math.random() * .92);
-      parts.push({ x: x0, x0, x1, y: y0, y0, y1, vx: 0, vy: 16 + Math.random() * 26,
+      parts.push({ x: x0, x0, x1, y: y0, y0, y1, vx: 0, vy: 6 + Math.random() * 9,
         r: .6 + Math.random() * 1.7, tw: Math.random() * 6.28, star: Math.random() < .22, hue: Math.random() < .5 ? '255,236,190' : '236,190,110' });
     }
     function draw(p, a) {
@@ -436,14 +436,14 @@ addEventListener('DOMContentLoaded', () => {
     function frame(now) {
       if (!on) return;
       const dt = Math.min((now - (prev || now)) / 1000, .05); prev = now;
-      carry += dt * (W < 560 ? 16 : 26);
+      carry += dt * (W < 560 ? 8 : 13);   // fewer, slower sparks: they drift down like magic dust
       while (carry >= 1 && parts.length < 140) { spawn(); carry -= 1; }
       g.clearRect(0, 0, W, H); g.globalCompositeOperation = 'lighter';
       parts = parts.filter(p => {
-        p.vy += 6 * dt; p.y += p.vy * dt; p.tw += dt * 5;
+        p.vy += 1.2 * dt; p.y += p.vy * dt; p.tw += dt * 2.4;
         const k = (p.y - p.y0) / (p.y1 - p.y0);
         if (k >= 1) return false;
-        p.x = p.x0 + (p.x1 - p.x0) * (1 - (1 - k) * (1 - k)) + Math.sin(p.tw * .6) * 3;
+        p.x = p.x0 + (p.x1 - p.x0) * (1 - (1 - k) * (1 - k)) + Math.sin(p.tw * .8) * 5;
         draw(p, Math.min(1, k * 8) * Math.min(1, (1 - k) * 2.5));
         return true;
       });
