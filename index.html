@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170116">
+<link rel="stylesheet" href="site.css?v=202611170123">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -178,7 +178,7 @@
 .lite .after-copy { max-width: min(52rem, 100%); }
 /* the line under the plate, outside it */
 .ac-sub { display: none; }
-.lite .ac-sub { display: block; margin: 0; max-width: 46rem; text-wrap: balance; text-align: center; font-size: var(--t-sm); line-height: 1.5; color: rgba(246,236,220,.82); text-shadow: 0 2px 12px rgba(0,0,0,.7); }
+.lite .ac-sub { display: none; margin: 0; max-width: 46rem; text-wrap: balance; text-align: center; font-size: var(--t-sm); line-height: 1.5; color: rgba(246,236,220,.82); text-shadow: 0 2px 12px rgba(0,0,0,.7); }
 @media (max-width: 560px) { .lite .after-copy { gap: 8px; } }
 .lite .after-copy { animation: none; }
 /* even spacing on every screen: logo | room | headline and sentence | room | invitation | room | windows | room.
@@ -269,7 +269,9 @@
 .lite a.door[href="erkekler.html"]:hover b { color: #1c2550; }
 /* phones (16.11, her choice V1): the first screen is as tall as its content, so the windows come up and the books peek in below */
 @media (max-width: 560px) {
-  .lite .intro { min-height: auto; grid-template-rows: auto 8px auto 16px auto 12px auto 16px; }
+  /* 17.11, her choice A: no sentence under the headline; the first screen fills the phone minus one line, so only «Masallarımız»
+     shows at the bottom (not the heading below it); the free height is shared by the rooms between logo, headline, question and windows */
+  .lite .intro { min-height: calc(100svh - 44px); grid-template-rows: auto minmax(8px, 1fr) auto minmax(16px, 1fr) auto minmax(12px, 1fr) auto minmax(16px, .6fr); }
   .lite .intro { --dw: min(calc((100vw - 40px) * .315), max(86px, calc((100svh - 470px) * .7))); }   /* larger windows, so the names in capitals stay readable (17.11) */
   .lockup svg { width: 40px; height: 40px; }
   .lockup span { font-size: .92rem; }
@@ -373,7 +375,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170116" defer></script>
+<script src="site.js?v=202611170123" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
