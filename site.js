@@ -468,19 +468,19 @@ function priceLine(p) {
 // the heroes on the home page and on Ürünlerimiz, without hidden collections
 const shownHeroes = () => HEROES.filter(h => h.soon || !(h.aud && AUDIENCES[h.aud].hidden));
 const HEROES = [
-  { href: 'kizlar.html', jewel: ['#7d3442', '#521a26', '#24090f'], parts: [
+  { href: 'kizlar.html', jewel: ['#7d3442', '#521a26', '#24090f'], ink: ['#b83a4b', '#6b1d2a'], parts: [
     ['c', 60, 31, 7.5], ['p', 'M66 27 l-5 -3.5 v7z M66 27 l5 -3.5 v7z'], ['c', 60, 47, 14],
     ['p', 'M46 44 q-5 18 3 28 q3 -8 5 -18z M74 44 q5 18 -3 28 q-3 -8 -5 -18z'], ['r', 56, 58, 8, 8],
     ['p', 'M47 66 h26 l16 58 q-29 8 -58 0z'], ['p', 'M48 70 q-10 14 -12 30 l5 1 q4 -14 11 -24z'], ['p', 'M72 70 l18 -16 4 4 -16 18z'],
     ['s', 'M91 55 l7 -17', 2.4], ['p', 'M99 30 l2.4 5.6 6 .6 -4.6 4 1.4 6 -5.2 -3.2 -5.2 3.2 1.4 -6 -4.6 -4 6 -.6z'],
     ['r', 51, 124, 6, 18], ['r', 63, 124, 6, 18], ['e', 53, 143, 6, 3], ['e', 67, 143, 6, 3]] },
-  { href: 'erkekler.html', jewel: ['#3c4a73', '#232c4d', '#0d1020'], parts: [
+  { href: 'erkekler.html', jewel: ['#3c4a73', '#232c4d', '#0d1020'], ink: ['#4a63ad', '#1c2550'], parts: [
     ['p', 'M49 66 q-22 26 -30 66 q18 -6 40 -8z'], ['c', 60, 46, 14],
     ['p', 'M45 42 q2 -14 16 -15 q4 -6 9 -2 q-1 3 -3 4 q8 3 8 13 q-6 -6 -14 -6 q-8 0 -16 6z'], ['r', 56, 57, 8, 8],
     ['p', 'M47 65 h26 l3 50 h-32z'], ['p', 'M44 112 h32 v5 h-32z'], ['p', 'M48 70 q-8 14 -8 30 l5 0 q1 -14 8 -24z'],
     ['p', 'M72 70 l16 -12 4 4 -15 15z'], ['s', 'M89 59 l14 -30', 3.2], ['p', 'M84 56 l12 6 -1.6 3 -12 -6z'],
     ['r', 50, 117, 7, 25], ['r', 63, 117, 7, 25], ['e', 52, 143, 6.5, 3], ['e', 68, 143, 6.5, 3]] },
-  { href: 'yetiskinler.html', aud: 'yetiskin', soon: true, jewel: ['#3a6458', '#1f3f37', '#0a1a17'], parts: [
+  { href: 'yetiskinler.html', aud: 'yetiskin', soon: true, jewel: ['#3a6458', '#1f3f37', '#0a1a17'], ink: ['#3f7d68', '#173326'], parts: [
     // two grown-ups hand in hand (everyday clothes, not a bride and groom)
     // her: long hair, a dress to the knee
     ['p', 'M30 44 q-3 -20 12 -20 q15 0 12 20 q2 14 -3 22 q-1 -10 -3 -15 h-12 q-2 5 -3 15 q-5 -8 -3 -22z'], ['c', 42, 40, 10.5], ['r', 39, 50, 6, 7],
@@ -493,27 +493,31 @@ const HEROES = [
     // the joined hands
     ['c', 61.5, 93, 3.4]] }
 ];
-function drawHeroCard(h, W = 512, H = 704) {
+// picked = the window just tapped (17.11): a light ivory window, the figure in the window's own colour
+function drawHeroCard(h, W = 512, H = 704, picked = false, hop = 0) {   // hop: how far the figure jumps up, in figure units
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d'), m = 14, R = (W - 2 * m) / 2;
   const arch = new Path2D(); arch.moveTo(m, H - m); arch.lineTo(m, m + R); arch.arc(W / 2, m + R, R, Math.PI, 0); arch.lineTo(W - m, H - m); arch.closePath();
   x.save(); x.clip(arch);
   const g = x.createRadialGradient(W / 2, H * .42, 10, W / 2, H * .45, H * .7);
-  g.addColorStop(0, h.jewel[0]); g.addColorStop(.45, h.jewel[1]); g.addColorStop(1, h.jewel[2]);
+  const bg = picked ? ['#fffaf0', '#f5e6c8', '#dcc49a'] : h.jewel;
+  g.addColorStop(0, bg[0]); g.addColorStop(.45, bg[1]); g.addColorStop(1, bg[2]);
   x.fillStyle = g; x.fillRect(0, 0, W, H);
   let s = 5; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
   // velvet nap: fine dark and light fibres, a few faint stars
-  for (let i = 0; i < 2600; i++) { x.fillStyle = r() < .5 ? 'rgba(255,240,220,.025)' : 'rgba(0,0,0,.08)'; x.fillRect(r() * W, r() * H, 1 + r() * 2, 1); }
-  for (let i = 0; i < 26; i++) { x.fillStyle = `rgba(240,215,170,${.15 + r() * .3})`; x.beginPath(); x.arc(r() * W, r() * H * .6, .5 + r() * 1.1, 0, 6.283); x.fill(); }
+  for (let i = 0; i < 2600; i++) { x.fillStyle = r() < .5 ? 'rgba(255,240,220,.025)' : (picked ? 'rgba(120,80,30,.03)' : 'rgba(0,0,0,.08)'); x.fillRect(r() * W, r() * H, 1 + r() * 2, 1); }
+  for (let i = 0; i < 26; i++) { x.fillStyle = picked ? `rgba(201,150,76,${.2 + r() * .3})` : `rgba(240,215,170,${.15 + r() * .3})`; x.beginPath(); x.arc(r() * W, r() * H * .6, .5 + r() * 1.1, 0, 6.283); x.fill(); }
   const vign = x.createRadialGradient(W / 2, H * .5, W * .2, W / 2, H * .5, H * .75);
-  vign.addColorStop(0, 'rgba(0,0,0,0)'); vign.addColorStop(1, 'rgba(0,0,0,.45)');
+  vign.addColorStop(0, 'rgba(0,0,0,0)'); vign.addColorStop(1, picked ? 'rgba(120,80,30,.18)' : 'rgba(0,0,0,.45)');
   x.fillStyle = vign; x.fillRect(0, 0, W, H);
   // the figure in gold
-  const k = 3.15, ox = W / 2 - 60 * k, oy = H - m - 160 * k - 18;
+  const k = 3.15, ox = W / 2 - 60 * k, oy = H - m - 160 * k - 18 - hop * k;
   x.translate(ox, oy); x.scale(k, k);
-  const gold = x.createLinearGradient(0, 10, 0, 150); gold.addColorStop(0, '#f1dcae'); gold.addColorStop(.5, '#d4a960'); gold.addColorStop(1, '#a1742f');
+  const gold = x.createLinearGradient(0, 10, 0, 150);
+  if (picked && h.ink) { gold.addColorStop(0, h.ink[0]); gold.addColorStop(1, h.ink[1]); }
+  else { gold.addColorStop(0, '#f1dcae'); gold.addColorStop(.5, '#d4a960'); gold.addColorStop(1, '#a1742f'); }
   x.fillStyle = gold; x.strokeStyle = gold; x.lineCap = 'round';
-  x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 3; x.shadowOffsetY = 1.5;   // pressed foil, not a glow
+  x.shadowColor = picked ? 'rgba(80,40,20,.25)' : 'rgba(0,0,0,.45)'; x.shadowBlur = 3; x.shadowOffsetY = 1.5;   // pressed foil, not a glow
   for (const p of h.parts) {
     if (p[0] === 'c') { x.beginPath(); x.arc(p[1], p[2], p[3], 0, 6.283); x.fill(); }
     else if (p[0] === 'e') { x.beginPath(); x.ellipse(p[1], p[2], p[3], p[4], 0, 0, 6.283); x.fill(); }

@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170123">
+<link rel="stylesheet" href="site.css?v=202611170130">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -167,6 +167,14 @@
 .lite .door.soon:hover .door-art { --up: .4; --gl: .5; }
 .lite a.door:hover .door-art img, .lite a.door:focus-visible .door-art img { filter: drop-shadow(0 34px 40px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(226,181,107,.35)); }
 .lite a.door:active .door-art { --up: .35; transition-duration: .12s; }
+.lite a.door.picked .door-art { --up: 1; --gl: 0; transition-duration: .3s; }   /* the tapped window stays lifted while the page opens (17.11) */
+.lite a.door.picked .door-art img { filter: drop-shadow(0 30px 36px rgba(0,0,0,.6)) drop-shadow(0 0 26px rgba(244,223,179,.55)); }
+/* the adults' window on a tap: a small lift and a short note under it (17.11) */
+.lite .door.soon { cursor: pointer; position: relative; }
+.lite .door.soon.nudge .door-art { --up: .5; --gl: .6; }
+.lite .door.soon::after { content: "Çok yakında açılıyor ✦"; position: absolute; right: 2px; top: 100%; translate: 0 4px; white-space: nowrap; pointer-events: none;
+  font: 500 var(--t-xs)/1.3 var(--f-body); letter-spacing: .06em; color: var(--gold-pale); opacity: 0; transition: opacity .3s ease, translate .3s ease; }
+.lite .door.soon.nudge::after { opacity: 1; translate: 0 7px; }
 @media (prefers-reduced-motion: reduce) { .lite .door .door-art { transition: none; } }
 /* the name is never wider than its window and always on one line: its size follows the window's width */
 .lite .door b { font-size: min(calc(var(--dw) / 7.2), 1.55rem); line-height: 1.08; white-space: nowrap; color: var(--gold-pale); }   /* always one line; the script below makes sure it fits */
@@ -375,7 +383,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170123" defer></script>
+<script src="site.js?v=202611170130" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -430,7 +438,32 @@ addEventListener('DOMContentLoaded', () => {
     mode = 'logo'; intro.classList.add('no3d');
     if (document.documentElement.classList.contains('lite')) { intro.classList.add('lite'); done(); fairyDust(); }
     // the fallback doors use the same artwork as the 3D heroes
-    document.querySelectorAll('[data-hero-img]').forEach(img => { img.src = drawHeroCard(HEROES[+img.dataset.heroImg]).toDataURL(); });
+    document.querySelectorAll('[data-hero-img]').forEach(img => {
+      const h = HEROES[+img.dataset.heroImg];
+      img.src = img.dataset.plain = drawHeroCard(h).toDataURL();
+      if (!h.soon) img.dataset.picked = drawHeroCard(h, 512, 704, true).toDataURL();
+    });
+    // the little hop of the picked child (17.11): three more pictures, drawn when the page is idle
+    const hopFrames = () => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach(img => {
+      const h = HEROES[+img.dataset.heroImg]; img._hop = [4, 8, 4].map(d => drawHeroCard(h, 512, 704, true, d).toDataURL());
+    });
+    (window.requestIdleCallback || (f => setTimeout(f, 1200)))(hopFrames);
+    // a tap on a window (17.11): it lifts and turns light with the figure in its colour, then the collection opens
+    document.querySelectorAll('.lite a.door').forEach(a => a.addEventListener('click', e => {
+      const img = a.querySelector('img');
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button || !img || !img.dataset.picked) return;
+      e.preventDefault(); img.src = img.dataset.picked; a.classList.add('picked');
+      const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!calm && img._hop) [img._hop[0], img._hop[1], img._hop[1], img._hop[2], img.dataset.picked].forEach((src, i) => setTimeout(() => { img.src = src; }, 90 + i * 55));
+      setTimeout(() => { location.href = a.href; }, calm ? 150 : 520);
+    }));
+    // the adults' window is not open yet: a tap lifts it a little and says so for a moment
+    document.querySelectorAll('.lite .door.soon').forEach(d => d.addEventListener('click', () => {
+      d.classList.remove('nudge'); void d.offsetWidth; d.classList.add('nudge');
+      clearTimeout(d._t); d._t = setTimeout(() => d.classList.remove('nudge'), 2600);
+    }));
+    // back from the collection: the windows as they were
+    addEventListener('pageshow', () => document.querySelectorAll('.lite a.door.picked').forEach(a => { a.classList.remove('picked'); const img = a.querySelector('img'); if (img && img.dataset.plain) img.src = img.dataset.plain; }));
   }
 
   /* ---------- the three names: one line each, never wider than their window, all the same size ---------- */
