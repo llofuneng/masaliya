@@ -840,6 +840,9 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 /* "Sipariş Ver" at the foot of each book tile */
 .card:has(.card-cta) { display: flex; flex-direction: column; }
 .card .card-cta { justify-self: stretch; margin-top: auto; text-align: center; pointer-events: none; }
+/* 17.11, her words: the summary in the middle between the title and the button, not stuck to the title */
+.card.book:has(.card-cta) > p { margin-block: auto; }
+.card.book:has(.card-cta) > p + .card-cta { margin-top: 0; }   /* the free room goes only above and below the summary */
 .card:hover .card-cta { background: var(--gold); color: var(--ink); }
 /* the «+» of «İncele + Sipariş ver» in the middle between the words and at the height of the capitals (17.11) */
 .card-cta .cta-plus { display: inline-block; margin: 0 .42em 0 .32em; letter-spacing: 0; font-size: 1.15em; line-height: 1; transform: translateY(-.06em); }
@@ -909,6 +912,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
   #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3 { font-size: 1.7rem; line-height: 1.08; }   /* the headline style (17.11); fitTitles() keeps it to two lines */
   /* phones: the text sits on the right, away from the cover (17.11, her choice) */
   #grid .card.book h3, #home-grid .card.book h3, #related .card.book h3, #grid .card.book p, #home-grid .card.book p, #related .card.book p { text-align: right; }
+  #grid .card.book > p, #home-grid .card.book > p, #related .card.book > p { align-self: center; margin-block: 0; }   /* centred between title and button (17.11) */
   /* 17.11: three lines at most, so the text column is never taller than the cover and the cover reaches the button line */
   #grid .card.book p, #home-grid .card.book p, #related .card.book p { -webkit-line-clamp: 3; font-size: .8rem; line-height: 1.42; }
 }
