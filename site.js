@@ -353,6 +353,11 @@ const PRODUCTS = [
     short: 'Küçük deniz kızı Mira’yla, krallığın kaybolan üç incisini aramak için denizin derinliklerine bir yolculuk.',   // one sentence for the cards
     desc: 'Bir yaz sabahı kumsalda bulunan deniz kabuğu kulağa bir şarkı fısıldar ve kahramanımız kendini dalgaların altında bulur. Küçük deniz kızı Mira, yan yan yürüyen yengeç ve bilge kaplumbağayla birlikte, krallığın kaybolan üç incisini aramak için denizin derinliklerine yolculuk başlar. Dostluğun ve cesaretin parıl parıl bir deniz masalı.',
     extra: [['img/deniz-kizi-kralligi-arka.jpg', 'Arka kapak']], spreads: SPREADS_LAVIN },
+  { id: 'noel-babaya-hediye', coverTitle: { box: [0, .22], sub: "ve Noel Baba'ya Hediye", font: 'sans', nameSize: 122, subSize: 34, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Edis', title: "ve Noel Baba'ya Hediye",
+    img: 'img/noel-babaya-hediye-kapak.jpg', clean: 'img/noel-babaya-hediye-temiz.jpg', alt: "Edis ve Noel Baba'ya Hediye kapağı: yeşil hediye paketini tutan çocuk, yanında Noel Baba, ren geyiği ve kutup hayvanları",
+    short: "Herkese hediye getiren Noel Baba'ya ilk kez gizlice bir sürpriz hazırlayan bir çocuğun yılbaşı masalı.",   // one sentence for the cards
+    desc: "Noel Baba herkese hediye getirir. Peki ona kim hediye verir? Hiç kimse! Yılbaşı gecesi kahramanımız en küçük ren geyiğiyle Karlar Ülkesi'ne uçar. Dostlarıyla birlikte Noel Baba'nın sırrını bulacak, çamını süsleyecek ve şafak sökmeden ona gizlice bir sürpriz hazırlayacak. Noel Baba ne diyecek? Sürprizin, dostluğun ve sevindirmenin masalı.",
+    extra: [['img/noel-babaya-hediye-arka.jpg', 'Arka kapak']], spreads: SPREADS_NOEL },
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', nameSize: 140, subSize: 31, block: 190, top: 14 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     short: 'Yemyeşil bir ormanda, yüz yaşına giren Koca Dede’ye dinozor arkadaşlarıyla hazırlanan sürpriz bir parti.',   // one sentence for the cards
@@ -378,11 +383,6 @@ const PRODUCTS = [
     short: 'Fırtınadan sonra bulunan minik aslanı takımının büyük maçına yetiştirmek için tarlalardan, tepelerden geçen bir yolculuk.',   // one sentence for the cards
     desc: 'Bütün gece süren fırtınanın sabahında kahramanımız, top sepetinde ağlayan minik bir aslan bulur. Akşam aslancığın takımının büyük maçı vardır, ama köyü çok uzaktadır. Gelincik yollarından, mısır tarlalarından ve rüzgârlı tepelerden geçen bir yolculuk: arkadaşını asla yarı yolda bırakmamanın masalı.',
     extra: [['img/kaybolan-minik-aslan-arka.jpg', 'Arka kapak']], spreads: SPREADS_ASLAN },
-  { id: 'noel-babaya-hediye', coverTitle: { box: [0, .22], sub: "ve Noel Baba'ya Hediye", font: 'sans', nameSize: 122, subSize: 34, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Edis', title: "ve Noel Baba'ya Hediye",
-    img: 'img/noel-babaya-hediye-kapak.jpg', clean: 'img/noel-babaya-hediye-temiz.jpg', alt: "Edis ve Noel Baba'ya Hediye kapağı: yeşil hediye paketini tutan çocuk, yanında Noel Baba, ren geyiği ve kutup hayvanları",
-    short: "Herkese hediye getiren Noel Baba'ya ilk kez gizlice bir sürpriz hazırlayan bir çocuğun yılbaşı masalı.",   // one sentence for the cards
-    desc: "Noel Baba herkese hediye getirir. Peki ona kim hediye verir? Hiç kimse! Yılbaşı gecesi kahramanımız en küçük ren geyiğiyle Karlar Ülkesi'ne uçar. Dostlarıyla birlikte Noel Baba'nın sırrını bulacak, çamını süsleyecek ve şafak sökmeden ona gizlice bir sürpriz hazırlayacak. Noel Baba ne diyecek? Sürprizin, dostluğun ve sevindirmenin masalı.",
-    extra: [['img/noel-babaya-hediye-arka.jpg', 'Arka kapak']], spreads: SPREADS_NOEL },
 
   { id: 'deniz-kizi-kralligi-boyama', book: 'deniz-kizi-kralligi', coverTitle: { box: [0, .215], sub: 've Deniz Kızı Krallığı' }, aud: 'kiz', type: 'boyama', status: 'hazir', hero: 'Elif', title: 've Deniz Kızı Krallığı',
     img: 'img/deniz-kizi-kralligi-boyama-kapak.jpg', alt: 'Elif ve Deniz Kızı Krallığı boyama ve etkinlik kitabının kapağı',
