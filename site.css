@@ -830,8 +830,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .deal-track b { font-weight: 700; color: #fff3d6; }
 .deal-track i { display: inline-flex; align-items: center; color: var(--gold); }
 .deal-track i svg { display: block; }
-.deal-run:hover .deal-track, .deal-run:focus-visible .deal-track { animation-play-state: paused; }
-.deal-run:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; }
+/* it never pauses and cannot be tapped: taps go through it (16.11) */
+.deal-run { pointer-events: none; user-select: none; -webkit-user-select: none; }
 @keyframes dealRun { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .deal-track { animation: none; } }
 .deal-banner a { color: var(--burgundy); }

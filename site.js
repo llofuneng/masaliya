@@ -48,10 +48,10 @@ function dealRun() {
   const BELL = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 3c-3.3 0-6 2.7-6 6v4l-2 3h16l-2-3V9c0-3.3-2.7-6-6-6zm0 19a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 22z"/></svg>';
   const SNOW = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10M9 4l3 3 3-3M9 20l3-3 3 3"/></svg>';
   const one = `<span>Yılbaşına özel: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b></span><i>${BELL}</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>${SNOW}</i>`;
-  const a = document.createElement('a');
-  // on a book page it leads to the conditions (the book is already open); elsewhere to the books
-  a.className = 'deal-run'; a.href = document.body.dataset.page === 'urun' ? 'sss.html#kampanya' : 'urunler.html';
-  a.setAttribute('aria-label', `Yılbaşına özel: ikinci kitapta %${PAIR_DEAL.pct} indirim, ${PAIR_DEAL.untilText}’a kadar. Kitapları gör`);
+  // not a link (16.11, her words «Hep aksın. Tıklanamasın.»): it only runs, a tap never stops it
+  const a = document.createElement('div');
+  a.className = 'deal-run'; a.setAttribute('role', 'marquee');
+  a.setAttribute('aria-label', `Yılbaşına özel: ikinci kitapta %${PAIR_DEAL.pct} indirim, ${PAIR_DEAL.untilText}’a kadar`);
   a.innerHTML = `<span class="deal-track" aria-hidden="true">${one.repeat(6)}${one.repeat(6)}</span>`;
   if (intro) intro.prepend(a);
   else { a.classList.add('band'); document.body.prepend(a); }
