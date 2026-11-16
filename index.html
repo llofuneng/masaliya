@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="site.css?v=202611161540">
+<link rel="stylesheet" href="site.css?v=202611161543">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -168,9 +168,8 @@
 .lite a.door:hover .door-art img, .lite a.door:focus-visible .door-art img { filter: drop-shadow(0 34px 40px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(226,181,107,.35)); }
 .lite a.door:active .door-art { --up: .35; transition-duration: .12s; }
 @media (prefers-reduced-motion: reduce) { .lite .door .door-art { transition: none; } }
-/* the name is never wider than its window: its size follows the window's width ("Erkek Çocukları" is about 6.6 letters-heights long),
-   and on the very smallest windows it may take two lines rather than spill out */
-.lite .door b { max-width: 100%; font-size: clamp(.78rem, calc(var(--dw) / 7.2), 1.55rem); line-height: 1.08; white-space: normal; text-wrap: balance; color: var(--gold-pale); }
+/* the name is never wider than its window and always on one line: its size follows the window's width */
+.lite .door b { font-size: min(calc(var(--dw) / 7.2), 1.55rem); line-height: 1.08; white-space: nowrap; color: var(--gold-pale); }   /* always one line; the script below makes sure it fits */
 .lite a.door:hover b { color: var(--cream); }
 .lite .door.soon b { color: var(--muted); }
 /* drawn from the first paint, so nothing below it moves when the page settles */
@@ -190,7 +189,7 @@
 .lite .intro-bottom { grid-row: 3; padding-block: 0; }
 .lite .doors-q { grid-row: 5; justify-self: center; padding-inline: 20px; }
 .lite .doors { grid-row: 7; justify-self: center; margin-bottom: 12px; }   /* the gold frame sits 12px in: the room under the windows matches the others */
-@media (max-width: 520px) { .lite .doors { margin-bottom: 8px; } .lite .intro { --dw: min(calc((100vw - 64px) * .3), max(76px, calc((100svh - 470px) * .66))); } }   /* on phones the frame sits 8px in */
+@media (max-width: 520px) { .lite .doors { margin-bottom: 8px; } .lite .intro { --dw: min(calc((100vw - 64px) * .3), max(86px, calc((100svh - 470px) * .66))); } }   /* on phones the frame sits 8px in */
 @media (max-height: 600px) { .lite .intro { grid-template-rows: auto minmax(10px, 1fr) auto minmax(14px, 1fr) auto minmax(14px, 1fr) auto minmax(14px, 1fr); } }
 
 /* Film mode (when media/intro.mp4 exists) */
@@ -332,7 +331,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611161540" defer></script>
+<script src="site.js?v=202611161543" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -390,6 +389,19 @@ addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-hero-img]').forEach(img => { img.src = drawHeroCard(HEROES[+img.dataset.heroImg]).toDataURL(); });
   }
 
+  /* ---------- the three names: one line each, never wider than their window, all the same size ---------- */
+  function fitNames() {
+    const names = [...document.querySelectorAll('.lite .door b')];
+    if (!names.length) return;
+    names.forEach(b => { b.style.fontSize = ''; });
+    const size = parseFloat(getComputedStyle(names[0]).fontSize);
+    let k = 1;
+    names.forEach(b => { const room = b.parentElement.getBoundingClientRect().width; if (b.scrollWidth > room) k = Math.min(k, room / b.scrollWidth); });
+    if (k < 1) names.forEach(b => { b.style.fontSize = `${(size * k * .97).toFixed(2)}px`; });
+  }
+  fitNames(); addEventListener('resize', fitNames);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNames);
+
   /* ---------- the windows lean toward the mouse ---------- */
   if (matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('.door').forEach(d => {
@@ -417,10 +429,11 @@ addEventListener('DOMContentLoaded', () => {
     }
     function spawn() {
       const c = cv.getBoundingClientRect(), qr = q.getBoundingClientRect(), dr = doors.getBoundingClientRect();
-      const y0 = qr.bottom - c.top - qr.height * .25, y1 = dr.top - c.top + dr.height * (.1 + Math.random() * .75);
+      // they fade away in the open space above the windows, never over the pictures
+      const gap = dr.top - qr.bottom, y0 = qr.bottom - c.top - qr.height * .25, y1 = qr.bottom - c.top + gap * (.45 + Math.random() * .45);
       // each spark leaves the words and drifts out to a point over one of the windows
-      const x0 = qr.left - c.left + qr.width * (.08 + Math.random() * .84), x1 = dr.left - c.left + dr.width * (.04 + Math.random() * .92);
-      parts.push({ x: x0, x0, x1, y: y0, y0, y1, vx: 0, vy: 6 + Math.random() * 9,
+      const x0 = qr.left - c.left + qr.width * (.08 + Math.random() * .84), x1 = x0 + (dr.left + dr.width * (.04 + Math.random() * .92) - qr.left - qr.width * .5) * .55;
+      parts.push({ x: x0, x0, x1, y: y0, y0, y1, vx: 0, vy: 3.5 + Math.random() * 5,
         r: .6 + Math.random() * 1.7, tw: Math.random() * 6.28, star: Math.random() < .22, hue: Math.random() < .5 ? '255,236,190' : '236,190,110' });
     }
     function draw(p, a) {
@@ -437,15 +450,15 @@ addEventListener('DOMContentLoaded', () => {
     function frame(now) {
       if (!on) return;
       const dt = Math.min((now - (prev || now)) / 1000, .05); prev = now;
-      carry += dt * (W < 560 ? 8 : 13);   // fewer, slower sparks: they drift down like magic dust
+      carry += dt * (W < 560 ? 6 : 10);   // fewer, slower sparks: they drift down like magic dust
       while (carry >= 1 && parts.length < 140) { spawn(); carry -= 1; }
       g.clearRect(0, 0, W, H); g.globalCompositeOperation = 'lighter';
       parts = parts.filter(p => {
-        p.vy += 1.2 * dt; p.y += p.vy * dt; p.tw += dt * 2.4;
+        p.vy += .5 * dt; p.y += p.vy * dt; p.tw += dt * 1.8;
         const k = (p.y - p.y0) / (p.y1 - p.y0);
         if (k >= 1) return false;
         p.x = p.x0 + (p.x1 - p.x0) * (1 - (1 - k) * (1 - k)) + Math.sin(p.tw * .8) * 5;
-        draw(p, Math.min(1, k * 8) * Math.min(1, (1 - k) * 2.5));
+        draw(p, Math.min(1, k * 6) * Math.min(1, (1 - k) * 2));
         return true;
       });
       g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
