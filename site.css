@@ -1388,3 +1388,8 @@ hr.rule:has(+ .sec #related-head) { display: none; }
 .menu nav > a:not(.menu-sub a) { filter: none; }   /* a shadow drew faint boxes behind the gold letters on the dark menu */
 .menu .menu-sub a { font-style: italic; color: var(--gold-pale) !important; opacity: .85; }
 .menu nav > a:hover { opacity: .85; }
+/* 17.11, her words «çok boşluğu olan, siyah boşluğu olan bir yer… dengeleyelim»: less dark room above «Diğer Masallarımız» and
+   between it and the cards */
+.sec:has(+ hr.rule + .sec #related-head), .sec:has(+ .sec #related-head) { padding-bottom: clamp(12px, 2vw, 28px); }
+.sec:has(#related-head) { padding-top: clamp(14px, 2.2vw, 32px); }
+#related-head { margin-bottom: clamp(16px, 2vw, 30px); }
