@@ -103,7 +103,7 @@ const PSY_OK = `<div class="psy-ok"><svg viewBox="0 0 48 48" aria-hidden="true">
 // 17.11: the psychologist's approval as one small line under the price (trust at first glance, without pushing the form down)
 const PSY_LINE = `<p class="p-psy"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24.00,1.00L27.51,4.11L31.87,2.39L34.10,6.51L38.78,6.38L39.47,11.02L43.92,12.50L42.98,17.09L46.65,20.01L44.20,24.00L46.65,27.99L42.98,30.91L43.92,35.50L39.47,36.98L38.78,41.62L34.10,41.49L31.87,45.61L27.51,43.89L24.00,47.00L20.49,43.89L16.13,45.61L13.90,41.49L9.22,41.62L8.53,36.98L4.08,35.50L5.02,30.91L1.35,27.99L3.80,24.00L1.35,20.01L5.02,17.09L4.08,12.50L8.53,11.02L9.22,6.38L13.90,6.51L16.13,2.39L20.49,4.11L24.00,1.00Z" fill="#e2b56b"/><circle cx="24" cy="24" r="16.5" fill="#6b1d2a"/><circle cx="24" cy="24" r="14.3" fill="none" stroke="#e2b56b" stroke-width=".9" opacity=".8"/> <path d="M17.5 24.3 L22 28.8 L30.8 19.4" fill="none" stroke="#f4dfb3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Uzman Psikolog <b>Şeyda Kaplanoğlu</b> onaylı.</span></p>`;
 // 17.11, her words «o iki ifadeyi tek cümlede yazalım»: the preview and the corrections in one line
-const PROMISE = `<p class="p-promise"><span aria-hidden="true">✓</span>Baskıdan önce bütün sayfaları görüp onaylarsınız, gerekirse düzeltme yaparız.</p>`;
+const PROMISE = `<p class="p-promise">Baskıdan önce tüm sayfaları görüp onaylarsınız.</p>`;   // one line on every phone (17.11)
 // simple acceptance marks for the cards Stripe takes
 const CARD_MARKS = [
   '<svg viewBox="0 0 48 30" role="img" aria-label="Visa"><rect width="48" height="30" rx="4" fill="#fff"/><text x="24" y="20" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" font-style="italic" fill="#1a1f71">VISA</text></svg>',
@@ -1318,8 +1318,7 @@ function renderProduct() {
         <h1 id="p-title">${fullTitle(p)}</h1>
         <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span><span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
         ${orderable && p.type === 'kitap' && PRICES.kitap.hard ? `<p class="p-price"><span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span>${PRICES.kitap.digital ? `<i aria-hidden="true">·</i><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span>` : ''}</p>` : ''}
-        ${p.type === 'kitap' ? PSY_LINE : ''}
-        ${orderable && p.type === 'kitap' ? PROMISE : ''}
+        ${p.type === 'kitap' ? `<div class="p-trust">${PSY_LINE}${orderable ? PROMISE : ''}</div>` : ''}
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
       </div>

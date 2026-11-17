@@ -1250,3 +1250,12 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .p-head .meta + .p-price { margin-top: -8px; }
 #buy #eta-hard .eta, #buy #eta-digital { margin-bottom: 0; }
 #buy :is(#eta-hard, #eta-digital) + .consent, #buy #eta-digital + .consent { margin-top: -8px; }
+
+/* 17.11, her words «hem yukarıdaki tik hem… onda da tik var. Bu kısmı sevmedim… bir anda Yılbaşı gecesi diye anlatmaya başlıyor»:
+   the psychologist's approval and the promise as one quiet block between two fine gold lines, one mark only (the seal);
+   the promise lines up with the words above it, and the story starts after the second line */
+.p-trust { display: grid; gap: 4px; margin: 6px 0 4px; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.p-trust .p-psy { margin: 0; }
+.p-trust .p-promise { display: block; margin: 0; padding-left: 32px; font: 400 var(--t-sm)/1.35 var(--f-body); color: var(--muted); white-space: nowrap; }
+/* the title closer to the page thumbnails on a phone */
+@media (max-width: 860px) { .product { row-gap: 14px; } }
