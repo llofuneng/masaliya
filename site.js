@@ -514,13 +514,15 @@ const HEROES = [
     ['p', 'M46 44 q-5 18 3 28 q3 -8 5 -18z M74 44 q5 18 -3 28 q-3 -8 -5 -18z'], ['r', 56, 58, 8, 8],
     ['p', 'M47 66 h26 l16 58 q-29 8 -58 0z'], ['p', 'M48 70 q-10 14 -12 30 l5 1 q4 -14 11 -24z'], ['p', 'M72 70 l18 -16 4 4 -16 18z'],
     ['s', 'M91 55 l7 -17', 2.4], ['p', 'M99 30 l2.4 5.6 6 .6 -4.6 4 1.4 6 -5.2 -3.2 -5.2 3.2 1.4 -6 -4.6 -4 6 -.6z'],
-    ['r', 51, 124, 6, 18], ['r', 63, 124, 6, 18], ['e', 53, 143, 6, 3], ['e', 67, 143, 6, 3]] },
+    ['r', 51, 124, 6, 18], ['r', 63, 124, 6, 18], ['e', 53, 143, 6, 3], ['e', 67, 143, 6, 3],
+    ['c', 50, 69.5, 4.6], ['c', 70.5, 69.5, 4.6], ['c', 91.6, 56.2, 3.1], ['c', 38.7, 100.6, 2.9]] },   // 17.11: shoulders and hands, so the arms grow from the body
   { href: 'erkekler.html', jewel: ['#3c4a73', '#232c4d', '#0d1020'], ink: ['#4a63ad', '#1c2550'], parts: [
     ['p', 'M49 66 q-22 26 -30 66 q18 -6 40 -8z'], ['c', 60, 46, 14],
     ['p', 'M45 42 q2 -14 16 -15 q4 -6 9 -2 q-1 3 -3 4 q8 3 8 13 q-6 -6 -14 -6 q-8 0 -16 6z'], ['r', 56, 57, 8, 8],
     ['p', 'M47 65 h26 l3 50 h-32z'], ['p', 'M44 112 h32 v5 h-32z'], ['p', 'M48 70 q-8 14 -8 30 l5 0 q1 -14 8 -24z'],
     ['p', 'M72 70 l16 -12 4 4 -15 15z'], ['s', 'M89 59 l14 -30', 3.2], ['p', 'M84 56 l12 6 -1.6 3 -12 -6z'],
-    ['r', 50, 117, 7, 25], ['r', 63, 117, 7, 25], ['e', 52, 143, 6.5, 3], ['e', 68, 143, 6.5, 3]] },
+    ['r', 50, 117, 7, 25], ['r', 63, 117, 7, 25], ['e', 52, 143, 6.5, 3], ['e', 68, 143, 6.5, 3],
+    ['c', 49.5, 69.5, 4.6], ['c', 70.5, 69.5, 4.6], ['c', 89.8, 60.4, 3.2], ['c', 42.6, 100.2, 2.9]] },
   { href: 'yetiskinler.html', aud: 'yetiskin', soon: true, jewel: ['#3a6458', '#1f3f37', '#0a1a17'], ink: ['#3f7d68', '#173326'], parts: [
     // two grown-ups hand in hand (everyday clothes, not a bride and groom)
     // her: long hair, a dress to the knee
@@ -557,12 +559,16 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all', k = 3.
   // the figure in gold
   if (layer !== 'bg') {
   const ox = W / 2 - 60 * k, oy = H - m - 160 * k - 18;
+  // 17.11, her words «stick figür gibi… çizgilerini yok etsek»: every part used to cast its own little shadow on the others, which drew
+  // seams (hair over head, arm over body, belt, cape); now the parts are drawn together on their own layer, as one silhouette, and
+  // the pressed-foil shadow goes once around the whole figure
+  const main = x, layerC = document.createElement('canvas'); layerC.width = W; layerC.height = H;
+  { const x = layerC.getContext('2d');
   x.translate(ox, oy); x.scale(k, k);
   const gold = x.createLinearGradient(0, 10, 0, 150);
   if (picked && h.ink) { gold.addColorStop(0, h.ink[0]); gold.addColorStop(1, h.ink[1]); }
   else { gold.addColorStop(0, '#f1dcae'); gold.addColorStop(.5, '#d4a960'); gold.addColorStop(1, '#a1742f'); }
   x.fillStyle = gold; x.strokeStyle = gold; x.lineCap = 'round';
-  x.shadowColor = picked ? 'rgba(80,40,20,.25)' : 'rgba(0,0,0,.45)'; x.shadowBlur = 3; x.shadowOffsetY = 1.5;   // pressed foil, not a glow
   for (const p of h.parts) {
     if (p[0] === 'c') { x.beginPath(); x.arc(p[1], p[2], p[3], 0, 6.283); x.fill(); }
     else if (p[0] === 'e') { x.beginPath(); x.ellipse(p[1], p[2], p[3], p[4], 0, 0, 6.283); x.fill(); }
@@ -570,6 +576,9 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all', k = 3.
     else if (p[0] === 's') { x.lineWidth = p[2]; x.stroke(new Path2D(p[1])); }
     else x.fill(new Path2D(p[1]));
   }
+  }
+  main.shadowColor = picked ? 'rgba(80,40,20,.25)' : 'rgba(0,0,0,.45)'; main.shadowBlur = 3 * k / 3.15; main.shadowOffsetY = 1.5 * k / 3.15;   // pressed foil, not a glow
+  main.drawImage(layerC, 0, 0); main.shadowColor = 'transparent';
   }
   if (h.soon && layer !== 'fig') {
     // not open yet (17.11): like an unexplored part of a map in a game — a dark veil with drifting mist, the figures only faintly seen
