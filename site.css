@@ -1029,42 +1029,42 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .book-row::-webkit-scrollbar { display: none; }
 .book-row:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
 @media (max-width: 720px) { .book-row { margin-inline: calc(-1 * var(--rp)); padding-inline: var(--rp); scroll-padding-inline: var(--rp); } }   /* on a phone the row runs to the frame */
-:is(#home-grid, #grid, #related) .book-row > .card.book { flex: 0 0 44%; display: flex; flex-direction: column; gap: 8px; padding: 8px; margin: 0; scroll-snap-align: start;
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book { flex: 0 0 44%; display: flex; flex-direction: column; gap: 8px; padding: 8px; margin: 0; scroll-snap-align: start;
   position: relative; overflow: hidden; isolation: isolate; background: #3a1a22; border-color: rgba(244,223,179,.8); box-shadow: 0 10px 22px -12px rgba(0,0,0,.7); }
 /* the card's ground is its own cover's light (17.11, her «kapak ışığı», B): the cover (a small copy), blurred, at the top, melting into
    deep wine under the title and the button, so the cream title and the gold button read well on every book */
 /* the cover comes already blurred (img/b/, tools/build-thumbs.py): a live CSS blur on every card ran an iPhone out of graphics memory
    and some covers turned black after scrolling (17.11) */
-:is(#home-grid, #grid, #related) .book-row > .card.book::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--cover) center top / cover; }
-:is(#home-grid, #grid, #related) .book-row > .card.book::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(255,240,220,.06) 0%, rgba(255,240,220,0) 38%, rgba(70,18,30,.86) 64%, rgba(52,12,22,.97) 100%); }
-:is(#home-grid, #grid, #related) .book-row .card.book .visual { box-shadow: 0 12px 18px -10px rgba(0,0,0,.6), 0 0 0 1px rgba(244,223,179,.55); }
-:is(#home-grid, #grid, #related) .book-row .card.book .visual { width: 100%; grid-row: auto; }
-:is(#home-grid, #grid, #related) .book-row .card.book h3 { margin: auto 0; text-align: center; font: 700 var(--t-md)/1.24 'Fraunces', var(--f-display); letter-spacing: .01em; text-transform: none;
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--cover) center top / cover; }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(255,240,220,.06) 0%, rgba(255,240,220,0) 38%, rgba(70,18,30,.86) 64%, rgba(52,12,22,.97) 100%); }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .visual { box-shadow: 0 12px 18px -10px rgba(0,0,0,.6), 0 0 0 1px rgba(244,223,179,.55); }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .visual { width: 100%; grid-row: auto; }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book h3 { margin: auto 0; text-align: center; font: 700 var(--t-md)/1.24 'Fraunces', var(--f-display); letter-spacing: .01em; text-transform: none;
   background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: #fbefd2; color: #fbefd2; filter: none; text-shadow: 0 1px 2px rgba(0,0,0,.8); }   /* a text shadow, not a filter layer (17.11) */
-:is(#home-grid, #grid, #related) .book-row .card.book h3 .ad { font-style: normal; font-weight: inherit; -webkit-text-fill-color: inherit; }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book h3 .ad { font-style: normal; font-weight: inherit; -webkit-text-fill-color: inherit; }
 /* the title and the summary take the card's full width, so a one-line title is centred too (17.11, her «kitap başlıklarını da ortala»:
    the collection cards keep align-items: start from the old grid, and a short title shrank to its words at the left) */
-:is(#home-grid, #grid, #related) .book-row .card.book > :is(h3, p) { align-self: stretch; }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book > :is(h3, p) { align-self: stretch; }
 /* small capitals made by hand (smallCaps() in site.js): the lower-case letters in capitals, a little smaller — with lang="tr", so
    «i» becomes «İ» in every browser (Safari's own small capitals do not know Turkish) */
-:is(#home-grid, #grid, #related) .book-row .card.book h3 .sc { text-transform: uppercase; font-size: .78em; }   /* centred in the free room, not stretched (fitTitles counts its lines by its height) */
-:is(#home-grid, #grid, #related) .book-row .card.book > p { display: none; }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book h3 .sc { text-transform: uppercase; font-size: .78em; }   /* centred in the free room, not stretched (fitTitles counts its lines by its height) */
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book > p { display: none; }
 /* the gold button is the card's base, from edge to edge (17.11, her «Buton A»: «İncele'den önce ve ver'den sonra biraz daha alanımız olsun») */
-:is(#home-grid, #grid, #related) .book-row > .card.book { padding-bottom: 0; }
-:is(#home-grid, #grid, #related) .book-row .card.book .card-cta { margin: 2px -8px 0; align-self: stretch; min-height: 44px; padding: 12px 8px; border-width: 1px 0 0; border-radius: 0 0 3px 3px;
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book { padding-bottom: 0; }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta { margin: 2px -8px 0; align-self: stretch; min-height: 44px; padding: 12px 8px; border-width: 1px 0 0; border-radius: 0 0 3px 3px;
   font-size: var(--t-xs); letter-spacing: 0; box-shadow: 0 -6px 14px -8px rgba(0,0,0,.5); }
-:is(#home-grid, #grid, #related) .book-row .card.book .card-cta .cta-plus { margin: 0 .22em; }
+:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta .cta-plus { margin: 0 .22em; }
 @media (max-width: 350px) {   /* the narrowest phones: the words must fit the button (320 px: card 47 %, «+» closer) */
-  :is(#home-grid, #grid, #related) .book-row > .card.book { flex-basis: 47%; }
-  :is(#home-grid, #grid, #related) .book-row .card.book .card-cta { padding-inline: 2px; letter-spacing: 0; font-weight: 500; }
-  :is(#home-grid, #grid, #related) .book-row .card.book .card-cta .cta-plus { margin: 0 .14em; }
+  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book { flex-basis: 47%; }
+  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta { padding-inline: 2px; letter-spacing: 0; font-weight: 500; }
+  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta .cta-plus { margin: 0 .14em; }
 }
 @media (min-width: 721px) {
-  :is(#home-grid, #grid, #related) .book-row > .card.book { flex-basis: clamp(190px, calc((100% - 100px) / 5.35), 250px); gap: 12px; padding: 12px 12px 0; }
+  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book { flex-basis: clamp(190px, calc((100% - 100px) / 5.35), 250px); gap: 12px; padding: 12px 12px 0; }
   /* four books in view, edge to edge (17.11, her «desktop görünümünde carousel'i sadece 4 masal gözükecek şekilde») */
   :is(#home-grid, #related) .book-row > .card.book { flex-basis: calc((100% - 3 * clamp(12px, 1.6vw, 20px)) / 4); }
-  :is(#home-grid, #grid, #related) .book-row .card.book h3 { font-size: var(--t-lg-r); }   /* fitTitles() then makes all titles one size, two lines */
-  :is(#home-grid, #grid, #related) .book-row .card.book .card-cta { margin: 2px -12px 0; min-height: 50px; padding: 14px 10px; letter-spacing: .08em; }
+  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book h3 { font-size: var(--t-lg-r); }   /* fitTitles() then makes all titles one size, two lines */
+  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta { margin: 2px -12px 0; min-height: 50px; padding: 14px 10px; letter-spacing: .08em; }
 }
 .row-arrow { display: none; }
 @media (hover: hover) and (pointer: fine) and (min-width: 721px) {
@@ -1083,7 +1083,30 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 @media (prefers-reduced-motion: reduce) { .row-dots i, .row-arrow { transition: none; } }
 /* outside the home frame the rows sit in .wrap (16 px sides): on a phone they run to the screen's edge; the arrows stay on the page */
 :is(#grid, #related) { --rp: max(16px, env(safe-area-inset-left, 0px)); }
-#grid.coll-rows, #related.book-rows { display: block; }
+#grid.coll-rows, #related.book-rows, #grid.coll-grid, #related.coll-grid { display: block; }
+/* the collection pages and «Diğer masallarımız» (17.11, her words: the swipe row only on the home page): every book at once, the
+   home page's cards, two in a row on a phone, three on a computer */
+.book-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; padding: 4px 0 8px; }
+.book-grid > .card.book { scroll-snap-align: none; min-width: 0; }
+/* a single last card stands in the middle, not alone at the left */
+.book-grid > .card:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc((100% - 12px) / 2); }
+@media (min-width: 721px) {
+  .book-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(22px, 2.6vw, 34px); max-width: 1080px; margin-inline: auto; }
+  .book-grid > .card, .book-grid > .card:last-child:nth-child(odd) { grid-column: span 2; justify-self: stretch; width: auto; }   /* three in a row */
+  .book-grid > .card:last-child:nth-child(3n + 1) { grid-column: 3 / span 2; }   /* one or two left over: in the middle */
+  .book-grid > .card:nth-last-child(2):nth-child(3n + 1) { grid-column: 2 / span 2; }
+  /* a computer has room for the summary under the title */
+  :is(#grid, #related) .book-grid .card.book > p { display: block; margin: 0 6px; text-align: center; font-size: var(--t-sm); line-height: 1.45; color: rgba(251,239,210,.86); opacity: 1; }
+  :is(#grid, #related) .book-grid .card.book h3 { margin: 4px 0 0; }
+  :is(#grid, #related) .book-grid .card.book .card-cta { margin-top: auto; min-height: 52px; font-size: var(--t-sm); }   /* a wide card, a larger button */
+}
+/* on a computer every three cards share their rows: covers, titles, summaries and buttons on the same lines (17.11, as her picture 1) */
+@supports (grid-template-rows: subgrid) { @media (min-width: 721px) {
+  :is(#grid, #related) .book-grid > .card.book { display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 12px; }
+  :is(#grid, #related) .book-grid .card.book h3 { margin: 4px 0 0; align-self: center; }
+  :is(#grid, #related) .book-grid .card.book > p { align-self: start; }
+  :is(#grid, #related) .book-grid .card.book .card-cta { margin-top: 0; align-self: end; }
+} }
 @media (hover: hover) and (pointer: fine) and (min-width: 721px) { :is(#grid, #related) .row-arrow.prev { left: -10px; } :is(#grid, #related) .row-arrow.next { right: -10px; } }
 /* the collection pages: big cards with the summary (17.11, her «İkinci uygulama daha iyi gibi gözüküyor»): one card and the edge of the
    next on a phone, about three and a half on a computer */

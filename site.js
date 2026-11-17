@@ -739,10 +739,12 @@ function rowHTML(list, label, cls = '') {
   return `<div class="row-wrap"><div class="book-row${cls ? ' ' + cls : ''}" role="group" tabindex="0" aria-label="${esc(label)}">${list.map(b => card(b, true, /\bbig\b/.test(cls) ? 'w' : 'c')).join('')}</div><button class="row-arrow prev" type="button" aria-label="Önceki masallar">‹</button><button class="row-arrow next" type="button" aria-label="Sonraki masallar">›</button></div>
         <div class="row-dots" aria-hidden="true"></div>`;
 }
+// the book cards in a grid (17.11): the cover 450 px on a phone (two in a row), 800 px on a computer (three in a row)
+function gridHTML(list) { return `<div class="book-grid">${list.map(b => card(b, true, 'cw')).join('')}</div>`; }
 // each row card's ground is its own cover (a small copy), blurred; the titles in hand-made small capitals (17.11)
 function litCards(root) {
-  root.querySelectorAll('.book-row .card').forEach(c => { const im = c.querySelector('.visual img'); if (im) c.style.setProperty('--cover', `url("${blurred(im.dataset.src0 || im.getAttribute('src'))}")`); });
-  root.querySelectorAll('.book-row .card.book h3').forEach(smallCaps);
+  root.querySelectorAll(':is(.book-row, .book-grid) .card').forEach(c => { const im = c.querySelector('.visual img'); if (im) c.style.setProperty('--cover', `url("${blurred(im.dataset.src0 || im.getAttribute('src'))}")`); });
+  root.querySelectorAll(':is(.book-row, .book-grid) .card.book h3').forEach(smallCaps);
 }
 // a swipe row of books (17.11): the dots follow the scroll, the arrows (computer) move it by a screenful; a row that fits needs neither
 function rowNav(w) {
@@ -797,7 +799,8 @@ document.addEventListener('auxclick', e => {
   const a = c.querySelector('a.card-cta'); if (a) window.open(a.href, '_blank');
 });
 function card(p, withPrice = false, size = '') {
-  const visual = `<img src="${coverSrc(p.img, size)}" ${jpgBack(p.img)} alt="${esc(p.alt)}" loading="lazy" decoding="async">`;
+  const set = size === 'cw' && coverSrc(p.img, 'c') !== p.img ? ` srcset="${coverSrc(p.img, 'c')} 450w, ${coverSrc(p.img, 'w')} 800w" sizes="(max-width: 720px) 38vw, 360px"` : '';
+  const visual = `<img src="${coverSrc(p.img, size === 'cw' ? 'c' : size)}"${set} ${set ? jpgBack(p.img).replace('this.src=', "this.removeAttribute('srcset');this.src=") : jpgBack(p.img)} alt="${esc(p.alt)}" loading="lazy" decoding="async">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
   // 17.11, her words «sadece İncele Sipariş ver butonu tıklanabilir olsun»: a card with the button is a plain frame and only the
   // button is a link; a card without a button stays one link as before
@@ -849,11 +852,12 @@ function renderCollection(aud) {
     const list = isAdult
       ? items.filter(p => key === 'hepsi' || p.occ === key)
       : items.filter(p => TYPES[p.type].tab === key);
-    // the books: one row of big cards to swipe (17.11, her «İkinci uygulama»); anything else stays a grid
+    // the books: every one at once, in a grid of the home page's cards — two in a row on a phone, three on a computer (17.11, her
+    // words: the swipe row only on the home page); anything else stays the old grid
     if (list.length && list.every(p => p.type === 'kitap')) {
-      grid.className = 'coll-rows';
-      grid.innerHTML = rowHTML(list, `${AUDIENCES[aud] ? AUDIENCES[aud].name + ' için ' : ''}masallar`, 'big');
-      litCards(grid); fitTitles(); rowNav(grid.querySelector('.row-wrap'));
+      grid.className = 'coll-grid';
+      grid.innerHTML = gridHTML(list);
+      litCards(grid); fitTitles();
       return;
     }
     grid.className = `grid${list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : ''}`;
@@ -1478,9 +1482,9 @@ function renderProduct() {
     const others = PRODUCTS.filter(x => x.id !== p.id && x.type === p.type && x.status === 'hazir' && onSale(x) && !(x.aud && AUDIENCES[x.aud] && AUDIENCES[x.aud].hidden));
     const rel = [...others.filter(x => x.aud === p.aud), ...others.filter(x => x.aud !== p.aud)];
     const relEl = document.getElementById('related');
-    if (rel.length && rel.every(x => x.type === 'kitap')) {   // a row like the home page's (17.11)
-      relEl.className = 'book-rows'; relEl.innerHTML = rowHTML(rel, 'Diğer masallarımız'); litCards(relEl);
-      smallCaps(document.getElementById('p-title')); fitTitles(); rowNav(relEl.querySelector('.row-wrap'));
+    if (rel.length && rel.every(x => x.type === 'kitap')) {   // the home page's cards in a grid, 2 / 3 in a row (17.11)
+      relEl.className = 'coll-grid'; relEl.innerHTML = gridHTML(rel); litCards(relEl);
+      smallCaps(document.getElementById('p-title')); fitTitles();
     } else { relEl.className = 'grid'; relEl.innerHTML = rel.map(p => card(p)).join(''); smallCaps(document.getElementById('p-title')); fitTitles(); }
     const rh = document.getElementById('related-head'); if (rh) rh.hidden = !rel.length;
     if (location.hash === '#inside' && document.getElementById('inside')) requestAnimationFrame(() => document.getElementById('inside').scrollIntoView());
