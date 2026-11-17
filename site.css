@@ -1529,3 +1529,4 @@ body[data-page="gizlilik"] main > .sec:last-child { padding-bottom: clamp(26px, 
 #cart:has(.cart-invite) { display: block; min-width: 0; }
 .cart-invite, .ci-row { min-width: 0; max-width: 100%; }
 .ci-row .row-wrap { min-width: 0; max-width: 100%; }
+.pr-puzzle[width="1000"] { width: min(320px, 92%); rotate: -1.5deg; }   /* a landscape puzzle picture */
