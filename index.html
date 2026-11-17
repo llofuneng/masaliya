@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611171526">
+<link rel="stylesheet" href="site.css?v=202611171528">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -445,7 +445,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611171526" defer></script>
+<script src="site.js?v=202611171528" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -512,7 +512,7 @@ addEventListener('DOMContentLoaded', () => {
       const art = d.querySelector('.door-art'), b = d.querySelector('b'); if (!art || !b || art.querySelector('.door-arc')) return;
       const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
       svg.setAttribute('viewBox', '0 0 512 704'); svg.setAttribute('class', 'door-arc'); svg.setAttribute('aria-hidden', 'true');
-      svg.innerHTML = `<defs><path id="door-arc-${i}" d="M 60,262 A 196,196 0 0 1 452,262" fill="none"/><linearGradient id="door-arc-g-${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbeccb"/><stop offset="1" stop-color="#d9a957"/></linearGradient></defs><text fill="url(#door-arc-g-${i})"><textPath href="#door-arc-${i}" startOffset="50%" text-anchor="middle"></textPath></text>`;
+      svg.innerHTML = `<defs><path id="door-arc-${i}" d="M 82,262 A 174,174 0 0 1 430,262" fill="none"/><linearGradient id="door-arc-g-${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbeccb"/><stop offset="1" stop-color="#d9a957"/></linearGradient></defs><text fill="url(#door-arc-g-${i})"><textPath href="#door-arc-${i}" startOffset="50%" text-anchor="middle"></textPath></text>`;
       // 17.11, her «B küçük yıldızlar»: a small gold star at both ends of both names; both names the same length on the arch
       svg.querySelector('textPath').innerHTML = `<tspan font-size="0.7em" dy="-2">✦</tspan><tspan dy="2"> ${b.textContent.trim().toLocaleUpperCase('tr')} </tspan><tspan font-size="0.7em" dy="-2">✦</tspan>`;
       art.appendChild(svg);
@@ -523,7 +523,7 @@ addEventListener('DOMContentLoaded', () => {
       // measured once at 62 px (each measurement made the phone lay out the page again; 17.11, «hızlandırma»)
       texts.forEach(t => { t.querySelector('textPath').removeAttribute('textLength'); t.style.fontSize = '62px'; });
       const lens = texts.map(t => t.getComputedTextLength()), longest = Math.max(...lens);
-      const k = longest > 600 ? 600 / longest : 1;   // the whole arch, as in her picture
+      const k = longest > 530 ? 530 / longest : 1;   // the arc is shorter now: the letters keep clear of the frame   // the whole arch, as in her picture
       // the shorter name spaced out to the longer one's length, so both sit on the arch alike, star to star (17.11)
       texts.forEach(t => { t.style.fontSize = (62 * k).toFixed(1) + 'px'; const tp = t.querySelector('textPath'); tp.setAttribute('textLength', (longest * k).toFixed(1)); tp.setAttribute('lengthAdjust', 'spacing'); });
     };
