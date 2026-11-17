@@ -1201,3 +1201,14 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .p-psy { display: flex; align-items: center; gap: 8px; margin: 6px 0 2px; font: 400 var(--t-sm)/1.3 var(--f-body); color: var(--cream); }
 .p-psy svg { flex: none; width: 24px; height: 24px; }
 .p-psy b { font-weight: 500; color: var(--gold-pale); }
+
+/* quieter header and viewer controls (17.11, her words «Büyüt, Geri dön, Menü çok büyük… Masalını oluştur'dan daha fazla dikkat çekiyor»):
+   no frames, softer colour, the tap area stays 44 px — the gold «Masalını oluştur» bar is now the one thing that stands out */
+.back, .menu-btn, .zoom { border-color: transparent; background: none; color: rgba(244,223,179,.72); letter-spacing: .14em; }
+.back { padding-inline: .2em .6em; }
+.menu-btn { padding-inline: .6em .2em; }
+.back:hover, .menu-btn:hover, .zoom:hover { border-color: transparent; background: none; color: var(--gold-pale); }
+.back:focus-visible, .menu-btn:focus-visible, .zoom:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+.zoom { height: 36px; padding: 0 8px; font-weight: 400; }
+.zoom svg { opacity: .8; }
+@media (max-width: 520px) { .back { padding: .55em .5em .55em 0; } .menu-btn { padding: .55em 0 .55em .5em; } }
