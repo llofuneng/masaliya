@@ -1265,3 +1265,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .wa svg { width: 34px; height: 34px; }
 .wa::after { inset: -4px; border-width: 1.5px; border-color: rgba(37,211,102,.4); animation-duration: 3.6s; }
 @keyframes waPulse { from { transform: scale(.94); opacity: .8; } to { transform: scale(1.18); opacity: 0; } }
+
+/* the medallion before a home row opens its collection (17.11) */
+a.row-ico { display: block; text-decoration: none; transition: box-shadow .25s ease, transform .25s ease; }
+a.row-ico:hover, a.row-ico:focus-visible { transform: scale(1.06); box-shadow: 0 0 0 3px rgba(20,6,10,.4), 0 0 0 5px rgba(226,181,107,.45), 0 4px 10px rgba(0,0,0,.5); outline: none; }
