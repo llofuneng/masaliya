@@ -1592,3 +1592,5 @@ body[data-page="urunler"] .pr-sec { padding-bottom: 0; }
 .cs-trust a { color: var(--gold-pale); }
 .cart-grid { grid-template-rows: auto 1fr; }   /* the books' row only as tall as the books; the side column right under them */
 .cart-grid > .cart-side { align-self: start; margin-top: 6px; }
+/* 17.11, her words «mobile koyma»: the side column only on a computer */
+@media (max-width: 860px) { .cart-grid > .cart-side { display: none; } }
