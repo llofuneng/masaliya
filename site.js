@@ -1024,6 +1024,30 @@ function renderCollection(aud) {
 const ILLER = ['Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara', 'Antalya', 'Ardahan', 'Artvin', 'Aydın', 'Balıkesir', 'Bartın', 'Batman', 'Bayburt', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa', 'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Düzce', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 'Eskişehir', 'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari', 'Hatay', 'Iğdır', 'Isparta', 'İstanbul', 'İzmir', 'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kilis', 'Kırıkkale', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya', 'Manisa', 'Mardin', 'Mersin', 'Muğla', 'Muş', 'Nevşehir', 'Niğde', 'Ordu', 'Osmaniye', 'Rize', 'Sakarya', 'Samsun', 'Şanlıurfa', 'Siirt', 'Sinop', 'Şırnak', 'Sivas', 'Tekirdağ', 'Tokat', 'Trabzon', 'Tunceli', 'Uşak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak'];
 const DRAFT_KEY = 'masaliya-teslimat', FIELDS = ['c-name', 'c-il', 'c-ilce', 'c-adres', 'c-posta', 'c-phone', 'c-email'];
 
+// 17.11, her words «o boşluğu nasıl doldurabiliriz»: beside the payment form on a computer (under it on a phone) — what happens
+// next, one more story to add (the campaign said where it applies) and three quiet reassurances
+function cartSide(items, hardN) {
+  const inCart = new Set(items.map(it => it.product));
+  const pool = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p) && !inCart.has(p.id) && !(p.aud && AUDIENCES[p.aud] && AUDIENCES[p.aud].hidden));
+  const firstAud = (PRODUCTS.find(p => p.id === (items[0] || {}).product) || {}).aud;
+  const ny = ['kari-hic-gormemis-flamingo', 'karla-oynayan-fil-yavrusu', 'dunyada-yilbasi-kiz', 'dunyada-yilbasi', 'noel-babaya-surpriz-kiz', 'noel-babaya-hediye'];
+  const rank = p => (ny.includes(p.id) ? 0 : 2) + (p.aud === firstAud ? 0 : 1);
+  const seen = new Set(), picks = [];
+  for (const p of pool.slice().sort((a, b) => rank(a) - rank(b))) {   // no two look-alike covers (the same art for a girl and a boy)
+    if (seen.has(p.title)) continue; seen.add(p.title); picks.push(p); if (picks.length === 3) break;   // a girl's and a boy's version share the title and the art
+  }
+  const deal = pairOn() && hardN % 2 === 1 ? `<p class="cs-deal">Sert kapak ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b> · ${PAIR_DEAL.untilText}’a kadar</p>` : '';
+  return `<aside class="cart-side">
+    <section class="cs-next"><h2>Sırada ne var?</h2>
+      <ol><li><b>Bugün</b><span>Ödemeniz alınır, fotoğraflarınız tasarımcımıza ulaşır.</span></li>
+        <li><b>3 iş günü</b><span>Bütün sayfaların önizlemesi e-postanıza gelir.</span></li>
+        <li><b>Onayınızla</b><span>Baskı ve ücretsiz kargo · tahmini teslim ${etaRange()}</span></li></ol></section>
+    ${picks.length ? `<section class="cs-more"><h2>Bir masal daha ekleyin</h2>${deal}
+      <div class="cs-picks">${picks.map(p => `<a class="cs-pick" href="${productHref(p)}"><img src="${thumb(p.img)}" alt="" loading="lazy"><span>${esc((p.hero ? p.hero + ' ' : '') + p.title)}</span></a>`).join('')}</div></section>` : ''}
+    <ul class="cs-trust"><li>Uzman Psikolog onaylı masallar</li><li>Fotoğraflarınız teslimden sonra silinir</li><li><a href="${waLink()}"${WHATSAPP ? ' target="_blank" rel="noopener"' : ''}>Sorunuz mu var? WhatsApp’tan yazın</a></li></ul>
+  </aside>`;
+}
+
 function renderCart() {
   const root = document.getElementById('cart');
   if (!root) return;
@@ -1107,6 +1131,7 @@ function renderCart() {
         <p class="form-note" id="pay-note" aria-live="polite">${msg || ''}</p>
         <a class="link" href="urunler.html">+ Başka bir masal ekle</a>
       </form>
+      ${cartSide(items, hardN)}
     </div>`;
     const form = document.getElementById('pay');
     FIELDS.forEach(k => { const el = document.getElementById(k); if (el && draft[k]) el.value = draft[k]; });
