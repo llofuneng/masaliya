@@ -1530,3 +1530,4 @@ body[data-page="gizlilik"] main > .sec:last-child { padding-bottom: clamp(26px, 
 .cart-invite, .ci-row { min-width: 0; max-width: 100%; }
 .ci-row .row-wrap { min-width: 0; max-width: 100%; }
 .pr-puzzle[width="1000"] { width: min(320px, 92%); rotate: -1.5deg; }   /* a landscape puzzle picture */
+.ci-row > #related { width: 100%; min-width: 0; }   /* the row as wide as the page, so the cards take their 44 % of it */

@@ -858,7 +858,7 @@ function litCards(root) {
   root.querySelectorAll('.card.book .visual img').forEach(im => { const on = () => im.classList.add('in'); if (im.complete && im.naturalWidth) on(); else { im.addEventListener('load', on, { once: true }); im.addEventListener('error', on, { once: true }); } });
 }
 // a swipe row of books (17.11): the dots follow the scroll, the arrows (computer) move it by a screenful; a row that fits needs neither
-function rowNav(w) {
+function rowNav(w, endless = true) {   // endless: false = a row that ends (the empty cart, 17.11)
   const row = w.querySelector('.book-row'), dots = w.nextElementSibling, prev = w.querySelector('.prev'), next = w.querySelector('.next');
   const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const step = () => { const c = row.querySelector('.card'); return c ? c.getBoundingClientRect().width + (parseFloat(getComputedStyle(row).columnGap) || 0) : row.clientWidth; };
@@ -868,7 +868,7 @@ function rowNav(w) {
   let loop = false;
   const setW = () => n0 * step();
   const makeLoop = () => {
-    if (loop || n0 < 2 || row.scrollWidth - row.clientWidth < 4) return;
+    if (!endless || loop || n0 < 2 || row.scrollWidth - row.clientWidth < 4) return;
     const copy = () => orig.map(c => { const k = c.cloneNode(true); k.setAttribute('aria-hidden', 'true'); k.querySelectorAll('a, button').forEach(a => a.tabIndex = -1); k.dataset.copy = '1'; return k; });
     row.prepend(...copy()); row.append(...copy());
     loop = true; w.classList.add('loop');
@@ -1038,16 +1038,17 @@ function renderCart() {
     if (!items.length) {
       // 17.11, her words «sepetiniz henüz boş… farklı bir yönlendirme, yine satışa»: an invitation instead of an empty box — the two
       // windows of the home page (a tap opens the collection), the campaign if it runs, and this season's stories to pick from
-      const ny = ['kari-hic-gormemis-flamingo', 'karla-oynayan-fil-yavrusu', 'dunyada-yilbasi-kiz', 'dunyada-yilbasi', 'noel-babaya-surpriz-kiz', 'noel-babaya-hediye']
+      // 17.11, her words: look-alike covers never side by side (Melis and Can, Lina and Edis share their art), a girl and a boy in turn
+      const ny = ['dunyada-yilbasi-kiz', 'noel-babaya-hediye', 'kari-hic-gormemis-flamingo', 'dunyada-yilbasi', 'noel-babaya-surpriz-kiz', 'karla-oynayan-fil-yavrusu']
         .map(id => PRODUCTS.find(p => p.id === id)).filter(p => p && onSale(p));
       root.innerHTML = `<div class="cart-invite">
         <p class="ci-lede">Sepetiniz henüz boş. Sevdiğiniz çocuğun kahramanı olacağı masalı seçin; adını ve 3 fotoğrafını ekleyin, gerisi bizde.</p>
         <nav class="ci-doors" aria-label="Koleksiyonlar">${HEROES.filter(h => !h.soon).slice(0, 2).map((h, i) => `<a class="ci-door" href="${h.href}"><img alt="" width="512" height="704" data-ci="${HEROES.indexOf(h)}"><b>${i ? 'Erkek Çocukları' : 'Kız Çocukları'}</b></a>`).join('')}</nav>
         ${pairOn() ? `<p class="ci-deal">✦ Yılbaşına özel: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b> · ${PAIR_DEAL.untilText}’a kadar ✦</p>` : ''}
-        ${ny.length ? `<div class="ci-row"><h2>Yılbaşı Masalları</h2>${rowHTML(ny, 'Yılbaşı masalları')}</div>` : ''}
+        ${ny.length ? `<div class="ci-row"><h2>Yılbaşı Masalları</h2><div id="related">${rowHTML(ny, 'Yılbaşı masalları')}</div></div>` : ''}
       </div>`;
       root.querySelectorAll('img[data-ci]').forEach(img => { const cv = drawHeroCard(HEROES[+img.dataset.ci]); if (cv.toBlob) cv.toBlob(b => { img.src = URL.createObjectURL(b); }); else img.src = cv.toDataURL(); });
-      litCards(root); fitTitles(); root.querySelectorAll('.row-wrap').forEach(rowNav);
+      litCards(root); fitTitles(); root.querySelectorAll('.row-wrap').forEach(w => rowNav(w, false));   // 17.11, her words: not endless here (fast swiping outran the pictures) — a row that ends, arrows and dots still work
       return;
     }
     const off = pairOff(items), full = items.reduce((a, it) => a + it.price.total, 0) - off;
