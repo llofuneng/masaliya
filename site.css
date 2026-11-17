@@ -1328,3 +1328,5 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
 /* 17.11, her words «sola yapıştırsak»: the phone rule that pushes «Tümü» to the right (.row-head a { margin-left: auto }) was also
    pushing the medallion (a link too) inward — the medallion and title now sit at the left edge, in line with the first book */
 .row-head a.row-ico { margin-left: 0; }
+.psy-strip h3 { white-space: nowrap; }   /* «Uzman Psikolog Onaylı» on one line (17.11) */
+@media (max-width: 359px) { .psy-strip h3 { font-size: 1.35rem; } }   /* the smallest phones: still one line */
