@@ -490,8 +490,8 @@ const CART_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke
 const ARCH_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M3 26 V52 C15 49 26 50 32 55 C38 50 49 49 61 52 V26 Z" fill="var(--gold, #e2b56b)" opacity=".6"/><path d="M6 23 V48 C15 45 26 46 32 51 C38 46 49 45 58 48 V23 Z" fill="var(--gold-pale, #f4dfb3)" stroke="var(--ink, #160a0c)" stroke-width="1.2"/><path d="M32 26 C26 12 9 11 8 23 C8 33 22 40 32 49 C42 40 56 33 56 23 C55 11 38 12 32 26 Z" fill="var(--gold, #e2b56b)" stroke="var(--ink, #160a0c)" stroke-width="1.6" stroke-linejoin="round"/><path d="M32 26 V48 M14 22 C18 20 23 21 27 24 M14 27.5 C18 25.5 23 26.5 27 29.5 M50 22 C46 20 41 21 37 24 M50 27.5 C46 25.5 41 26.5 37 29.5" fill="none" stroke="var(--ink, #160a0c)" stroke-width="1.4" stroke-linecap="round"/></svg>';   // the Masaliya mark: an open book whose pages make a heart
 
 const NAV = [
-  ['urunler.html', 'Ürünlerimiz'],
-  ['nasil.html', 'Nasıl Hazırlanır'],
+  ['urunler.html', 'Kitaplarımız'],   // 17.11, her words: «ürünlerimiz yerine kitaplarımız»
+  ['nasil.html', 'Nasıl Hazırlanır?'],
   ['siparis.html', 'Sipariş Takibi']
 ];
 const NAV_ALL = [...NAV, ['gizlilik.html', 'Gizlilik'], ['sss.html', 'SSS']];
@@ -751,7 +751,7 @@ function renderChrome() {
   const mark = h => (isCurrent(h, cur) && h !== 'urunler.html') || h === cur ? ' aria-current="page"' : '';
   menu.innerHTML = `<button class="btn ghost close" type="button" data-close-menu>Kapat</button>
     <nav><a href="./"${cur === 'index.html' || cur === '' ? ' aria-current="page"' : ''}>Ana Sayfa</a>
-      <a href="urunler.html"${mark('urunler.html')}>Ürünlerimiz</a>
+      <a href="urunler.html"${mark('urunler.html')}>Kitaplarımız</a>
       <div class="menu-sub">${Object.values(AUDIENCES).filter(a => !a.hidden).map(a => `<a href="${a.page}"${a.page === cur ? ' aria-current="page"' : ''}>${a.name}</a>`).join('')}</div>
       ${NAV_ALL.slice(1).map(([h, t]) => `<a href="${h}"${mark(h)}>${t}</a>`).join('')}
       <a href="sepet.html"${cur === 'sepet.html' ? ' aria-current="page"' : ''}>Sepetim <span class="cart-count" data-cart-count hidden></span></a></nav>`;
@@ -1265,7 +1265,7 @@ function renderProduct() {
     if (!p) {
       // an address we don't know: say so instead of quietly showing another book
       document.title = 'Bulunamadı · Masaliya';
-      root.innerHTML = `<div class="notfound"><p class="eyebrow">Sayfa bulunamadı</p><h1>Bu masal rafta yok</h1><p class="lede">Aradığınız ürün kaldırılmış ya da adresi değişmiş olabilir.</p><a class="btn" href="urunler.html">Ürünlerimize göz atın</a></div>`;
+      root.innerHTML = `<div class="notfound"><p class="eyebrow">Sayfa bulunamadı</p><h1>Bu masal rafta yok</h1><p class="lede">Aradığınız ürün kaldırılmış ya da adresi değişmiş olabilir.</p><a class="btn" href="urunler.html">Kitaplarımıza göz atın</a></div>`;
       document.getElementById('related').innerHTML = '';
       return;
     }
