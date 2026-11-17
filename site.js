@@ -657,7 +657,13 @@ function renderChrome() {
     };
     const waPlace = () => {
       waTick = 0;
-      if (seal) { wa.classList.toggle('wa-up', wa.style.getPropertyValue('--wa-lift') !== '0px'); wa.classList.toggle('wa-away', scrollY > innerHeight * .25); }
+      // her words: over the books it goes all the way in; once the books panel has passed (from «3 fotoğraf» down to the end) it comes
+      // out again — so it hides exactly while the books panel runs behind it
+      if (seal) {
+        wa.classList.toggle('wa-up', wa.style.getPropertyValue('--wa-lift') !== '0px');
+        const f = wa.getBoundingClientRect(), hb = document.querySelector('.hb-box'), h = hb && hb.getBoundingClientRect();
+        wa.classList.toggle('wa-away', !!h && h.top < f.bottom + 12 && h.bottom > f.top - 12);
+      }
       const bar = document.getElementById('buybar'), barUp = bar && !bar.classList.contains('away') && !bar.classList.contains('hold') && getComputedStyle(bar).display !== 'none';
       wa.style.bottom = barUp ? `${bar.offsetHeight + 14}px` : '';
       const r = wa.getBoundingClientRect();
