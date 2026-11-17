@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611172155">
+<link rel="stylesheet" href="site.css?v=202611172206">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -393,8 +393,14 @@
   .psy-seal { position: relative; top: auto; left: auto; width: clamp(80px, 10.5svh, 112px); height: clamp(80px, 10.5svh, 112px); margin: 8px auto 0; }
   .lite .after-copy { max-width: min(760px, 70vw); }
   .lite .after-copy .ac-title { font-size: clamp(2.1rem, .8rem + 3.3svh, 3.2rem); }
-  .lite .intro { --dw: min(30vw, 420px, max(150px, calc((66.7svh - 160px) / 1.523))); }
+  .lite .intro { --dw: min(30vw, 420px, max(150px, calc((66.7svh - 215px) / 1.523))); padding-bottom: 66px; }   /* room under the windows for «Masallarımız» */
+  .lite .scroll-down { width: auto; height: auto; margin: 0; left: 50%; translate: -50% 0; bottom: 28px; padding: 6px 4px; border: 0; border-radius: 0; background: none; box-shadow: none; animation: none;
+    display: flex; align-items: center; gap: 14px; font: 500 var(--t-md)/1.35 var(--f-body); letter-spacing: .3em; text-transform: uppercase; color: var(--gold-pale); }
+  .lite .scroll-down::before, .lite .scroll-down::after { content: ""; width: 9px; height: 9px; margin-top: -6px; border-right: 2px solid var(--gold); border-bottom: 2px solid var(--gold); transform: rotate(45deg); animation: sdNod 1.8s ease-in-out infinite; }
+  .lite .scroll-down:hover { background: none; color: #fff3d6; }
 }
+@keyframes sdNod { 0%, 100% { translate: 0 0; opacity: .55; } 50% { translate: 0 5px; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .lite .scroll-down::before, .lite .scroll-down::after { animation: none !important; opacity: .9; } }
 </style>
 
 </head>
@@ -453,7 +459,7 @@
       <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
   </div>
-  <a class="scroll-down" href="#hb-title" aria-label="Masallarımıza in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></a>
+  <a class="scroll-down" href="#hb-title" aria-label="Masallarımıza in"><span>Masallarımız</span></a>   <!-- 17.11, her words: not a round arrow between the two windows; the phone's «Masallarımız» with its two nodding arrows, under the windows -->
 </section>
 
 <section class="sec home-books" aria-labelledby="hb-title">
@@ -493,7 +499,7 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611172155" defer></script>
+<script src="site.js?v=202611172206" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 // the windows' drawing size: 512 wide, DOOR.H tall, the figure at scale DOOR.k (17.11, her «pencereleri yukarı uzatıp karakterleri büyütmek»)
