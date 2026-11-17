@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611171839">
+<link rel="stylesheet" href="site.css?v=202611171845">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -328,7 +328,10 @@
 .hb-box > .frame { inset: 0; z-index: 2; }
 .home-books .hb-in { --rp: clamp(14px, 4.5vw, 64px); position: relative; z-index: 1; max-width: none; padding: clamp(28px, 4vw, 52px) var(--rp) clamp(20px, 3vw, 34px); }
 .home-books .hb-in .sec-head { max-width: 860px; margin: 0 auto 4px; }
-.home-books .hb-in .lede { text-wrap: pretty; max-width: 66ch; margin-inline: auto; }   /* 17.11, her words: wider, not squeezed to the heading's width (balance did that); still no word alone on the last line */   /* no word left alone on the last line (17.11, her words, seen on an iPhone); «size gösteriyoruz.» are also tied together */
+.home-books .hb-in .lede { text-wrap: pretty; max-width: 66ch; margin-inline: auto; }
+/* 17.11, her choice 1: on a phone the paragraph is a straight block (both edges even, like the psychologist's text), the heading
+   stays centred like the first screen; soft hyphens (written in, Safari does not hyphenate Turkish by itself) keep the word gaps even */
+@media (max-width: 720px) { .home-books .hb-in .lede { text-align: justify; text-align-last: left; text-wrap: wrap; max-width: none; } }   /* 17.11, her words: wider, not squeezed to the heading's width (balance did that); still no word alone on the last line */   /* no word left alone on the last line (17.11, her words, seen on an iPhone); «size gösteriyoruz.» are also tied together */
 @media (max-width: 520px) { .hb-box { margin-inline: 8px; } }
 /* the rows of book cards: their styles are in site.css (shared with the collection pages and the book pages, 17.11) */
 /* computer (17.11, her words): no small «Masallarımız» over the books; instead a gold arrow under the windows says «there is more below» */
@@ -441,7 +444,7 @@
   <div class="wrap hb-in">
   <div class="sec-head">
     <h2 id="hb-title">3 Fotoğraf ve İsim,<br><em>Onun Masalı</em> Hazır</h2>
-    <p class="lede">Gerisi bizde: kitabı yüzüyle resimliyor, adıyla yazıyoruz. Yaşını ve sevdiklerini de eklerseniz masal daha da kişisel olur. Hiçbir sayfa siz önizlemeyi onaylamadan&nbsp;basılmaz.</p>
+    <p class="lede">Gerisi bizde: kitabı yü&shy;züy&shy;le re&shy;sim&shy;li&shy;yor, adıy&shy;la ya&shy;zı&shy;yo&shy;ruz. Ya&shy;şı&shy;nı ve sev&shy;dik&shy;le&shy;ri&shy;ni de ek&shy;ler&shy;se&shy;niz ma&shy;sal daha da ki&shy;şi&shy;sel olur. Hiç&shy;bir say&shy;fa siz ön&shy;iz&shy;le&shy;me&shy;yi onay&shy;la&shy;ma&shy;dan&nbsp;ba&shy;sıl&shy;maz.</p>
   </div>
   <div id="home-grid" class="book-rows"></div>
   </div>
@@ -465,7 +468,7 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611171839" defer></script>
+<script src="site.js?v=202611171845" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
