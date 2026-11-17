@@ -1503,3 +1503,6 @@ body[data-page="urunler"] .page-head h1, .pr-pick h2 { background: linear-gradie
     linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
     radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; }
 }
+/* 17.11, her words «sadece sert kapak alanlara özel… bir privilege'miş gibi»: italic gold, between two small stars */
+.pr-only { display: inline-flex; align-items: center; gap: 8px; justify-self: center; margin-top: 4px; font: italic 500 var(--t-md)/1.2 var(--f-display); letter-spacing: .02em; color: var(--gold-pale); }
+.pr-only::before, .pr-only::after { content: "✦"; font-style: normal; font-size: .7em; color: var(--gold); }
