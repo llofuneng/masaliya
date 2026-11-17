@@ -1330,3 +1330,18 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
 .row-head a.row-ico { margin-left: 0; }
 .psy-strip h3 { white-space: nowrap; }   /* «Uzman Psikolog Onaylı» on one line (17.11) */
 @media (max-width: 359px) { .psy-strip h3 { font-size: 1.35rem; } }   /* the smallest phones: still one line */
+/* ---- 17.11, her choice: the WhatsApp button becomes a short burgundy swallowtail flag at the right edge, gold-edged like the ticker,
+   with WhatsApp's own logo in a fine gold ring and a gentle heartbeat; bottom right on every page, level with the seal on the home
+   page's first screen (it glides down to its corner as the visitor heads to the books) ---- */
+.wa { right: 0; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); border: 0; border-radius: 0; gap: 0; padding: 8px 11px 8px 23px;
+  background: linear-gradient(180deg, #7d2338, #561726); box-shadow: inset 0 1px 0 #d9b26b, inset 0 -1px 0 #b58a45, -6px 8px 18px -10px rgba(0,0,0,.7);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 13px 50%); -webkit-backdrop-filter: none; backdrop-filter: none;
+  transform: translateY(0); transition: transform .7s cubic-bezier(.45,.05,.25,1), translate .25s ease, opacity .25s; }
+.wa.wa-up { transform: translateY(var(--wa-lift, 0px)); }
+.wa.wa-still { transition: none; }
+.wa::after { display: none; }
+.wa svg { width: 32px; height: 32px; color: inherit; filter: drop-shadow(0 1px 2px rgba(0,0,0,.4)); animation: waBeat 3.6s ease-in-out infinite; transform-origin: 50% 50%; }
+@keyframes waBeat { 0%, 30%, 100% { transform: scale(1); } 8% { transform: scale(1.09); } 16% { transform: scale(1); } 22% { transform: scale(1.06); } }
+.wa:hover, .wa:focus-visible { background: linear-gradient(180deg, #8a2840, #61192b); transform: translateY(0); translate: -3px 0; outline: none; }
+.wa.wa-up:hover, .wa.wa-up:focus-visible { transform: translateY(var(--wa-lift, 0px)); }
+@media (prefers-reduced-motion: reduce) { .wa svg { animation: none; } .wa { transition: opacity .25s; } }
