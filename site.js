@@ -677,13 +677,25 @@ function renderChrome() {
 /* tale titles never run to a third line (16.11, her words «Masal isimleri 3 satır olmasın… her zaman 2 satıra sığdır»):
    a title that would take three lines gets a slightly smaller font, step by step, until it fits two */
 function fitTitles() {
-  document.querySelectorAll('.card.book h3, #p-title').forEach(h => {
-    h.style.fontSize = '';
-    if (!h.offsetParent) return;   // not on screen (hidden tab)
-    const lines = () => { const cs = getComputedStyle(h); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.1; return (h.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth)) / lh; };
-    let fs = parseFloat(getComputedStyle(h).fontSize), n = 0;
-    while (lines() > 2.5 && n++ < 40) { fs *= .96; h.style.fontSize = fs.toFixed(2) + 'px'; }   // 2.5: two lines plus rounding, a third line is 3
-  });
+  const lines = h => { const cs = getComputedStyle(h); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.1; return (h.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth)) / lh; };
+  // the largest size (from the CSS size down) at which the title keeps to `max` lines; 2.5 = two lines plus rounding, a third line is 3
+  const fit = (h, max) => { let fs = parseFloat(getComputedStyle(h).fontSize), n = 0; while (lines(h) > max && n++ < 40) { fs *= .96; h.style.fontSize = fs.toFixed(2) + 'px'; } return fs; };
+  // the book page title: as large as it can be in two lines
+  document.querySelectorAll('#p-title').forEach(h => { h.style.fontSize = ''; if (h.offsetParent) fit(h, 2.5); });
+  // the cards (17.11, her «hepsi aynı büyüklükte» and «A»): ONE size for every title on the page, as large as the titles allow in
+  // two lines; the single longest title, if it would have to be far smaller than the CSS size to stay in two lines (below 62 % of
+  // it: Kerem ve Dinozorların Doğum Günü), takes three lines at that size instead of making all the others small
+  const cards = [...document.querySelectorAll('.card.book h3')].filter(h => { h.style.fontSize = ''; return h.offsetParent; });
+  if (cards.length) {
+    const base = parseFloat(getComputedStyle(cards[0]).fontSize), floor = base * .62;
+    const fits = cards.map(h => { const f = fit(h, 2.5); h.style.fontSize = ''; return f; });
+    // only the one longest title may take a third line (and only when it would otherwise be far smaller): all the rest keep to two
+    const sorted = [...fits].sort((x, y) => x - y);
+    let S = sorted.length > 1 && sorted[0] < floor ? sorted[1] : sorted[0], n = 0;
+    const set = () => cards.forEach(h => { h.style.fontSize = S.toFixed(2) + 'px'; });
+    set();
+    while (cards.some(h => lines(h) > 3.5) && n++ < 20) { S *= .96; set(); }   // never more than three lines
+  }
   // phones (17.11): a card's summary keeps to three lines, so the cover reaches the button line; rather a slightly
   // smaller font than a cut sentence (down to 11.5 px; below that the line clamp cuts it)
   document.querySelectorAll('.card.book > p').forEach(p => {
@@ -699,13 +711,16 @@ if (document.fonts) document.fonts.ready.then(() => fitTitles());
 function card(p, withPrice = false) {
   const visual = `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
-  return `<a class="card${p.type === 'kitap' ? ' book' : ''}${p.aud ? ' aud-' + p.aud : ''}" href="${productHref(p)}">
+  // 17.11, her words «sadece İncele Sipariş ver butonu tıklanabilir olsun»: a card with the button is a plain frame and only the
+  // button is a link; a card without a button stays one link as before
+  const cta = p.status === 'hazir' && !p.book, tag = cta ? 'div' : 'a';
+  return `<${tag} class="card${p.type === 'kitap' ? ' book' : ''}${p.aud ? ' aud-' + p.aud : ''}"${cta ? '' : ` href="${productHref(p)}"`}>
     <div class="visual">${p.status === 'yakinda' ? '<span class="badge">Yakında</span>' : ''}${visual}</div>
     ${p.type === 'kitap' ? '' : `<div class="meta"><span>${kind}</span></div>`}
     <h3>${fullTitle(p)}${p.type !== 'kitap' && p.aud !== 'yetiskin' ? `<small class="t-kind">${TYPES[p.type].one}</small>` : ''}</h3>
     <p>${esc(p.short || p.desc)}</p>
-    ${p.status === 'hazir' && !p.book ? '<span class="btn card-cta">İncele<span class="cta-plus" aria-hidden="true">+</span>Sipariş ver</span>' : ''}
-  </a>`;
+    ${cta ? `<a class="btn card-cta" href="${productHref(p)}">İncele<span class="cta-plus" aria-hidden="true">+</span>Sipariş ver</a>` : ''}
+  </${tag}>`;
 }
 
 /* ---------- Collection page (kizlar / erkekler / yetiskinler) ---------- */

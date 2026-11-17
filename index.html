@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170314">
+<link rel="stylesheet" href="site.css?v=202611170330">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -390,7 +390,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170314" defer></script>
+<script src="site.js?v=202611170330" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -447,8 +447,7 @@ addEventListener('DOMContentLoaded', () => {
     // the fallback doors use the same artwork as the 3D heroes
     document.querySelectorAll('[data-hero-img]').forEach(img => {
       const h = HEROES[+img.dataset.heroImg];
-      img.src = img.dataset.plain = drawHeroCard(h).toDataURL();
-      if (!h.soon) img.dataset.picked = drawHeroCard(h, 512, 704, true).toDataURL();
+      img.src = img.dataset.plain = drawHeroCard(h).toDataURL();   // the light «picked» picture is drawn later, see pickedSrc
     });
     // the name curved along the inside of the arch, in capitals (17.11); the <b> under the window stays for screen readers only
     document.querySelectorAll('.lite .door').forEach((d, i) => {
@@ -476,13 +475,21 @@ addEventListener('DOMContentLoaded', () => {
       for (let y = 703; y > 300; y--) { let hit = false; for (let x = 0; x < 512; x++) if (d[(y * 512 + x) * 4 + 3] > 60) { hit = true; l = Math.min(l, x); r = Math.max(r, x); } if (hit) { foot = y; break; } }
       return (img._jl = { bg, fig, foot, cx: r > l ? (l + r) / 2 : 256 });
     };
-    (window.requestIdleCallback || (f => setTimeout(f, 1200)))(() => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach(jumpLayers));
+    // the light picture after a tap (17.11): drawn when first needed, not while the page opens
+    const pickedSrc = img => img.dataset.picked || (img.dataset.picked = drawHeroCard(HEROES[+img.dataset.heroImg], 512, 704, true).toDataURL());
+    // nothing of the tap is drawn while the page opens (17.11): after the page has loaded, one window at a time, when the browser is idle
+    // (iPhone Safari has no requestIdleCallback: a short timer instead); a tap before that draws it on the spot
+    const idle = window.requestIdleCallback ? f => requestIdleCallback(f, { timeout: 2500 }) : f => setTimeout(f, 60);
+    const prep = () => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach((img, i) => setTimeout(() => idle(() => { pickedSrc(img); idle(() => jumpLayers(img)); }), 900 + i * 500));
+    if (document.readyState === 'complete') prep(); else addEventListener('load', prep, { once: true });
     // two different jumps (17.11): [ms, width, height] keys for the squash and stretch, the time in the air, the height
     const JUMPS = {
       // the girl (17.11, her words «kızınki de erkeğinki gibi… ufak bir hareket»): the same calm rhythm as the boy, no twirl —
       // a soft crouch, a lighter, lower leap leaning toward her wand, the star on the wand twinkles with a few sparkles, a soft landing
-      'kizlar.html': { end: 820, keys: [[0, 1, 1], [150, 1.05, .91], [200, .95, 1.06], [330, 1, 1], [460, .97, 1.04], [520, 1.05, .93], [640, .99, 1.02], [820, 1, 1]],
-        air: [175, 495], high: 52, spin: 0, lean: .08, tip: [99, 38], gleam: '#d4607a', sparks: 5, ink: ['#c99640', '#d4607a', '#e9b44c'] },
+      'kizlar.html': { end: 900, keys: [[0, 1, 1], [180, 1.02, .97], [230, .98, 1.03], [330, 1, 1], [450, 1.03, .95], [500, .98, 1.03], [600, 1, 1], [720, 1.03, .95], [800, 1, 1], [900, 1, 1]],
+        hops: [[210, 450], [480, 720]], high: 24, pivot: -22, tiltKeys: [[0, 0], [190, -.12], [740, -.12], [900, 0]],
+        lift: { x0: 256, x1: 304, y0: 574, y1: 642, up: 22, kick: -.38 },   // her other leg (the wand side) bends up and back while she hops on one foot
+        tip: [99, 38], gleam: '#d4607a', gleams: [[260, 420], [530, 690]], sparks: 4, ink: ['#c99640', '#d4607a', '#e9b44c'] },
       // the boy: a deep crouch, a high, quick leap leaning toward his sword (a gleam at its tip), a firm landing with a puff of dust
       'erkekler.html': { end: 820, keys: [[0, 1, 1], [150, 1.08, .86], [200, .93, 1.1], [330, 1, 1], [460, .95, 1.08], [520, 1.1, .86], [640, .98, 1.03], [820, 1, 1]],
         air: [175, 495], high: 64, spin: 0, lean: .11, tip: [103, 29], dust: 8 }
@@ -494,33 +501,49 @@ addEventListener('DOMContentLoaded', () => {
       const J = JUMPS[href]; if (!J) return 0;
       const L = jumpLayers(img), c = document.createElement('canvas'); c.width = 512; c.height = 704; c.className = 'door-jump';
       art.insertBefore(c, img.nextSibling); const x = c.getContext('2d'), t0 = performance.now(), K = J.keys;
+      let O = null;   // the one-foot hop: the figure without the lifted leg, and the leg on its own
+      if (J.lift) { const F = J.lift, w = F.x1 - F.x0, hh = F.y1 - F.y0, leg = document.createElement('canvas'), body = document.createElement('canvas');
+        leg.width = w; leg.height = hh; leg.getContext('2d').drawImage(L.fig, F.x0, F.y0, w, hh, 0, 0, w, hh);
+        body.width = 512; body.height = 704; const bx = body.getContext('2d'); bx.drawImage(L.fig, 0, 0); bx.clearRect(F.x0, F.y0, w, hh);
+        O = { ...F, leg, body }; }
       const tipX = 256 - 60 * 3.15 + J.tip[0] * 3.15, tipY = 704 - 14 - 160 * 3.15 - 18 + J.tip[1] * 3.15;   // the wand or the sword tip, as drawHeroCard places the figure
       const sparks = Array.from({ length: J.sparks || 0 }, (_, i) => ({ at: 290 + i * 30, vx: (rnd() - .5) * 260, vy: -140 + rnd() * 120, r: 10 + rnd() * 9, col: J.ink[i % 3], life: 380 + rnd() * 140 }));
       const dust = Array.from({ length: J.dust || 0 }, (_, i) => ({ dir: i % 2 ? 1 : -1, v: 160 + rnd() * 220, up: 30 + rnd() * 70, r: 12 + rnd() * 10 }));
       const frame = now => {
         const t = Math.min(now - t0, J.end); let i = 0; while (i < K.length - 2 && t > K[i + 1][0]) i++;
         const [ta, wa, ha] = K[i], [tb, wb, hb] = K[i + 1], q = smooth(Math.min(1, Math.max(0, (t - ta) / (tb - ta))));
-        const p = (t - J.air[0]) / (J.air[1] - J.air[0]), inAir = p > 0 && p < 1;
-        const lift = inAir ? 4 * J.high * p * (1 - p) : 0;
+        let p = -1, lift = 0;
+        if (J.hops) J.hops.forEach(([a, b]) => { if (t > a && t < b) { p = (t - a) / (b - a); lift = 4 * J.high * p * (1 - p); } });   // small hops one after another
+        else { p = (t - J.air[0]) / (J.air[1] - J.air[0]); if (p > 0 && p < 1) lift = 4 * J.high * p * (1 - p); }
+        const inAir = p > 0 && p < 1;
         const turn = J.spin && inAir ? Math.cos(2 * Math.PI * smooth(p)) : 1;   // one twirl: the silhouette turns round once
         const sx = (wa + (wb - wa) * q) * turn, sy = ha + (hb - ha) * q;
-        const tilt = inAir ? (J.lean ? J.lean * Math.sin(Math.PI * p) : .035 * Math.sin(p * 2 * Math.PI)) : 0;
+        let tilt = inAir && J.lean ? J.lean * Math.sin(Math.PI * p) : 0;
+        if (J.tiltKeys) { const T = J.tiltKeys; let j = 0; while (j < T.length - 2 && t > T[j + 1][0]) j++; const u = smooth(Math.min(1, Math.max(0, (t - T[j][0]) / (T[j + 1][0] - T[j][0])))); tilt = T[j][1] + (T[j + 1][1] - T[j][1]) * u; }
+        const PX = L.cx + (J.pivot || 0);   // the foot she stands on (the middle of both feet for the boy)
         x.clearRect(0, 0, 512, 704); x.drawImage(L.bg, 0, 0);
         // a soft shadow under the feet, smaller while the child is in the air
         const sh = 1 - lift / J.high * .45; x.fillStyle = `rgba(110,70,30,${(.16 * sh).toFixed(3)})`;
-        x.beginPath(); x.ellipse(L.cx, L.foot - 2, 70 * sh, 5 * sh, 0, 0, 6.283); x.fill();
-        x.save(); x.translate(L.cx, L.foot - lift); x.rotate(tilt); x.scale(sx, sy); x.translate(-L.cx, -L.foot); x.drawImage(L.fig, 0, 0); x.restore();
+        x.beginPath(); x.ellipse(O ? PX : L.cx, L.foot - 2, (O ? 52 : 70) * sh, 5 * sh, 0, 0, 6.283); x.fill();
+        x.save(); x.translate(PX, L.foot - lift); x.rotate(tilt); x.scale(sx, sy); x.translate(-PX, -L.foot);
+        if (O) {   // the lifted leg goes behind the dress: first the leg, then the figure without it
+          const k = J.tiltKeys ? tilt / J.tiltKeys[1][1] : 1, ax = (O.x0 + O.x1) / 2;
+          x.save(); x.translate(ax, O.y0 - O.up * k); x.rotate(O.kick * k); x.drawImage(O.leg, O.x0 - ax, 0); x.restore();
+          x.drawImage(O.body, 0, 0);
+        } else x.drawImage(L.fig, 0, 0);
+        x.restore();
         // where the tip is now (the same moves as the figure)
-        const dx = (tipX - L.cx) * sx, dy = (tipY - L.foot) * sy, TX = L.cx + dx * Math.cos(tilt) - dy * Math.sin(tilt), TY = L.foot - lift + dx * Math.sin(tilt) + dy * Math.cos(tilt);
+        const dx = (tipX - PX) * sx, dy = (tipY - L.foot) * sy, TX = PX + dx * Math.cos(tilt) - dy * Math.sin(tilt), TY = L.foot - lift + dx * Math.sin(tilt) + dy * Math.cos(tilt);
         sparks.forEach(s => {
           if (t < s.at) return; if (s.x0 === undefined) { s.x0 = TX; s.y0 = TY; }
           const d = (t - s.at) / 1000, k = d * 1000 / s.life; if (k >= 1) return;
           x.globalAlpha = 1 - k; x.fillStyle = s.col; star(x, s.x0 + s.vx * d, s.y0 + s.vy * d + 900 * d * d, s.r * (1 - k * .5)); x.globalAlpha = 1;
         });
-        if (J.lean && t > 270 && t < 460) {   // the sword (gold) or the wand's star (rose) flashes at the top of the leap
-          const g = Math.sin(Math.PI * (t - 270) / 190); x.globalAlpha = g; x.fillStyle = J.gleam || '#d9a441'; star(x, TX, TY, 12 + 30 * g);
-          x.fillStyle = '#fff4d6'; star(x, TX, TY, 5 + 12 * g); x.globalAlpha = 1;
-        }
+        (J.gleams || (J.lean ? [[270, 460]] : [])).forEach(([a, b]) => {   // the sword (gold) or the wand's star (rose) flashes at the top
+          if (t <= a || t >= b) return;
+          const g = Math.sin(Math.PI * (t - a) / (b - a)); x.globalAlpha = g; x.fillStyle = J.gleam || '#d9a441'; star(x, TX, TY, J.gleams ? 10 + 26 * g : 12 + 30 * g);
+          x.fillStyle = '#fff4d6'; star(x, TX, TY, J.gleams ? 4 + 10 * g : 5 + 12 * g); x.globalAlpha = 1;
+        });
         if (J.dust && t > J.air[1] - 10) {   // a puff of dust where he lands
           const d = (t - J.air[1] + 10) / 1000, k = d / .32;
           if (k < 1) dust.forEach(u => {   // soft little clouds, not blots
@@ -535,9 +558,9 @@ addEventListener('DOMContentLoaded', () => {
     // a tap on a window (17.11): it lifts and turns light with the figure in its colour, then the collection opens
     document.querySelectorAll('.lite a.door').forEach(a => a.addEventListener('click', e => {
       const img = a.querySelector('img');
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button || !img || !img.dataset.picked) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button || !img || !img.dataset.heroImg || !img.dataset.plain || HEROES[+img.dataset.heroImg].soon) return;
       e.preventDefault(); if (a.classList.contains('picked')) return;
-      img.src = img.dataset.picked; a.classList.add('picked');
+      img.src = pickedSrc(img); a.classList.add('picked');
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
       const took = calm ? 0 : jump(img, a.querySelector('.door-art'), a.getAttribute('href'));
       setTimeout(() => { location.href = a.href; }, took ? took + 40 : 150);
