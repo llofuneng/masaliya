@@ -1184,3 +1184,6 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .p-price b { margin-left: 4px; font: 600 1.7em/1 var(--f-display); font-variant-numeric: lining-nums;
   background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 60%, #c4934a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }   /* the headline's gold */
 .p-price i { font-style: normal; color: var(--gold); }
+
+/* the book page on a phone (17.11): the story in two lines («Devamını oku» opens the rest), the title close to the top */
+@media (max-width: 720px) { .p-head .desc.clamp { -webkit-line-clamp: 2; } .p-head > h1:first-child { margin-top: 0; } }
