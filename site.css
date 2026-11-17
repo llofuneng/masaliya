@@ -1370,3 +1370,21 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
   transition: transform .9s cubic-bezier(.55,0,.35,1); }   /* her last words: over the books all the way in, sideways, the logo
    never squeezed; out again once the books panel has passed */
 .wa.wa-up:not(.wa-away) { transition: transform .8s cubic-bezier(.25,.8,.3,1), translate .25s ease, opacity .3s ease-out; }
+/* ---- 17.11, her words: «Diğer masallarımız» without the line above it, in the home page's headline style (gold-foil letters, the
+   display font); and the menu in the same style, so it is not plain any more ---- */
+hr.rule:has(+ .sec #related-head) { display: none; }
+#related-head h2, .menu nav > a:not(.menu-sub a) {
+  background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent; filter: drop-shadow(0 3px 12px rgba(0,0,0,.55)); }
+#related-head h2 { font-weight: 600; }
+/* the menu: the home page's warm burgundy glow and its fine gold double frame, the gold divider over the links */
+.menu { background: radial-gradient(120% 60% at 50% 0%, rgba(122,34,54,.42), transparent 62%), radial-gradient(100% 55% at 50% 100%, rgba(90,24,40,.32), transparent 70%), var(--ink); }
+.menu::before, .menu::after { content: ""; position: absolute; pointer-events: none; border: 1px solid rgba(226,181,107,.38); }
+.menu::before { inset: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(10px + env(safe-area-inset-bottom, 0px)); }
+.menu::after { inset: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); border-color: rgba(226,181,107,.16); }
+.menu nav::before { content: ""; display: block; width: min(200px, 60%); height: 12px; margin: 0 auto 14px; background:
+  linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
+  radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; justify-self: center; }
+.menu nav > a:not(.menu-sub a) { filter: none; }   /* a shadow drew faint boxes behind the gold letters on the dark menu */
+.menu .menu-sub a { font-style: italic; color: var(--gold-pale) !important; opacity: .85; }
+.menu nav > a:hover { opacity: .85; }
