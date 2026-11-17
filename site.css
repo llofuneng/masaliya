@@ -988,7 +988,8 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .psy-strip li { border: 1px solid var(--line-strong); border-radius: 999px; padding: 5px 12px; color: var(--gold-pale); font-size: var(--t-xs); }
 .psy-strip li::before { content: "✓ "; color: var(--gold); }
 .psy-strip.flash { animation: psyFlash 2.4s ease; }
-@keyframes psyFlash { 0%, 100% { box-shadow: none; border-color: var(--line-strong); } 25%, 55% { box-shadow: 0 0 0 2px var(--gold), 0 0 46px rgba(226,181,107,.45), inset 0 0 30px rgba(226,181,107,.12); border-color: var(--gold); } }
+/* 17.11, her words «biraz çok fazla parlıyor, birazcık kısalım»: a thin gold line and a faint halo instead of the thick ring and wide glow */
+@keyframes psyFlash { 0%, 100% { box-shadow: none; border-color: var(--line-strong); } 25%, 55% { box-shadow: 0 0 20px rgba(226,181,107,.18); border-color: rgba(226,181,107,.85); } }
 @media (max-width: 720px) { .psy-strip { flex-direction: column; text-align: center; margin: 28px 16px 0; padding: 20px 18px; gap: 14px; scroll-margin-top: 80px; }
   .psy-strip .psy-face { width: 76px; height: 76px; } .psy-strip h3 { font-size: var(--t-xl); margin-bottom: 18px; } .psy-strip ul { justify-content: center; }
   .psy-strip > div > p:not(.eyebrow) { text-align: justify; text-align-last: left; hyphens: auto; -webkit-hyphens: auto; margin-top: 4px; } }
