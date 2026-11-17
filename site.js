@@ -1318,7 +1318,7 @@ function renderProduct() {
         <h1 id="p-title">${fullTitle(p)}</h1>
         <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span><span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
         ${orderable && p.type === 'kitap' && PRICES.kitap.hard ? `<p class="p-price"><span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span>${PRICES.kitap.digital ? `<i aria-hidden="true">·</i><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span>` : ''}</p>` : ''}
-        ${p.type === 'kitap' ? `<div class="p-trust">${PSY_LINE}${orderable ? PROMISE : ''}</div>` : ''}
+        ${p.type === 'kitap' ? `<div class="p-trust">${PSY_LINE}</div>` : ''}   <!-- 17.11: the promise line taken out (her words) -->
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
       </div>
