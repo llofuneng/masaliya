@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170404">
+<link rel="stylesheet" href="site.css?v=202611170406">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -320,6 +320,7 @@
 .hb-box > .frame { inset: 0; z-index: 2; }
 .home-books .hb-in { --rp: clamp(14px, 4.5vw, 64px); position: relative; z-index: 1; max-width: none; padding: clamp(28px, 4vw, 52px) var(--rp) clamp(20px, 3vw, 34px); }
 .home-books .hb-in .sec-head { max-width: 860px; margin: 0 auto 4px; }
+.home-books .hb-in .lede { text-wrap: balance; }   /* no word left alone on the last line (17.11, her words, seen on an iPhone); «size gösteriyoruz.» are also tied together */
 @media (max-width: 520px) { .hb-box { margin-inline: 8px; } }
 /* the row titles read as sub-headings (17.11, her «sarı… ara başlık gibi daha belirgin»): larger, gold letters like the headline,
    a thin gold line runs from the title to «Tümü» */
@@ -436,7 +437,7 @@
   <div class="wrap hb-in">
   <div class="sec-head">
     <h2 id="hb-title">Fotoğrafını Gönderin,<br><em>Masalın Kahramanı</em> Olsun</h2>
-    <p class="lede">Sadece 3 fotoğrafı ve adı yeterli. Kitabı onun yüzü ve adıyla hazırlıyoruz. Dilerseniz siparişte onu birkaç kelimeyle anlatın: yaşı, saçı, en sevdiği şeyler. Basmadan önce bütün sayfaları size gösteriyoruz.</p>
+    <p class="lede">Sadece 3 fotoğrafı ve adı yeterli. Kitabı onun yüzü ve adıyla hazırlıyoruz. Dilerseniz siparişte onu birkaç kelimeyle anlatın: yaşı, saçı, en sevdiği şeyler. Basmadan önce bütün sayfaları size&nbsp;gösteriyoruz.</p>
   </div>
   <div id="home-grid" class="book-rows"></div>
   </div>
@@ -461,7 +462,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170404" defer></script>
+<script src="site.js?v=202611170406" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
