@@ -1430,3 +1430,50 @@ body[data-page="gizlilik"] .page-head h1 { background: linear-gradient(180deg, #
     linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
     radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; }
 }
+/* ---- 17.11, her words: «Ürünlerimiz» shows what Masaliya makes — the book (hard cover, digital), the wooden puzzle, the gift box —
+   in the home page's language: burgundy panels with the fine gold double frame, gold-foil titles, real pictures from the books ---- */
+.pr-sec .wrap { max-width: 1040px; display: grid; gap: clamp(22px, 3vw, 36px); }
+.pr-box { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(18px, 3vw, 40px); align-items: center;
+  padding: clamp(26px, 3.6vw, 46px) clamp(18px, 3.6vw, 46px);
+  background: radial-gradient(60% 320px at 50% 0%, rgba(255,196,128,.16), transparent 72%), radial-gradient(110% 55% at 50% 55%, rgba(150,42,62,.3), transparent 75%), linear-gradient(180deg, #561a28 0%, #44141f 55%, #4f1825 100%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 20px 60px -20px rgba(0,0,0,.8), inset 0 0 90px rgba(20,6,8,.45); }
+.pr-box::before, .pr-box::after { content: ""; position: absolute; pointer-events: none; inset: 8px; border: 1px solid rgba(226,181,107,.42); }
+.pr-box::after { inset: 13px; border-color: rgba(226,181,107,.16); }
+.pr-media { position: relative; display: grid; place-items: center; }
+.pr-book { min-height: clamp(220px, 32vw, 380px); }
+.pr-cover { position: absolute; width: 56%; height: auto; border-radius: 2px 6px 6px 2px; box-shadow: -2px 0 0 rgba(0,0,0,.25), 0 16px 34px rgba(0,0,0,.6); }
+.pr-c1 { left: 6%; top: 50%; translate: 0 -50%; rotate: -5deg; }
+.pr-c2 { right: 6%; top: 50%; translate: 0 -46%; rotate: 4deg; }
+.pr-puzzle { width: min(240px, 80%); height: auto; border-radius: 3px; box-shadow: 0 14px 30px rgba(0,0,0,.55); rotate: -2deg; }
+.pr-gift svg { width: min(190px, 70%); height: auto; filter: drop-shadow(0 14px 22px rgba(0,0,0,.5)); }
+.pr-text { display: grid; gap: 10px; align-content: center; }
+.pr-kicker { margin: 0; font: 500 var(--t-xs)/1 var(--f-body); letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
+.pr-text h2 { margin: 0; font: 600 var(--t-2xl)/1.08 var(--f-display); background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 60%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.pr-text p { margin: 0; color: rgba(246,236,220,.86); font-size: var(--t-md); line-height: 1.6; }
+.pr-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.pr-opt { display: grid; gap: 3px; padding: 14px 14px 12px; border: 1px solid rgba(226,181,107,.45); background: rgba(20,6,10,.28); }
+.pr-opt b { font: 600 var(--t-lg)/1.1 var(--f-display); color: var(--cream); }
+.pr-opt span, .pr-price span { font: 600 var(--t-xl)/1.1 var(--f-display); color: var(--gold-pale); }
+.pr-opt small, .pr-price small { color: var(--muted); font-size: var(--t-xs); line-height: 1.45; }
+.pr-price { display: grid; gap: 2px; margin-top: 4px !important; }
+.pr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; color: rgba(246,236,220,.86); font-size: var(--t-md); }
+.pr-list li::before { content: "✦ "; color: var(--gold); }
+.pr-spread { margin: 0; display: grid; gap: 10px; }
+.pr-spread img { width: 100%; height: auto; box-shadow: 0 0 0 1px rgba(226,181,107,.45), 0 20px 50px -18px rgba(0,0,0,.8); }
+.pr-spread figcaption { text-align: center; color: var(--muted); font-size: var(--t-sm); font-style: italic; }
+.pr-pair { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(18px, 3vw, 36px); }
+.pr-small { grid-template-columns: 1fr; text-align: center; align-content: start; }
+.pr-small .pr-text { justify-items: center; }
+.pr-small .pr-media { min-height: 200px; }
+.pr-ship { margin: 0; text-align: center; color: var(--gold-pale); font-size: var(--t-sm); letter-spacing: .04em; }
+.pr-pick { padding-top: 0; }
+@media (max-width: 760px) {
+  .pr-box { grid-template-columns: 1fr; text-align: center; }
+  .pr-text { justify-items: center; }
+  .pr-pair { grid-template-columns: 1fr; }
+  .pr-opts { text-align: left; width: 100%; }
+}
+@media (max-width: 380px) { .pr-opts { grid-template-columns: 1fr; } }
+body[data-page="urunler"] .page-head h1, .pr-pick h2 { background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.pr-cover { width: 52%; } .pr-c1 { left: 2%; } .pr-c2 { right: 2%; }
+@media (max-width: 760px) { .pr-pick .choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 420px; margin-inline: auto; } }
