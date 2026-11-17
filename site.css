@@ -987,7 +987,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .psy-strip ul { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .psy-strip li { border: 1px solid var(--line-strong); border-radius: 999px; padding: 5px 12px; color: var(--gold-pale); font-size: var(--t-xs); }
 .psy-strip li::before { content: "✓ "; color: var(--gold); }
-.psy-strip.flash { animation: psyFlash 2.4s ease; }
+.psy-strip.flash { animation: psyFlash 1.6s ease; }   /* 17.11: 2.4 → 1.6 s */
 /* 17.11, her words «biraz çok fazla parlıyor, birazcık kısalım»: a thin gold line and a faint halo instead of the thick ring and wide glow */
 @keyframes psyFlash { 0%, 100% { box-shadow: none; border-color: var(--line-strong); } 25%, 55% { box-shadow: 0 0 20px rgba(226,181,107,.18); border-color: rgba(226,181,107,.85); } }
 @media (max-width: 720px) { .psy-strip { flex-direction: column; text-align: center; margin: 28px 16px 0; padding: 20px 18px; gap: 14px; scroll-margin-top: 80px; }
