@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611171711">
+<link rel="stylesheet" href="site.css?v=202611171716">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -345,6 +345,13 @@
 }
 @keyframes sdBob { 50% { transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { .scroll-down { animation: none !important; } }
+/* 17.11, her words «Bugün kimin masalını yazalım'ı ana sayfadan atalım… kız çocukları, erkek çocukları onları büyütelim, bir tık yukarı»:
+   no question; the empty row between the headline and the windows closed, the windows larger */
+.lite .intro { grid-template-rows: auto minmax(14px, 1fr) auto minmax(22px, 1.2fr) 0 0 auto minmax(22px, 1fr); }
+@media (max-width: 560px) {
+  .lite .intro { grid-template-rows: auto minmax(8px, .8fr) auto minmax(18px, 1fr) 0 0 auto minmax(16px, .6fr); }
+  .lite .intro { --dw: min(calc((100vw - 44px) * .45), max(110px, calc((100svh - 400px) * .82))); }
+}
 </style>
 
 </head>
@@ -389,7 +396,6 @@
       <h1 class="word">MASALİYA</h1>
     </div>
     <canvas class="fairy-dust" aria-hidden="true"></canvas>
-    <p class="doors-q">Bugün kimin masalını yazalım?</p>
     <nav class="doors" id="doors" aria-label="Koleksiyonlar">
       <a class="door" href="kizlar.html"><span class="door-art"><img alt="" width="512" height="704" data-hero-img="0"><i class="door-shine" aria-hidden="true"></i></span><b>Kız Çocukları</b></a>
       <a class="door" href="erkekler.html"><span class="door-art"><img alt="" width="512" height="704" data-hero-img="1"><i class="door-shine" aria-hidden="true"></i></span><b>Erkek Çocukları</b></a>
@@ -444,7 +450,7 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611171711" defer></script>
+<script src="site.js?v=202611171716" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {

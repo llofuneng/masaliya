@@ -1259,3 +1259,9 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .p-trust .p-promise { display: block; margin: 0; padding-left: 32px; font: 400 var(--t-sm)/1.35 var(--f-body); color: var(--muted); white-space: nowrap; }
 /* the title closer to the page thumbnails on a phone */
 @media (max-width: 860px) { .product { row-gap: 14px; } }
+
+/* the WhatsApp button a little smaller, its ring calmer (17.11) */
+.wa { padding: 9px; box-shadow: 0 8px 20px -6px rgba(0,0,0,.55), 0 0 0 3px rgba(37,211,102,.14); }
+.wa svg { width: 34px; height: 34px; }
+.wa::after { inset: -4px; border-width: 1.5px; border-color: rgba(37,211,102,.4); animation-duration: 3.6s; }
+@keyframes waPulse { from { transform: scale(.94); opacity: .8; } to { transform: scale(1.18); opacity: 0; } }
