@@ -100,6 +100,8 @@ const WHATSAPP = '905306233782';
 // what every book order comes with, shown on the book page at once and again by the order buttons
 // the psychologist's approval on every book page (16.11)
 const PSY_OK = `<div class="psy-ok"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24.00,1.00L27.51,4.11L31.87,2.39L34.10,6.51L38.78,6.38L39.47,11.02L43.92,12.50L42.98,17.09L46.65,20.01L44.20,24.00L46.65,27.99L42.98,30.91L43.92,35.50L39.47,36.98L38.78,41.62L34.10,41.49L31.87,45.61L27.51,43.89L24.00,47.00L20.49,43.89L16.13,45.61L13.90,41.49L9.22,41.62L8.53,36.98L4.08,35.50L5.02,30.91L1.35,27.99L3.80,24.00L1.35,20.01L5.02,17.09L4.08,12.50L8.53,11.02L9.22,6.38L13.90,6.51L16.13,2.39L20.49,4.11L24.00,1.00Z" fill="#e2b56b"/><circle cx="24" cy="24" r="16.5" fill="#6b1d2a"/><circle cx="24" cy="24" r="14.3" fill="none" stroke="#e2b56b" stroke-width=".9" opacity=".8"/> <path d="M17.5 24.3 L22 28.8 L30.8 19.4" fill="none" stroke="#f4dfb3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><p><b>Uzman Psikolog Şeyda Kaplanoğlu</b> tarafından onaylandı.</p></div>`;
+// 17.11: the psychologist's approval as one small line under the price (trust at first glance, without pushing the form down)
+const PSY_LINE = `<p class="p-psy"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24.00,1.00L27.51,4.11L31.87,2.39L34.10,6.51L38.78,6.38L39.47,11.02L43.92,12.50L42.98,17.09L46.65,20.01L44.20,24.00L46.65,27.99L42.98,30.91L43.92,35.50L39.47,36.98L38.78,41.62L34.10,41.49L31.87,45.61L27.51,43.89L24.00,47.00L20.49,43.89L16.13,45.61L13.90,41.49L9.22,41.62L8.53,36.98L4.08,35.50L5.02,30.91L1.35,27.99L3.80,24.00L1.35,20.01L5.02,17.09L4.08,12.50L8.53,11.02L9.22,6.38L13.90,6.51L16.13,2.39L20.49,4.11L24.00,1.00Z" fill="#e2b56b"/><circle cx="24" cy="24" r="16.5" fill="#6b1d2a"/><circle cx="24" cy="24" r="14.3" fill="none" stroke="#e2b56b" stroke-width=".9" opacity=".8"/> <path d="M17.5 24.3 L22 28.8 L30.8 19.4" fill="none" stroke="#f4dfb3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Uzman Psikolog <b>Şeyda Kaplanoğlu</b> onaylı masal</span></p>`;
 // 17.11, her words «o iki ifadeyi tek cümlede yazalım»: the preview and the corrections in one line
 const PROMISE = `<ul class="promise"><li>Baskıdan önce bütün sayfaları görüp onaylarsınız, gerekirse düzeltme yaparız</li><li>Ücretsiz kargo</li></ul>`;
 // simple acceptance marks for the cards Stripe takes
@@ -984,7 +986,7 @@ function renderCart() {
       </ul>
       <form class="panel cart-pay" id="pay">
         ${deal}
-        <div class="total"><span>Toplam <small>${items.length} kitap · Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
+        <div class="total"><span>Toplam <small>${items.length} kitap · Türkiye içi kargo ücretsiz</small></span><strong>${fmt(total)}</strong></div>
         <div class="promo" id="promo-box">${promo   /* small, under the price (17.11, her «под ценой небольшое поле… совсем маленькое») */
           ? `<p class="promo-on">Promosyon kodu <b>${esc(promo.code)}</b> · −${fmt(promo.off)} <button type="button" class="promo-x" id="promo-x">Kaldır</button></p>`
           : `<div class="promo-row"><input id="c-promo" aria-label="Promosyon kodu" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="Promosyon kodu"><button type="button" class="promo-apply" id="promo-apply">Uygula</button></div>`}
@@ -1234,9 +1236,8 @@ function renderProduct() {
             ${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}
           </div>
           <ul class="slot-msgs" id="slot-msgs" aria-live="polite"></ul>
-          <span class="slot-hint">Yüzün net göründüğü, yakından çekilmiş 3 fotoğraf seçin: önden, biraz yandan ve gülümserken. Fotoğrafları seçtiğiniz anda cihazınızda kontrol ediyoruz; uygun olmayanları size söyleriz. Fotoğraflar yalnızca bu kitap için kullanılır.</span>
+          <span class="slot-hint">Yüzü net görünen, yakın çekim 3 fotoğraf. Uygun olmayanı hemen söyleriz.</span>
         </div>
-        ${p.type === 'kitap' ? PSY_OK : ''}   <!-- 17.11, her words: the psychologist's approval down by the options -->
         <span class="step">4 · Seçenekler</span>
         ${options}
         ${p.type === 'kitap' ? `
@@ -1260,7 +1261,7 @@ function renderProduct() {
           <span class="gift-price">${GIFT_BOX_PRICE ? '+ ' + fmt(GIFT_BOX_PRICE) : 'Fiyat yakında'}</span>
         </label>
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
-        <div class="total"><span>Toplam <small>Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
+        <div class="total"><span>Toplam <small>Türkiye içi kargo ücretsiz</small></span><strong id="total"></strong></div>
         ${p.type === 'kitap' ? `<div id="eta-hard">${ETA()}</div><p class="eta" id="eta-digital" hidden>Dijital kitap: <b>3 iş günü içinde</b> e-postanıza gelir<small>Önizlemeyi onayladığınızda PDF hemen gönderilir</small></p>` : ''}
         <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenmesine ve aktarılmasına açık rıza veriyorum.</span></label>
         ${p.type === 'kitap' ? PROMISE : ''}   <!-- 17.11: the two promises right where the order is placed -->
@@ -1318,6 +1319,7 @@ function renderProduct() {
         <h1 id="p-title">${fullTitle(p)}</h1>
         <div class="meta"><span>${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one}</span><span>${p.status === 'hazir' ? (p.type === 'kitap' ? '21 × 28 cm' : 'A4') : 'Yakında'}</span></div>
         ${orderable && p.type === 'kitap' && PRICES.kitap.hard ? `<p class="p-price"><span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span>${PRICES.kitap.digital ? `<i aria-hidden="true">·</i><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span>` : ''}</p>` : ''}
+        ${p.type === 'kitap' ? PSY_LINE : ''}
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
       </div>
@@ -1400,7 +1402,8 @@ function renderProduct() {
       const base = c ? +c.dataset.price : singlePrice;
       if (!c && formats.length) {
         // nothing chosen yet: the gift box and puzzle add to the hard cover's price once it is chosen
-        const sel = 'Seçim yapın'; t.textContent = sel; const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = sel; return;
+        // 17.11, her words «Toplam, seçim yapın… anlaşılmıyor»: say what to do, quietly, instead of a big «Seçim yapın» where the price goes
+        t.innerHTML = '<span class="total-wait">Önce Sert Kapak ya da Dijital seçin</span>'; const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = '—'; return;
       }
       if (!base) { t.textContent = 'Fiyat yakında'; const bt = document.getElementById('buybar-total'); if (bt) bt.textContent = 'Fiyat yakında'; return; }
       let sum = base;
