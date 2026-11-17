@@ -897,7 +897,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 /* Campaign: the second hardcover book for less */
 /* home: a gold line running along the top of the first screen */
 .deal-run { position: absolute; top: 0; left: 0; right: 0; z-index: 6; height: 34px; display: flex; align-items: center; overflow: hidden; background: var(--burgundy); color: var(--gold-pale); text-decoration: none; font: 500 var(--t-xs)/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
-.deal-track { display: flex; width: max-content; animation: dealRun 48s linear infinite; }   /* 17.11: a little slower (36 → 48 s) */
+.deal-track { display: flex; width: max-content; animation: dealRun 64s linear infinite; }   /* 17.11: slower (36 → 48 s), then her words «%25 yavaşlat» (48 → 64 s, 25 % slower) */
 .deal-track span, .deal-track i { padding: 0 14px; }
 .deal-track b { font-weight: 600; color: #fff3d6; }
 .deal-track i { display: inline-flex; align-items: center; color: var(--gold); }
