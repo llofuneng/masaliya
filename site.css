@@ -1366,6 +1366,7 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
    the page any more — where it stands, beside the seal, it is drawn into the right edge, whole, like a flag pulled in through
    a slot; back at the top it comes out of the edge again */
 .wa.wa-up { transform-origin: 100% 50%; }
-.wa.wa-up.wa-away, .wa.wa-up.wa-away:hover { transform: translateY(var(--wa-lift, 0px)) translateX(104%); opacity: 1;
-  transition: transform .9s cubic-bezier(.55,0,.35,1); }   /* drawn into the edge whole, the logo never squeezed */
+.wa.wa-up.wa-away, .wa.wa-up.wa-away:hover { transform: translateY(var(--wa-lift, 0px)) translateX(calc(100% - 39px)); opacity: 1; pointer-events: auto;
+  transition: transform .9s cubic-bezier(.55,0,.35,1); }   /* her words «yok olmasın… logonun yarısını göreceğimiz şekilde»: drawn in
+   sideways until half the WhatsApp logo shows at the edge, still a tap away; the logo never squeezed */
 .wa.wa-up:not(.wa-away) { transition: transform .8s cubic-bezier(.25,.8,.3,1), translate .25s ease, opacity .3s ease-out; }
