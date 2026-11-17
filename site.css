@@ -1345,3 +1345,5 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
 .wa:hover, .wa:focus-visible { background: linear-gradient(180deg, #8a2840, #61192b); transform: translateY(0); translate: -3px 0; outline: none; }
 .wa.wa-up:hover, .wa.wa-up:focus-visible { transform: translateY(var(--wa-lift, 0px)); }
 @media (prefers-reduced-motion: reduce) { .wa svg { animation: none; } .wa { transition: opacity .25s; } }
+/* 17.11, her words «Desktop'a koymayalım»: no floating WhatsApp flag on a computer; the footer's WhatsApp link stays */
+@media (min-width: 1001px) and (hover: hover) and (pointer: fine) { .wa { display: none !important; } }
