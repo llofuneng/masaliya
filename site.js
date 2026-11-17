@@ -1090,7 +1090,6 @@ function renderProduct() {
         </div>
         <div class="viewer-bar"><span class="counter" id="counter" aria-live="polite"></span><button class="zoom" id="zoom" type="button" aria-label="Büyüt"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.3 15.3 21 21M10.5 7.8v5.4M7.8 10.5h5.4"/></svg>Büyüt</button></div>
         <div class="vthumbs${p.spreads ? '' : ' portrait'}" id="vthumbs" aria-label="Bütün sayfalar"></div>
-        <p class="sample-note">Sizin kitabınızda kahramanın yüzü ve adı her sayfada yer alır.</p>
       </section>` : '';
     // what is in it, and when it arrives if ordered today
     const content = p.spreads ? `${p.spreads.length * 2} iç sayfa ve kapak`
