@@ -1236,6 +1236,7 @@ function renderProduct() {
           <ul class="slot-msgs" id="slot-msgs" aria-live="polite"></ul>
           <span class="slot-hint">Yüzün net göründüğü, yakından çekilmiş 3 fotoğraf seçin: önden, biraz yandan ve gülümserken. Fotoğrafları seçtiğiniz anda cihazınızda kontrol ediyoruz; uygun olmayanları size söyleriz. Fotoğraflar yalnızca bu kitap için kullanılır.</span>
         </div>
+        ${p.type === 'kitap' ? PSY_OK : ''}   <!-- 17.11, her words: the psychologist's approval down by the options -->
         <span class="step">4 · Seçenekler</span>
         ${options}
         ${p.type === 'kitap' ? `
@@ -1262,6 +1263,7 @@ function renderProduct() {
         <div class="total"><span>Toplam <small>Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong id="total"></strong></div>
         ${p.type === 'kitap' ? `<div id="eta-hard">${ETA()}</div><p class="eta" id="eta-digital" hidden>Dijital kitap: <b>3 iş günü içinde</b> e-postanıza gelir<small>Önizlemeyi onayladığınızda PDF hemen gönderilir</small></p>` : ''}
         <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenmesine ve aktarılmasına açık rıza veriyorum.</span></label>
+        ${p.type === 'kitap' ? PROMISE : ''}   <!-- 17.11: the two promises right where the order is placed -->
         <div class="buy-actions">
           <button class="btn ghost" type="submit" value="sepet" id="cart-btn">Sepete ekle</button>
           <button class="btn" type="submit" value="ode" id="pay-btn">Ödemeye geç</button>
@@ -1318,8 +1320,6 @@ function renderProduct() {
         ${orderable && p.type === 'kitap' && PRICES.kitap.hard ? `<p class="p-price"><span>Sert Kapak <b>${fmt(PRICES.kitap.hard)}</b></span>${PRICES.kitap.digital ? `<i aria-hidden="true">·</i><span>Dijital <b>${fmt(PRICES.kitap.digital)}</b></span>` : ''}</p>` : ''}
         <p class="desc clamp" id="p-desc">${esc(p.desc)}</p>
         <button type="button" class="more" id="desc-more" hidden>Devamını oku</button>
-        ${p.type === 'kitap' ? PSY_OK : ''}
-        ${orderable && p.type === 'kitap' ? PROMISE : ''}
       </div>
 
       <div class="p-buy info">

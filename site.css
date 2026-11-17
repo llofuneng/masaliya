@@ -1187,3 +1187,8 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 
 /* the book page on a phone (17.11): the story in two lines («Devamını oku» opens the rest), the title close to the top */
 @media (max-width: 720px) { .p-head .desc.clamp { -webkit-line-clamp: 2; } .p-head > h1:first-child { margin-top: 0; } }
+
+/* «Devamını oku» at the right under the story (17.11, her words «paragrafın sağ altında»), the form starting right after it */
+.p-head .more { justify-self: end; }
+.p-buy .psy-ok { margin: 4px 0 2px; }
+.p-buy .promise { margin: 0; }
