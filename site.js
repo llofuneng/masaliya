@@ -1681,7 +1681,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 17.11: two swipe rows, «Kız Çocukları İçin» and «Erkek Çocukları İçin» (the order of the windows on the first screen),
       // each with «Tümü (n) ›» to its collection; dots under a row, gold arrows on a computer
       const rows = Object.entries(AUDIENCES).filter(([, a]) => !a.hidden).map(([k, a]) => [a, all.filter(p => p.aud === k), k]).filter(([, l]) => l.length);
-      g.innerHTML = rows.map(([a, list, k]) => `<div class="row-head" data-aud="${k}"><a class="row-ico" href="${a.page}" aria-label="${a.name}: bütün masallar"></a><h3>${a.name.replace(/ları$|leri$/, m => m + 'na')} Özel</h3><i class="row-line" aria-hidden="true"></i><a href="${a.page}">Tümü (${list.length}) ›</a></div>
+      g.innerHTML = rows.map(([a, list, k]) => `<div class="row-head" data-aud="${k}"><a class="row-ico" href="${a.page}" aria-label="${a.name}: bütün masallar"></a><h3>${a.name.replace(/ları$|leri$/, m => m + 'na')} Özel Masallar</h3><i class="row-line" aria-hidden="true"></i><a href="${a.page}">Tümü (${list.length}) ›</a></div>
         ${rowHTML(list, a.name + ' masalları')}`).join('');
       // 17.11: each card's ground is its own cover (a small copy), blurred; the titles in hand-made small capitals; the window medallions
       litCards(g);
