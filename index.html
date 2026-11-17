@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611172206">
+<link rel="stylesheet" href="site.css?v=202611172210">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -393,7 +393,11 @@
   .psy-seal { position: relative; top: auto; left: auto; width: clamp(80px, 10.5svh, 112px); height: clamp(80px, 10.5svh, 112px); margin: 8px auto 0; }
   .lite .after-copy { max-width: min(760px, 70vw); }
   .lite .after-copy .ac-title { font-size: clamp(2.1rem, .8rem + 3.3svh, 3.2rem); }
-  .lite .intro { --dw: min(30vw, 420px, max(150px, calc((66.7svh - 215px) / 1.523))); padding-bottom: 66px; }   /* room under the windows for «Masallarımız» */
+  .lite .intro { --dw: min(32vw, 460px, max(150px, calc((72svh - 215px) / 1.523))); padding-bottom: 66px; }   /* 17.11: larger windows, the logo and slogan smaller */
+  .lockup { gap: 7px; } .lockup svg { width: clamp(40px, 3.3vw, 48px); height: clamp(40px, 3.3vw, 48px); } .lockup span { font-size: clamp(.9rem, .8rem + .25vw, 1.02rem); }
+  .intro-top { padding-block: 24px 0; } .deal-on .intro-top { padding-top: 54px; }
+  .lite .after-copy .ac-title { font-size: clamp(1.8rem, .7rem + 2.7svh, 2.6rem); }
+  .psy-seal { width: clamp(72px, 9svh, 96px); height: clamp(72px, 9svh, 96px); margin-top: 6px; }   /* room under the windows for «Masallarımız» */
   .lite .scroll-down { width: auto; height: auto; margin: 0; left: 50%; translate: -50% 0; bottom: 28px; padding: 6px 4px; border: 0; border-radius: 0; background: none; box-shadow: none; animation: none;
     display: flex; align-items: center; gap: 14px; font: 500 var(--t-md)/1.35 var(--f-body); letter-spacing: .3em; text-transform: uppercase; color: var(--gold-pale); }
   .lite .scroll-down::before, .lite .scroll-down::after { content: ""; width: 9px; height: 9px; margin-top: -6px; border-right: 2px solid var(--gold); border-bottom: 2px solid var(--gold); transform: rotate(45deg); animation: sdNod 1.8s ease-in-out infinite; }
@@ -499,7 +503,7 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611172206" defer></script>
+<script src="site.js?v=202611172210" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 // the windows' drawing size: 512 wide, DOOR.H tall, the figure at scale DOOR.k (17.11, her «pencereleri yukarı uzatıp karakterleri büyütmek»)
