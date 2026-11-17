@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611172036">
+<link rel="stylesheet" href="site.css?v=202611172039">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -484,7 +484,7 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611172036" defer></script>
+<script src="site.js?v=202611172039" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 // the windows' drawing size: 512 wide, DOOR.H tall, the figure at scale DOOR.k (17.11, her «pencereleri yukarı uzatıp karakterleri büyütmek»)
@@ -620,14 +620,16 @@ addEventListener('DOMContentLoaded', () => {
     const prep = () => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach((img, i) => setTimeout(() => idle(() => { prepPicked(img); idle(() => jumpLayers(img)); }), 900 + i * 500));
     if (document.readyState === 'complete') prep(); else addEventListener('load', prep, { once: true });
     // two different jumps (17.11): [ms, width, height] keys for the squash and stretch, the time in the air, the height
-    // 17.11, her choice: the tap's answer in 0.2 s, no longer a little show that keeps the visitor waiting — the window is pressed
-    // in and turns light, the child gives one small quick hop (a squash, up a few pixels, down), the wand's star or the sword's tip
-    // flashes once; meanwhile the collection page is already loading (see the prefetch below)
+    // 17.11, her words «çok kısa olmuş… arasında bir şey»: between the first show (0.8 s) and the 0.2 s answer — about 0.45 s: the
+    // girl's one hop on one foot (her other leg bent up and back, the wand's star flashing), the boy's crouch and leap (the sword's tip
+    // flashing); the collection page is already loading meanwhile (see the prefetch below)
     const JUMPS = {
-      'kizlar.html': { end: 200, keys: [[0, 1, 1], [45, 1.05, .93], [110, .97, 1.05], [200, 1, 1]], air: [45, 165], high: 34,
-        tip: [99, 38], gleam: '#d4607a', gleams: [[30, 200]] },
-      'erkekler.html': { end: 200, keys: [[0, 1, 1], [45, 1.06, .92], [110, .97, 1.05], [200, 1, 1]], air: [45, 165], high: 36,
-        tip: [103, 29], gleams: [[30, 200]] }
+      'kizlar.html': { end: 450, keys: [[0, 1, 1], [90, 1.03, .95], [130, .98, 1.03], [260, 1, 1], [360, 1.03, .95], [410, 1, 1], [450, 1, 1]],
+        hops: [[120, 360]], high: 26, pivot: -7, tiltKeys: [[0, 0], [100, -.12], [380, -.12], [450, 0]],
+        lift: { u0: 60, u1: 75.2, v0: 128.9, v1: 150.5, up: 7, kick: -.38 },
+        tip: [99, 38], gleam: '#d4607a', gleams: [[160, 340]] },
+      'erkekler.html': { end: 450, keys: [[0, 1, 1], [80, 1.07, .88], [120, .94, 1.08], [220, 1, 1], [330, .96, 1.06], [370, 1.08, .9], [450, 1, 1]],
+        air: [110, 350], high: 46, lean: .11, tip: [103, 29], gleams: [[170, 330]] }
     };
     const smooth = t => t * t * (3 - 2 * t);
     const star = (x, X, Y, r) => { x.beginPath(); x.moveTo(X, Y - r); x.quadraticCurveTo(X, Y, X + r, Y); x.quadraticCurveTo(X, Y, X, Y + r); x.quadraticCurveTo(X, Y, X - r, Y); x.quadraticCurveTo(X, Y, X, Y - r); x.fill(); };
