@@ -1315,3 +1315,5 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
 .slot[data-state="checking"] .slot-img img { opacity: .75; }
 @media (prefers-reduced-motion: reduce) { .slot-img img { animation: none; } }
 .slot-hint[hidden] { display: none; }
+/* 17.11: the new labels (Karşıdan bakış · Yandan bakış · Gülen yüz) stay on one line on phones — a touch tighter there */
+@media (max-width: 560px) { .slot b { letter-spacing: .01em; padding-left: 2px; padding-right: 2px; } }
