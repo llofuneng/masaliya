@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611171851">
+<link rel="stylesheet" href="site.css?v=202611171857">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -327,6 +327,9 @@
    the edge of the third, on a computer five and gold arrows ---- */
 .home-books .hb-label { margin-bottom: 14px; }
 .home-books a.hb-go { text-decoration: none; -webkit-tap-highlight-color: transparent; }
+/* 17.11, her screenshot (iPhone, Chrome): the red books panel's top edge peeked in under «Masallarımız» — on a phone it now starts
+   further down, so the first screen ends on the dark band only, on every phone and browser */
+@media (max-width: 720px) { .home-books .hb-label { margin-bottom: 34px; } }
 @media (max-width: 720px) { .home-books a.hb-go { padding-block: 6px; margin-block: -6px; } }
 /* the panel carries on the first screen's energy (17.11, her «soluk… enerji düşüyor», then «biraz karanlık duruyor. Ana sayfa kırmızı
    güzel»): the brand burgundy of the ticker as the ground, a warm golden light behind the heading, a richer red in the middle; the dark
@@ -480,7 +483,7 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611171851" defer></script>
+<script src="site.js?v=202611171857" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
