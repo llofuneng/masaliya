@@ -629,7 +629,9 @@ function renderChrome() {
         <button class="menu-btn" type="button" data-open-menu>Menü</button>
       </div>
     </div>`;
-    // WhatsApp concierge, always at hand on inner pages
+  }
+  // WhatsApp concierge, always at hand, on the home page too (17.11, her «ana sayfaya da bu ikonu koyacağız»)
+  {
     const wa = document.createElement('a');
     wa.className = 'wa'; wa.href = waLink(); wa.target = WHATSAPP ? '_blank' : ''; wa.rel = 'noopener';
     wa.setAttribute('aria-label', 'WhatsApp’tan danışmanınıza yazın'); wa.title = 'WhatsApp’tan danışmanınıza yazın';
