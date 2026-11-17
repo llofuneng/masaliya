@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611171531">
+<link rel="stylesheet" href="site.css?v=202611171535">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -285,7 +285,7 @@
 .lite .door { gap: 0; }
 .lite .door b { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .lite .door .door-arc { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; overflow: visible; }
-.lite .door .door-arc text { font-family: var(--f-body); font-weight: 600; letter-spacing: 3px; stroke: rgba(0,0,0,.55); stroke-width: 4px; paint-order: stroke; }   /* her choice «B. Jost kalın»: Jost 600 like the ring of the seal, gold gradient (fill set by the script), a dark edge */
+.lite .door .door-arc text { font-family: var(--f-body); font-weight: 600; stroke: rgba(0,0,0,.55); stroke-width: 4px; paint-order: stroke; }   /* her choice «B. Jost kalın»: Jost 600 like the ring of the seal, gold gradient (fill set by the script), a dark edge */
 .lite a.door.picked .door-arc text { fill: #6b1d2a; stroke: rgba(255,250,240,.75); }   /* on the light window after a tap: the name in the window's colour */
 .lite a.door[href="erkekler.html"].picked .door-arc text { fill: #1c2550; }
 .lite .door.soon .door-arc text { opacity: .38; }   /* closed: the name dimmer too */
@@ -445,7 +445,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611171531" defer></script>
+<script src="site.js?v=202611171535" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -507,25 +507,38 @@ addEventListener('DOMContentLoaded', () => {
       const cv = drawHeroCard(h);
       if (cv.toBlob) cv.toBlob(b => { img.src = img.dataset.plain = URL.createObjectURL(b); }); else img.src = img.dataset.plain = cv.toDataURL();
     });
-    // the name curved along the inside of the arch, in capitals (17.11); the <b> under the window stays for screen readers only
+    // the name curved along the inside of the arch, in capitals (17.11); the <b> under the window stays for screen readers only.
+    // Each letter is placed and turned by the script (17.11): iPhone's Safari does not lay text along a path the way other
+    // browsers do (letter spacing and the stretch to length were ignored, so the names ran over the frame), so no textPath is used
+    const ARC = { cx: 256, cy: 262, r: 190, fs: 62, ls: 3, max: 600 };   // her settings: the arch, 62 px, 3 px between letters, 600 at most
     document.querySelectorAll('.lite .door').forEach((d, i) => {
       const art = d.querySelector('.door-art'), b = d.querySelector('b'); if (!art || !b || art.querySelector('.door-arc')) return;
       const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
       svg.setAttribute('viewBox', '0 0 512 704'); svg.setAttribute('class', 'door-arc'); svg.setAttribute('aria-hidden', 'true');
-      svg.innerHTML = `<defs><path id="door-arc-${i}" d="M 66,262 A 190,190 0 0 1 446,262" fill="none"/><linearGradient id="door-arc-g-${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbeccb"/><stop offset="1" stop-color="#d9a957"/></linearGradient></defs><text fill="url(#door-arc-g-${i})"><textPath href="#door-arc-${i}" startOffset="50%" text-anchor="middle"></textPath></text>`;
-      // 17.11, her «B küçük yıldızlar»: a small gold star at both ends of both names; both names the same length on the arch
-      svg.querySelector('textPath').innerHTML = `<tspan font-size="0.7em" dy="-2">✦</tspan><tspan dy="2"> ${b.textContent.trim().toLocaleUpperCase('tr')} </tspan><tspan font-size="0.7em" dy="-2">✦</tspan>`;
+      svg.innerHTML = `<defs><linearGradient id="door-arc-g-${i}" gradientUnits="userSpaceOnUse" x1="0" y1="20" x2="0" y2="270"><stop offset="0" stop-color="#fbeccb"/><stop offset="1" stop-color="#d9a957"/></linearGradient></defs><g fill="url(#door-arc-g-${i})"></g>`;
+      svg.dataset.name = b.textContent.trim().toLocaleUpperCase('tr');
       art.appendChild(svg);
     });
-    // the same size on all three arches: as large as the longest name allows along the arc
+    // 17.11, her «B küçük yıldızlar»: a small gold star at both ends; both names the same length on the arch, as large as the longest allows
     const fitArcs = () => {
-      const texts = [...document.querySelectorAll('.lite .door-arc text')]; if (!texts.length) return;
-      // measured once at 62 px (each measurement made the phone lay out the page again; 17.11, «hızlandırma»)
-      texts.forEach(t => { t.querySelector('textPath').removeAttribute('textLength'); t.style.fontSize = '62px'; });
-      const lens = texts.map(t => t.getComputedTextLength()), longest = Math.max(...lens);
-      const k = longest > 600 ? 600 / longest : 1;   // the whole arch, as in her picture
-      // the shorter name spaced out to the longer one's length, so both sit on the arch alike, star to star (17.11)
-      texts.forEach(t => { t.style.fontSize = (62 * k).toFixed(1) + 'px'; const tp = t.querySelector('textPath'); tp.setAttribute('textLength', (longest * k).toFixed(1)); tp.setAttribute('lengthAdjust', 'spacing'); });
+      const svgs = [...document.querySelectorAll('.lite .door-arc')]; if (!svgs.length) return;
+      const cv = document.createElement('canvas').getContext('2d');
+      const parts = name => [['✦', .7, -2], [' ', 1, 0], ...[...name].map(c => [c, 1, 0]), [' ', 1, 0], ['✦', .7, -2]];
+      const widths = name => parts(name).map(([c, z]) => { cv.font = `600 ${ARC.fs * z}px Jost, "Avenir Next", sans-serif`; return cv.measureText(c).width; });
+      const natural = svgs.map(sv => { const w = widths(sv.dataset.name); return w.reduce((a, x) => a + x, 0) + ARC.ls * (w.length - 1); });
+      const longest = Math.max(...natural), k = longest > ARC.max ? ARC.max / longest : 1, total = longest * k;
+      svgs.forEach((sv, n) => {
+        const ps = parts(sv.dataset.name), w = widths(sv.dataset.name).map(x => x * k);
+        const gap = (total - w.reduce((a, x) => a + x, 0)) / (w.length - 1);   // the shorter name spaced out, letter to letter
+        let s = -total / 2, html = '';
+        ps.forEach(([c, z, dy], m) => {
+          const mid = s + w[m] / 2, a = mid / ARC.r, rr = ARC.r - dy * k;   // a little higher for the stars, as before
+          const x = ARC.cx + rr * Math.sin(a), y = ARC.cy - rr * Math.cos(a);
+          if (c.trim()) html += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(ARC.fs * z * k).toFixed(1)}" text-anchor="middle" transform="rotate(${(a * 180 / Math.PI).toFixed(2)} ${x.toFixed(1)} ${y.toFixed(1)})">${c}</text>`;
+          s += w[m] + gap;
+        });
+        sv.querySelector('g').innerHTML = html;
+      });
     };
     fitArcs(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitArcs);
     // the jump of the picked child (17.11): the window stays still, only the figure moves — a little crouch, a smooth jump, a soft landing
