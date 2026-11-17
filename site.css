@@ -1296,9 +1296,22 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
   linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
   radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; justify-self: center; }
 .coll-offer .price-note { color: var(--muted); }
-/* 17.11, her feedback: people thought the square box had cut their photo and worried how it would print. The box now shows the whole
-   photo (contain), filling the edges with a soft blurred copy of the same photo, so nothing looks cut and the box keeps its shape */
-.slot-img { overflow: hidden; }
-.slot-img::before, .slot-img::after { content: ""; position: absolute; inset: 0; background: var(--ph, none) center / contain no-repeat; }
-.slot-img::before { inset: -24px; background-size: cover; filter: blur(14px) brightness(.5) saturate(.85); }
+/* 17.11, her feedback: people thought the square box had cut their photo and worried how it would print. Her choice C: the photo
+   sits in the box whole, as a small printed photo with a cream border, slightly tilted — all four edges show, so nothing looks cut;
+   the badge in the corner tells the rest (✓ / ! / ✕) */
+.slot.filled { background: rgba(255,255,255,.03); }
+.slot.filled b { background: none; }
+/* filled: the photo takes the room above the label, whatever the label's height (it wraps to two lines on small phones) */
+.slot.filled { display: flex; flex-direction: column; justify-content: flex-end; }
+.slot.filled .slot-img { position: relative; inset: auto; flex: 1 1 0; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; padding: 10px 10px 2px; box-sizing: border-box; }
+.slot.filled b { padding-top: 4px; }
+.slot-img img { display: block; max-width: 100%; max-height: 100%; box-sizing: border-box; padding: 3px 3px 9px; background: #f3eadb; border-radius: 1px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.55); rotate: -3deg; animation: phDrop .45s cubic-bezier(.2,.8,.3,1) both; }
+.slot:nth-child(2) .slot-img img { rotate: 2.5deg; }
+.slot:nth-child(3) .slot-img img { rotate: -1.5deg; }
+@keyframes phDrop { from { opacity: 0; transform: translateY(-10px) scale(1.06); } }
+.slot[data-state="bad"] .slot-img { filter: none; }
+.slot[data-state="bad"] .slot-img img { filter: grayscale(.8) brightness(.6); }
+.slot[data-state="checking"] .slot-img img { opacity: .75; }
+@media (prefers-reduced-motion: reduce) { .slot-img img { animation: none; } }
 .slot-hint[hidden] { display: none; }

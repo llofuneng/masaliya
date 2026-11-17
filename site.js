@@ -1488,7 +1488,9 @@ function renderProduct() {
         const f = input.files[0];
         if (!f) return;
         slot.classList.add('filled');
-        img.style.setProperty('--ph', `url("${URL.createObjectURL(f)}")`);   // the whole photo, uncut, on a blurred copy of itself (17.11)
+        // the whole photo, uncut, as a small printed photo (17.11, her choice C)
+        const old = img.querySelector('img'); if (old) { URL.revokeObjectURL(old.src); old.remove(); }
+        img.appendChild(Object.assign(new Image(), { alt: '', decoding: 'async', src: URL.createObjectURL(f) }));
         slot.dataset.state = 'checking';
         checked[i] = { level: 'checking', messages: ['Fotoğraf kontrol ediliyor…'] };
         showMessages();
