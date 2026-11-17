@@ -1544,3 +1544,10 @@ body[data-page="gizlilik"] main > .sec:last-child { padding-bottom: clamp(26px, 
 .ci-deal { white-space: nowrap; }
 .ci-short { display: none; }
 @media (max-width: 560px) { .ci-long { display: none; } .ci-short { display: inline; } .ci-deal { font-size: var(--t-sm); padding-inline: 6px; } }
+/* 17.11, her words «başlık gibi daha büyük sarı… üzerindeki siyah alan daralsın»: the two onward links as gold-foil headings, closer to the panel */
+.pr-onward { margin-top: clamp(8px, 1.4vw, 16px); gap: 4px 18px; }
+.pr-onward a { font: 600 var(--t-2xl)/1.15 var(--f-display); font-style: normal; text-decoration: none;
+  background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.pr-onward a:hover, .pr-onward a:focus-visible { filter: brightness(1.12); }
+body[data-page="urunler"] .pr-sec { padding-bottom: 0; }
+@media (max-width: 560px) { .pr-onward { margin-top: 22px; gap: 10px; } .pr-onward a { font-size: clamp(1.45rem, 6.6vw, 1.7rem); white-space: nowrap; } }
