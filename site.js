@@ -1041,11 +1041,16 @@ function renderCart() {
       // 17.11, her words: look-alike covers never side by side (Melis and Can, Lina and Edis share their art), a girl and a boy in turn
       const ny = ['dunyada-yilbasi-kiz', 'noel-babaya-hediye', 'kari-hic-gormemis-flamingo', 'dunyada-yilbasi', 'noel-babaya-surpriz-kiz', 'karla-oynayan-fil-yavrusu']
         .map(id => PRODUCTS.find(p => p.id === id)).filter(p => p && onSale(p));
+      // 17.11, her words: under them every other story, in the same cards — a girl's and a boy's in turn
+      const others = PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir' && onSale(p) && !ny.includes(p) && !(p.aud && AUDIENCES[p.aud] && AUDIENCES[p.aud].hidden));
+      const gs = others.filter(p => p.aud !== 'erkek'), bs = others.filter(p => p.aud === 'erkek'), rest = [];
+      while (gs.length || bs.length) { if (gs.length) rest.push(gs.shift()); if (bs.length) rest.push(bs.shift()); }
       root.innerHTML = `<div class="cart-invite">
         <p class="ci-lede">Sepetiniz henüz boş. Sevdiğiniz çocuğun kahramanı olacağı masalı seçin; adını ve 3 fotoğrafını ekleyin, gerisi bizde.</p>
         <nav class="ci-doors" aria-label="Koleksiyonlar">${HEROES.filter(h => !h.soon).slice(0, 2).map((h, i) => `<a class="ci-door" href="${h.href}"><img alt="" width="512" height="704" data-ci="${HEROES.indexOf(h)}"><b>${i ? 'Erkek Çocukları' : 'Kız Çocukları'}</b></a>`).join('')}</nav>
         ${pairOn() ? `<p class="ci-deal">✦ Yılbaşına özel: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b> · ${PAIR_DEAL.untilText}’a kadar ✦</p>` : ''}
         ${ny.length ? `<div class="ci-row"><h2>Yılbaşı Masalları</h2><div id="related">${rowHTML(ny, 'Yılbaşı masalları')}</div></div>` : ''}
+        ${rest.length ? `<div class="ci-row"><h2>Diğer Masallar</h2><div class="ci-more">${rowHTML(rest, 'Diğer masallar')}</div></div>` : ''}
       </div>`;
       root.querySelectorAll('img[data-ci]').forEach(img => { const cv = drawHeroCard(HEROES[+img.dataset.ci]); if (cv.toBlob) cv.toBlob(b => { img.src = URL.createObjectURL(b); }); else img.src = cv.toDataURL(); });
       litCards(root); fitTitles(); root.querySelectorAll('.row-wrap').forEach(w => rowNav(w, false));   // 17.11, her words: not endless here (fast swiping outran the pictures) — a row that ends, arrows and dots still work

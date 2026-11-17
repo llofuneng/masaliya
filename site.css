@@ -760,7 +760,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .cancel-box .btn { justify-self: start; }
 
 /* every list of stories: each book in its own tile, one dark colour with a gold frame */
-#grid .card, #home-grid .card, #related .card { padding: clamp(14px, 1.6vw, 20px); border: 1px solid rgba(226,181,107,.6); border-radius: 4px; background: linear-gradient(165deg, #2c1712, #1c0f0b); box-shadow: 0 0 0 4px rgba(226,181,107,.07); transition: border-color .25s, box-shadow .25s; }
+#grid .card, #home-grid .card, #related .card, .ci-more .card { padding: clamp(14px, 1.6vw, 20px); border: 1px solid rgba(226,181,107,.6); border-radius: 4px; background: linear-gradient(165deg, #2c1712, #1c0f0b); box-shadow: 0 0 0 4px rgba(226,181,107,.07); transition: border-color .25s, box-shadow .25s; }
 #grid a.card:hover, #home-grid a.card:hover, #related a.card:hover, #grid .card:has(.card-cta):hover, #home-grid .card:has(.card-cta):hover, #related .card:has(.card-cta):hover { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(226,181,107,.14); }
 /* the price line stays on one line on a phone */
 @media (max-width: 560px) {
@@ -1030,42 +1030,42 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .book-row::-webkit-scrollbar { display: none; }
 .book-row:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
 @media (max-width: 720px) { .book-row { margin-inline: calc(-1 * var(--rp)); padding-inline: var(--rp); scroll-padding-inline: var(--rp); } }   /* on a phone the row runs to the frame */
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book { flex: 0 0 44%; display: flex; flex-direction: column; gap: 8px; padding: 8px; margin: 0; scroll-snap-align: start;
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) > .card.book { flex: 0 0 44%; display: flex; flex-direction: column; gap: 8px; padding: 8px; margin: 0; scroll-snap-align: start;
   position: relative; overflow: hidden; isolation: isolate; background: #3a1a22; border-color: rgba(244,223,179,.8); box-shadow: 0 10px 22px -12px rgba(0,0,0,.7); }
 /* the card's ground is its own cover's light (17.11, her «kapak ışığı», B): the cover (a small copy), blurred, at the top, melting into
    deep wine under the title and the button, so the cream title and the gold button read well on every book */
 /* the cover comes already blurred (img/b/, tools/build-thumbs.py): a live CSS blur on every card ran an iPhone out of graphics memory
    and some covers turned black after scrolling (17.11) */
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--cover) center top / cover; }
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(255,240,220,.06) 0%, rgba(255,240,220,0) 38%, rgba(70,18,30,.86) 64%, rgba(52,12,22,.97) 100%); }
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .visual { box-shadow: 0 12px 18px -10px rgba(0,0,0,.6), 0 0 0 1px rgba(244,223,179,.55); }
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .visual { width: 100%; grid-row: auto; }
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book h3 { margin: auto 0; text-align: center; font: 700 var(--t-md)/1.24 'Fraunces', var(--f-display); letter-spacing: .01em; text-transform: none;
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) > .card.book::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--cover) center top / cover; }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) > .card.book::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(255,240,220,.06) 0%, rgba(255,240,220,0) 38%, rgba(70,18,30,.86) 64%, rgba(52,12,22,.97) 100%); }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book .visual { box-shadow: 0 12px 18px -10px rgba(0,0,0,.6), 0 0 0 1px rgba(244,223,179,.55); }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book .visual { width: 100%; grid-row: auto; }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book h3 { margin: auto 0; text-align: center; font: 700 var(--t-md)/1.24 'Fraunces', var(--f-display); letter-spacing: .01em; text-transform: none;
   background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: #fbefd2; color: #fbefd2; filter: none; text-shadow: 0 1px 2px rgba(0,0,0,.8); }   /* a text shadow, not a filter layer (17.11) */
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book h3 .ad { font-style: normal; font-weight: inherit; -webkit-text-fill-color: inherit; }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book h3 .ad { font-style: normal; font-weight: inherit; -webkit-text-fill-color: inherit; }
 /* the title and the summary take the card's full width, so a one-line title is centred too (17.11, her «kitap başlıklarını da ortala»:
    the collection cards keep align-items: start from the old grid, and a short title shrank to its words at the left) */
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book > :is(h3, p) { align-self: stretch; }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book > :is(h3, p) { align-self: stretch; }
 /* small capitals made by hand (smallCaps() in site.js): the lower-case letters in capitals, a little smaller — with lang="tr", so
    «i» becomes «İ» in every browser (Safari's own small capitals do not know Turkish) */
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book h3 .sc { text-transform: uppercase; font-size: .78em; }   /* centred in the free room, not stretched (fitTitles counts its lines by its height) */
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book > p { display: none; }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book h3 .sc { text-transform: uppercase; font-size: .78em; }   /* centred in the free room, not stretched (fitTitles counts its lines by its height) */
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book > p { display: none; }
 /* the gold button is the card's base, from edge to edge (17.11, her «Buton A»: «İncele'den önce ve ver'den sonra biraz daha alanımız olsun») */
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book { padding-bottom: 0; }
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta { margin: 2px -8px 0; align-self: stretch; min-height: 44px; padding: 12px 8px; border-width: 1px 0 0; border-radius: 0 0 3px 3px;
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) > .card.book { padding-bottom: 0; }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book .card-cta { margin: 2px -8px 0; align-self: stretch; min-height: 44px; padding: 12px 8px; border-width: 1px 0 0; border-radius: 0 0 3px 3px;
   font-size: var(--t-xs); letter-spacing: 0; box-shadow: 0 -6px 14px -8px rgba(0,0,0,.5); }
-:is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta .cta-plus { margin: 0 .22em; }
+:is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book .card-cta .cta-plus { margin: 0 .22em; }
 @media (max-width: 350px) {   /* the narrowest phones: the words must fit the button (320 px: card 47 %, «+» closer) */
-  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book { flex-basis: 47%; }
-  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta { padding-inline: 2px; letter-spacing: 0; font-weight: 500; }
-  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta .cta-plus { margin: 0 .14em; }
+  :is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) > .card.book { flex-basis: 47%; }
+  :is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book .card-cta { padding-inline: 2px; letter-spacing: 0; font-weight: 500; }
+  :is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book .card-cta .cta-plus { margin: 0 .14em; }
 }
 @media (min-width: 721px) {
-  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) > .card.book { flex-basis: clamp(190px, calc((100% - 100px) / 5.35), 250px); gap: 12px; padding: 12px 12px 0; }
+  :is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) > .card.book { flex-basis: clamp(190px, calc((100% - 100px) / 5.35), 250px); gap: 12px; padding: 12px 12px 0; }
   /* four books in view, edge to edge (17.11, her «desktop görünümünde carousel'i sadece 4 masal gözükecek şekilde») */
-  :is(#home-grid, #related) .book-row > .card.book { flex-basis: calc((100% - 3 * clamp(12px, 1.6vw, 20px)) / 4); }
-  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book h3 { font-size: var(--t-lg-r); }   /* fitTitles() then makes all titles one size, two lines */
-  :is(#home-grid, #grid, #related) :is(.book-row, .book-grid) .card.book .card-cta { margin: 2px -12px 0; min-height: 50px; padding: 14px 10px; letter-spacing: .08em; }
+  :is(#home-grid, #related, .ci-more) .book-row > .card.book { flex-basis: calc((100% - 3 * clamp(12px, 1.6vw, 20px)) / 4); }
+  :is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book h3 { font-size: var(--t-lg-r); }   /* fitTitles() then makes all titles one size, two lines */
+  :is(#home-grid, #grid, #related, .ci-more) :is(.book-row, .book-grid) .card.book .card-cta { margin: 2px -12px 0; min-height: 50px; padding: 14px 10px; letter-spacing: .08em; }
 }
 .row-arrow { display: none; }
 @media (hover: hover) and (pointer: fine) and (min-width: 721px) {
@@ -1531,3 +1531,6 @@ body[data-page="gizlilik"] main > .sec:last-child { padding-bottom: clamp(26px, 
 .ci-row .row-wrap { min-width: 0; max-width: 100%; }
 .pr-puzzle[width="1000"] { width: min(320px, 92%); rotate: -1.5deg; }   /* a landscape puzzle picture */
 .ci-row > #related { width: 100%; min-width: 0; }   /* the row as wide as the page, so the cards take their 44 % of it */
+.ci-row > .ci-more { width: 100%; min-width: 0; }
+@media (hover: hover) and (pointer: fine) and (min-width: 721px) { .ci-more .row-wrap { position: relative; } .ci-more .row-arrow.prev { left: -10px; } .ci-more .row-arrow.next { right: -10px; } }
+.ci-more .row-arrow.prev[disabled] { visibility: hidden; }
