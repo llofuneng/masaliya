@@ -1236,7 +1236,7 @@ function renderProduct() {
             ${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}
           </div>
           <ul class="slot-msgs" id="slot-msgs" aria-live="polite"></ul>
-          <span class="slot-hint">Yüzü net görünen, yakın çekim 3 fotoğraf. Uygun olmayanı hemen söyleriz.</span>
+          <span class="slot-hint">Yüzü net görünen, yakın çekim 3 fotoğraf. Uygun olmayanı hemen size söyleriz.</span>
         </div>
         <span class="step">4 · Seçenekler</span>
         ${options}
