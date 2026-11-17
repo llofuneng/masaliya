@@ -1401,3 +1401,5 @@ hr.rule:has(+ .sec #related-head) { display: none; }
 .wa.wa-up.wa-away { pointer-events: none; }
 .wa.wa-wait { visibility: hidden; }
 .wa.wa-still, .wa.wa-still:hover { transition: none !important; }
+/* the iPhone's stretch at the top: the flag follows the page by --wa-pull, with no delay (the short smoothing is for the tuck only) */
+.wa.wa-up, .wa.wa-up:hover, .wa.wa-up:focus-visible { translate: 0 var(--wa-pull, 0px); }

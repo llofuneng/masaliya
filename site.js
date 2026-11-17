@@ -695,6 +695,9 @@ function renderChrome() {
       // her words: over the books it goes all the way in; once the books panel has passed (from «3 fotoğraf» down to the end) it comes
       // out again — so it hides exactly while the books panel runs behind it
       if (seal) {
+        // 17.11, her choice: when the page is pulled down past its top (the iPhone's stretch), the flag goes down with the page and
+        // comes back with it, so it never leaves the seal's side (Safari reports the pull as a negative scroll position)
+        wa.style.setProperty('--wa-pull', `${Math.round(Math.max(0, -scrollY))}px`);
         wa.classList.toggle('wa-up', wa.style.getPropertyValue('--wa-lift') !== '0px');
         // 17.11, her words «scroll down yaptıkça responsive olarak»: the flag goes into the edge step by step with the finger (no timed
         // animation): out while the books panel is 140 px or more below it, all the way in once the panel reaches it, and out again,
