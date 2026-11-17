@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611171824">
+<link rel="stylesheet" href="site.css?v=202611171833">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -360,7 +360,11 @@
    (her second word: «fazla oldu»: the windows keep their size and the heading below stays out of the first screen). The seal a little
    smaller on shorter phones and the last gap a touch tighter make the room */
 @media (max-width: 560px) {
-  .lite .intro { min-height: calc(100svh - 54px); grid-template-rows: auto minmax(8px, .8fr) auto minmax(18px, 1fr) 0 0 auto minmax(10px, .6fr); }
+  .lite .intro { min-height: calc(100svh - 49px); grid-template-rows: auto minmax(8px, .8fr) auto minmax(18px, 1fr) 0 0 auto minmax(10px, .6fr); }
+  /* her aim: «Masallarımız» as its own band just above the browser's bar, the same on every phone (about 18 px of dark under it).
+     The windows follow the phone's visible height: unchanged on an iPhone 13, a little smaller only where the screen is shorter
+     (iPhone mini, the Instagram / Facebook in-app browser), never under 110 px */
+  .lite .intro { --dw: min(calc((100vw - 44px) * .45), max(110px, calc((100svh - 444px) * .69))); }
 }
 @media (max-width: 560px) and (max-height: 720px) { .psy-seal { width: 80px; height: 80px; } }
 </style>
@@ -461,7 +465,7 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611171824" defer></script>
+<script src="site.js?v=202611171833" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
