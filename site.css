@@ -1235,3 +1235,8 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 /* the gift box card shows its short line in full: two lines, smaller (17.11) */
 .addon-pair .gift-opt .gift-text small { -webkit-line-clamp: 3; font-size: var(--t-xs); }
 .addon-pair .gift-opt .gift-text b { padding-right: 34px; }
+
+/* the two extra cards come in gently when Sert Kapak is chosen (17.11) */
+.addon-pair.pop { animation: pairIn .35s ease; }
+@keyframes pairIn { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .addon-pair.pop { animation: none; } }

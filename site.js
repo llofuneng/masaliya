@@ -1372,7 +1372,7 @@ function renderProduct() {
     // Gift box and total
     // the puzzle and the gift box side by side, small like the cover choices (17.11, her «yan yana kutulara… küçültsek»)
     { const ex = document.getElementById('extras'), gw = document.getElementById('gift-wrap');
-      if (gw && !gw.closest('.addon-pair')) { const pair = document.createElement('div'); pair.className = 'addon-pair'; (ex || gw).before(pair); if (ex) pair.appendChild(ex); pair.appendChild(gw); } }
+      if (gw && !gw.closest('.addon-pair')) { const pair = document.createElement('div'); pair.className = 'addon-pair'; pair.hidden = !!root.querySelector('input[name="cover"][value="hard"]'); (ex || gw).before(pair); if (ex) pair.appendChild(ex); pair.appendChild(gw); } }
     const giftBox = document.getElementById('gift-box');
     // Sert Kapak and Dijital can both be chosen: then the printed book comes with its PDF as well
     const coverChoice = () => {
@@ -1397,7 +1397,19 @@ function renderProduct() {
       }
       // a set adds its parts (and takes off any discount); the PDF copy goes with printed books only
       const set = root.querySelector('input[name="set"]:checked'), pdf = document.getElementById('pdf-addon');
-      const nothingToShip = digital && !(set && +set.dataset.extra > 0);
+      let nothingToShip = digital && !(set && +set.dataset.extra > 0);
+      // 17.11, her words «yalnızca sert kapak seçince mi çıksa»: the puzzle and the gift box appear once Sert Kapak is chosen
+      const hardBox = root.querySelector('input[name="cover"][value="hard"]'), pair = root.querySelector('.addon-pair');
+      if (hardBox && pair) {
+        const hardOn = hardBox.checked;
+        if (pair.hidden === hardOn) { pair.hidden = !hardOn; if (hardOn) { pair.classList.remove('pop'); void pair.offsetWidth; pair.classList.add('pop'); } }
+        if (!hardOn) {
+          nothingToShip = true;
+          if (setsBox) { const tek = setsBox.querySelector('input[value="tek"]'); if (tek && !tek.checked) tek.checked = true; }
+          if (extras) extras.querySelectorAll('input').forEach(x => { x.checked = false; });
+          giftWanted = false;   // the extras start again from nothing when Sert Kapak is chosen again
+        }
+      }
       document.getElementById('gift-wrap').hidden = nothingToShip;
       giftBox.checked = !nothingToShip && giftWanted;
       document.getElementById('gift-note-wrap').hidden = !giftBox.checked;
