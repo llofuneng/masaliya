@@ -443,9 +443,16 @@ const WA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 function waLink(text) { return WHATSAPP ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text || 'Merhaba Masaliya, bilgi almak istiyorum.')}` : '#whatsapp'; }
 
 const thumb = src => src.replace('img/', 'img/t/');
+const blurred = src => src.replace('img/', 'img/b/');   // the cover, small and already blurred: the ground of a row card (17.11)
+// a cover in WebP at the size the place needs (17.11, «hızlandırma»): 'c' 450 px for the small row cards, 'w' 800 px for the big ones
+// and the book page; anything that is not a cover stays as it is
+const coverSrc = (src, kind) => kind && /^img\/[^/]+-kapak\.jpg$/.test(src) ? src.replace('img/', `img/${kind}/`).replace(/\.jpg$/, '.webp') : src;
+// old phones without WebP: the original JPEG
+const jpgBack = src => `data-src0="${src}" onerror="this.onerror=null;this.src=this.dataset.src0"`;
 // phones get the medium copy of a page (img/m/); zooming in always shows the full size
 const pageSrc = src => matchMedia('(max-width: 760px)').matches ? src.replace('img/', 'img/m/') : src;
-const fmt = n => n.toLocaleString('tr-TR') + ' TL';
+const NUM_TR = new Intl.NumberFormat('tr-TR');   // made once: toLocaleString made a new formatter for every price (17.11, «hızlandırma»)
+const fmt = n => NUM_TR.format(n) + ' TL';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const cap = s => s ? s.split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ') : s;
 const here = () => location.pathname.split('/').pop() || 'index.html';
@@ -730,12 +737,12 @@ function smallCaps(el) {
 }
 // the markup of a swipe row of book cards (17.11): the home rows, the collection pages, «Diğer masallarımız»
 function rowHTML(list, label, cls = '') {
-  return `<div class="row-wrap"><div class="book-row${cls ? ' ' + cls : ''}" role="group" tabindex="0" aria-label="${esc(label)}">${list.map(b => card(b, true)).join('')}</div><button class="row-arrow prev" type="button" aria-label="Önceki masallar">‹</button><button class="row-arrow next" type="button" aria-label="Sonraki masallar">›</button></div>
+  return `<div class="row-wrap"><div class="book-row${cls ? ' ' + cls : ''}" role="group" tabindex="0" aria-label="${esc(label)}">${list.map(b => card(b, true, /\bbig\b/.test(cls) ? 'w' : 'c')).join('')}</div><button class="row-arrow prev" type="button" aria-label="Önceki masallar">‹</button><button class="row-arrow next" type="button" aria-label="Sonraki masallar">›</button></div>
         <div class="row-dots" aria-hidden="true"></div>`;
 }
 // each row card's ground is its own cover (a small copy), blurred; the titles in hand-made small capitals (17.11)
 function litCards(root) {
-  root.querySelectorAll('.book-row .card').forEach(c => { const im = c.querySelector('.visual img'); if (im) c.style.setProperty('--cover', `url("${thumb(im.getAttribute('src'))}")`); });
+  root.querySelectorAll('.book-row .card').forEach(c => { const im = c.querySelector('.visual img'); if (im) c.style.setProperty('--cover', `url("${blurred(im.dataset.src0 || im.getAttribute('src'))}")`); });
   root.querySelectorAll('.book-row .card.book h3').forEach(smallCaps);
 }
 // a swipe row of books (17.11): the dots follow the scroll, the arrows (computer) move it by a screenful; a row that fits needs neither
@@ -757,8 +764,8 @@ function rowNav(w) {
 let fitTimer;
 addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitTitles, 120); });
 if (document.fonts) document.fonts.ready.then(() => fitTitles());
-function card(p, withPrice = false) {
-  const visual = `<img src="${p.img}" alt="${esc(p.alt)}" loading="lazy">`;
+function card(p, withPrice = false, size = '') {
+  const visual = `<img src="${coverSrc(p.img, size)}" ${jpgBack(p.img)} alt="${esc(p.alt)}" loading="lazy" decoding="async">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
   // 17.11, her words «sadece İncele Sipariş ver butonu tıklanabilir olsun»: a card with the button is a plain frame and only the
   // button is a link; a card without a button stays one link as before
@@ -929,7 +936,8 @@ function renderCart() {
 }
 
 /* ---------- Product page helpers ---------- */
-const trDate = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+const DATE_TR = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long' });   // made once (17.11)
+const trDate = d => DATE_TR.format(d);
 // n working days from today, skipping Saturdays and Sundays
 const inWorkDays = n => { const d = new Date(); while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; };
 // printed book at the door: 3 working days design + 5 printing, then 2–4 calendar days with the courier
@@ -1049,7 +1057,7 @@ function renderProduct() {
     crumbs.innerHTML = `<a href="${a.page}">${a.name}</a> · ${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].name}`;
 
     const shots = p.img ? [[p.img, p.alt], ...(p.extra || [])] : [];
-    const gallery = `<div class="gallery"><div class="main"><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
+    const gallery = `<div class="gallery"><div class="main"><img id="g-main" src="${coverSrc(shots[0][0], 'w')}" ${jpgBack(shots[0][0])} fetchpriority="high" alt="${esc(shots[0][1])}"></div>
          ${shots.length > 1 ? `<div class="thumbs">${shots.map((s, i) => `<button type="button" data-shot="${i}" aria-current="${i === 0}" aria-label="${esc(s[1])}"><img src="${thumb(s[0])}" alt=""></button>`).join('')}</div>` : ''}</div>`;
 
     const pr = PRICES[p.type] || {};
@@ -1141,7 +1149,7 @@ function renderProduct() {
     // one viewer at the top: the cover first, then every page, then the back cover
     const viewerHtml = inner ? `<section class="p-viewer" id="inside" aria-label="Kitabın içinden">
         <div class="spread${p.spreads ? '' : ' portrait'} on-cover" id="spread" tabindex="0" role="button" aria-label="Sayfayı büyüt">
-          <div class="cover-box main" id="cover-box"><img id="g-main" src="${shots[0][0]}" alt="${esc(shots[0][1])}"></div>
+          <div class="cover-box main" id="cover-box"><img id="g-main" src="${coverSrc(shots[0][0], 'w')}" ${jpgBack(shots[0][0])} fetchpriority="high" alt="${esc(shots[0][1])}"></div>
           <img id="spread-img" src="" alt="" hidden>
           <button class="arrow ov ov-prev" id="prev" type="button" aria-label="Önceki sayfa">←</button><button class="arrow ov ov-next" id="next" type="button" aria-label="Sonraki sayfa">→</button>
         </div>
@@ -1435,7 +1443,11 @@ function setupViewer(slides, onCover) {
     const apply = () => {
       frame.classList.toggle('on-cover', !!kind);
       box.hidden = !kind; img.hidden = !!kind;
-      if (kind) { coverImg.src = src; coverImg.alt = alt; } else { img.src = pageSrc(src); img.alt = alt; }
+      if (kind) {   // the cover in WebP (17.11), the JPEG if the phone cannot show it; not loaded twice
+        const w = coverSrc(src, 'w');
+        if (coverImg.getAttribute('src') !== w) { coverImg.onerror = () => { coverImg.onerror = null; coverImg.src = src; }; coverImg.src = w; }
+        coverImg.alt = alt;
+      } else { img.src = pageSrc(src); img.alt = alt; }
       onCover && onCover(kind === 'cover');
       frame.style.opacity = 1;
     };
@@ -1510,7 +1522,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // the window is drawn at its own size (the figure is scaled for 512 × 704), then the square around the figure goes into the circle
         const art = drawHeroCard(hero), sq = document.createElement('canvas'); sq.width = sq.height = 160;
         sq.getContext('2d').drawImage(art, 35, 202, 460, 460, 0, 0, 160, 160);   // the figure (with the star / the sword) fills the circle
-        const img = new Image(); img.alt = ''; img.src = sq.toDataURL(); box.appendChild(img);
+        const img = new Image(); img.alt = ''; box.appendChild(img);
+        if (sq.toBlob) sq.toBlob(b => { img.src = URL.createObjectURL(b); }); else img.src = sq.toDataURL();   // encoded off the main thread (17.11)
       });
       fitTitles();
       g.querySelectorAll('.row-wrap').forEach(rowNav);

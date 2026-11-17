@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611171025">
+<link rel="stylesheet" href="site.css?v=202611171116">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -430,7 +430,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611171025" defer></script>
+<script src="site.js?v=202611171116" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -465,7 +465,8 @@ addEventListener('DOMContentLoaded', () => {
     if (intro.classList.contains('playing')) { film.pause(); if (film.duration) film.currentTime = film.duration; done(); } else open();
   });
 
-  fetch('media/intro.mp4', { method: 'HEAD' }).then(r => {
+  // the intro film (there is none yet): not asked for on the light page phones get — one request less on every visit (17.11)
+  if (!document.documentElement.classList.contains('lite')) fetch('media/intro.mp4', { method: 'HEAD' }).then(r => {
     if (!r.ok || intro.classList.contains('opened') || intro.classList.contains('playing')) return;
     mode = 'film'; if (book) book.stop();
     intro.classList.add('film-mode');
@@ -487,7 +488,9 @@ addEventListener('DOMContentLoaded', () => {
     // the fallback doors use the same artwork as the 3D heroes
     document.querySelectorAll('[data-hero-img]').forEach(img => {
       const h = HEROES[+img.dataset.heroImg];
-      img.src = img.dataset.plain = drawHeroCard(h).toDataURL();   // the light «picked» picture is drawn later, see pickedSrc
+      // encoded to a picture off the main thread (17.11, «hızlandırma»: toDataURL held the phone ~0.2 s); the light «picked» picture is drawn later, see pickedSrc
+      const cv = drawHeroCard(h);
+      if (cv.toBlob) cv.toBlob(b => { img.src = img.dataset.plain = URL.createObjectURL(b); }); else img.src = img.dataset.plain = cv.toDataURL();
     });
     // the name curved along the inside of the arch, in capitals (17.11); the <b> under the window stays for screen readers only
     document.querySelectorAll('.lite .door').forEach((d, i) => {
@@ -495,15 +498,19 @@ addEventListener('DOMContentLoaded', () => {
       const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
       svg.setAttribute('viewBox', '0 0 512 704'); svg.setAttribute('class', 'door-arc'); svg.setAttribute('aria-hidden', 'true');
       svg.innerHTML = `<defs><path id="door-arc-${i}" d="M 66,262 A 190,190 0 0 1 446,262" fill="none"/><linearGradient id="door-arc-g-${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbeccb"/><stop offset="1" stop-color="#d9a957"/></linearGradient></defs><text fill="url(#door-arc-g-${i})"><textPath href="#door-arc-${i}" startOffset="50%" text-anchor="middle"></textPath></text>`;
-      svg.querySelector('textPath').textContent = b.textContent.trim().toLocaleUpperCase('tr');
+      // 17.11, her «B küçük yıldızlar»: a small gold star at both ends of both names; both names the same length on the arch
+      svg.querySelector('textPath').innerHTML = `<tspan font-size="0.7em" dy="-2">✦</tspan><tspan dy="2"> ${b.textContent.trim().toLocaleUpperCase('tr')} </tspan><tspan font-size="0.7em" dy="-2">✦</tspan>`;
       art.appendChild(svg);
     });
     // the same size on all three arches: as large as the longest name allows along the arc
     const fitArcs = () => {
       const texts = [...document.querySelectorAll('.lite .door-arc text')]; if (!texts.length) return;
-      texts.forEach(t => t.style.fontSize = '62px');
-      let k = 1; texts.forEach(t => { const len = t.getComputedTextLength(); if (len > 600) k = Math.min(k, 600 / len); });   // the whole arch, as in her picture
-      texts.forEach(t => t.style.fontSize = (62 * k).toFixed(1) + 'px');
+      // measured once at 62 px (each measurement made the phone lay out the page again; 17.11, «hızlandırma»)
+      texts.forEach(t => { t.querySelector('textPath').removeAttribute('textLength'); t.style.fontSize = '62px'; });
+      const lens = texts.map(t => t.getComputedTextLength()), longest = Math.max(...lens);
+      const k = longest > 600 ? 600 / longest : 1;   // the whole arch, as in her picture
+      // the shorter name spaced out to the longer one's length, so both sit on the arch alike, star to star (17.11)
+      texts.forEach(t => { t.style.fontSize = (62 * k).toFixed(1) + 'px'; const tp = t.querySelector('textPath'); tp.setAttribute('textLength', (longest * k).toFixed(1)); tp.setAttribute('lengthAdjust', 'spacing'); });
     };
     fitArcs(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitArcs);
     // the jump of the picked child (17.11): the window stays still, only the figure moves — a little crouch, a smooth jump, a soft landing
@@ -520,7 +527,9 @@ addEventListener('DOMContentLoaded', () => {
     // nothing of the tap is drawn while the page opens (17.11): after the page has loaded, one window at a time, when the browser is idle
     // (iPhone Safari has no requestIdleCallback: a short timer instead); a tap before that draws it on the spot
     const idle = window.requestIdleCallback ? f => requestIdleCallback(f, { timeout: 2500 }) : f => setTimeout(f, 60);
-    const prep = () => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach((img, i) => setTimeout(() => idle(() => { pickedSrc(img); idle(() => jumpLayers(img)); }), 900 + i * 500));
+    // prepared ahead: the light picture is encoded off the main thread (toBlob); a tap before that still draws it on the spot
+    const prepPicked = img => { if (img.dataset.picked) return; const cv = drawHeroCard(HEROES[+img.dataset.heroImg], 512, 704, true); if (cv.toBlob) cv.toBlob(b => { if (!img.dataset.picked) img.dataset.picked = URL.createObjectURL(b); }); else pickedSrc(img); };
+    const prep = () => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach((img, i) => setTimeout(() => idle(() => { prepPicked(img); idle(() => jumpLayers(img)); }), 900 + i * 500));
     if (document.readyState === 'complete') prep(); else addEventListener('load', prep, { once: true });
     // two different jumps (17.11): [ms, width, height] keys for the squash and stretch, the time in the air, the height
     const JUMPS = {
