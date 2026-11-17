@@ -1478,3 +1478,28 @@ body[data-page="urunler"] .page-head h1, .pr-pick h2 { background: linear-gradie
 .pr-cover { width: 52%; } .pr-c1 { left: 2%; } .pr-c2 { right: 2%; }
 @media (max-width: 760px) { .pr-pick .choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 420px; margin-inline: auto; } }
 .steps { border-top: 0; }   /* 17.11, her words: no line above «i.» */
+/* 17.11, her words «birleştirelim o kırmızı şeyleri… bir sınır olsun»: one panel (the same burgundy and double gold frame), the
+   products inside separated by fine gold lines with a dot */
+.pr-all { position: relative; display: grid; padding: clamp(26px, 3.6vw, 46px) clamp(18px, 3.6vw, 46px);
+  background: radial-gradient(60% 320px at 50% 0%, rgba(255,196,128,.16), transparent 72%), radial-gradient(110% 55% at 50% 55%, rgba(150,42,62,.3), transparent 75%), linear-gradient(180deg, #561a28 0%, #44141f 55%, #4f1825 100%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 20px 60px -20px rgba(0,0,0,.8), inset 0 0 90px rgba(20,6,8,.45); }
+.pr-all::before, .pr-all::after { content: ""; position: absolute; pointer-events: none; inset: 8px; border: 1px solid rgba(226,181,107,.42); }
+.pr-all::after { inset: 13px; border-color: rgba(226,181,107,.16); }
+.pr-item { position: relative; display: grid; gap: clamp(18px, 3vw, 40px); align-items: center; padding: clamp(10px, 2vw, 22px) 0; }
+.pr-main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); padding-bottom: clamp(26px, 3.4vw, 40px); }
+.pr-all .pr-pair { gap: 0; padding-top: clamp(26px, 3.4vw, 40px); position: relative; }
+/* the divider under the book: two gold lines and a dot */
+.pr-all .pr-pair::before { content: ""; position: absolute; top: 0; left: 50%; translate: -50% -50%; width: min(320px, 70%); height: 12px; background:
+  linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
+  radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; }
+.pr-all .pr-small { grid-template-columns: 1fr; text-align: center; align-content: start; padding-inline: clamp(10px, 2.4vw, 30px); }
+.pr-all .pr-small + .pr-small::before { content: ""; position: absolute; left: 0; top: 10%; bottom: 10%; width: 1px; background: linear-gradient(180deg, transparent, rgba(226,181,107,.5), transparent); }
+.pr-price span { font: 600 var(--t-xl)/1.1 var(--f-display); color: var(--gold-pale); }
+@media (max-width: 760px) {
+  .pr-main { grid-template-columns: 1fr; text-align: center; }
+  .pr-all .pr-pair { grid-template-columns: 1fr; }
+  .pr-all .pr-small + .pr-small { margin-top: 26px; padding-top: 30px; }
+  .pr-all .pr-small + .pr-small::before { top: 0; bottom: auto; left: 50%; translate: -50% -50%; width: min(260px, 70%); height: 12px; background:
+    linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
+    radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; }
+}
