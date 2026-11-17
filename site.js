@@ -1033,10 +1033,21 @@ function renderCart() {
     const items = cart.all();
     // the page heading says «Masalınız neredeyse hazır» (17.11); with an empty cart that would not be true
     const head = document.querySelector('.page-head h1');
-    if (head) head.textContent = items.length ? 'Masalınız neredeyse hazır' : 'Sepetiniz henüz boş';
+    if (head) head.textContent = items.length ? 'Masalınız neredeyse hazır' : 'Kimin masalını yazalım?';   // 17.11, her words: the empty cart leads on to the stories
     const lede = document.querySelector('.page-head .lede'); if (lede) lede.hidden = !items.length;   // «after you pay…» only with books in the cart
     if (!items.length) {
-      root.innerHTML = `<div class="panel cart-empty"><p class="lede">Bir masal seçin, kahramanın adını ve 3 fotoğrafını ekleyin.</p><a class="btn" href="urunler.html">Masalını seç</a></div>`;
+      // 17.11, her words «sepetiniz henüz boş… farklı bir yönlendirme, yine satışa»: an invitation instead of an empty box — the two
+      // windows of the home page (a tap opens the collection), the campaign if it runs, and this season's stories to pick from
+      const ny = ['kari-hic-gormemis-flamingo', 'karla-oynayan-fil-yavrusu', 'dunyada-yilbasi-kiz', 'dunyada-yilbasi', 'noel-babaya-surpriz-kiz', 'noel-babaya-hediye']
+        .map(id => PRODUCTS.find(p => p.id === id)).filter(p => p && onSale(p));
+      root.innerHTML = `<div class="cart-invite">
+        <p class="ci-lede">Sepetiniz henüz boş. Sevdiğiniz çocuğun kahramanı olacağı masalı seçin; adını ve 3 fotoğrafını ekleyin, gerisi bizde.</p>
+        <nav class="ci-doors" aria-label="Koleksiyonlar">${HEROES.filter(h => !h.soon).slice(0, 2).map((h, i) => `<a class="ci-door" href="${h.href}"><img alt="" width="512" height="704" data-ci="${HEROES.indexOf(h)}"><b>${i ? 'Erkek Çocukları' : 'Kız Çocukları'}</b></a>`).join('')}</nav>
+        ${pairOn() ? `<p class="ci-deal">✦ Yılbaşına özel: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b> · ${PAIR_DEAL.untilText}’a kadar ✦</p>` : ''}
+        ${ny.length ? `<div class="ci-row"><h2>Yılbaşı Masalları</h2>${rowHTML(ny, 'Yılbaşı masalları')}</div>` : ''}
+      </div>`;
+      root.querySelectorAll('img[data-ci]').forEach(img => { const cv = drawHeroCard(HEROES[+img.dataset.ci]); if (cv.toBlob) cv.toBlob(b => { img.src = URL.createObjectURL(b); }); else img.src = cv.toDataURL(); });
+      litCards(root); fitTitles(); root.querySelectorAll('.row-wrap').forEach(rowNav);
       return;
     }
     const off = pairOff(items), full = items.reduce((a, it) => a + it.price.total, 0) - off;
