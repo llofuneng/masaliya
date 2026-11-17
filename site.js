@@ -1090,7 +1090,7 @@ const etaRange = () => {
   a.setDate(a.getDate() + 2); b.setDate(b.getDate() + 4);
   return a.getMonth() === b.getMonth() ? `${a.getDate()}–${trDate(b)}` : `${trDate(a)} – ${trDate(b)}`;
 };
-const ETA = () => `<p class="eta">Sert kapak tahmini teslim: <b>${etaRange()}</b><small>Kargo süresi ortalama 2–4 gün · tarih, önizlemeyi onayladığınız güne göre değişebilir</small></p>`;
+const ETA = () => `<p class="eta">Sert kapak tahmini teslim: <b>${etaRange()}</b><small>Kargo ortalama 2–4 gün · tarih, önizleme onayınıza göre değişebilir</small></p>`;
 
 // a cover with the visitor's name set in place of the sample hero's name
 const COVER_FONTS = { sans: '"Nunito", "Arial Rounded MT Bold", sans-serif', script: '"Great Vibes", "Snell Roundhand", cursive', sub: '"Lora", Georgia, serif' };
@@ -1238,6 +1238,7 @@ function renderProduct() {
           <ul class="slot-msgs" id="slot-msgs" aria-live="polite"></ul>
           <span class="slot-hint">Yüzü net görünen, yakın çekim 3 fotoğraf. Uygun olmayanı hemen size söyleriz.</span>
         </div>
+        <label class="consent consent-photos" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenmesine ve aktarılmasına açık rıza veriyorum.</span></label>   <!-- 17.11: the consent about the photos right under them -->
         <span class="step">4 · Seçenekler</span>
         ${options}
         ${p.type === 'kitap' ? `
@@ -1263,7 +1264,6 @@ function renderProduct() {
         <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
         <div class="total"><span>Toplam <small>Türkiye içi kargo ücretsiz</small></span><strong id="total"></strong></div>
         ${p.type === 'kitap' ? `<div id="eta-hard">${ETA()}</div><p class="eta" id="eta-digital" hidden>Dijital kitap: <b>3 iş günü içinde</b> e-postanıza gelir<small>Önizlemeyi onayladığınızda PDF hemen gönderilir</small></p>` : ''}
-        <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların yalnızca bu kitabın hazırlanması için, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenmesine ve aktarılmasına açık rıza veriyorum.</span></label>
         <div class="buy-actions">
           <button class="btn ghost" type="submit" value="sepet" id="cart-btn">Sepete ekle</button>
           <button class="btn" type="submit" value="ode" id="pay-btn">Ödemeye geç</button>
@@ -1336,6 +1336,7 @@ function renderProduct() {
     if (desc && more) {
       more.hidden = desc.scrollHeight <= desc.clientHeight + 2;
       more.addEventListener('click', () => { const open = desc.classList.toggle('clamp'); more.textContent = open ? 'Devamını oku' : 'Daha az'; });
+      desc.classList.toggle('has-more', !more.hidden);
     }
     // Gallery thumbs
     root.querySelectorAll('[data-shot]').forEach(b => b.addEventListener('click', () => {

@@ -1240,3 +1240,10 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .addon-pair.pop { animation: pairIn .35s ease; }
 @keyframes pairIn { from { opacity: 0; transform: translateY(-6px); } }
 @media (prefers-reduced-motion: reduce) { .addon-pair.pop { animation: none; } }
+
+/* 17.11, «sayfayı yukarı itmeye çalışıyorum»: «Devamını oku» sits at the end of the story's last line instead of a line of its own */
+.p-head { position: relative; }
+.p-head .desc.clamp.has-more + .more { position: relative; margin-top: calc(-1 * (1.65em + 6px)); align-self: end; justify-self: end; padding: 0 0 0 2.4em; min-height: 0; line-height: 1.65;
+  background: linear-gradient(90deg, transparent, var(--ink) 2em); }
+.p-head .desc.clamp.has-more { padding-right: 0; }
+.consent-photos { margin-top: 2px; }
