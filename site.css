@@ -1317,3 +1317,8 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
 .slot-hint[hidden] { display: none; }
 /* 17.11: the new labels (Karşıdan bakış · Yandan bakış · Gülen yüz) stay on one line on phones — a touch tighter there */
 @media (max-width: 560px) { .slot b { letter-spacing: .01em; padding-left: 2px; padding-right: 2px; } }
+/* 17.11, her words: the home row titles in two lines beside the medallion — «Kız Çocuklarına» / «Özel Masallar» — the pair centred
+   on the medallion's middle */
+.row-head h3 { padding-bottom: 0; line-height: 1.08; }
+.row-head h3 span { display: block; }
+@media (min-width: 561px) { .row-ico { width: calc(2.16 * clamp(1.5rem, 1.1rem + 1.4vw, 2.2rem)); } }   /* the medallion as tall as the two lines */
