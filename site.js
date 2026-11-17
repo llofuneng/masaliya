@@ -558,9 +558,7 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all') {
   if (layer === 'fig') return c;
   // double gold frame (the closed window's frame is dimmer, so it does not invite a tap, 17.11)
   x.strokeStyle = h.soon ? 'rgba(207,164,97,.45)' : '#cfa461'; x.lineWidth = 4; x.stroke(arch);
-  const inner = new Path2D(); const m2 = m + 16, R2 = (W - 2 * m2) / 2;
-  inner.moveTo(m2, H - m2); inner.lineTo(m2, m2 + R2); inner.arc(W / 2, m2 + R2, R2, Math.PI, 0); inner.lineTo(W - m2, H - m2); inner.closePath();
-  x.lineWidth = 1.5; x.strokeStyle = h.soon ? 'rgba(207,164,97,.25)' : 'rgba(207,164,97,.55)'; x.stroke(inner);
+  // no inner line any more (17.11, her words «iç çerçeve çizgisini beğenmedim, karmaşık göstermiş metni»): the name has the arch to itself
   return c;
 }
 
@@ -758,6 +756,27 @@ function rowNav(w) {
   };
   const go = d => { const s = step(); row.scrollBy({ left: d * Math.max(s, Math.floor(row.clientWidth / s) * s), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
   prev.addEventListener('click', () => go(-1)); next.addEventListener('click', () => go(1));
+  // with a mouse the row can also be dragged sideways (17.11, her «desktopta da mouse ile kaydırma»); a drag does not open a book
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let x0 = 0, s0 = 0, moved = false, down = false;
+    row.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = true; moved = false; x0 = e.clientX; s0 = row.scrollLeft; });
+    addEventListener('pointermove', e => {
+      if (!down) return;
+      const dx = e.clientX - x0;
+      if (!moved && Math.abs(dx) > 5) { moved = true; row.classList.add('dragging'); }
+      if (moved) { row.scrollLeft = s0 - dx; e.preventDefault(); }
+    });
+    addEventListener('pointerup', () => {
+      if (!down) return; down = false;
+      if (!moved) return;
+      row.classList.remove('dragging');
+      // settle on the nearest card
+      const s = step(), to = Math.round(row.scrollLeft / s) * s;
+      row.scrollTo({ left: to, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+    row.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+    row.addEventListener('dragstart', e => e.preventDefault());
+  }
   let raf = 0; row.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update); }, { passive: true });
   addEventListener('resize', update); if (document.fonts) document.fonts.ready.then(update); update();
 }

@@ -1054,6 +1054,8 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 }
 @media (min-width: 721px) {
   :is(#home-grid, #grid, #related) .book-row > .card.book { flex-basis: clamp(190px, calc((100% - 100px) / 5.35), 250px); gap: 12px; padding: 12px 12px 0; }
+  /* four books in view, edge to edge (17.11, her «desktop görünümünde carousel'i sadece 4 masal gözükecek şekilde») */
+  :is(#home-grid, #related) .book-row > .card.book { flex-basis: calc((100% - 3 * clamp(12px, 1.6vw, 20px)) / 4); }
   :is(#home-grid, #grid, #related) .book-row .card.book h3 { font-size: var(--t-lg-r); }   /* fitTitles() then makes all titles one size, two lines */
   :is(#home-grid, #grid, #related) .book-row .card.book .card-cta { margin: 2px -12px 0; min-height: 50px; padding: 14px 10px; letter-spacing: .08em; }
 }
@@ -1114,3 +1116,17 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .promo-on { margin: 0; font-size: var(--t-sm); color: var(--cream); }
 .promo-on b { color: var(--gold-pale); letter-spacing: .04em; font-weight: 500; }
 .promo-x { margin-left: 4px; padding: 0; border: 0; background: none; font: 400 var(--t-xs) var(--f-body); color: var(--muted); text-decoration: underline; cursor: pointer; }
+
+/* rows dragged with the mouse (17.11) */
+@media (hover: hover) and (pointer: fine) { .book-row { cursor: grab; } .book-row.dragging { cursor: grabbing; scroll-snap-type: none; user-select: none; } .book-row.dragging .card { pointer-events: none; } }
+/* «Tümü»: the collection page shows every book, two side by side, the page growing downwards (17.11, her words) */
+#grid .row-wrap { max-width: 760px; margin-inline: auto; }
+#grid .book-row.big { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 2vw, 24px); overflow: visible; scroll-snap-type: none; margin-inline: 0; padding: 4px 0 14px; cursor: auto; }
+#grid .book-row.big > .card.book { flex-basis: auto; }
+#grid .row-arrow, #grid .row-dots { display: none !important; }
+@media (max-width: 720px) {
+  #grid .book-row.big > .card.book { padding: 7px 7px 0; gap: 7px; }
+  #grid .book-row.big .card.book h3 { font-size: var(--t-md); }
+  #grid .book-row.big .card.book > p { font-size: var(--t-xs); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  #grid .book-row.big .card.book .card-cta { margin: auto -7px 0; min-height: 44px; padding: 10px 4px; font-size: var(--t-xs); letter-spacing: 0; }
+}
