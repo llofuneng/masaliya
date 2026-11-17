@@ -1358,3 +1358,7 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
 .buy-wa b { font-weight: 500; color: var(--gold-pale); text-decoration: underline; text-decoration-color: rgba(226,181,107,.4); text-underline-offset: 3px; }
 .buy-wa:hover b, .buy-wa:focus-visible b { text-decoration-color: var(--gold); }
 #buy .form-note:empty { display: none; }   /* the empty message line takes no room (17.11); it opens only when there is something to say */
+/* 17.11, her words «biraz daha yavaş aşağı düşsün»: heading to the books, the home page's flag drifts slowly down and out of sight
+   below the screen (about 1.6 s, easing in and out) instead of sliding sideways; back at the top it rises to the seal again (1 s) */
+.wa.wa-up.wa-away, .wa.wa-up.wa-away:hover { transform: translateY(calc(100% + 40px + env(safe-area-inset-bottom, 0px))); transition: transform 1.6s cubic-bezier(.42,0,.38,1), opacity 1.6s ease-in; opacity: .2; }
+.wa.wa-up:not(.wa-away) { transition: transform 1s cubic-bezier(.3,.1,.25,1), translate .25s ease, opacity .5s ease-out; }
