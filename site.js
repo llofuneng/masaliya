@@ -779,20 +779,48 @@ function litCards(root) {
 // a swipe row of books (17.11): the dots follow the scroll, the arrows (computer) move it by a screenful; a row that fits needs neither
 function rowNav(w) {
   const row = w.querySelector('.book-row'), dots = w.nextElementSibling, prev = w.querySelector('.prev'), next = w.querySelector('.next');
+  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const step = () => { const c = row.querySelector('.card'); return c ? c.getBoundingClientRect().width + (parseFloat(getComputedStyle(row).columnGap) || 0) : row.clientWidth; };
+  // the row never ends (17.11, her «bu karusel hiçbir zaman bitmesin, başa dönsün»): the books are there three times in a row and
+  // the view stays on the middle copy; when it drifts into the first or the last copy it is moved by one copy, with no visible jump
+  const orig = [...row.children], n0 = orig.length;
+  let loop = false;
+  const setW = () => n0 * step();
+  const makeLoop = () => {
+    if (loop || n0 < 2 || row.scrollWidth - row.clientWidth < 4) return;
+    const copy = () => orig.map(c => { const k = c.cloneNode(true); k.setAttribute('aria-hidden', 'true'); k.querySelectorAll('a, button').forEach(a => a.tabIndex = -1); k.dataset.copy = '1'; return k; });
+    row.prepend(...copy()); row.append(...copy());
+    loop = true; w.classList.add('loop');
+    row.scrollLeft += setW();
+  };
+  const wrap = () => {
+    if (!loop || row.classList.contains('dragging')) return;
+    const W = setW();
+    if (row.scrollLeft < W * .5) row.scrollLeft += W;
+    else if (row.scrollLeft > W * 1.5) row.scrollLeft -= W;
+  };
   const update = () => {
-    const max = row.scrollWidth - row.clientWidth, s = step(), n = max > 2 ? Math.round(max / s) + 1 : 1, at = Math.min(n - 1, Math.round(row.scrollLeft / s));
+    const max = row.scrollWidth - row.clientWidth, s = step();
+    if (loop) {
+      // one dot per book; the arrows always work
+      const at = ((Math.round(row.scrollLeft / s) % n0) + n0) % n0;
+      if (dots && dots.children.length !== n0) dots.innerHTML = '<i></i>'.repeat(n0);
+      if (dots) [...dots.children].forEach((d, i) => d.classList.toggle('on', i === at));
+      prev.disabled = next.disabled = false; w.classList.remove('fits');
+      return;
+    }
+    const n = max > 2 ? Math.round(max / s) + 1 : 1, at = Math.min(n - 1, Math.round(row.scrollLeft / s));
     w.classList.toggle('fits', n < 2);
     if (dots && dots.children.length !== n) dots.innerHTML = '<i></i>'.repeat(n);
     if (dots) [...dots.children].forEach((d, i) => d.classList.toggle('on', i === at));
     prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft > max - 4;
   };
-  const go = d => { const s = step(); row.scrollBy({ left: d * Math.max(s, Math.floor(row.clientWidth / s) * s), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+  const go = d => { wrap(); const s = step(); row.scrollBy({ left: d * Math.max(s, Math.floor(row.clientWidth / s) * s), behavior: reduce() ? 'auto' : 'smooth' }); };
   prev.addEventListener('click', () => go(-1)); next.addEventListener('click', () => go(1));
   // with a mouse the row can also be dragged sideways (17.11, her «desktopta da mouse ile kaydırma»); a drag does not open a book
   if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
     let x0 = 0, s0 = 0, moved = false, down = false;
-    row.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = true; moved = false; x0 = e.clientX; s0 = row.scrollLeft; });
+    row.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; wrap(); down = true; moved = false; x0 = e.clientX; s0 = row.scrollLeft; });
     addEventListener('pointermove', e => {
       if (!down) return;
       const dx = e.clientX - x0;
@@ -805,13 +833,21 @@ function rowNav(w) {
       row.classList.remove('dragging');
       // settle on the nearest card
       const s = step(), to = Math.round(row.scrollLeft / s) * s;
-      row.scrollTo({ left: to, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      row.scrollTo({ left: to, behavior: reduce() ? 'auto' : 'smooth' });
     });
     row.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
     row.addEventListener('dragstart', e => e.preventDefault());
   }
-  let raf = 0; row.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update); }, { passive: true });
-  addEventListener('resize', update); if (document.fonts) document.fonts.ready.then(update); update();
+  // the move back to the middle copy is made once the row has come to rest (a finger may still be on it while it scrolls)
+  let raf = 0, rest = 0, touching = false;
+  row.addEventListener('touchstart', () => { touching = true; }, { passive: true });
+  row.addEventListener('touchend', () => { touching = false; clearTimeout(rest); rest = setTimeout(() => { if (!touching) wrap(); }, 160); }, { passive: true });
+  row.addEventListener('scroll', () => {
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(update);
+    clearTimeout(rest); rest = setTimeout(() => { if (!touching) wrap(); }, 160);
+  }, { passive: true });
+  const relayout = () => { const was = loop ? (row.scrollLeft % setW()) : 0; makeLoop(); if (loop) { row.scrollLeft = setW() + was; } update(); };
+  addEventListener('resize', relayout); if (document.fonts) document.fonts.ready.then(relayout); makeLoop(); update();
 }
 let fitTimer;
 addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitTitles, 120); });
