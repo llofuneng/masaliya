@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611171845">
+<link rel="stylesheet" href="site.css?v=202611171846">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -316,6 +316,8 @@
    the gold corners of the first screen, as wide as the first screen, a warm panel; inside, two swipe rows — on a phone two books and
    the edge of the third, on a computer five and gold arrows ---- */
 .home-books .hb-label { margin-bottom: 14px; }
+.home-books a.hb-go { text-decoration: none; -webkit-tap-highlight-color: transparent; }
+@media (max-width: 720px) { .home-books a.hb-go { padding-block: 6px; margin-block: -6px; } }
 /* the panel carries on the first screen's energy (17.11, her «soluk… enerji düşüyor», then «biraz karanlık duruyor. Ana sayfa kırmızı
    güzel»): the brand burgundy of the ticker as the ground, a warm golden light behind the heading, a richer red in the middle; the dark
    book cards stand out on it */
@@ -432,7 +434,7 @@
 </section>
 
 <section class="sec home-books" aria-labelledby="hb-title">
-<div class="wrap"><div class="sec-head hb-label"><p class="eyebrow">Masallarımız</p></div></div>
+<div class="wrap"><div class="sec-head hb-label"><a class="eyebrow hb-go" href="#home-grid">Masallarımız</a></div></div>
 <!-- 17.11: the books in their own frame, as wide as the first screen, two swipe rows (Kız / Erkek) -->
 <div class="hb-box">
   <div class="frame" aria-hidden="true">
@@ -468,10 +470,28 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611171845" defer></script>
+<script src="site.js?v=202611171846" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
+  // 17.11, her word «insin»: a tap on «Masallarımız» glides the page slowly down to the first row of books (its title and the covers
+  // in view), like «Masalını oluştur» on a book page; a touch or the wheel stops it
+  const go = document.querySelector('.hb-go');
+  if (go) go.addEventListener('click', e => {
+    const t = document.querySelector('.home-books .row-head') || document.getElementById('hb-title');
+    if (!t) return;
+    e.preventDefault();
+    const from = scrollY, to = Math.max(0, Math.min(t.getBoundingClientRect().top + scrollY - 16, document.documentElement.scrollHeight - innerHeight));
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return scrollTo({ top: to, behavior: 'instant' });
+    const dur = Math.min(1600, 900 + Math.abs(to - from) * .3), t0 = performance.now(), ease = x => (1 - Math.cos(Math.PI * x)) / 2;
+    let stop = false; const halt = () => { stop = true; }, evs = ['wheel', 'touchstart', 'keydown'];
+    evs.forEach(n => addEventListener(n, halt, { passive: true, once: true }));
+    (function step(now) {
+      if (stop) return;
+      const k = Math.min(1, (now - t0) / dur); scrollTo({ top: from + (to - from) * ease(k), behavior: 'instant' });
+      if (k < 1) requestAnimationFrame(step); else evs.forEach(n => removeEventListener(n, halt));
+    })(t0);
+  });
   const intro = document.getElementById('intro');
   const film = document.getElementById('film');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
