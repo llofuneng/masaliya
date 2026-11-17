@@ -1563,3 +1563,9 @@ body[data-page="urunler"] .pr-sec { padding-bottom: 0; }
 .pr-onward a:hover b, .pr-onward a:focus-visible b { transform: translateX(4px); }
 .pr-onward a:hover span { filter: drop-shadow(0 0 14px rgba(244,223,179,.35)); }
 @media (max-width: 560px) { .pr-onward { gap: 14px; } .pr-onward a { gap: 10px; } .pr-onward a span { font-size: clamp(1.3rem, 6vw, 1.55rem); white-space: nowrap; } .pr-onward .pr-ico { width: 40px; height: 40px; } .pr-onward a b { font-size: 1.3em; } }
+/* 17.11, her words «okların nerede durduğunu beğenmedim… tam ortalamıyor»: no arrows; on a phone the two links as one tidy block in
+   the middle — the medallions in a column, the titles starting on one line */
+@media (max-width: 560px) {
+  .pr-onward { display: grid; justify-content: center; justify-items: start; gap: 14px; }
+  .pr-onward a { width: 100%; }
+}
