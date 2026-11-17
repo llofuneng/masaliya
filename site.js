@@ -730,7 +730,9 @@ function fitTitles() {
   // the cards (17.11, her «hepsi aynı büyüklükte» and «A»): ONE size for every title on the page, as large as the titles allow in
   // two lines; the single longest title, if it would have to be far smaller than the CSS size to stay in two lines (below 62 % of
   // it: Kerem ve Dinozorların Doğum Günü), takes three lines at that size instead of making all the others small
-  const cards = [...document.querySelectorAll('.card.book h3')].filter(h => { h.style.fontSize = ''; return h.offsetParent; });
+  const copies = [...document.querySelectorAll('.card.book[data-copy] h3')];
+  const cards = [...document.querySelectorAll('.card.book:not([data-copy]) h3')].filter(h => { h.style.fontSize = ''; return h.offsetParent; });
+  copies.forEach(h => { h.style.fontSize = ''; });
   if (cards.length) {
     const base = parseFloat(getComputedStyle(cards[0]).fontSize), floor = base * .62;
     const lim = h => 2.5;   // two lines everywhere; the single longest title may take a third (17.11: the row cards too, with Fraunces small capitals)
@@ -738,7 +740,7 @@ function fitTitles() {
     // only the one longest title may take a third line (and only when it would otherwise be far smaller): all the rest keep to two
     const sorted = [...fits].sort((x, y) => x - y);
     let S = sorted.length > 1 && (sorted[0] < floor || sorted[0] < sorted[1] * .85) ? sorted[1] : sorted[0], n = 0;   // or far smaller than the next one (17.11)
-    const set = () => cards.forEach(h => { h.style.fontSize = S.toFixed(2) + 'px'; });
+    const set = () => cards.concat(copies).forEach(h => { h.style.fontSize = S.toFixed(2) + 'px'; });
     set();
     while (cards.some(h => lines(h) > lim(h) + 1) && n++ < 20) { S *= .96; set(); }   // never more than one line over
   }
@@ -775,6 +777,8 @@ function gridHTML(list) { return `<div class="book-grid">${list.map(b => card(b,
 function litCards(root) {
   root.querySelectorAll(':is(.book-row, .book-grid) .card').forEach(c => { const im = c.querySelector('.visual img'); if (im) c.style.setProperty('--cover', `url("${blurred(im.dataset.src0 || im.getAttribute('src'))}")`); });
   root.querySelectorAll(':is(.book-row, .book-grid) .card.book h3').forEach(smallCaps);
+  // the sharp cover fades in over the blurred one once it has arrived (17.11)
+  root.querySelectorAll('.card.book .visual img').forEach(im => { const on = () => im.classList.add('in'); if (im.complete && im.naturalWidth) on(); else { im.addEventListener('load', on, { once: true }); im.addEventListener('error', on, { once: true }); } });
 }
 // a swipe row of books (17.11): the dots follow the scroll, the arrows (computer) move it by a screenful; a row that fits needs neither
 function rowNav(w) {
@@ -847,7 +851,12 @@ function rowNav(w) {
     clearTimeout(rest); rest = setTimeout(() => { if (!touching) wrap(); }, 160);
   }, { passive: true });
   const relayout = () => { const was = loop ? (row.scrollLeft % setW()) : 0; makeLoop(); if (loop) { row.scrollLeft = setW() + was; } update(); };
-  addEventListener('resize', relayout); if (document.fonts) document.fonts.ready.then(relayout); makeLoop(); update();
+  addEventListener('resize', relayout); if (document.fonts) document.fonts.ready.then(relayout);
+  update();
+  // made once the page has opened and the phone is idle (17.11, «hız»): the rows are below the first screen
+  const later = window.requestIdleCallback ? f => requestIdleCallback(f, { timeout: 1500 }) : f => setTimeout(f, 200);
+  const start = () => later(() => { makeLoop(); update(); });
+  if (document.readyState === 'complete') start(); else addEventListener('load', start, { once: true });
 }
 let fitTimer;
 addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitTitles, 120); });
@@ -1281,7 +1290,7 @@ function renderProduct() {
     // one viewer at the top: the cover first, then every page, then the back cover
     const viewerHtml = inner ? `<section class="p-viewer" id="inside" aria-label="Kitabın içinden">
         <div class="spread${p.spreads ? '' : ' portrait'} on-cover" id="spread" tabindex="0" role="button" aria-label="Sayfayı büyüt">
-          <div class="cover-box main" id="cover-box"><img id="g-main" src="${coverSrc(shots[0][0], 'w')}" ${jpgBack(shots[0][0])} fetchpriority="high" alt="${esc(shots[0][1])}"></div>
+          <div class="cover-box main" id="cover-box" style="background: #2a1712 url('${thumb(shots[0][0])}') center / cover no-repeat"><img id="g-main" src="${coverSrc(shots[0][0], 'w')}" ${jpgBack(shots[0][0])} fetchpriority="high" alt="${esc(shots[0][1])}"></div>
           <img id="spread-img" src="" alt="" hidden>
           <button class="arrow ov ov-prev" id="prev" type="button" aria-label="Önceki sayfa">←</button><button class="arrow ov ov-next" id="next" type="button" aria-label="Sonraki sayfa">→</button>
         </div>
@@ -1445,10 +1454,8 @@ function renderProduct() {
       if (use) { const i = +use.dataset.use; checked[i].accepted = true; slots[i].dataset.state = 'ok'; showMessages(); }
       if (pick) slots[+pick.dataset.pick].querySelector('input').click();
     });
-    if (slots.length && 'IntersectionObserver' in window) {
-      const io = new IntersectionObserver(en => { if (en.some(x => x.isIntersecting)) { io.disconnect(); loadChecker().then(m => m.warmUp()).catch(() => {}); } }, { rootMargin: '600px 0px' });
-      io.observe(slots[0]);
-    }
+    // the face checker (about 15 MB) loads only when someone reaches for a photo, not when the photo boxes come near (17.11, «hız»):
+    // it had been loading with the page on a computer and slowing the cover down
     slots.forEach((slot, i) => {
       const input = slot.querySelector('input'), img = slot.querySelector('.slot-img');
       // start loading the face checker as soon as someone reaches for a photo

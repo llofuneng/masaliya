@@ -1171,3 +1171,9 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 /* the whole book card opens the book again (17.11, her «при нажатии просто на саму обложку… тоже должна открыться сама книга»;
    before that only «İncele + Sipariş ver» was a link): a hand over the card, the button stays the keyboard's way in */
 .card:has(.card-cta) { cursor: pointer; }
+
+/* while a cover loads (17.11, «resimler yüklenirken siyah düşer mi»): the card shows its own cover, blurred and small (already
+   loaded for the card's ground), instead of an empty dark box; the sharp cover comes in over it */
+.card.book .visual { background: var(--wood) var(--cover, none) center / cover no-repeat; }
+.card.book .visual img { opacity: 0; transition: opacity .35s ease; }
+.card.book .visual img.in { opacity: 1; }
