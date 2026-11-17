@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611172020">
+<link rel="stylesheet" href="site.css?v=202611172026">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -172,7 +172,8 @@
   .lite a.door:hover .door-art, .lite a.door:focus-visible .door-art { --up: 1; --gl: 1; }
   .lite a.door:hover .door-art img, .lite a.door:focus-visible .door-art img { filter: drop-shadow(0 34px 40px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(226,181,107,.35)); }
 }
-.lite a.door.picked .door-art { --gl: 0; }   /* the tapped window does not move: only its light changes and the child jumps (17.11) */
+.lite a.door.picked .door-art { --gl: 0; }
+.lite a.door:active .door-art, .lite a.door.picked .door-art { transform: perspective(900px) scale(.97); transition: transform .09s ease-out; }   /* 17.11: pressed in under the finger */   /* the tapped window does not move: only its light changes and the child jumps (17.11) */
 .lite .door-jump { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 .lite a.door.picked .door-art img { filter: drop-shadow(0 30px 36px rgba(0,0,0,.6)) drop-shadow(0 0 26px rgba(244,223,179,.55)); }
 /* the adults' window (17.11, her words «çok tıklanabilir gözüküyor… daha da mı karartsak»): not a button — no hand cursor, no lift;
@@ -483,7 +484,7 @@
 </div></section>
 <footer id="site-foot"></footer>
 
-<script src="site.js?v=202611172020" defer></script>
+<script src="site.js?v=202611172026" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 // the windows' drawing size: 512 wide, DOOR.H tall, the figure at scale DOOR.k (17.11, her «pencereleri yukarı uzatıp karakterleri büyütmek»)
@@ -619,19 +620,14 @@ addEventListener('DOMContentLoaded', () => {
     const prep = () => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach((img, i) => setTimeout(() => idle(() => { prepPicked(img); idle(() => jumpLayers(img)); }), 900 + i * 500));
     if (document.readyState === 'complete') prep(); else addEventListener('load', prep, { once: true });
     // two different jumps (17.11): [ms, width, height] keys for the squash and stretch, the time in the air, the height
+    // 17.11, her choice: the tap's answer in 0.2 s, no longer a little show that keeps the visitor waiting — the window is pressed
+    // in and turns light, the child gives one small quick hop (a squash, up a few pixels, down), the wand's star or the sword's tip
+    // flashes once; meanwhile the collection page is already loading (see the prefetch below)
     const JUMPS = {
-      // the girl (17.11, her words «kızınki de erkeğinki gibi… ufak bir hareket»): the same calm rhythm as the boy, no twirl —
-      // a soft crouch, a lighter, lower leap leaning toward her wand, the star on the wand twinkles with a few sparkles, a soft landing
-      // 17.11, her words «tek ayağının üzerinde bir kez sekse yeter»: one hop on one foot, not two
-      'kizlar.html': { end: 760, keys: [[0, 1, 1], [180, 1.02, .97], [230, .98, 1.03], [420, 1, 1], [600, 1.03, .95], [680, 1, 1], [760, 1, 1]],
-        hops: [[230, 600]], high: 26, pivot: -7, tiltKeys: [[0, 0], [190, -.12], [620, -.12], [760, 0]],
-        // her other leg (the wand side) bends up and back while she hops on one foot; in the figure's own units, so it follows the
-        // window's size (phones draw taller windows and larger figures since 17.11)
-        lift: { u0: 60, u1: 75.2, v0: 128.9, v1: 150.5, up: 7, kick: -.38 },
-        tip: [99, 38], gleam: '#d4607a', gleams: [[300, 540]], sparks: 4, ink: ['#c99640', '#d4607a', '#e9b44c'] },
-      // the boy: a deep crouch, a high, quick leap leaning toward his sword (a gleam at its tip), a firm landing with a puff of dust
-      'erkekler.html': { end: 820, keys: [[0, 1, 1], [150, 1.08, .86], [200, .93, 1.1], [330, 1, 1], [460, .95, 1.08], [520, 1.1, .86], [640, .98, 1.03], [820, 1, 1]],
-        air: [175, 495], high: 64, spin: 0, lean: .11, tip: [103, 29], dust: 8 }
+      'kizlar.html': { end: 200, keys: [[0, 1, 1], [45, 1.05, .93], [110, .97, 1.05], [200, 1, 1]], air: [45, 165], high: 34,
+        tip: [99, 38], gleam: '#d4607a', gleams: [[30, 200]] },
+      'erkekler.html': { end: 200, keys: [[0, 1, 1], [45, 1.06, .92], [110, .97, 1.05], [200, 1, 1]], air: [45, 165], high: 36,
+        tip: [103, 29], gleams: [[30, 200]] }
     };
     const smooth = t => t * t * (3 - 2 * t);
     const star = (x, X, Y, r) => { x.beginPath(); x.moveTo(X, Y - r); x.quadraticCurveTo(X, Y, X + r, Y); x.quadraticCurveTo(X, Y, X, Y + r); x.quadraticCurveTo(X, Y, X - r, Y); x.quadraticCurveTo(X, Y, X, Y - r); x.fill(); };
@@ -703,8 +699,13 @@ addEventListener('DOMContentLoaded', () => {
       img.src = pickedSrc(img); a.classList.add('picked');
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
       const took = calm ? 0 : jump(img, a.querySelector('.door-art'), a.getAttribute('href'));
-      setTimeout(() => { location.href = a.href; }, took ? took + 40 : 150);
+      setTimeout(() => { location.href = a.href; }, took ? took + 20 : 80);
     }));
+    // the collection pages load ahead (17.11): once the home page is idle, and again the moment a finger touches a window, so the page
+    // is ready when the 0.2 s hop ends
+    const fetched = new Set(), ahead = href => { if (fetched.has(href)) return; fetched.add(href); const l = document.createElement('link'); l.rel = 'prefetch'; l.href = href; document.head.appendChild(l); };
+    document.querySelectorAll('.lite a.door:not(.soon)').forEach(a => ['pointerdown', 'touchstart', 'mouseenter'].forEach(ev => a.addEventListener(ev, () => ahead(a.getAttribute('href')), { passive: true, once: true })));
+    addEventListener('load', () => (window.requestIdleCallback || setTimeout)(() => document.querySelectorAll('.lite a.door:not(.soon)').forEach(a => ahead(a.getAttribute('href'))), { timeout: 3000 }));
     // the adults' window is not open yet: a tap shows a short note for a moment (17.11)
     document.querySelectorAll('.lite .door.soon').forEach(d => d.addEventListener('click', () => {
       d.classList.remove('told'); void d.offsetWidth; d.classList.add('told');
