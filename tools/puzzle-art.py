@@ -25,15 +25,33 @@ def edge(p0, p1, sign):
     pts.append((x1, y1))
     return pts
 
-def wood(size, base, seed=0):
-    """plain birch plywood: the base colour with long soft grain streaks"""
-    w, h = size; rnd = random.Random(seed)
-    g = Image.new('L', (max(1, w // 6), h), 128); gd = ImageDraw.Draw(g)
-    for y in range(0, h, 3): gd.line((0, y, g.width, y), fill=128 + int(22 * math.sin(y / (9 + rnd.random() * 4)) + rnd.randint(-8, 8)))
-    g = g.resize((w, h)).filter(ImageFilter.GaussianBlur(1.5))
-    r_, g_, b_ = base
-    return Image.merge('RGBA', (g.point(lambda v: max(0, min(255, r_ + (v - 128)))), g.point(lambda v: max(0, min(255, g_ + (v - 128) * 3 // 4))),
-                                g.point(lambda v: max(0, min(255, b_ + (v - 128) // 2))), Image.new('L', size, 255)))
+def wood(size, base=None, seed=0, vertical=False):
+    """17.11, her words «karton gibi… ahşap hissi vermiyor»: oak — long fibres along the board, soft wavy growth rings that drift and
+    meet, a slow change of tone across the board; numpy for the texture"""
+    import numpy as np
+    full = size
+    w, h = max(2, size[0] // 2), max(2, size[1] // 2)   # drawn at half size, then enlarged: wider, calmer grain
+    if vertical: w, h = h, w
+    rng = np.random.default_rng(seed)
+    def field(cw, ch):   # smooth noise, -0.5 … 0.5, with features about cw × ch pixels
+        g = rng.random((max(2, int(h / ch) + 2), max(2, int(w / cw) + 2)))
+        return np.asarray(Image.fromarray((g * 255).astype('uint8')).resize((w, h), Image.BICUBIC), float) / 255 - .5
+    yy = np.arange(h, dtype=float)[:, None] * np.ones((1, w))
+    warp = field(w * .45, h * .35) * 140 + field(w * .18, h * .12) * 34 + field(w * .06, 18) * 6
+    period = 26 + rng.random() * 8
+    ph = (yy + warp) / period
+    ring = (np.sin(ph * 2 * np.pi) + 1) / 2
+    ring = ring ** 3.2                                                   # thin dark latewood lines, wide light earlywood
+    fib = np.asarray(Image.fromarray((rng.random((h, max(2, w // 40))) * 255).astype('uint8')).resize((w, h), Image.BICUBIC), float) / 255 - .5
+    fib = np.asarray(Image.fromarray(((fib + .5) * 255).astype('uint8')).filter(ImageFilter.GaussianBlur(.7)), float) / 255 - .5
+    tone = field(w * .7, h * .5)
+    base_c = np.array([190, 142, 92.]) if base is None else np.array(base, float)
+    dark_c = base_c * np.array([.66, .58, .52])
+    t = np.clip(ring * .55 + fib * .22 + tone * .35 + .08, 0, 1)[..., None]
+    rgb = base_c * (1 - t) + dark_c * t
+    img = Image.fromarray(np.clip(rgb, 0, 255).astype('uint8'), 'RGB')
+    if vertical: img = img.transpose(Image.ROTATE_90)
+    return img.resize(full, Image.BICUBIC).convert('RGBA')
 
 def build(src, dst, seed, faces=()):
     rnd = random.Random(seed)
@@ -83,7 +101,7 @@ def build(src, dst, seed, faces=()):
     for (r, c) in picks:   # the holes: the wooden board, a soft shadow along their rim
         poly = piece(r, c)
         m = Image.new('L', im.size, 0); ImageDraw.Draw(m).polygon(poly, fill=255)
-        board = wood(im.size, (176, 132, 88), seed=r * 7 + c)
+        board = wood(im.size, seed=r * 7 + c)
         out.paste(board, (0, 0), m)
         rim = Image.new('L', im.size, 0); ImageDraw.Draw(rim).line(poly + poly[:1], fill=170, width=14)
         rim = ImageChops.multiply(rim.filter(ImageFilter.GaussianBlur(8)), m)
@@ -98,16 +116,41 @@ def build(src, dst, seed, faces=()):
         rimm = ImageChops.multiply(rimm.filter(ImageFilter.GaussianBlur(2)), pm)
         pc.alpha_composite(Image.merge('RGBA', (*[Image.new('L', pc.size, v) for v in (255, 238, 205)], rimm.point(lambda v: v * 3 // 5))))
         # the wooden thickness under the piece
-        side = wood(pc.size, (196, 156, 108), seed=c); side.putalpha(pm)
-        piece_img = Image.new('RGBA', (pc.width + 12, pc.height + 12), (0, 0, 0, 0))
-        piece_img.alpha_composite(side, (5, 7)); piece_img.alpha_composite(pc, (0, 0))
+        side = wood(pc.size, (206, 166, 116), seed=c + 11); side.putalpha(pm)
+        ply = Image.new('RGBA', pc.size, (0, 0, 0, 0)); pd_ = ImageDraw.Draw(ply)   # plywood layers along the edge
+        for k_, a_ in ((4, 70), (8, 60)): pd_.line([(x - bx0 + k_ * .6, y - by0 + k_) for x, y in poly + poly[:1]], fill=(110, 70, 38, a_), width=2)
+        side.alpha_composite(ply)
+        piece_img = Image.new('RGBA', (pc.width + 16, pc.height + 18), (0, 0, 0, 0))
+        for k_ in range(1, 12): piece_img.alpha_composite(side, (int(k_ * .55), k_))   # a solid wooden thickness
+        piece_img.alpha_composite(side, (6, 12)); piece_img.alpha_composite(pc, (0, 0))
         piece_img = piece_img.rotate(ang, resample=Image.BICUBIC, expand=True)
         sh = Image.new('RGBA', piece_img.size, (0, 0, 0, 0)); sh.putalpha(piece_img.getchannel('A').point(lambda v: v * 150 // 255))
         sh = sh.filter(ImageFilter.GaussianBlur(14))
         cx = (bx0 + bx1) / 2 + mx * cw; cy = (by0 + by1) / 2 + my * ch
         px, py = int(cx - piece_img.width / 2), int(cy - piece_img.height / 2)
         out.alpha_composite(sh, (px + 12, py + 20)); out.alpha_composite(piece_img, (px, py))
-    out.convert('RGB').resize((W, H), Image.LANCZOS).save(dst, quality=86, optimize=True, progressive=True)
+    # the wooden tray the puzzle lies in: an oak frame round the picture, with a shadow falling inward (the picture sits lower)
+    F = 34 * S
+    # the frame's four sides, each with its grain along it, mitred at the corners
+    framed = wood(im.size, (176, 124, 74), seed=seed + 3)
+    side_v = wood(im.size, (172, 120, 72), seed=seed + 5, vertical=True)
+    mv = Image.new('L', im.size, 0); md = ImageDraw.Draw(mv)
+    md.polygon([(0, 0), (F, F), (F, H * S - F), (0, H * S)], fill=255); md.polygon([(W * S, 0), (W * S - F, F), (W * S - F, H * S - F), (W * S, H * S)], fill=255)
+    framed.paste(side_v, (0, 0), mv)
+    mitre = Image.new('RGBA', im.size, (0, 0, 0, 0)); mt = ImageDraw.Draw(mitre)
+    for a_, b_ in (((0, 0), (F, F)), ((W * S, 0), (W * S - F, F)), ((0, H * S), (F, H * S - F)), ((W * S, H * S), (W * S - F, H * S - F))): mt.line((a_, b_), fill=(80, 48, 24, 160), width=2)
+    framed.alpha_composite(mitre)
+    inner = out.resize((W * S - 2 * F, H * S - 2 * F), Image.LANCZOS)
+    framed.alpha_composite(inner, (F, F))
+    sh = Image.new('L', im.size, 0); sd = ImageDraw.Draw(sh)
+    sd.rectangle((F, F, W * S - F, F + 22), fill=150); sd.rectangle((F, F, F + 22, H * S - F), fill=150)
+    sh = sh.filter(ImageFilter.GaussianBlur(10)); hole = Image.new('L', im.size, 0); ImageDraw.Draw(hole).rectangle((F, F, W * S - F, H * S - F), fill=255)
+    framed.paste((30, 18, 10), (0, 0), ImageChops.multiply(sh, hole))
+    lip = Image.new('RGBA', im.size, (0, 0, 0, 0)); ld = ImageDraw.Draw(lip)
+    ld.line((F - 2, H * S - F + 1, W * S - F + 1, H * S - F + 1, W * S - F + 1, F - 2), fill=(255, 226, 180, 120), width=3)   # light on the frame's inner edge
+    ld.rectangle((1, 1, W * S - 2, H * S - 2), outline=(90, 56, 30, 255), width=3)
+    framed.alpha_composite(lip)
+    framed.convert('RGB').resize((W, H), Image.LANCZOS).save(dst, quality=86, optimize=True, progressive=True)
 
 if __name__ == '__main__':
     os.chdir(os.path.join(os.path.dirname(__file__), '..'))
