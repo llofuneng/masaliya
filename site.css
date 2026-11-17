@@ -35,6 +35,7 @@
 }
 * { box-sizing: border-box; }
 button, input, select, textarea { font-family: inherit; }
+a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }   /* no grey box on a tap (17.11) */
 h1 em, h2 em, h3 em, h4 em { font-weight: 600; }   /* italic words in headings: the same single weight (17.11) */
 html { scroll-behavior: smooth; }
 html { font-variant-numeric: lining-nums; font-feature-settings: "lnum" 1; }   /* "font" shorthands reset the variant, the feature setting survives */
@@ -873,7 +874,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 /* Campaign: the second hardcover book for less */
 /* home: a gold line running along the top of the first screen */
 .deal-run { position: absolute; top: 0; left: 0; right: 0; z-index: 6; height: 34px; display: flex; align-items: center; overflow: hidden; background: var(--burgundy); color: var(--gold-pale); text-decoration: none; font: 500 var(--t-xs)/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
-.deal-track { display: flex; width: max-content; animation: dealRun 36s linear infinite; }
+.deal-track { display: flex; width: max-content; animation: dealRun 48s linear infinite; }   /* 17.11: a little slower (36 → 48 s) */
 .deal-track span, .deal-track i { padding: 0 14px; }
 .deal-track b { font-weight: 600; color: #fff3d6; }
 .deal-track i { display: inline-flex; align-items: center; color: var(--gold); }
@@ -919,6 +920,9 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .card.book h3 { font-weight: 600; background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 .card.book h3 .ad { font-style: italic; font-weight: 600; font-size: 1em; }
+/* 17.11, her words «masal isimlerini… hepsini büyük harf yapacaktık… kapağın başlığıyla çok karışıyor»: the tale's name in capitals,
+   on the cards and on the book page (the page is lang="tr": i → İ) */
+.card.book h3, .p-head h1 { text-transform: uppercase; letter-spacing: .03em; }
 .card.book p { color: var(--cream); opacity: .82; }
 @media (max-width: 620px) {
   #grid .card.book:has(.card-cta), #home-grid .card.book:has(.card-cta), #related .card.book:has(.card-cta) { grid-template-rows: auto 1fr auto; row-gap: 8px; }
@@ -948,7 +952,11 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 @keyframes psySheen { 0%, 55% { background-position: 130% 0; } 85%, 100% { background-position: -30% 0; } }
 @media (prefers-reduced-motion: reduce) { .psy-seal::after, .psy-seal { animation: none; } .psy-seal { transition: none; } }
 .intro-bottom { position: relative; }
-@media (max-width: 1000px) { .psy-seal { position: relative; top: auto; left: auto; width: 70px; height: 70px; margin: 12px auto 0; } }
+@media (max-width: 1000px) { .psy-seal { position: relative; top: auto; left: auto; width: 96px; height: 96px; margin: 12px auto 0; } }
+/* 17.11, her words «döner durur bir kez»: a little after the page opens the seal turns round once and stays still */
+.psy-seal svg { animation: psySpin 1.5s cubic-bezier(.45, 0, .2, 1) 1.2s 1 both; }
+@keyframes psySpin { from { rotate: 0deg; } to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .psy-seal svg { animation: none; } }
 .psy-strip { display: flex; align-items: center; gap: 24px; max-width: 900px; margin: 36px auto 0; padding: 22px 28px; border: 1px solid var(--line-strong);
   border-radius: 18px; background: rgba(246,236,220,.035); scroll-margin-top: 120px; }
 .psy-strip .psy-face { flex: none; width: 88px; height: 88px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--gold), 0 0 0 7px rgba(226,181,107,.14); }
@@ -973,3 +981,10 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 @media (min-width: 900px) { :root { --t-md: 1.125rem; } }
 /* the type scale on phones (17.11): body text 16 px */
 @media (max-width: 620px) { body { font-size: var(--t-md); } }
+
+/* 17.11, her words «Büyüt… altında tüm sayfaları listeledik. Tam o sınıra kadar aç sayfayı»: on a phone the first screen of a book page
+   ends right under the page thumbnails — the cover is as tall as the room above «Büyüt», the thumbnails and the «Masalını oluştur» bar
+   (370 px = ticker, header and crumbs 151 + «Büyüt» and thumbnails with their gaps 148 + the bar 63 and a gap) */
+@media (max-width: 620px) {
+  .p-viewer .spread.on-cover:not(.portrait) { width: clamp(200px, calc((100svh - 370px) * 800 / 1075), 100%); }
+}

@@ -44,10 +44,9 @@ const pairOff = items => pairOn() ? Math.floor(items.filter(it => it.cover === '
 function dealRun() {
   if (!pairOn() || document.querySelector('.deal-run')) return;
   const intro = document.getElementById('intro');
-  // New Year look (16.11): burgundy line, a gold bell and a gold snowflake between the phrases
-  const BELL = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 3c-3.3 0-6 2.7-6 6v4l-2 3h16l-2-3V9c0-3.3-2.7-6-6-6zm0 19a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 22z"/></svg>';
+  // New Year look (16.11): burgundy line, a gold snowflake between the phrases (17.11: no bell any more)
   const SNOW = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10M9 4l3 3 3-3M9 20l3-3 3 3"/></svg>';
-  const one = `<span>Yılbaşına özel: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b></span><i>${BELL}</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>${SNOW}</i>`;
+  const one = `<span>Yılbaşına özel: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b></span><i>${SNOW}</i><span>${PAIR_DEAL.untilText}’a kadar</span><i>${SNOW}</i>`;
   // not a link (16.11, her words «Hep aksın. Tıklanamasın.»): it only runs, a tap never stops it
   const a = document.createElement('div');
   a.className = 'deal-run'; a.setAttribute('role', 'marquee');
@@ -533,28 +532,27 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all') {
   if (h.soon && layer !== 'fig') {
     // not open yet (17.11): like an unexplored part of a map in a game — a dark veil with drifting mist, the figures only faintly seen
     x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'transparent';
-    x.fillStyle = 'rgba(4,6,6,.64)'; x.fillRect(0, 0, W, H);
+    x.fillStyle = 'rgba(4,6,6,.88)'; x.fillRect(0, 0, W, H);   // 17.11: darker (.64 → .88), her words «daha da mı karartsak»
     let f = 11; const fr = () => (f = (f * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 10; i++) {
       const fx = fr() * W, fy = H * (.2 + fr() * .8), rr = 70 + fr() * 150, fg = x.createRadialGradient(fx, fy, 0, fx, fy, rr);
-      fg.addColorStop(0, 'rgba(150,168,160,.15)'); fg.addColorStop(1, 'rgba(150,168,160,0)'); x.fillStyle = fg; x.fillRect(0, 0, W, H);
+      fg.addColorStop(0, 'rgba(150,168,160,.11)'); fg.addColorStop(1, 'rgba(150,168,160,0)'); x.fillStyle = fg; x.fillRect(0, 0, W, H);
     }
-    // a gold sash across the upper corner: not open yet
-    x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'rgba(0,0,0,.4)'; x.shadowBlur = 8; x.shadowOffsetY = 2;
-    x.translate(W * .72, H * .19); x.rotate(Math.PI / 4.6);
-    const sg = x.createLinearGradient(0, -28, 0, 28); sg.addColorStop(0, '#f6e2b4'); sg.addColorStop(1, '#d4a960');
-    x.fillStyle = sg; x.fillRect(-W, -27, W * 2, 54);
-    x.shadowColor = 'transparent'; x.fillStyle = '#3a1e14'; x.font = '600 25px Jost, "Avenir Next", "Segoe UI", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    // «ÇOK YAKINDA» (17.11, her words «farklı bir yere… daha küçük altına… göze batmadan ama okunur»): no sash in the corner any more;
+    // small quiet letters low in the window, under the figures' feet (about 10 px on a phone)
+    x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'rgba(0,0,0,.7)'; x.shadowBlur = 8; x.shadowOffsetY = 1;
+    // 17.11, her choice B («çok yakında acayip dikkat çekiyor»): smaller and faint, so the closed window stays quiet
+    x.fillStyle = 'rgba(232,205,150,.4)'; x.font = '500 36px Jost, "Avenir Next", "Segoe UI", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
     if ('letterSpacing' in x) x.letterSpacing = '5px';
-    x.fillText('ÇOK YAKINDA', 0, 1);
+    x.fillText('ÇOK YAKINDA', W / 2, H - m - 46);
   }
   x.restore();
   if (layer === 'fig') return c;
-  // double gold frame
-  x.strokeStyle = '#cfa461'; x.lineWidth = 4; x.stroke(arch);
+  // double gold frame (the closed window's frame is dimmer, so it does not invite a tap, 17.11)
+  x.strokeStyle = h.soon ? 'rgba(207,164,97,.45)' : '#cfa461'; x.lineWidth = 4; x.stroke(arch);
   const inner = new Path2D(); const m2 = m + 16, R2 = (W - 2 * m2) / 2;
   inner.moveTo(m2, H - m2); inner.lineTo(m2, m2 + R2); inner.arc(W / 2, m2 + R2, R2, Math.PI, 0); inner.lineTo(W - m2, H - m2); inner.closePath();
-  x.lineWidth = 1.5; x.strokeStyle = 'rgba(207,164,97,.55)'; x.stroke(inner);
+  x.lineWidth = 1.5; x.strokeStyle = h.soon ? 'rgba(207,164,97,.25)' : 'rgba(207,164,97,.55)'; x.stroke(inner);
   return c;
 }
 

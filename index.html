@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170203">
+<link rel="stylesheet" href="site.css?v=202611170303">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -142,12 +142,16 @@
 /* a warm light behind the windows */
 .lite .stage-mid { background: radial-gradient(48% 50% at 50% 62%, rgba(255,196,128,.17), transparent 72%); }
 /* the invitation: large gold italic with a soft glow; fairy dust falls from it onto the windows */
-.lite .doors-q { display: block; position: relative; z-index: 3; margin: 0; font: italic 600 clamp(1.25rem, .9rem + 1.5vw, 1.8rem)/1.15 var(--f-display); letter-spacing: .01em; color: var(--gold-pale); text-align: center;
-  text-shadow: 0 0 14px rgba(226,181,107,.41), 0 2px 12px rgba(0,0,0,.7); animation: qGlow 3.6s ease-in-out infinite; }   /* 17.11: the glow 25% softer */
-@keyframes qGlow { 50% { text-shadow: 0 0 21px rgba(244,223,179,.6), 0 2px 12px rgba(0,0,0,.7); } }
+/* the invitation (17.11, her words «o parıltıyı iptal edelim… uzman psikolog onaylıdaki altın geçişi gibi»): no gold dust and no pulsing
+   glow any more; every 9 s a soft gold sheen slides across the words, like on the seal (between the seal's sheens, so they never meet).
+   The letters are a gradient clipped to the text, so the shadow is a filter (a text-shadow would darken them) */
+.lite .doors-q { display: block; position: relative; z-index: 3; margin: 0; font: italic 600 clamp(1.25rem, .9rem + 1.5vw, 1.8rem)/1.15 var(--f-display); letter-spacing: .01em; text-align: center;
+  color: transparent; -webkit-text-fill-color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(105deg, #ecd29c 0 34%, #fff6df 45%, #ffffff 50%, #fff6df 55%, #ecd29c 66% 100%); background-size: 300% 100%; background-position: 130% 0;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.7)); animation: qSheen 9s ease-in-out 5.7s infinite; }
+@keyframes qSheen { 0%, 55% { background-position: 130% 0; } 85%, 100% { background-position: -30% 0; } }
 .fairy-dust { display: none; }
-.lite .fairy-dust { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; opacity: .75; }   /* 17.11: the gold dust 25% softer */
-@media (prefers-reduced-motion: reduce) { .lite .doors-q { animation: none; } .lite .fairy-dust { display: none; } }
+@media (prefers-reduced-motion: reduce) { .lite .doors-q { animation: none; } }
 /* three windows of exactly the same width with exactly the same gaps, whatever the length of their names (flex, fixed widths: the same in every browser) */
 .lite .doors { display: flex; justify-content: center; align-items: flex-start; position: relative; z-index: 1; gap: calc(var(--dw) * .14); visibility: visible; }
 .lite .doors > .door { flex: 0 0 var(--dw); min-width: 0; }
@@ -166,23 +170,16 @@
 /* the lift only with a real mouse: on a phone a tap leaves :hover on, and the window would jump up and down (17.11: «çerçeve oynamasın») */
 @media (hover: hover) and (pointer: fine) {
   .lite a.door:hover .door-art, .lite a.door:focus-visible .door-art { --up: 1; --gl: 1; }
-  .lite .door.soon:hover .door-art { --up: .4; --gl: .5; }
   .lite a.door:hover .door-art img, .lite a.door:focus-visible .door-art img { filter: drop-shadow(0 34px 40px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(226,181,107,.35)); }
 }
 .lite a.door.picked .door-art { --gl: 0; }   /* the tapped window does not move: only its light changes and the child jumps (17.11) */
 .lite .door-jump { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 .lite a.door.picked .door-art img { filter: drop-shadow(0 30px 36px rgba(0,0,0,.6)) drop-shadow(0 0 26px rgba(244,223,179,.55)); }
-/* the adults' window on a tap: a small lift and a short note under it (17.11) */
-.lite .door.soon { cursor: pointer; position: relative; }
-.lite .door.soon.nudge .door-art { --gl: .6; }
-.lite .door.soon::after { content: "Çok yakında açılıyor ✦"; position: absolute; right: 2px; top: 100%; translate: 0 4px; white-space: nowrap; pointer-events: none;
-  font: 500 var(--t-xs)/1.3 var(--f-body); letter-spacing: .06em; color: var(--gold-pale); opacity: 0; transition: opacity .3s ease, translate .3s ease; }
-.lite .door.soon.nudge::after { opacity: 1; translate: 0 7px; }
+/* the adults' window (17.11, her words «çok tıklanabilir gözüküyor… daha da mı karartsak»): not a button — no hand cursor, no lift */
+.lite .door.soon { cursor: default; position: relative; }
 @media (prefers-reduced-motion: reduce) { .lite .door .door-art { transition: none; } }
 /* the name is never wider than its window and always on one line: its size follows the window's width */
-.lite .door b { font-size: min(calc(var(--dw) / 6.2), 1.5rem); line-height: 1.08; white-space: nowrap; color: var(--gold-pale); }   /* always one line; the script below makes sure it fits */
-@media (hover: hover) and (pointer: fine) { .lite a.door:hover b { color: var(--cream); } }
-.lite .door.soon b { color: var(--gold-pale); }   /* same as the others: the "Çok yakında" sash already says it is not open yet */
+.lite .door b { font-size: min(calc(var(--dw) / 6.2), 1.15rem); line-height: 1.08; white-space: nowrap; color: var(--gold-pale); }   /* always one line; the script below makes sure it fits */
 /* drawn from the first paint, so nothing below it moves when the page settles */
 .lite .after-copy { display: grid; gap: 4px; }
 .lite .after { display: none !important; }
@@ -253,6 +250,12 @@
 .home-books { border-top: 1px solid var(--line); }
 .home-books { padding-top: 24px; padding-bottom: 28px; }
 .home-books + #site-foot { padding-top: 24px; }
+/* the heading under «Masallarımız» (17.11, her choice 2): like the first screen's headline — gold gradient letters, «masalın kahramanı» in
+   italic; the shadow is a filter (a text-shadow would darken letters clipped from a gradient) */
+.home-books #hb-title { background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
+.home-books #hb-title em { font-style: italic; font-weight: 600; }
+@media (max-width: 560px) { .home-books #hb-title { font-size: 2.1rem; line-height: 1.12; } }
 .how-box { margin: clamp(40px, 6vw, 72px) auto 0; max-width: 900px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .how3 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); counter-reset: s; }
 .how3 li { display: grid; justify-items: center; gap: 2px; text-align: center; padding: 22px 10px; position: relative; counter-increment: s; }
@@ -264,21 +267,16 @@
 .how-notes span::before { content: "✦"; color: var(--gold); margin-right: .6em; font-size: .7em; }
 @media (prefers-reduced-motion: reduce) { .door, .seal { transition: none !important; } }
 
-/* the names (17.11, her choice «A ve C arası»): long names on one line in the site's display font (Cormorant 600, narrow, so they
-   come out about 16 px on a phone instead of 9 px in capitals), gold, between two thin gold rules that fade at the ends (as the divider
-   under the headline), with a small gold diamond on the upper rule, like the clasp of a sign (as the window's own double gold frame) */
+/* the names (17.11, her words «çerçevenin içinde… döndürdün. Büyük harflerle yazdın. Öyle yapmanı istiyorum»): in capitals, curved along
+   the inside of each window's arch, like the ring of the seal (drawn by the script above as an SVG over the window); the <b> under the
+   window stays only for screen readers */
 .lite .door { gap: 0; }
-.lite .door b { position: relative; z-index: 2; display: block; width: 100%; margin-top: 10px; padding: .45em 2px .5em; text-align: center;
-  font-family: var(--f-display); font-weight: 600; text-transform: none; letter-spacing: .01em; color: var(--gold-pale);
-  text-shadow: 0 1px 8px rgba(0,0,0,.85);
-  background:
-    linear-gradient(90deg, transparent, #cfa461 18%, #cfa461 82%, transparent) top / 100% 1px no-repeat,
-    linear-gradient(90deg, transparent, rgba(207,164,97,.6) 18%, rgba(207,164,97,.6) 82%, transparent) bottom / 100% 1px no-repeat,
-    radial-gradient(60% 70% at 50% 50%, rgba(0,0,0,.4), transparent 75%); }
-.lite .door b::before { content: ""; position: absolute; left: 50%; top: 0; width: 7px; height: 7px; translate: -50% -50%; rotate: 45deg;
-  background: #e2b56b; box-shadow: 0 0 0 2px #1a0d0b; }
-.lite .door.soon b { color: rgba(244,223,179,.5); }   /* not open yet: the name dimmed too */
-.lite .door.soon b::before { background: rgba(226,181,107,.5); }
+.lite .door b { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.lite .door .door-arc { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; overflow: visible; }
+.lite .door .door-arc text { font-family: var(--f-body); font-weight: 600; letter-spacing: 3px; stroke: rgba(0,0,0,.55); stroke-width: 4px; paint-order: stroke; }   /* her choice «B. Jost kalın»: Jost 600 like the ring of the seal, gold gradient (fill set by the script), a dark edge */
+.lite a.door.picked .door-arc text { fill: #6b1d2a; stroke: rgba(255,250,240,.75); }   /* on the light window after a tap: the name in the window's colour */
+.lite a.door[href="erkekler.html"].picked .door-arc text { fill: #1c2550; }
+.lite .door.soon .door-arc text { opacity: .38; }   /* closed: the name dimmer too */
 /* phones (16.11, her choice V1): the first screen is as tall as its content, so the windows come up and the books peek in below */
 @media (max-width: 560px) {
   /* 17.11, her choice A: no sentence under the headline; the first screen fills the phone minus one line, so only «Masallarımız»
@@ -289,7 +287,7 @@
   .lockup span { font-size: .78rem; }
   .lite .doors-q { font-size: 1.06rem; }   /* 17.11: the question a little smaller (17 px) */
   .lite .after-copy .ac-title { font-size: 2.05rem; }
-  .psy-seal { width: 58px; height: 58px; margin-top: 8px; }
+  .psy-seal { width: 92px; height: 92px; margin-top: 0; margin-bottom: 2px; }   /* 17.11: larger (58 → 92 px), no arrow under it */
 }
 /* phones (16.11): «Masallarımız» peeks in at the bottom of the first screen; larger and brighter, with two gold arrows
    that gently nod down, so it reads as "there is more below" */
@@ -355,7 +353,7 @@
   <div class="wrap intro-bottom">
     <div class="after-copy"><p class="ac-title">Fotoğraftan <em>kişiye özel</em> masal kitapları</p></div>
     <p class="ac-sub">Değer verdiğiniz insanların yüzüyle resimlenip sert kapakla basılan masallar!</p>
-    <a class="psy-seal" href="#uzman-onayi" aria-label="Uzman Psikolog onaylı masallar: ayrıntılar"><svg viewBox="0 0 200 200" aria-hidden="true" focusable="false"><defs> <radialGradient id="ms-g" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#f4dfb3"/><stop offset=".55" stop-color="#e2b56b"/><stop offset="1" stop-color="#b98a43"/></radialGradient> <radialGradient id="ms-b" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#8a4a52"/><stop offset=".75" stop-color="#4a1620"/></radialGradient> <path id="ms-t" d="M 33,100 A 67,67 0 0 1 167,100"/><path id="ms-u" d="M 20,100 A 80,80 0 0 0 180,100"/></defs><path d="M100.00,1.00L109.72,7.51L120.58,3.16L128.74,11.55L140.27,9.56L146.50,19.46L158.19,19.91L162.23,30.89L173.57,33.76L175.24,45.34L185.74,50.50L184.96,62.17L194.15,69.41L190.97,80.66L198.46,89.65L193.00,100.00L198.46,110.35L190.97,119.34L194.15,130.59L184.96,137.83L185.74,149.50L175.24,154.66L173.57,166.24L162.23,169.11L158.19,180.09L146.50,180.54L140.27,190.44L128.74,188.45L120.58,196.84L109.72,192.49L100.00,199.00L90.28,192.49L79.42,196.84L71.26,188.45L59.73,190.44L53.50,180.54L41.81,180.09L37.77,169.11L26.43,166.24L24.76,154.66L14.26,149.50L15.04,137.83L5.85,130.59L9.03,119.34L1.54,110.35L7.00,100.00L1.54,89.65L9.03,80.66L5.85,69.41L15.04,62.17L14.26,50.50L24.76,45.34L26.43,33.76L37.77,30.89L41.81,19.91L53.50,19.46L59.73,9.56L71.26,11.55L79.42,3.16L90.28,7.51L100.00,1.00Z" fill="url(#ms-g)"/><circle cx="100" cy="100" r="88" fill="none" stroke="#6b1d2a" stroke-width="1.4" opacity=".55"/> <circle cx="100" cy="100" r="54" fill="url(#ms-b)" stroke="#6b1d2a" stroke-width="2"/><circle cx="100" cy="100" r="48" fill="none" stroke="#e2b56b" stroke-width="1" opacity=".7"/> <path d="M79 101 L93 115 L121 85" fill="none" stroke="#f4dfb3" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/> <g font-family="Jost, 'Avenir Next', sans-serif" font-weight="600" fill="#4a1620"><text font-size="19.5" letter-spacing="1.4"><textPath href="#ms-t" startOffset="50%" text-anchor="middle">UZMAN PSİKOLOG</textPath></text> <text font-size="22" letter-spacing="3"><textPath href="#ms-u" startOffset="50%" text-anchor="middle">ONAYLI</textPath></text></g></svg></a>
+    <a class="psy-seal" href="#uzman-onayi" aria-label="Uzman Psikolog onaylı masallar: ayrıntılar"><svg viewBox="0 0 200 200" aria-hidden="true" focusable="false"><defs> <radialGradient id="ms-g" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#f4dfb3"/><stop offset=".55" stop-color="#e2b56b"/><stop offset="1" stop-color="#b98a43"/></radialGradient> <radialGradient id="ms-b" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#8a4a52"/><stop offset=".75" stop-color="#4a1620"/></radialGradient> <path id="ms-t" d="M 33,100 A 67,67 0 0 1 167,100"/><path id="ms-u" d="M 20,100 A 80,80 0 0 0 180,100"/></defs><path d="M100.00,1.00L109.72,7.51L120.58,3.16L128.74,11.55L140.27,9.56L146.50,19.46L158.19,19.91L162.23,30.89L173.57,33.76L175.24,45.34L185.74,50.50L184.96,62.17L194.15,69.41L190.97,80.66L198.46,89.65L193.00,100.00L198.46,110.35L190.97,119.34L194.15,130.59L184.96,137.83L185.74,149.50L175.24,154.66L173.57,166.24L162.23,169.11L158.19,180.09L146.50,180.54L140.27,190.44L128.74,188.45L120.58,196.84L109.72,192.49L100.00,199.00L90.28,192.49L79.42,196.84L71.26,188.45L59.73,190.44L53.50,180.54L41.81,180.09L37.77,169.11L26.43,166.24L24.76,154.66L14.26,149.50L15.04,137.83L5.85,130.59L9.03,119.34L1.54,110.35L7.00,100.00L1.54,89.65L9.03,80.66L5.85,69.41L15.04,62.17L14.26,50.50L24.76,45.34L26.43,33.76L37.77,30.89L41.81,19.91L53.50,19.46L59.73,9.56L71.26,11.55L79.42,3.16L90.28,7.51L100.00,1.00Z" fill="url(#ms-g)"/><circle cx="100" cy="100" r="88" fill="none" stroke="#6b1d2a" stroke-width="1.4" opacity=".55"/> <circle cx="100" cy="100" r="54" fill="url(#ms-b)" stroke="#6b1d2a" stroke-width="2"/><circle cx="100" cy="100" r="48" fill="none" stroke="#e2b56b" stroke-width="1" opacity=".7"/> <path d="M72 101 L91 120 L129 80" fill="none" stroke="#f4dfb3" stroke-width="10.5" stroke-linecap="round" stroke-linejoin="round"/> <g font-family="Jost, 'Avenir Next', sans-serif" font-weight="600" fill="#4a1620"><text font-size="22" letter-spacing="1"><textPath href="#ms-t" startOffset="50%" text-anchor="middle">UZMAN PSİKOLOG</textPath></text> <text font-size="26" letter-spacing="3"><textPath href="#ms-u" startOffset="50%" text-anchor="middle">ONAYLI</textPath></text></g></svg></a>
     <div class="after">
       <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
@@ -365,8 +363,8 @@
 <section class="sec home-books" aria-labelledby="hb-title"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Masallarımız</p>
-    <h2 id="hb-title">Fotoğrafını gönderin, masalın kahramanı o olsun.</h2>
-    <p class="lede">Sadece 3 fotoğraf ve 1 isim yeterli. Kitabı onun yüzü ve adıyla hazırlıyoruz. Baskıdan önce bütün sayfaları size gösteriyor, onayınızla basıp ücretsiz olarak kargoyla kapınıza gönderiyoruz.</p>
+    <h2 id="hb-title">Fotoğrafını Gönderin,<br><em>Masalın Kahramanı</em> Olsun</h2>
+    <p class="lede">Sadece 3 fotoğrafı ve adı yeterli. Kitabı onun yüzü ve adıyla hazırlıyoruz. Dilerseniz siparişte onu birkaç kelimeyle anlatın: yaşı, saçı, en sevdiği şeyler. Basmadan önce bütün sayfaları size gösteriyoruz.</p>
   </div>
   <div class="grid" id="home-grid"></div>
   <div class="how-box">
@@ -388,7 +386,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170203" defer></script>
+<script src="site.js?v=202611170303" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -441,13 +439,30 @@ addEventListener('DOMContentLoaded', () => {
   if (location.hash === '#sec') { if (book) book.jumpOpen(); done(); }
   if (!book) {
     mode = 'logo'; intro.classList.add('no3d');
-    if (document.documentElement.classList.contains('lite')) { intro.classList.add('lite'); done(); fairyDust(); }
+    if (document.documentElement.classList.contains('lite')) { intro.classList.add('lite'); done(); }   // no gold dust any more (17.11)
     // the fallback doors use the same artwork as the 3D heroes
     document.querySelectorAll('[data-hero-img]').forEach(img => {
       const h = HEROES[+img.dataset.heroImg];
       img.src = img.dataset.plain = drawHeroCard(h).toDataURL();
       if (!h.soon) img.dataset.picked = drawHeroCard(h, 512, 704, true).toDataURL();
     });
+    // the name curved along the inside of the arch, in capitals (17.11); the <b> under the window stays for screen readers only
+    document.querySelectorAll('.lite .door').forEach((d, i) => {
+      const art = d.querySelector('.door-art'), b = d.querySelector('b'); if (!art || !b || art.querySelector('.door-arc')) return;
+      const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('viewBox', '0 0 512 704'); svg.setAttribute('class', 'door-arc'); svg.setAttribute('aria-hidden', 'true');
+      svg.innerHTML = `<defs><path id="door-arc-${i}" d="M 66,262 A 190,190 0 0 1 446,262" fill="none"/><linearGradient id="door-arc-g-${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbeccb"/><stop offset="1" stop-color="#d9a957"/></linearGradient></defs><text fill="url(#door-arc-g-${i})"><textPath href="#door-arc-${i}" startOffset="50%" text-anchor="middle"></textPath></text>`;
+      svg.querySelector('textPath').textContent = b.textContent.trim().toLocaleUpperCase('tr');
+      art.appendChild(svg);
+    });
+    // the same size on all three arches: as large as the longest name allows along the arc
+    const fitArcs = () => {
+      const texts = [...document.querySelectorAll('.lite .door-arc text')]; if (!texts.length) return;
+      texts.forEach(t => t.style.fontSize = '62px');
+      let k = 1; texts.forEach(t => { const len = t.getComputedTextLength(); if (len > 600) k = Math.min(k, 600 / len); });   // the whole arch, as in her picture
+      texts.forEach(t => t.style.fontSize = (62 * k).toFixed(1) + 'px');
+    };
+    fitArcs(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitArcs);
     // the jump of the picked child (17.11): the window stays still, only the figure moves — a little crouch, a smooth jump, a soft landing
     const jumpLayers = img => {
       if (img._jl) return img._jl;
@@ -460,9 +475,10 @@ addEventListener('DOMContentLoaded', () => {
     (window.requestIdleCallback || (f => setTimeout(f, 1200)))(() => document.querySelectorAll('.lite a.door img[data-hero-img]').forEach(jumpLayers));
     // two different jumps (17.11): [ms, width, height] keys for the squash and stretch, the time in the air, the height
     const JUMPS = {
-      // the girl: a light, floaty jump with one twirl; her wand throws little sparkles
-      'kizlar.html': { end: 900, keys: [[0, 1, 1], [120, 1.03, .95], [170, .97, 1.04], [300, 1, 1], [560, .99, 1.02], [640, 1.04, .95], [740, .99, 1.01], [900, 1, 1]],
-        air: [150, 620], high: 44, spin: 1, lean: 0, tip: [99, 38], sparks: 16, ink: ['#c99640', '#d4607a', '#e9b44c'] },
+      // the girl (17.11, her words «kızınki de erkeğinki gibi… ufak bir hareket»): the same calm rhythm as the boy, no twirl —
+      // a soft crouch, a lighter, lower leap leaning toward her wand, the star on the wand twinkles with a few sparkles, a soft landing
+      'kizlar.html': { end: 820, keys: [[0, 1, 1], [150, 1.05, .91], [200, .95, 1.06], [330, 1, 1], [460, .97, 1.04], [520, 1.05, .93], [640, .99, 1.02], [820, 1, 1]],
+        air: [175, 495], high: 52, spin: 0, lean: .08, tip: [99, 38], gleam: '#d4607a', sparks: 5, ink: ['#c99640', '#d4607a', '#e9b44c'] },
       // the boy: a deep crouch, a high, quick leap leaning toward his sword (a gleam at its tip), a firm landing with a puff of dust
       'erkekler.html': { end: 820, keys: [[0, 1, 1], [150, 1.08, .86], [200, .93, 1.1], [330, 1, 1], [460, .95, 1.08], [520, 1.1, .86], [640, .98, 1.03], [820, 1, 1]],
         air: [175, 495], high: 64, spin: 0, lean: .11, tip: [103, 29], dust: 8 }
@@ -475,7 +491,7 @@ addEventListener('DOMContentLoaded', () => {
       const L = jumpLayers(img), c = document.createElement('canvas'); c.width = 512; c.height = 704; c.className = 'door-jump';
       art.insertBefore(c, img.nextSibling); const x = c.getContext('2d'), t0 = performance.now(), K = J.keys;
       const tipX = 256 - 60 * 3.15 + J.tip[0] * 3.15, tipY = 704 - 14 - 160 * 3.15 - 18 + J.tip[1] * 3.15;   // the wand or the sword tip, as drawHeroCard places the figure
-      const sparks = Array.from({ length: J.sparks || 0 }, (_, i) => ({ at: 230 + i * 22, vx: (rnd() - .5) * 620, vy: -260 + rnd() * 300, r: 11 + rnd() * 12, col: J.ink[i % 3], life: 340 + rnd() * 160 }));
+      const sparks = Array.from({ length: J.sparks || 0 }, (_, i) => ({ at: 290 + i * 30, vx: (rnd() - .5) * 260, vy: -140 + rnd() * 120, r: 10 + rnd() * 9, col: J.ink[i % 3], life: 380 + rnd() * 140 }));
       const dust = Array.from({ length: J.dust || 0 }, (_, i) => ({ dir: i % 2 ? 1 : -1, v: 160 + rnd() * 220, up: 30 + rnd() * 70, r: 12 + rnd() * 10 }));
       const frame = now => {
         const t = Math.min(now - t0, J.end); let i = 0; while (i < K.length - 2 && t > K[i + 1][0]) i++;
@@ -497,8 +513,8 @@ addEventListener('DOMContentLoaded', () => {
           const d = (t - s.at) / 1000, k = d * 1000 / s.life; if (k >= 1) return;
           x.globalAlpha = 1 - k; x.fillStyle = s.col; star(x, s.x0 + s.vx * d, s.y0 + s.vy * d + 900 * d * d, s.r * (1 - k * .5)); x.globalAlpha = 1;
         });
-        if (J.lean && t > 270 && t < 460) {   // the sword flashes at the top of the leap
-          const g = Math.sin(Math.PI * (t - 270) / 190); x.globalAlpha = g; x.fillStyle = '#d9a441'; star(x, TX, TY, 12 + 30 * g);
+        if (J.lean && t > 270 && t < 460) {   // the sword (gold) or the wand's star (rose) flashes at the top of the leap
+          const g = Math.sin(Math.PI * (t - 270) / 190); x.globalAlpha = g; x.fillStyle = J.gleam || '#d9a441'; star(x, TX, TY, 12 + 30 * g);
           x.fillStyle = '#fff4d6'; star(x, TX, TY, 5 + 12 * g); x.globalAlpha = 1;
         }
         if (J.dust && t > J.air[1] - 10) {   // a puff of dust where he lands
@@ -521,11 +537,6 @@ addEventListener('DOMContentLoaded', () => {
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
       const took = calm ? 0 : jump(img, a.querySelector('.door-art'), a.getAttribute('href'));
       setTimeout(() => { location.href = a.href; }, took ? took + 40 : 150);
-    }));
-    // the adults' window is not open yet: a tap lifts it a little and says so for a moment
-    document.querySelectorAll('.lite .door.soon').forEach(d => d.addEventListener('click', () => {
-      d.classList.remove('nudge'); void d.offsetWidth; d.classList.add('nudge');
-      clearTimeout(d._t); d._t = setTimeout(() => d.classList.remove('nudge'), 2600);
     }));
     // back from the collection: the windows as they were
     addEventListener('pageshow', () => document.querySelectorAll('.lite a.door.picked').forEach(a => { a.classList.remove('picked'); a.querySelectorAll('.door-jump').forEach(c => c.remove()); const img = a.querySelector('img'); if (img && img.dataset.plain) img.src = img.dataset.plain; }));
@@ -550,7 +561,8 @@ addEventListener('DOMContentLoaded', () => {
   if (matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('.door').forEach(d => {
       const art = d.querySelector('.door-art'); if (!art) return;
-      const tilt = d.classList.contains('soon') ? 4 : 9;
+      if (d.classList.contains('soon')) return;   // the closed window does not lean toward the mouse (17.11)
+      const tilt = 9;
       d.addEventListener('pointermove', e => {
         const r = art.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
         art.style.setProperty('--ry', `${((x - .5) * 2 * tilt).toFixed(2)}deg`);
