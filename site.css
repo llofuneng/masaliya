@@ -1325,3 +1325,6 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
 .row-head h3 { font-size: clamp(1.25rem, 1rem + 1.05vw, 1.85rem); }
 @media (min-width: 561px) { .row-ico { width: calc(2.16 * clamp(1.5rem, 1.1rem + 1.4vw, 2.2rem)); } }
 @media (max-width: 360px) { .row-head h3 { font-size: 1.05rem; } }
+/* 17.11, her words «sola yapıştırsak»: the phone rule that pushes «Tümü» to the right (.row-head a { margin-left: auto }) was also
+   pushing the medallion (a link too) inward — the medallion and title now sit at the left edge, in line with the first book */
+.row-head a.row-ico { margin-left: 0; }
