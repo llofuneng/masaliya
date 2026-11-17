@@ -1506,3 +1506,7 @@ body[data-page="urunler"] .page-head h1, .pr-pick h2 { background: linear-gradie
 /* 17.11, her words «sadece sert kapak alanlara özel… bir privilege'miş gibi»: italic gold, between two small stars */
 .pr-only { display: inline-flex; align-items: center; gap: 8px; justify-self: center; margin-top: 4px; font: italic 500 var(--t-md)/1.2 var(--f-display); letter-spacing: .02em; color: var(--gold-pale); }
 .pr-only::before, .pr-only::after { content: "✦"; font-style: normal; font-size: .7em; color: var(--gold); }
+body[data-page="nasil"] .page-head + .sec { padding-bottom: clamp(24px, 3vw, 44px); }   /* 17.11: the closing link gone; little dark room before the footer */
+/* 17.11, her words «i bayağı aşağıda kalmış… çok siyah boşluk var»: the steps closer to the page's head */
+body[data-page="nasil"] .page-head + .sec { padding-top: clamp(14px, 2.4vw, 32px); }
+body[data-page="nasil"] .steps li { padding-top: 12px; }
