@@ -18,8 +18,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Jost:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
 <link rel="icon" href="img/favicon.png?v=2"><link rel="apple-touch-icon" href="img/logo/masaliya-favicon.png?v=2">
-<link rel="stylesheet" href="site.css?v=202611172137">
-<script src="site.js?v=202611172137" defer></script>
+<link rel="stylesheet" href="site.css?v=202611172138">
+<script src="site.js?v=202611172138" defer></script>
 </head>
 <body data-page="urunler">
 <header id="site-head"></header>
@@ -73,9 +73,16 @@
 </div></section>
 
 <!-- 17.11, her words «masalı seçini kaldırmak daha mantıklı… fazla mı zorluyoruz»: no big windows here; one quiet line onward -->
-<p class="pr-onward"><a href="kizlar.html">Kız Çocuklarına Özel Masallar</a><span aria-hidden="true">✦</span><a href="erkekler.html">Erkek Çocuklarına Özel Masallar</a></p>
+<p class="pr-onward"><a href="kizlar.html"><i class="pr-ico" data-hero="0" aria-hidden="true"></i><span>Kız Çocuklarına Özel Masallar</span><b aria-hidden="true">›</b></a><a href="erkekler.html"><i class="pr-ico" data-hero="1" aria-hidden="true"></i><span>Erkek Çocuklarına Özel Masallar</span><b aria-hidden="true">›</b></a></p>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // 17.11, her words «dikkat çeksin, basılabilir olduğu anlaşılsın»: each link gets its collection's round medallion, as on the home page
+  document.querySelectorAll('.pr-ico[data-hero]').forEach(box => {
+    const art = drawHeroCard(HEROES[+box.dataset.hero]), sq = document.createElement('canvas'); sq.width = sq.height = 160;
+    sq.getContext('2d').drawImage(art, 35, 202, 460, 460, 0, 0, 160, 160);
+    const img = new Image(); img.alt = ''; box.appendChild(img);
+    if (sq.toBlob) sq.toBlob(b => { img.src = URL.createObjectURL(b); }); else img.src = sq.toDataURL();
+  });
   const P = { hard: PRICES.kitap.hard, digital: PRICES.kitap.digital, puzzle: PRICES.yapboz.std, gift: GIFT_BOX_PRICE };
   document.querySelectorAll('[data-pr]').forEach(el => { const v = P[el.dataset.pr]; el.textContent = v ? (el.hasAttribute('data-plus') ? '+ ' : '') + fmt(v) : 'Fiyat yakında'; });
   if (!SELL.yapboz) document.querySelectorAll('.pr-puzzle').forEach(i => i.closest('.pr-item').remove());
