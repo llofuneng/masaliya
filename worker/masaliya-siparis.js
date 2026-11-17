@@ -65,6 +65,7 @@ export default {
       if (req.method === 'GET' && pv) return await previewFile(pv[1], pv[2], url, env);
       if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env, req);
       if (req.method === 'GET' && url.pathname === '/admin/istatistik') return await adminStats(url, env, req);
+      if (req.method === 'GET' && url.pathname === '/admin/eposta') return await adminMail(url, env, req);
       const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
       if (req.method === 'GET' && m) {
         const res = await adminOrder(m[1], m[2], m[3], url, env);
@@ -396,6 +397,52 @@ async function countDay(env, what, product, n = 1) {
     await putJson(env, key, d);
   } catch (e) { console.log('count failed', e); }
 }
+// the mail check (17.11): what is set (never the values of secrets), how the last orders stand, and a test letter on request
+async function adminMail(url, env, req) {
+  const cookie = ((req && req.headers.get('cookie')) || '').match(/(?:^|;\s*)mk=([0-9a-f]+)/);
+  if (!env.ADMIN_KEY || !((url.searchParams.get('key') === env.ADMIN_KEY) || (cookie && cookie[1] === await ownerCookie(env)))) return new Response('\u041d\u0435\u0442 \u0434\u043e\u0441\u0442\u0443\u043f\u0430. \u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u043e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 \u0441\u043f\u0438\u0441\u043e\u043a \u0437\u0430\u043a\u0430\u0437\u043e\u0432 \u0441 ADMIN_KEY: /admin?key=\u2026', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  const ok = t => `<b style="color:#2e7d32">\u2713 ${t}</b>`, bad = t => `<b style="color:#b0412e">\u2717 ${t}</b>`;
+  const mask = m => { const [a, d] = String(m).split('@'); return d ? `${a.slice(0, 2)}\u2026@${d}` : m; };
+  const from = env.MAIL_FROM || '';
+  const fromOk = /^[\x20-\x7e]+$/.test(from) && /<[^<>@\s]+@[^<>@\s]+\.[a-z]{2,}>$|^[^<>@\s]+@[^<>@\s]+\.[a-z]{2,}$/i.test(from.trim());
+  const rows = [
+    ['RESEND_API_KEY (\u043a\u043b\u044e\u0447 Resend)', env.RESEND_API_KEY ? ok('\u0437\u0430\u0434\u0430\u043d') : bad('\u041d\u0415 \u0437\u0430\u0434\u0430\u043d \u2014 \u043f\u0438\u0441\u044c\u043c\u0430 \u043d\u0435 \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u044f\u044e\u0442\u0441\u044f \u0432\u043e\u043e\u0431\u0449\u0435')],
+    ['OWNER_EMAIL (\u043a\u0443\u0434\u0430 \u043f\u0440\u0438\u0445\u043e\u0434\u044f\u0442 \u0437\u0430\u043a\u0430\u0437\u044b)', env.OWNER_EMAIL ? ok(esc(mask(env.OWNER_EMAIL))) : bad('\u041d\u0415 \u0437\u0430\u0434\u0430\u043d \u2014 \u043f\u0438\u0441\u044c\u043c\u0430 \u043e \u0437\u0430\u043a\u0430\u0437\u0430\u0445 \u0432\u0430\u043c \u043d\u0435 \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u044f\u044e\u0442\u0441\u044f')],
+    ['MAIL_FROM (\u043e\u0442 \u043a\u043e\u0433\u043e \u043f\u0438\u0441\u044c\u043c\u0430)', !from ? bad('\u043d\u0435 \u0437\u0430\u0434\u0430\u043d \u2014 \u043f\u0438\u0441\u044c\u043c\u0430 \u043f\u043e\u043a\u0443\u043f\u0430\u0442\u0435\u043b\u044f\u043c \u043d\u0435 \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u044f\u044e\u0442\u0441\u044f; \u0432\u0430\u043c \u043f\u0438\u0441\u044c\u043c\u0430 \u0438\u0434\u0443\u0442 \u043e\u0442 onboarding@resend.dev') : fromOk ? ok(esc(from)) : bad(`\u00ab${esc(from)}\u00bb \u2014 \u0430\u0434\u0440\u0435\u0441 \u0437\u0430\u043f\u0438\u0441\u0430\u043d \u043d\u0435\u0432\u0435\u0440\u043d\u043e (\u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e, \u0448\u0438\u0440\u043e\u043a\u0438\u0439 \uff20 \u0438\u043b\u0438 \u043b\u0438\u0448\u043d\u0438\u0435 \u043a\u0430\u0432\u044b\u0447\u043a\u0438). \u041d\u0430\u0431\u0435\u0440\u0438\u0442\u0435 \u0437\u0430\u043d\u043e\u0432\u043e: Masaliya &lt;siparis@masaliya.com&gt;`)],
+    ['STRIPE_WEBHOOK_SECRET (Stripe \u0441\u043e\u043e\u0431\u0449\u0430\u0435\u0442 \u043e\u0431 \u043e\u043f\u043b\u0430\u0442\u0435)', env.STRIPE_WEBHOOK_SECRET ? ok('\u0437\u0430\u0434\u0430\u043d') : bad('\u041d\u0415 \u0437\u0430\u0434\u0430\u043d \u2014 \u0437\u0430\u043a\u0430\u0437\u044b \u043d\u0435 \u043e\u0442\u043c\u0435\u0447\u0430\u044e\u0442\u0441\u044f \u043e\u043f\u043b\u0430\u0447\u0435\u043d\u043d\u044b\u043c\u0438 \u0438 \u043f\u0438\u0441\u0435\u043c \u043d\u0435\u0442')]
+  ];
+  // the last orders: paid ones mean Stripe reaches the program; \u00ab\u00f6deme bekleniyor\u00bb after a payment means it does not
+  const keys = []; let cursor;
+  do { const pg = await env.PHOTOS.list({ prefix: 'orders/', cursor }); keys.push(...pg.objects.map(o => o.key).filter(k => k.endsWith('/siparis.json'))); cursor = pg.truncated ? pg.cursor : null; } while (cursor);
+  const orders = (await Promise.all(keys.map(k => getJson(env, k)))).filter(o => o && o.items).sort((a, b) => String(b.created).localeCompare(String(a.created))).slice(0, 8);
+  const list = orders.map(o => `<tr><td>${o.id}</td><td>${date(o.created)}</td><td>${o.status === 'odendi' ? ok('\u043e\u043f\u043b\u0430\u0447\u0435\u043d') : '\u0436\u0434\u0451\u0442 \u043e\u043f\u043b\u0430\u0442\u044b'}</td><td>${paidSum(o).toLocaleString('tr-TR')} TL${o.promoCode ? ' \u00b7 \u043a\u043e\u0434 ' + esc(o.promoCode) : ''}</td></tr>`).join('');
+  // a test letter to OWNER_EMAIL: first from MAIL_FROM, and if that fails, from Resend's own test address
+  let test = '';
+  if (url.searchParams.get('gonder') === '1') {
+    const send = async f => {
+      const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ from: f, to: [env.OWNER_EMAIL], subject: 'Masaliya \u00b7 \u0442\u0435\u0441\u0442\u043e\u0432\u043e\u0435 \u043f\u0438\u0441\u044c\u043c\u043e', html: '<p>\u042d\u0442\u043e \u0442\u0435\u0441\u0442\u043e\u0432\u043e\u0435 \u043f\u0438\u0441\u044c\u043c\u043e \u0438\u0437 \u0441\u043f\u0438\u0441\u043a\u0430 \u0437\u0430\u043a\u0430\u0437\u043e\u0432 Masaliya. \u0415\u0441\u043b\u0438 \u0432\u044b \u0435\u0433\u043e \u0432\u0438\u0434\u0438\u0442\u0435, \u043f\u0438\u0441\u044c\u043c\u0430 \u043e \u0437\u0430\u043a\u0430\u0437\u0430\u0445 \u0434\u043e\u0445\u043e\u0434\u044f\u0442.</p>' }) });
+      const t = await r.text(); let m = ''; try { m = JSON.parse(t).message || ''; } catch (e) { m = t.slice(0, 200); }
+      return { ok: r.ok, status: r.status, m };
+    };
+    if (!env.RESEND_API_KEY || !env.OWNER_EMAIL) test = bad('\u041d\u0435 \u043c\u043e\u0433\u0443 \u043e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c: \u043d\u0435\u0442 \u043a\u043b\u044e\u0447\u0430 Resend \u0438\u043b\u0438 \u0430\u0434\u0440\u0435\u0441\u0430 OWNER_EMAIL.');
+    else {
+      const a = await send(from || 'Masaliya <onboarding@resend.dev>');
+      test = a.ok ? ok(`\u041f\u0438\u0441\u044c\u043c\u043e \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u043e \u043e\u0442 \u00ab${esc(from || 'onboarding@resend.dev')}\u00bb \u043d\u0430 ${esc(mask(env.OWNER_EMAIL))}. \u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u043f\u043e\u0447\u0442\u0443 \u0438 \u043f\u0430\u043f\u043a\u0443 \u00ab\u0421\u043f\u0430\u043c\u00bb.`) : bad(`Resend \u043d\u0435 \u043f\u0440\u0438\u043d\u044f\u043b \u043f\u0438\u0441\u044c\u043c\u043e \u043e\u0442 \u00ab${esc(from || 'onboarding@resend.dev')}\u00bb (\u043a\u043e\u0434 ${a.status}): ${esc(a.m)}`);
+      if (!a.ok && from) {
+        const b = await send('Masaliya <onboarding@resend.dev>');
+        test += '<br>' + (b.ok ? ok('\u0410 \u043e\u0442 \u0442\u0435\u0441\u0442\u043e\u0432\u043e\u0433\u043e \u0430\u0434\u0440\u0435\u0441\u0430 Resend (onboarding@resend.dev) \u043f\u0438\u0441\u044c\u043c\u043e \u0443\u0448\u043b\u043e \u2014 \u0437\u043d\u0430\u0447\u0438\u0442, \u043a\u043b\u044e\u0447 \u0440\u0430\u0431\u043e\u0447\u0438\u0439, \u0430 \u043d\u0435\u0432\u0435\u0440\u0435\u043d \u0430\u0434\u0440\u0435\u0441 MAIL_FROM \u0438\u043b\u0438 \u0434\u043e\u043c\u0435\u043d.') : bad(`\u0418 \u043e\u0442 \u0442\u0435\u0441\u0442\u043e\u0432\u043e\u0433\u043e \u0430\u0434\u0440\u0435\u0441\u0430 Resend \u043d\u0435 \u0443\u0448\u043b\u043e (\u043a\u043e\u0434 ${b.status}): ${esc(b.m)} \u2014 \u0437\u043d\u0430\u0447\u0438\u0442, \u0434\u0435\u043b\u043e \u0432 \u043a\u043b\u044e\u0447\u0435 Resend \u0438\u043b\u0438 \u0432 \u0430\u0434\u0440\u0435\u0441\u0435 OWNER_EMAIL.`));
+      }
+    }
+  }
+  return page('\u041f\u043e\u0447\u0442\u0430', `<h1>\u041f\u043e\u0447\u0442\u0430 <small style="font-size:14px;font-weight:400"><a href="/admin">\u2190 \u0417\u0430\u043a\u0430\u0437\u044b</a></small></h1>
+    <table>${rows.map(([k, v]) => `<tr><th style="text-align:left">${k}</th><td>${v}</td></tr>`).join('')}</table>
+    <p><a class="next" href="/admin/eposta?gonder=1" style="display:inline-block;padding:10px 16px;background:#6b1d2a;color:#fff;border-radius:6px;text-decoration:none">\u041e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c \u0442\u0435\u0441\u0442\u043e\u0432\u043e\u0435 \u043f\u0438\u0441\u044c\u043c\u043e \u043d\u0430 OWNER_EMAIL</a></p>
+    ${test ? `<p class="flash">${test}</p>` : ''}
+    <h2>\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 \u0437\u0430\u043a\u0430\u0437\u044b</h2><table><tr><th>\u041d\u043e\u043c\u0435\u0440</th><th>\u0421\u043e\u0437\u0434\u0430\u043d</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u0421\u0443\u043c\u043c\u0430</th></tr>${list || '<tr><td colspan="4">\u0417\u0430\u043a\u0430\u0437\u043e\u0432 \u043d\u0435\u0442</td></tr>'}</table>
+    <p style="color:#777">\u0415\u0441\u043b\u0438 \u043f\u043e\u0441\u043b\u0435 \u043e\u043f\u043b\u0430\u0442\u044b \u0437\u0430\u043a\u0430\u0437 \u043e\u0441\u0442\u0430\u0451\u0442\u0441\u044f \u00ab\u0436\u0434\u0451\u0442 \u043e\u043f\u043b\u0430\u0442\u044b\u00bb, Stripe \u043d\u0435 \u0434\u043e\u0441\u0442\u0443\u0447\u0430\u043b\u0441\u044f \u0434\u043e \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u044b: Stripe \u2192 Developers \u2192 Webhooks \u2192 \u0432\u0430\u0448 \u0430\u0434\u0440\u0435\u0441 \u2192 \u0441\u043e\u0431\u044b\u0442\u0438\u044f.</p>`);
+}
+
 async function adminStats(url, env, req) {
   const cookie = ((req && req.headers.get('cookie')) || '').match(/(?:^|;\s*)mk=([0-9a-f]+)/);
   if (!env.ADMIN_KEY || !((url.searchParams.get('key') === env.ADMIN_KEY) || (cookie && cookie[1] === await ownerCookie(env)))) return new Response('Giri\u015f yetkisi yok. \u00d6nce sipari\u015f listesini ADMIN_KEY ile a\u00e7\u0131n.', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
@@ -449,7 +496,7 @@ async function adminListPage(url, env) {
   orders.sort((a, b) => b.created.localeCompare(a.created));
   const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} \u00b7 ${esc(it.contents)}${it.giftBox ? ' \u00b7 hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${paidSum(o).toLocaleString('tr-TR')} TL${o.promoCode ? '<br><small>kod ' + esc(o.promoCode) + '</small>' : ''}</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">D\u00fczeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin')}</td></tr>`));
   const note = url.searchParams.get('not');
-  return page('Sipari\u015fler', `<h1>Sipari\u015fler <small style="font-size:14px;font-weight:400"><a href="/admin/istatistik">\u0130statistik \u2192</a></small></h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} \u00f6denmi\u015f sipari\u015f. \u00d6denmeyenler ${UNPAID_DAYS} g\u00fcn sonra silinir.</p>
+  return page('Sipari\u015fler', `<h1>Sipari\u015fler <small style="font-size:14px;font-weight:400"><a href="/admin/istatistik">\u0130statistik \u2192</a> \u00b7 <a href="/admin/eposta">\u041f\u043e\u0447\u0442\u0430 \u2192</a></small></h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} \u00f6denmi\u015f sipari\u015f. \u00d6denmeyenler ${UNPAID_DAYS} g\u00fcn sonra silinir.</p>
     <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>A\u015fama</th><th>M\u00fc\u015fteri</th><th></th></tr>${rows.join('')}</table>`);
 }
 
