@@ -538,13 +538,14 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all') {
       const fx = fr() * W, fy = H * (.2 + fr() * .8), rr = 70 + fr() * 150, fg = x.createRadialGradient(fx, fy, 0, fx, fy, rr);
       fg.addColorStop(0, 'rgba(150,168,160,.11)'); fg.addColorStop(1, 'rgba(150,168,160,0)'); x.fillStyle = fg; x.fillRect(0, 0, W, H);
     }
-    // «ÇOK YAKINDA» (17.11, her words «farklı bir yere… daha küçük altına… göze batmadan ama okunur»): no sash in the corner any more;
-    // small quiet letters low in the window, under the figures' feet (about 10 px on a phone)
-    x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'rgba(0,0,0,.7)'; x.shadowBlur = 8; x.shadowOffsetY = 1;
-    // 17.11, her choice B («çok yakında acayip dikkat çekiyor»): smaller and faint, so the closed window stays quiet
-    x.fillStyle = 'rgba(232,205,150,.4)'; x.font = '500 36px Jost, "Avenir Next", "Segoe UI", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    if ('letterSpacing' in x) x.letterSpacing = '5px';
-    x.fillText('ÇOK YAKINDA', W / 2, H - m - 46);
+    // not open yet (17.11, her words «çok yakında ifadesini sevmedim… kaldırsak mı?»): no words; a small faint gold padlock low in the
+    // window, under the figures' feet (a tap on the window shows a short note, see index.html)
+    x.setTransform(1, 0, 0, 1, 0, 0); x.shadowColor = 'rgba(0,0,0,.7)'; x.shadowBlur = 6; x.shadowOffsetY = 1;
+    const lx = W / 2, ly = H - m - 40, lc = 'rgba(232,205,150,.5)';
+    x.strokeStyle = lc; x.lineWidth = 5; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(lx - 12, ly - 14); x.lineTo(lx - 12, ly - 24); x.arc(lx, ly - 24, 12, Math.PI, 0); x.lineTo(lx + 12, ly - 14); x.stroke();
+    x.fillStyle = lc; x.beginPath(); x.roundRect ? x.roundRect(lx - 20, ly - 15, 40, 30, 5) : x.rect(lx - 20, ly - 15, 40, 30); x.fill();
+    x.shadowColor = 'transparent'; x.fillStyle = 'rgba(10,14,12,.75)'; x.beginPath(); x.arc(lx, ly - 3, 4, 0, 6.283); x.fill(); x.fillRect(lx - 1.6, ly - 1, 3.2, 8);
   }
   x.restore();
   if (layer === 'fig') return c;

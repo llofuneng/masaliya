@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170310">
+<link rel="stylesheet" href="site.css?v=202611170314">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -175,8 +175,12 @@
 .lite a.door.picked .door-art { --gl: 0; }   /* the tapped window does not move: only its light changes and the child jumps (17.11) */
 .lite .door-jump { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 .lite a.door.picked .door-art img { filter: drop-shadow(0 30px 36px rgba(0,0,0,.6)) drop-shadow(0 0 26px rgba(244,223,179,.55)); }
-/* the adults' window (17.11, her words «çok tıklanabilir gözüküyor… daha da mı karartsak»): not a button — no hand cursor, no lift */
+/* the adults' window (17.11, her words «çok tıklanabilir gözüküyor… daha da mı karartsak»): not a button — no hand cursor, no lift;
+   a tap shows a short note under it for a moment («kaldırsak da millet onu tıklamaya çalışacak») */
 .lite .door.soon { cursor: default; position: relative; }
+.lite .door.soon::after { content: "Yetişkinlere özel masallar çok yakında ✦"; position: absolute; right: 0; top: 100%; translate: 0 2px; white-space: nowrap; pointer-events: none;
+  font: 500 var(--t-xs)/1.3 var(--f-body); letter-spacing: .03em; color: var(--gold-pale); text-shadow: 0 1px 6px rgba(0,0,0,.9); opacity: 0; transition: opacity .3s ease, translate .3s ease; }
+.lite .door.soon.told::after { opacity: 1; translate: 0 6px; }
 @media (prefers-reduced-motion: reduce) { .lite .door .door-art { transition: none; } }
 /* the name is never wider than its window and always on one line: its size follows the window's width */
 .lite .door b { font-size: min(calc(var(--dw) / 6.2), 1.15rem); line-height: 1.08; white-space: nowrap; color: var(--gold-pale); }   /* always one line; the script below makes sure it fits */
@@ -282,7 +286,7 @@
   /* 17.11, her choice A: no sentence under the headline; the first screen fills the phone minus one line, so only «Masallarımız»
      shows at the bottom (not the heading below it); the free height is shared by the rooms between logo, headline, question and windows */
   .lite .intro { min-height: calc(100svh - 44px); grid-template-rows: auto minmax(8px, 1fr) auto minmax(16px, 1fr) auto minmax(12px, 1fr) auto minmax(16px, .6fr); }
-  .lite .intro { --dw: min(calc((100vw - 40px) * .315), max(86px, calc((100svh - 470px) * .7))); }   /* larger windows, so the names in capitals stay readable (17.11) */
+  .lite .intro { --dw: min(calc((100vw - 40px) * .4), max(96px, calc((100svh - 470px) * .74))); }   /* two windows since 17.11 (no adults' window): larger, about 140 px on a 390 px phone */
   .lockup svg { width: 32px; height: 32px; }   /* 17.11: a smaller logo, so the windows lead */
   .lockup span { font-size: .78rem; }
   .lite .doors-q { font-size: 1.06rem; }   /* 17.11: the question a little smaller (17 px) */
@@ -293,6 +297,7 @@
    that gently nod down, so it reads as "there is more below" */
 @media (max-width: 720px) {
   .home-books { padding-top: 8px; }
+  .home-books .sec-head { margin-bottom: 12px; }   /* 17.11: the first book card as close to the paragraph as «Masallarımız» is to the line above it (was 32 px) */
   .home-books .sec-head .eyebrow { display: flex; justify-content: center; align-items: center; gap: 14px; font-size: var(--t-md); line-height: 1.35; font-weight: 500; letter-spacing: .3em; color: var(--gold-pale); }
   .home-books .sec-head .eyebrow::before, .home-books .sec-head .eyebrow::after { content: ""; width: 9px; height: 9px; margin-top: -6px; border-right: 2px solid var(--gold); border-bottom: 2px solid var(--gold); transform: rotate(45deg); animation: hbNod 1.8s ease-in-out infinite; }
   @keyframes hbNod { 0%, 100% { translate: 0 0; opacity: .55; } 50% { translate: 0 5px; opacity: 1; } }
@@ -346,7 +351,6 @@
     <nav class="doors" id="doors" aria-label="Koleksiyonlar">
       <a class="door" href="kizlar.html"><span class="door-art"><img alt="" width="512" height="704" data-hero-img="0"><i class="door-shine" aria-hidden="true"></i></span><b>Kız Çocukları</b></a>
       <a class="door" href="erkekler.html"><span class="door-art"><img alt="" width="512" height="704" data-hero-img="1"><i class="door-shine" aria-hidden="true"></i></span><b>Erkek Çocukları</b></a>
-      <span class="door soon" aria-label="Yetişkinler: çok yakında"><span class="door-art"><img alt="" width="512" height="704" data-hero-img="2"><i class="door-shine" aria-hidden="true"></i></span><b>Yetişkinler</b></span>
     </nav>
   </div>
 
@@ -386,7 +390,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170310" defer></script>
+<script src="site.js?v=202611170314" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
@@ -537,6 +541,11 @@ addEventListener('DOMContentLoaded', () => {
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
       const took = calm ? 0 : jump(img, a.querySelector('.door-art'), a.getAttribute('href'));
       setTimeout(() => { location.href = a.href; }, took ? took + 40 : 150);
+    }));
+    // the adults' window is not open yet: a tap shows a short note for a moment (17.11)
+    document.querySelectorAll('.lite .door.soon').forEach(d => d.addEventListener('click', () => {
+      d.classList.remove('told'); void d.offsetWidth; d.classList.add('told');
+      clearTimeout(d._t); d._t = setTimeout(() => d.classList.remove('told'), 2600);
     }));
     // back from the collection: the windows as they were
     addEventListener('pageshow', () => document.querySelectorAll('.lite a.door.picked').forEach(a => { a.classList.remove('picked'); a.querySelectorAll('.door-jump').forEach(c => c.remove()); const img = a.querySelector('img'); if (img && img.dataset.plain) img.src = img.dataset.plain; }));
