@@ -1177,3 +1177,10 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .card.book .visual { background: var(--wood) var(--cover, none) center / cover no-repeat; }
 .card.book .visual img { opacity: 0; transition: opacity .35s ease; }
 .card.book .visual img.in { opacity: 1; }
+
+/* the price right under the book's title (17.11, her words «sadece biraz daha göze çarpsın, o kadar»): plain words, no box —
+   the prices a little larger, in gold */
+.p-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin: 12px 0 2px; font: 400 var(--t-sm)/1.3 var(--f-body); color: var(--cream); }
+.p-price b { margin-left: 4px; font: 600 1.7em/1 var(--f-display); font-variant-numeric: lining-nums;
+  background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 60%, #c4934a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }   /* the headline's gold */
+.p-price i { font-style: normal; color: var(--gold); }
