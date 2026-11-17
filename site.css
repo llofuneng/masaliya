@@ -1540,3 +1540,7 @@ body[data-page="gizlilik"] main > .sec:last-child { padding-bottom: clamp(26px, 
 .pr-onward a:hover, .pr-onward a:focus-visible { text-decoration-color: var(--gold); }
 .pr-onward span { color: var(--gold); font-size: .8em; }
 @media (max-width: 560px) { .pr-onward { flex-direction: column; align-items: center; gap: 10px; } .pr-onward span { display: none; } }
+/* 17.11, her words: the campaign line in the empty cart on one line — on a phone without «Yılbaşına özel:» */
+.ci-deal { white-space: nowrap; }
+.ci-short { display: none; }
+@media (max-width: 560px) { .ci-long { display: none; } .ci-short { display: inline; } .ci-deal { font-size: var(--t-sm); padding-inline: 6px; } }

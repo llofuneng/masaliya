@@ -1048,7 +1048,7 @@ function renderCart() {
       root.innerHTML = `<div class="cart-invite">
         <p class="ci-lede">Sepetiniz henüz boş. Sevdiğiniz çocuğun kahramanı olacağı masalı seçin; adını ve 3 fotoğrafını ekleyin, gerisi bizde.</p>
         <nav class="ci-doors" aria-label="Koleksiyonlar">${HEROES.filter(h => !h.soon).slice(0, 2).map((h, i) => `<a class="ci-door" href="${h.href}"><img alt="" width="512" height="704" data-ci="${HEROES.indexOf(h)}"><b>${i ? 'Erkek Çocukları' : 'Kız Çocukları'}</b></a>`).join('')}</nav>
-        ${pairOn() ? `<p class="ci-deal">✦ Yılbaşına özel: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b> · ${PAIR_DEAL.untilText}’a kadar ✦</p>` : ''}
+        ${pairOn() ? `<p class="ci-deal">✦ <span class="ci-long">Yılbaşına özel: i</span><span class="ci-short">İ</span>kinci kitapta <b>%${PAIR_DEAL.pct} indirim</b> · ${PAIR_DEAL.untilText}’a kadar ✦</p>` : ''}
         ${ny.length ? `<div class="ci-row"><h2>Yılbaşı Masalları</h2><div id="related">${rowHTML(ny, 'Yılbaşı masalları')}</div></div>` : ''}
         ${rest.length ? `<div class="ci-row"><h2>Diğer Masallar</h2><div class="ci-more">${rowHTML(rest, 'Diğer masallar')}</div></div>` : ''}
       </div>`;
