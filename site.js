@@ -306,6 +306,24 @@ const SPREADS_NOEL_KIZ = [
   ['img/noel-babaya-surpriz-kiz-s6.jpg', 'SÜRPRİZ! Noel Baba hayatındaki ilk hediyeyi açıyor'],
   ['img/noel-babaya-surpriz-kiz-s7.jpg', 'Sabah yatakta: gümüş bir çan ve bir teşekkür notu']
 ];
+const SPREADS_DUNYADA_KIZ = [
+  ['img/dunyada-yilbasi-kiz-s1.jpg', 'Saat 23.59: pencerede gökyüzünün en yeni yıldızı'],
+  ['img/dunyada-yilbasi-kiz-s2.jpg', 'Filipinler: gece yarısı herkes zıplıyor'],
+  ['img/dunyada-yilbasi-kiz-s3.jpg', 'Danimarka: sandalyeden yeni yıla atlayış'],
+  ['img/dunyada-yilbasi-kiz-s4.jpg', 'İspanya: on iki çan, on iki üzüm'],
+  ['img/dunyada-yilbasi-kiz-s5.jpg', 'Brezilya: beyaz giysiler ve yedi dalga'],
+  ['img/dunyada-yilbasi-kiz-s6.jpg', 'Kolombiya: boş bavulla mahalle turu'],
+  ['img/dunyada-yilbasi-kiz-s7.jpg', 'Evde: kapının eşiğinde kıpkırmızı bir nar']
+];
+const SPREADS_DUNYADA = [
+  ['img/dunyada-yilbasi-s1.jpg', 'Saat 23.59: pencerede gökyüzünün en yeni yıldızı'],
+  ['img/dunyada-yilbasi-s2.jpg', 'Filipinler: gece yarısı herkes zıplıyor'],
+  ['img/dunyada-yilbasi-s3.jpg', 'Danimarka: sandalyeden yeni yıla atlayış'],
+  ['img/dunyada-yilbasi-s4.jpg', 'İspanya: on iki çan, on iki üzüm'],
+  ['img/dunyada-yilbasi-s5.jpg', 'Brezilya: beyaz giysiler ve yedi dalga'],
+  ['img/dunyada-yilbasi-s6.jpg', 'Kolombiya: boş bavulla mahalle turu'],
+  ['img/dunyada-yilbasi-s7.jpg', 'Evde: kapının eşiğinde kıpkırmızı bir nar']
+];
 const SPREADS_LAVIN = [
   ['img/deniz-kizi-kralligi-s1.jpg', 'Elif kumsalda deniz kabuğunu kulağına tutuyor'],
   ['img/deniz-kizi-kralligi-s2.jpg', 'Deniz kızı Mira dalgaların arasından çıkıyor'],
@@ -343,6 +361,11 @@ const PRODUCTS = [
     short: "Herkese hediye getiren Noel Baba'ya ilk kez gizlice bir sürpriz hazırlayan bir kızın yılbaşı masalı.",   // one sentence for the cards
     desc: "Noel Baba herkese hediye getirir. Peki ona kim hediye verir? Hiç kimse! Yılbaşı gecesi kahramanımız en küçük ren geyiğiyle Karlar Ülkesi'ne uçar. Dostlarıyla birlikte Noel Baba'nın sırrını bulacak, çamını süsleyecek ve şafak sökmeden ona gizlice bir sürpriz hazırlayacak. Noel Baba ne diyecek? Sürprizin, dostluğun ve sevindirmenin masalı.",
     extra: [['img/noel-babaya-surpriz-kiz-arka.jpg', 'Arka kapak']], spreads: SPREADS_NOEL_KIZ },
+  { id: 'dunyada-yilbasi-kiz', coverTitle: { box: [0, .22], sub: 'ile Dünyada Yılbaşı', font: 'sans', nameSize: 122, subSize: 40, block: 165, top: 12, fx: .87 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Melis', title: 'ile Dünyada Yılbaşı',
+    img: 'img/dunyada-yilbasi-kiz-kapak.jpg', clean: 'img/dunyada-yilbasi-kiz-temiz.jpg', alt: 'Melis ile Dünyada Yılbaşı kapağı: uçan eski bir bavulun üstünde el sallayan kız, yanında minik bir yıldız, aşağıda gece şehirleri',
+    short: 'Minik bir yıldızla bir gecede dünyayı dolaşıp her ülkede yeni yılı karşılayan bir kızın masalı.',   // one sentence for the cards
+    desc: "Yılbaşı gecesi, saat 23.59. Gökyüzünün en yeni yıldızı bir soru sorar: «Yılbaşı ne demek?» Evdeki saat durur ve kahramanımız onunla yeni yılın peşinden dünyayı dolaşır: Filipinler'de zıplayan çocuklar, Danimarka'da sandalyeden yeni yıla bir atlayış, İspanya'da on iki üzüm, Brezilya'da yedi dalga, Kolombiya'da boş bir bavul... ve evde, kapının eşiğinde kıpkırmızı bir nar! Farklı gelenekler, aynı dilek: sevdiklerimiz mutlu olsun.",
+    extra: [['img/dunyada-yilbasi-kiz-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUNYADA_KIZ },
   { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı', font: 'sans', nameSize: 140, subSize: 41, block: 190, top: 14 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
     img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
     short: 'Kar küresinden çıkan bir buz şatosunda, küçük iyiliklerin büyük gücünü keşfeden bir kış macerası.',   // one sentence for the cards
@@ -378,6 +401,11 @@ const PRODUCTS = [
     short: "Herkese hediye getiren Noel Baba'ya ilk kez gizlice bir sürpriz hazırlayan bir çocuğun yılbaşı masalı.",   // one sentence for the cards
     desc: "Noel Baba herkese hediye getirir. Peki ona kim hediye verir? Hiç kimse! Yılbaşı gecesi kahramanımız en küçük ren geyiğiyle Karlar Ülkesi'ne uçar. Dostlarıyla birlikte Noel Baba'nın sırrını bulacak, çamını süsleyecek ve şafak sökmeden ona gizlice bir sürpriz hazırlayacak. Noel Baba ne diyecek? Sürprizin, dostluğun ve sevindirmenin masalı.",
     extra: [['img/noel-babaya-hediye-arka.jpg', 'Arka kapak']], spreads: SPREADS_NOEL },
+  { id: 'dunyada-yilbasi', coverTitle: { box: [0, .22], sub: 'ile Dünyada Yılbaşı', font: 'sans', nameSize: 122, subSize: 40, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Can', title: 'ile Dünyada Yılbaşı',
+    img: 'img/dunyada-yilbasi-kapak.jpg', clean: 'img/dunyada-yilbasi-temiz.jpg', alt: 'Can ile Dünyada Yılbaşı kapağı: uçan eski bir bavulun üstünde el sallayan çocuk, yanında minik bir yıldız, aşağıda gece şehirleri',
+    short: 'Minik bir yıldızla bir gecede dünyayı dolaşıp her ülkede yeni yılı karşılayan bir çocuğun masalı.',   // one sentence for the cards
+    desc: "Yılbaşı gecesi, saat 23.59. Gökyüzünün en yeni yıldızı bir soru sorar: «Yılbaşı ne demek?» Evdeki saat durur ve kahramanımız onunla yeni yılın peşinden dünyayı dolaşır: Filipinler'de zıplayan çocuklar, Danimarka'da sandalyeden yeni yıla bir atlayış, İspanya'da on iki üzüm, Brezilya'da yedi dalga, Kolombiya'da boş bir bavul... ve evde, kapının eşiğinde kıpkırmızı bir nar! Farklı gelenekler, aynı dilek: sevdiklerimiz mutlu olsun.",
+    extra: [['img/dunyada-yilbasi-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUNYADA },
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', nameSize: 140, subSize: 31, block: 190, top: 14 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     short: 'Yemyeşil bir ormanda, yüz yaşına giren Koca Dede’ye dinozor arkadaşlarıyla hazırlanan sürpriz bir parti.',   // one sentence for the cards
