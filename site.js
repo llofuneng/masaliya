@@ -327,6 +327,24 @@ const SPREADS_DUNYADA = [
   ['img/dunyada-yilbasi-s6.jpg', 'Kolombiya: boş bavulla mahalle turu'],
   ['img/dunyada-yilbasi-s7.jpg', 'Evde: kapının eşiğinde kıpkırmızı bir nar']
 ];
+const SPREADS_FLAMINGO = [
+  ['img/kari-hic-gormemis-flamingo-s1.jpg', "Yılbaşı gecesi balkonda pembe bir misafir"],
+  ['img/kari-hic-gormemis-flamingo-s2.jpg', "Atkı bitti, boyun bitmedi!"],
+  ['img/kari-hic-gormemis-flamingo-s3.jpg', "Kızakla tepeden aşağı: vıııın!"],
+  ['img/kari-hic-gormemis-flamingo-s4.jpg', "Kardan bir flamingo: tıpkı ikizi"],
+  ['img/kari-hic-gormemis-flamingo-s5.jpg', "Buz pistinde balerin gibi dönen flamingo"],
+  ['img/kari-hic-gormemis-flamingo-s6.jpg', "Gece yarısı tepede: Mutlu yıllar!"],
+  ['img/kari-hic-gormemis-flamingo-s7.jpg', "Sabah: katlanmış atkı, pembe bir tüy ve bir resim"]
+];
+const SPREADS_FIL = [
+  ['img/karla-oynayan-fil-yavrusu-s1.jpg', "Yılbaşı gecesi bahçede bir fil yavrusu"],
+  ['img/karla-oynayan-fil-yavrusu-s2.jpg', "FUUUŞ! Hortumdan kar yağıyor"],
+  ['img/karla-oynayan-fil-yavrusu-s3.jpg', "Kar tepesinden kızakla: vıııın!"],
+  ['img/karla-oynayan-fil-yavrusu-s4.jpg', "Hortumun ucuyla çamın tepesine bir yıldız"],
+  ['img/karla-oynayan-fil-yavrusu-s5.jpg', "Herkes fil yavrusunun sırtında, ormana doğru"],
+  ['img/karla-oynayan-fil-yavrusu-s6.jpg', "Ay tepeye gelince: TURURUUU!"],
+  ['img/karla-oynayan-fil-yavrusu-s7.jpg', "Sabah karda kocaman ayak izleri ve bir kalp"]
+];
 const SPREADS_LAVIN = [
   ['img/deniz-kizi-kralligi-s1.jpg', 'Elif kumsalda deniz kabuğunu kulağına tutuyor'],
   ['img/deniz-kizi-kralligi-s2.jpg', 'Deniz kızı Mira dalgaların arasından çıkıyor'],
@@ -369,6 +387,11 @@ const PRODUCTS = [
     short: 'Minik bir yıldızla bir gecede dünyayı dolaşıp her ülkede yeni yılı karşılayan bir kızın masalı.',   // one sentence for the cards
     desc: "Yılbaşı gecesi, saat 23.59. Gökyüzünün en yeni yıldızı bir soru sorar: «Yılbaşı ne demek?» Evdeki saat durur ve kahramanımız onunla yeni yılın peşinden dünyayı dolaşır: Filipinler'de zıplayan çocuklar, Danimarka'da sandalyeden yeni yıla bir atlayış, İspanya'da on iki üzüm, Brezilya'da yedi dalga, Kolombiya'da boş bir bavul... ve evde, kapının eşiğinde kıpkırmızı bir nar! Farklı gelenekler, aynı dilek: sevdiklerimiz mutlu olsun.",
     extra: [['img/dunyada-yilbasi-kiz-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUNYADA_KIZ },
+  { id: 'kari-hic-gormemis-flamingo', coverTitle: { box: [0, .22], sub: 've Karı Hiç Görmemiş Flamingo', font: 'sans', nameSize: 122, subSize: 25.5, block: 165, top: 12, fx: .87 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Azra', title: 've Karı Hiç Görmemiş Flamingo',
+    img: 'img/kari-hic-gormemis-flamingo-kapak.jpg', clean: 'img/kari-hic-gormemis-flamingo-temiz.jpg', alt: 'Azra ve Karı Hiç Görmemiş Flamingo kapağı: karlı balkonda atkılı pembe bir flamingoya sarılan gülen kız',
+    short: 'Hayatında hiç kar görmemiş bir flamingoya karın bütün güzelliklerini gösteren bir kızın masalı.',   // one sentence for the cards
+    desc: "Yılbaşı gecesi balkona pembe bir misafir konar: hayatında hiç kar görmemiş bir flamingo! Kahramanımız ona karın bütün güzelliklerini gösterir: kar tanelerini, kızağı, kardan bir flamingoyu, buz pistini ve gece yarısı ışıl ışıl parlayan şehri. Misafiri sıcacık karşılamanın ve dünyanın öbür ucunda bir dost bulmanın masalı.",
+    extra: [['img/kari-hic-gormemis-flamingo-arka.jpg', 'Arka kapak']], spreads: SPREADS_FLAMINGO },
   { id: 'buz-satosunun-sirri', coverTitle: { box: [0, .25], sub: 've Buz Şatosunun Sırrı', font: 'sans', nameSize: 140, subSize: 41, block: 190, top: 14 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Asya', title: 've Buz Şatosunun Sırrı',
     img: 'img/buz-satosunun-sirri-kapak.jpg', clean: 'img/buz-satosunun-sirri-temiz.jpg', alt: 'Asya ve Buz Şatosunun Sırrı kapağı: geyik yavrusu, kardan adam ve buz şatosu önünde gülümseyen kız',
     short: 'Kar küresinden çıkan bir buz şatosunda, küçük iyiliklerin büyük gücünü keşfeden bir kış macerası.',   // one sentence for the cards
@@ -409,6 +432,11 @@ const PRODUCTS = [
     short: 'Minik bir yıldızla bir gecede dünyayı dolaşıp her ülkede yeni yılı karşılayan bir çocuğun masalı.',   // one sentence for the cards
     desc: "Yılbaşı gecesi, saat 23.59. Gökyüzünün en yeni yıldızı bir soru sorar: «Yılbaşı ne demek?» Evdeki saat durur ve kahramanımız onunla yeni yılın peşinden dünyayı dolaşır: Filipinler'de zıplayan çocuklar, Danimarka'da sandalyeden yeni yıla bir atlayış, İspanya'da on iki üzüm, Brezilya'da yedi dalga, Kolombiya'da boş bir bavul... ve evde, kapının eşiğinde kıpkırmızı bir nar! Farklı gelenekler, aynı dilek: sevdiklerimiz mutlu olsun.",
     extra: [['img/dunyada-yilbasi-arka.jpg', 'Arka kapak']], spreads: SPREADS_DUNYADA },
+  { id: 'karla-oynayan-fil-yavrusu', coverTitle: { box: [0, .22], sub: 've Karla Oynayan Fil Yavrusu', font: 'sans', nameSize: 122, subSize: 27, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Batu', title: 've Karla Oynayan Fil Yavrusu',
+    img: 'img/karla-oynayan-fil-yavrusu-kapak.jpg', clean: 'img/karla-oynayan-fil-yavrusu-temiz.jpg', alt: 'Batu ve Karla Oynayan Fil Yavrusu kapağı: karlı bahçede hortumuyla gülen çocuğa sarılan sevimli bir fil yavrusu',
+    short: "Afrika'dan gelen bir fil yavrusuyla karda oynayan bir çocuğun masalı.",   // one sentence for the cards
+    desc: "Yılbaşı gecesi bahçede bir sürpriz: Afrika'dan gelen, hayatında hiç kar görmemiş bir fil yavrusu! Kahramanımız ve yeni dostu hortumdan kar yağdırır, kocaman bir kar tepesinden kayar, çama yıldız takar ve ormandaki şenliğe herkesi sırtında taşır. Kocaman ama yumuşacık bir kalbin ve gerçek gücün ne demek olduğunu anlatan bir masal.",
+    extra: [['img/karla-oynayan-fil-yavrusu-arka.jpg', 'Arka kapak']], spreads: SPREADS_FIL },
   { id: 'dinozorlarin-dogum-gunu', coverTitle: { box: [0, .23], sub: 've Dinozorların Doğum Günü', font: 'sans', nameSize: 140, subSize: 31, block: 190, top: 14 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Kerem', title: 've Dinozorların Doğum Günü',
     img: 'img/dinozorlarin-dogum-gunu-kapak.jpg', clean: 'img/dinozorlarin-dogum-gunu-temiz.jpg', alt: 'Kerem ve Dinozorların Doğum Günü kapağı: pasta tutan çocuk ve yavru dinozorlar',
     short: 'Yemyeşil bir ormanda, yüz yaşına giren Koca Dede’ye dinozor arkadaşlarıyla hazırlanan sürpriz bir parti.',   // one sentence for the cards
