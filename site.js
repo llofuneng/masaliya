@@ -851,11 +851,16 @@ function renderCart() {
       root.innerHTML = `<div class="panel cart-empty"><p class="lede">Bir masal seçin, kahramanın adını ve 3 fotoğrafını ekleyin.</p><a class="btn" href="urunler.html">Masalını seç</a></div>`;
       return;
     }
-    const off = pairOff(items), total = items.reduce((a, it) => a + it.price.total, 0) - off;
+    const off = pairOff(items), full = items.reduce((a, it) => a + it.price.total, 0) - off;
+    // a promotion code written here (17.11, her «поле… прямо на сайте, до «Ödemeye geç»»): checked by the order server, the total
+    // below already without it; kept only while the cart holds the same single product
+    let promo = draft.promo && items.length === 1 && draft.promo.item === items[0].id ? draft.promo : null;
+    if (draft.promo && !promo) { delete draft.promo; try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) {} if (items.length > 1 && !msg) msg = 'Promosyon kodu yalnızca tek ürünlük siparişlerde geçerli; kod kaldırıldı.'; }
+    const total = promo ? Math.max(0, full - promo.off) : full;
     const ships = items.some(it => it.cover !== 'digital');
     const hardN = items.filter(it => it.cover === 'hard').length;
     // the campaign: what was taken off, or how to get it with one more book
-    const deal = !pairOn() ? '' : off
+    const deal = promo || !pairOn() ? '' : off   // with a code applied, no «add one more book» hint (a second book would end the code)
       ? `<div class="deal-line"><span>2 kitap indirimi <small>İkinci sert kapak kitapta %${PAIR_DEAL.pct} · ${PAIR_DEAL.untilText}’a kadar</small></span><strong>−${fmt(off)}</strong></div>`
       : hardN % 2 === 1 ? `<p class="deal-hint">Bir sert kapak kitap daha ekleyin: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b>, ${PAIR_DEAL.untilText}’a kadar. <a href="urunler.html">Kitapları gör</a></p>` : '';
     root.innerHTML = `<div class="cart-grid">
@@ -867,6 +872,12 @@ function renderCart() {
       </ul>
       <form class="panel cart-pay" id="pay">
         ${deal}
+        <div class="promo" id="promo-box">${promo
+          ? `<div class="deal-line promo-on"><span>Promosyon kodu <b>${esc(promo.code)}</b> <button type="button" class="promo-x" id="promo-x">Kaldır</button></span><strong>−${fmt(promo.off)}</strong></div>`
+          : `<label class="promo-label" for="c-promo">Promosyon kodu</label>
+          <div class="promo-row"><input id="c-promo" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="Kodunuz varsa yazın"><button type="button" class="btn ghost" id="promo-apply">Uygula</button></div>`}
+          <p class="promo-note" id="promo-note" aria-live="polite"></p>
+        </div>
         <div class="total"><span>Toplam <small>${items.length} kitap · Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
         ${ships ? ETA() : ''}
         ${ships ? `<span class="step">Teslimat adresi</span>
@@ -883,7 +894,7 @@ function renderCart() {
         <label class="field" for="c-phone">Telefon<input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx"></label>
         <label class="field" for="c-email">E-posta<input id="c-email" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
         <label class="consent" for="ok-terms"><input type="checkbox" id="ok-terms"><span><a href="mesafeli-satis.html" target="_blank">Ön Bilgilendirme Formu</a>’nu ve <a href="mesafeli-satis.html#sozlesme" target="_blank">Mesafeli Satış Sözleşmesi</a>’ni okudum, onaylıyorum.</span></label>
-        <button class="btn" type="submit" id="pay-btn">Ödemeye geç</button>
+        <button class="btn" type="submit" id="pay-btn">${total ? 'Ödemeye geç' : 'Siparişi tamamla'}</button>
         <div class="secure-pay">
           <span class="cards" aria-label="Visa, Mastercard, Apple Pay, Google Pay">${CARD_MARKS}</span>
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4.5" y="10" width="15" height="11" rx="2" fill="currentColor"/></svg>Stripe ile güvenli ödeme · 3D Secure · Kart bilgileriniz bizde saklanmaz · Ödeme Türk lirası ile alınır</span>
@@ -897,6 +908,25 @@ function renderCart() {
     FIELDS.forEach(k => { const el = document.getElementById(k); if (el && draft[k]) el.value = draft[k]; });
     form.addEventListener('input', e => { if (FIELDS.includes(e.target.id)) { draft[e.target.id] = e.target.value; try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (err) {} } });
     root.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => { cart.remove(b.dataset.remove); show(); }));
+    const keepPromo = v => { if (v) draft.promo = v; else delete draft.promo; try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) {} };
+    const promoX = document.getElementById('promo-x');
+    if (promoX) promoX.addEventListener('click', () => { keepPromo(null); show(); });
+    const promoIn = document.getElementById('c-promo'), promoBtn = document.getElementById('promo-apply'), promoNote = document.getElementById('promo-note');
+    const applyPromo = async () => {
+      const code = promoIn.value.trim().toUpperCase().replace(/\s+/g, '');
+      if (!code) { promoNote.textContent = 'Lütfen kodunuzu yazın.'; promoIn.focus(); return; }
+      if (items.length !== 1) { promoNote.textContent = 'Promosyon kodu yalnızca tek ürünlük siparişlerde geçerli. Sepette bir masal bırakın.'; return; }
+      promoBtn.disabled = true; promoNote.textContent = 'Kod kontrol ediliyor…';
+      try {
+        const res = await fetch(ORDER_API + '/api/kod', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code, items: items.map(it => it.id) }) });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || 'Kod şu anda kontrol edilemedi.');
+        keepPromo({ code: out.code, off: out.off, item: items[0].id });
+        show();
+        const n = document.getElementById('promo-note'); if (n) n.textContent = out.total ? 'Kod uygulandı.' : 'Kod uygulandı: siparişiniz ücretsiz.';
+      } catch (err) { promoBtn.disabled = false; promoNote.textContent = err.message; }
+    };
+    if (promoBtn) { promoBtn.addEventListener('click', applyPromo); promoIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } }); }
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const note = document.getElementById('pay-note'), btn = document.getElementById('pay-btn');
@@ -921,8 +951,9 @@ function renderCart() {
       btn.disabled = true; say('Ödeme sayfası hazırlanıyor…');
       try {
         const res = await fetch(ORDER_API + '/api/order', { method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ items: items.map(it => it.id), name, address, phone: cleanPhone, email: mail, consentTerms: true }) });
+          body: JSON.stringify({ items: items.map(it => it.id), name, address, phone: cleanPhone, email: mail, consentTerms: true, promo: promo ? promo.code : undefined }) });
         const out = await res.json().catch(() => ({}));
+        if (out.promo) { keepPromo(null); show(out.error); return; }
         if (res.status === 409 && out.missing) { out.missing.forEach(id => cart.remove(id)); show(out.error); return; }
         if (!res.ok || !out.url) throw new Error(out.error || 'Sipariş oluşturulamadı.');
         location.href = out.url;

@@ -37,7 +37,10 @@ const STAGES = {
 };
 const stageLabel = o => o.cancelled ? '\u0130ptal edildi' : o.status === 'odendi' ? STAGES[o.stage || 'tasarim'].admin : '\u00d6deme bekleniyor';
 const refundBadge = o => !o.cancelled ? '' : o.refund && o.refund.state === 'yapildi'
-  ? '<span class="badge ok">\u0130ade yap\u0131ld\u0131</span>' : '<span class="badge no">\u0130ade yap\u0131lmad\u0131</span>';
+  ? '<span class="badge ok">\u0130ade yap\u0131ld\u0131</span>' : o.refund && o.refund.state === 'gerekmiyor' ? '<span class="badge ok">\u0130ade gerekmiyor</span>' : '<span class="badge no">\u0130ade yap\u0131lmad\u0131</span>';
+// what the customer paid: 0 with a 100 % promotion code (17.11; 'amountPaid || total' showed the full price then)
+const paidSum = o => typeof o.amountPaid === 'number' ? o.amountPaid : o.price.total;
+const promoNote = o => o.promoCode ? ' \u00b7 promosyon kodu ' + esc(o.promoCode) + (o.discountUsed ? ' (\u2212' + o.discountUsed.toLocaleString('tr-TR') + ' TL)' : '') : '';
 const stagesFor = o => o.ships ? ['tasarim', 'onizleme', 'baski', 'kargo', 'teslim'] : ['tasarim', 'onizleme', 'teslim'];
 const MAX_PREVIEW = 25 * 1024 * 1024, PREVIEW_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
 // each part of a book's set gets its own preview: the book, the coloring book, the puzzle
@@ -53,6 +56,7 @@ export default {
       if (req.method === 'OPTIONS') return cors(env, new Response(null, { status: 204 }));
       if (req.method === 'POST' && url.pathname === '/api/item') return cors(env, await addItem(req, env));
       if (req.method === 'POST' && url.pathname === '/api/order') return cors(env, await createOrder(req, env));
+      if (req.method === 'POST' && url.pathname === '/api/kod') return cors(env, await checkCode(req, env));
       if (req.method === 'POST' && url.pathname === '/api/stripe') return await stripeEvent(req, env);
       if (req.method === 'GET' && url.pathname === '/api/status') return cors(env, await orderStatus(url, env));
       if (req.method === 'POST' && url.pathname === '/api/onay') return cors(env, await customerReview(req, url, env));
@@ -123,6 +127,40 @@ async function addItem(req, env) {
 const publicItem = it => ({ id: it.id, product: it.product, title: it.title, contents: it.contents, setName: it.setName, cover: it.cover, giftBox: it.giftBox, giftNote: it.giftNote, price: it.price });
 
 /* ---------- the cart to the payment page ---------- */
+// a promotion code for this cart (17.11): exists, active, not used up, not expired; one product only. The discount is worked out
+// the way Stripe will apply it, so the cart shows the real total before the payment page.
+async function findPromo(env, raw, items, total) {
+  const code = String(raw || '').trim().toUpperCase().replace(/\s+/g, '');
+  if (!/^[A-Z0-9_-]{3,40}$/.test(code)) return { error: 'Bu promosyon kodu ge\u00e7ersiz. Kodu Latin harfleri ve rakamlarla yaz\u0131n.' };
+  if (items.length !== 1) return { error: 'Promosyon kodu yaln\u0131zca tek \u00fcr\u00fcnl\u00fck sipari\u015flerde ge\u00e7erli. Sepette bir masal b\u0131rak\u0131n.' };
+  let list;
+  try { list = await stripe(env, `promotion_codes?code=${encodeURIComponent(code)}&active=true&limit=1`); } catch (e) { return { error: 'Kod \u015fu anda kontrol edilemedi. L\u00fctfen biraz sonra tekrar deneyin.' }; }
+  const pc = list.data && list.data[0];
+  if (!pc) return { error: 'Bu promosyon kodu bulunamad\u0131 ya da art\u0131k ge\u00e7erli de\u011fil.' };
+  if (pc.max_redemptions && pc.times_redeemed >= pc.max_redemptions) return { error: 'Bu promosyon kodu daha \u00f6nce kullan\u0131lm\u0131\u015f.' };
+  if (pc.expires_at && pc.expires_at * 1000 < Date.now()) return { error: 'Bu promosyon kodunun s\u00fcresi dolmu\u015f.' };
+  let cp = pc.coupon || (pc.promotion && pc.promotion.coupon);
+  if (typeof cp === 'string') { try { cp = await stripe(env, `coupons/${cp}`); } catch (e) { cp = null; } }
+  if (!cp || cp.valid === false) return { error: 'Bu promosyon kodu art\u0131k ge\u00e7erli de\u011fil.' };
+  const r = pc.restrictions || {};
+  if (r.minimum_amount && (!r.minimum_amount_currency || r.minimum_amount_currency === 'try') && total * 100 < r.minimum_amount) return { error: `Bu kod ${(r.minimum_amount / 100).toLocaleString('tr-TR')} TL ve \u00fczeri sipari\u015flerde ge\u00e7erli.` };
+  const off = cp.percent_off ? Math.round(total * cp.percent_off) / 100 : cp.amount_off && (!cp.currency || cp.currency === 'try') ? Math.min(total, cp.amount_off / 100) : 0;
+  if (!off) return { error: 'Bu promosyon kodu bu sipari\u015fe uygulanam\u0131yor.' };
+  return { pc, cp, code: pc.code, off, total: Math.max(0, total - off) };
+}
+// the cart asks before the payment page: { code, items } -> the discount and the new total
+async function checkCode(req, env) {
+  let b;
+  try { b = await req.json(); } catch (e) { return json({ error: '\u0130stek okunamad\u0131.' }, 400); }
+  const ids = [...new Set(Array.isArray(b.items) ? b.items : [])].slice(0, MAX_ITEMS + 1);
+  const items = await Promise.all(ids.map(id => /^KTP-[A-Z0-9]{8}$/.test(id) ? getJson(env, `items/${id}/kitap.json`) : null));
+  if (!items.length || items.some(it => !it || it.status === 'odendi')) return json({ error: 'Sepetinizdeki kitaplar bulunamad\u0131. Sayfay\u0131 yenileyip tekrar deneyin.' }, 409);
+  const total = items.reduce((a, it) => a + it.price.total, 0);   // one product: no two-book discount here
+  const pr = await findPromo(env, b.code, items, total);
+  if (pr.error) return json({ error: pr.error }, 400);
+  return json({ ok: true, code: pr.code, off: pr.off, total: pr.total });
+}
+
 async function createOrder(req, env) {
   let o;
   try { o = await req.json(); } catch (e) { return json({ error: 'Sipari\u015f bilgileri okunamad\u0131.' }, 400); }
@@ -192,6 +230,15 @@ async function createOrder(req, env) {
     p.set('payment_intent_data[shipping][phone]', phone);
     for (const k of ['line1', 'city', 'state', 'postal_code', 'country']) if (shipping[k]) p.set(`payment_intent_data[shipping][address][${k}]`, shipping[k]);
   }
+  // promotion codes (17.11: a free book for a blogger, any product but only one). A code written in our cart comes with the order,
+  // is checked again here and goes to Stripe already applied; without one, a one-product order still gets the code field on the
+  // payment page (Stripe allows one or the other). A cart of two or more books pays as usual; every line is quantity 1.
+  if (o.promo) {
+    const pr = await findPromo(env, o.promo, items, total);
+    if (pr.error) return json({ error: pr.error, promo: true }, 400);
+    p.set('discounts[0][promotion_code]', pr.pc.id);
+    order.promoCode = pr.pc.code; await saveOrder(env, order);
+  } else if (items.length === 1) p.set('allow_promotion_codes', 'true');
   const session = await stripe(env, 'checkout/sessions', p);
   order.stripeSession = session.id;
   await saveOrder(env, order);
@@ -206,7 +253,7 @@ async function stripeEvent(req, env) {
   const event = JSON.parse(body);
   if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
     const s = event.data.object;
-    if (s.payment_status !== 'paid') return new Response('ok');
+    if (s.payment_status !== 'paid' && s.payment_status !== 'no_payment_required') return new Response('ok');   // 0 TL with a 100 % code: no_payment_required (17.11)
     const order = await loadOrder(env, s.client_reference_id);
     if (!order || order.status === 'odendi') return new Response('ok');
     const ship = (s.collected_information && s.collected_information.shipping_details) || s.shipping_details || null;
@@ -215,6 +262,15 @@ async function stripeEvent(req, env) {
     order.paid = new Date().toISOString();
     order.amountPaid = s.amount_total / 100;
     order.paymentIntent = s.payment_intent || null;
+    // a promotion code: how much it took off and which code it was (so the order list shows which blogger's code was used)
+    order.discountUsed = s.total_details && s.total_details.amount_discount ? s.total_details.amount_discount / 100 : 0;
+    if (order.discountUsed) {
+      try {
+        const full = await stripe(env, `checkout/sessions/${s.id}?expand%5B%5D=total_details.breakdown`);
+        const d = (((full.total_details || {}).breakdown || {}).discounts || [])[0], pc = d && d.discount && d.discount.promotion_code;
+        if (pc) order.promoCode = typeof pc === 'string' ? (await stripe(env, `promotion_codes/${pc}`)).code : pc.code;
+      } catch (e) { order.promoCode = order.promoCode || '?'; }
+    }
     order.stage = 'tasarim';
     order.history = { tasarim: order.paid };
     order.contact = { ...order.contact, name: order.contact.name || cust.name || '', email: order.contact.email || cust.email || '' };
@@ -391,7 +447,7 @@ async function adminListPage(url, env) {
     cursor = page.truncated ? page.cursor : null;
   } while (cursor);
   orders.sort((a, b) => b.created.localeCompare(a.created));
-  const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} \u00b7 ${esc(it.contents)}${it.giftBox ? ' \u00b7 hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">D\u00fczeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin')}</td></tr>`));
+  const rows = await Promise.all(orders.map(async o => `<tr class="${o.cancelled ? 'iptal' : o.status}"><td><a href="/admin/${o.id}?t=${await token(env, o.id)}">${o.id}</a></td><td>${date(o.created)}</td><td>${o.items.map(it => `${esc(it.title)}<br><small>${esc(it.setName)} \u00b7 ${esc(it.contents)}${it.giftBox ? ' \u00b7 hediye kutusu' : ''}</small>`).join('<br>')}</td><td>${paidSum(o).toLocaleString('tr-TR')} TL${o.promoCode ? '<br><small>kod ' + esc(o.promoCode) + '</small>' : ''}</td><td><b>${stageLabel(o)}</b> ${refundBadge(o)}${!o.cancelled && o.review && o.review.state === 'duzeltme' ? '<br><b style="color:#b0412e">D\u00fczeltme istendi</b>' : !o.cancelled && o.review && o.review.state === 'bekliyor' ? '<br><small>Onay bekleniyor</small>' : ''}</td><td>${esc(o.contact.name || '')}<br>${esc(o.contact.phone)}<br>${esc(o.contact.email)}</td><td>${await cancelButton(env, o, '/admin')}</td></tr>`));
   const note = url.searchParams.get('not');
   return page('Sipari\u015fler', `<h1>Sipari\u015fler <small style="font-size:14px;font-weight:400"><a href="/admin/istatistik">\u0130statistik \u2192</a></small></h1>${note ? `<p class="flash">${esc(note)}</p>` : ''}<p>${orders.filter(o => o.status === 'odendi').length} \u00f6denmi\u015f sipari\u015f. \u00d6denmeyenler ${UNPAID_DAYS} g\u00fcn sonra silinir.</p>
     <table><tr><th>No</th><th>Tarih</th><th>Kitaplar</th><th>Tutar</th><th>A\u015fama</th><th>M\u00fc\u015fteri</th><th></th></tr>${rows.join('')}</table>`);
@@ -485,13 +541,13 @@ async function cancelButton(env, o, back) {
   const paid = o.status === 'odendi';
   if (!refundOpen(o)) return `<span class="closed" title="\u0130ptal ve iade yaln\u0131zca \u00f6demeden sonraki ${REFUND_HOURS} saat i\u00e7inde yap\u0131labilir">\u0130ptal s\u00fcresi doldu</span>`;
   const left = paid ? Math.max(1, Math.ceil((REFUND_HOURS * 36e5 - (Date.now() - Date.parse(o.paid))) / 36e5)) : 0;
-  const q = paid ? `${o.id} sipari\u015fini iptal etmek istedi\u011finizden emin misiniz?\n\n${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL m\u00fc\u015fterinin kart\u0131na iade edilecek. Bu i\u015flem geri al\u0131namaz.` : `${o.id} sipari\u015fini iptal etmek istedi\u011finizden emin misiniz?`;
+  const q = paid ? `${o.id} sipari\u015fini iptal etmek istedi\u011finizden emin misiniz?\n\n${paidSum(o).toLocaleString('tr-TR')} TL m\u00fc\u015fterinin kart\u0131na iade edilecek. Bu i\u015flem geri al\u0131namaz.` : `${o.id} sipari\u015fini iptal etmek istedi\u011finizden emin misiniz?`;
   return `<form method="post" action="/admin/${o.id}/iptal?t=${await token(env, o.id)}&geri=${encodeURIComponent(back)}" onsubmit="return confirm(${esc(JSON.stringify(q))})"><button class="cancel">${paid ? 'Sipari\u015fi iptal et ve iade et' : 'Sipari\u015fi iptal et'}</button>${paid ? `<small class="left">${left} saat kald\u0131</small>` : ''}</form>`;
 }
 function cancelledPanel(o, t, note) {
   const r = o.refund || {};
   return `<div class="stage cancelled"><p><b>Sipari\u015f iptal edildi</b> \u00b7 ${date(o.cancelled)} ${refundBadge(o)}${note ? ` <span class="note">${esc(note)}</span>` : ''}</p>
-    ${r.state === 'yapildi' ? `<p>${(r.amount || o.amountPaid || 0).toLocaleString('tr-TR')} TL m\u00fc\u015fterinin kart\u0131na iade edildi${r.id ? ` (Stripe: ${esc(r.id)})` : ''}. Kartta g\u00f6r\u00fcnmesi bankaya g\u00f6re 5\u201310 i\u015f g\u00fcn\u00fc s\u00fcrebilir.</p>`
+    ${r.state === 'gerekmiyor' ? '<p>\u00dccretsiz sipari\u015f (promosyon kodu); iade gerekmiyor.</p>' : r.state === 'yapildi' ? `<p>${(r.amount || o.amountPaid || 0).toLocaleString('tr-TR')} TL m\u00fc\u015fterinin kart\u0131na iade edildi${r.id ? ` (Stripe: ${esc(r.id)})` : ''}. Kartta g\u00f6r\u00fcnmesi bankaya g\u00f6re 5\u201310 i\u015f g\u00fcn\u00fc s\u00fcrebilir.</p>`
       : o.status === 'odendi' ? `<p>\u0130ade yap\u0131lamad\u0131${r.error ? `: ${esc(r.error)}` : ''}. Tekrar deneyin ya da iadeyi Stripe\u2019ta (Payments \u2192 bu \u00f6deme \u2192 Refund) yap\u0131p a\u015fa\u011f\u0131dan i\u015faretleyin.</p>
         <div class="steps"><form method="post" action="/admin/${o.id}/iptal?t=${t}"><button>\u0130adeyi tekrar dene</button></form>
         <form method="post" action="/admin/${o.id}/iade-yapildi?t=${t}" onsubmit="return confirm('\u0130adeyi Stripe\u2019ta kendiniz yapt\u0131n\u0131z m\u0131?')"><button>Stripe\u2019ta iade ettim</button></form></div>`
@@ -502,7 +558,8 @@ function cancelledPanel(o, t, note) {
 async function cancelAndRefund(env, o, who) {
   const now = new Date().toISOString();
   if (!o.cancelled) { o.cancelled = now; o.cancelledBy = who; o.history = { ...(o.history || {}), iptal: now }; }
-  if (o.status === 'odendi') {
+  if (o.status === 'odendi' && paidSum(o) === 0) o.refund = { state: 'gerekmiyor', date: now };   // a free order (promotion code): nothing to refund
+  else if (o.status === 'odendi') {
     try {
       let pi = o.paymentIntent;
       if (!pi && o.stripeSession) pi = (await stripe(env, `checkout/sessions/${o.stripeSession}`)).payment_intent;
@@ -589,7 +646,7 @@ function orderHtml(o, origin, t) {
     <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(it.hero)} \u00b7 foto\u011fraf ${n}"></a>`; }).join('')}</div>`).join('');
   return `<h1>${o.id} \u00b7 ${stageLabel(o)} ${refundBadge(o)}</h1>
     <table>
-      <tr><th>Tutar</th><td>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL \u00b7 ${o.items.length} kitap${o.price.discount ? ` \u00b7 2 kitap indirimi \u2212${o.price.discount.toLocaleString('tr-TR')} TL` : ''}</td></tr>
+      <tr><th>Tutar</th><td>${paidSum(o).toLocaleString('tr-TR')} TL${promoNote(o)} \u00b7 ${o.items.length} kitap${o.price.discount ? ` \u00b7 2 kitap indirimi \u2212${o.price.discount.toLocaleString('tr-TR')} TL` : ''}</td></tr>
       <tr><th>Tarih</th><td>${date(o.created)}${o.paid ? ` \u00b7 \u00f6dendi ${date(o.paid)}` : ''}</td></tr>
       <tr><th>\u0130leti\u015fim</th><td>${esc(o.contact.name || '')} ${esc(o.contact.phone)} \u00b7 ${esc(o.contact.email)}</td></tr>
       ${o.cargo && o.cargo.no ? `<tr><th>Kargo</th><td>${esc(o.cargo.firm)} \u00b7 ${esc(o.cargo.no)}</td></tr>` : ''}
@@ -601,12 +658,12 @@ async function mailOwner(env, o, origin) {
   if (!env.RESEND_API_KEY || !env.OWNER_EMAIL) return;
   const t = await token(env, o.id);
   const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#222">
-    <p>Yeni sipari\u015f \u00f6dendi.</p>${orderHtml(o, origin, t).replace(/<img /g, '<img style="height:200px;margin:4px" ')}
+    <p>${paidSum(o) > 0 ? 'Yeni sipari\u015f \u00f6dendi.' : 'Yeni sipari\u015f: promosyon koduyla \u00fccretsiz.'}</p>${orderHtml(o, origin, t).replace(/<img /g, '<img style="height:200px;margin:4px" ')}
     <p><a href="${origin}/admin/${o.id}?t=${t}">Sipari\u015fi ve foto\u011fraflar\u0131 a\u00e7</a></p></div>`;
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ from: env.MAIL_FROM || 'Masaliya <onboarding@resend.dev>', to: [env.OWNER_EMAIL], subject: `Yeni sipari\u015f ${o.id} \u00b7 ${o.items.length} kitap \u00b7 ${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL`, html })
+    body: JSON.stringify({ from: env.MAIL_FROM || 'Masaliya <onboarding@resend.dev>', to: [env.OWNER_EMAIL], subject: `Yeni sipari\u015f ${o.id} \u00b7 ${o.items.length} kitap \u00b7 ${paidSum(o).toLocaleString('tr-TR')} TL${o.promoCode ? ' \u00b7 kod ' + o.promoCode : ''}`, html })
   });
   if (!res.ok) console.log('mail failed', res.status, await res.text());
 }
@@ -626,25 +683,68 @@ async function mailOwnerNote(env, subject, body) {
 async function mailCustomer(env, o, stage) {
   if (!env.RESEND_API_KEY || !env.MAIL_FROM || !o.contact.email) return;
   const site = env.SITE_URL || 'https://masaliya.com';
-  const books = o.items.map(it => `<li>${esc(it.title)} <small>(${esc(it.setName)} \u00b7 ${esc(it.contents)}${it.giftBox ? ' \u00b7 hediye kutusu' : ''})</small></li>`).join('');
-  const c = o.cargo || {}, link = `${site}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`;
-  const lines = {
-    tasarim: `<p>Sipari\u015finiz al\u0131nd\u0131, te\u015fekk\u00fcr ederiz. Masal\u0131n\u0131z at\u00f6lyemizde haz\u0131rlanmaya ba\u015flad\u0131.</p><ul>${books}</ul><p>Toplam: <b>${(o.amountPaid || o.price.total).toLocaleString('tr-TR')} TL</b></p>${o.shipping ? `<p>Teslimat adresi: ${esc([o.shipping.name, o.shipping.line1, o.shipping.city, o.shipping.state].filter(Boolean).join(', '))}</p>` : ''}<p>\u00d6demeden sonra 3 i\u015f g\u00fcn\u00fc i\u00e7inde b\u00fct\u00fcn sayfalar\u0131n \u00f6nizlemesini g\u00f6nderece\u011fiz.</p><p style="font-size:13px;color:#7a6a64">Bankan\u0131z ek i\u015flem komisyonu uygulad\u0131ysa kart\u0131n\u0131zdan biraz fazlas\u0131 g\u00f6r\u00fcnebilir. Bu bizim ald\u0131\u011f\u0131m\u0131z bir \u00fccret de\u011fildir \u2014 fark\u0131 ayn\u0131 g\u00fcn iade ediyoruz.</p><p><a href="${site}/mesafeli-satis.html">\u00d6n Bilgilendirme Formu ve Mesafeli Sat\u0131\u015f S\u00f6zle\u015fmesi</a></p>`,
-    onizleme: `<p>Kitab\u0131n\u0131z\u0131n \u00f6nizlemesi haz\u0131r.</p><p><a href="${link}">\u00d6nizlemeyi a\u00e7\u0131n</a></p><p>B\u00fct\u00fcn sayfalar\u0131 inceleyin; her \u015fey yolundaysa \u201cOnayl\u0131yorum\u201da, de\u011fi\u015ftirmek istedi\u011finiz bir \u015fey varsa \u201cD\u00fczeltme istiyorum\u201da bas\u0131n.</p>`,
-    baski: `<p>Onay\u0131n\u0131z i\u00e7in te\u015fekk\u00fcrler. Kitab\u0131n\u0131z bask\u0131da; 5 i\u015f g\u00fcn\u00fc i\u00e7inde kargoya verilecek.</p>`,
-    kargo: `<p>Kitab\u0131n\u0131z yola \u00e7\u0131kt\u0131.</p><p>${esc(c.firm)} \u00b7 takip numaras\u0131: <b>${esc(c.no)}</b></p>`,
-    teslim: o.ships ? `<p>Kitab\u0131n\u0131z teslim edildi. \u0130yi okumalar!</p>` : `<p>Dijital kitab\u0131n\u0131z e-postan\u0131za g\u00f6nderildi. \u0130yi okumalar!</p>`,
-    iptal: `<p>Sipari\u015finiz iptal edildi.</p>${o.refund && o.refund.state === 'yapildi' ? `<p>${(o.refund.amount || o.amountPaid).toLocaleString('tr-TR')} TL kart\u0131n\u0131za iade edildi; bankan\u0131za g\u00f6re hesab\u0131n\u0131zda g\u00f6r\u00fcnmesi 5\u201310 i\u015f g\u00fcn\u00fc s\u00fcrebilir.</p>` : '<p>\u00d6demenizin iadesiyle ilgili size ayr\u0131ca bilgi verece\u011fiz.</p>'}`
-  };
-  const subject = { tasarim: `Sipari\u015finiz al\u0131nd\u0131 \u00b7 ${o.id}`, onizleme: `\u00d6nizlemeniz haz\u0131r \u00b7 ${o.id}`, baski: `Kitab\u0131n\u0131z bask\u0131da \u00b7 ${o.id}`, kargo: `Kitab\u0131n\u0131z kargoda \u00b7 ${o.id}`, teslim: `Masal\u0131n\u0131z size ula\u015ft\u0131 \u00b7 ${o.id}`, iptal: `Sipari\u015finiz iptal edildi \u00b7 ${o.id}` }[stage];
-  const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#2a1a16;max-width:560px">
-    <p>Merhaba${o.contact.name ? ' ' + esc(o.contact.name.split(' ')[0]) : ''},</p>${lines[stage]}
-    <p><a href="${link}">Sipari\u015finizi takip edin</a> \u00b7 sipari\u015f numaran\u0131z ${o.id}</p><p>Masaliya</p></div>`;
+  const { subject, html } = await customerMail(env, o, stage, site);
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST', headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
     body: JSON.stringify({ from: env.MAIL_FROM, to: [o.contact.email], reply_to: env.OWNER_EMAIL || undefined, subject, html })
   });
   if (!res.ok) console.log('customer mail failed', res.status, await res.text());
+}
+// the customer e-mail in the site's look (17.11): tables and inline styles only, as mail programs want them
+async function customerMail(env, o, stage, site) {
+  const link = `${site}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`, c = o.cargo || {}, paid = paidSum(o);
+  const SERIF = "Georgia,'Times New Roman',serif", SANS = 'Arial,Helvetica,sans-serif';
+  const P = t => `<p style="margin:0 0 14px;font:15px/1.65 ${SANS};color:#4a3a33">${t}</p>`;
+  const books = o.items.map(it => `<tr>
+      <td width="72" valign="top" style="padding:12px 14px 12px 0"><img src="${site}/img/t/${esc(it.product)}-temiz.jpg" width="64" alt="" style="display:block;width:64px;height:auto;border-radius:6px;border:1px solid #e6d3b3"></td>
+      <td valign="middle" style="padding:12px 0;font:15px/1.4 ${SANS};color:#4a3a33"><div style="font:600 17px/1.3 ${SERIF};color:#6b1d2a">${esc(it.title)}</div><div style="margin-top:4px;font-size:13px;color:#8a7468">${esc(it.setName)} \u00b7 ${esc(it.contents)}${it.giftBox ? ' \u00b7 hediye kutusu' : ''}</div></td></tr>`).join('');
+  const box = inner => `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:6px 0 18px;background:#fbf3e6;border:1px solid #ecdcc0;border-radius:10px"><tr><td style="padding:6px 18px">${inner}</td></tr></table>`;
+  const order = box(`<table role="presentation" width="100%" cellspacing="0" cellpadding="0">${books}</table>
+      <div style="border-top:1px solid #ecdcc0;padding:12px 0 10px;font:15px/1.4 ${SANS};color:#4a3a33">Toplam <b style="float:right;font:600 18px/1.2 ${SERIF};color:#6b1d2a">${paid.toLocaleString('tr-TR')} TL</b></div>`);
+  const address = o.shipping ? P(`<span style="color:#8a7468">Teslimat adresi:</span> ${esc([o.shipping.name, o.shipping.line1, o.shipping.city, o.shipping.state].filter(Boolean).join(', '))}`) : '';
+  const fee = paid > 0 ? `<p style="margin:0 0 14px;font:12px/1.55 ${SANS};color:#9a8679">Bankan\u0131z ek i\u015flem komisyonu uygulad\u0131ysa kart\u0131n\u0131zdan biraz fazlas\u0131 g\u00f6r\u00fcnebilir. Bu bizim ald\u0131\u011f\u0131m\u0131z bir \u00fccret de\u011fildir \u2014 fark\u0131 ayn\u0131 g\u00fcn iade ediyoruz.</p>` : '';
+  const refund = o.refund && o.refund.state === 'gerekmiyor' ? '' : o.refund && o.refund.state === 'yapildi' ? P(`${(o.refund.amount || o.amountPaid).toLocaleString('tr-TR')} TL kart\u0131n\u0131za iade edildi; bankan\u0131za g\u00f6re hesab\u0131n\u0131zda g\u00f6r\u00fcnmesi 5\u201310 i\u015f g\u00fcn\u00fc s\u00fcrebilir.`) : P('\u00d6demenizin iadesiyle ilgili size ayr\u0131ca bilgi verece\u011fiz.');
+  const M = {
+    tasarim: { s: 'Sipari\u015finiz al\u0131nd\u0131', t: 'Sipari\u015finiz al\u0131nd\u0131', pre: 'Te\u015fekk\u00fcr ederiz! Masal\u0131n\u0131z at\u00f6lyemizde haz\u0131rlanmaya ba\u015flad\u0131.',
+      body: P('Te\u015fekk\u00fcr ederiz! Masal\u0131n\u0131z at\u00f6lyemizde haz\u0131rlanmaya ba\u015flad\u0131.') + order + address + P(`${paid > 0 ? '\u00d6demeden sonra 3' : '3'} i\u015f g\u00fcn\u00fc i\u00e7inde b\u00fct\u00fcn sayfalar\u0131n \u00f6nizlemesini size g\u00f6nderece\u011fiz.`) + fee, cta: 'Sipari\u015finizi takip edin' },
+    onizleme: { s: '\u00d6nizlemeniz haz\u0131r', t: '\u00d6nizlemeniz haz\u0131r', pre: 'Kitab\u0131n\u0131z\u0131n b\u00fct\u00fcn sayfalar\u0131 sizi bekliyor.',
+      body: P('Kitab\u0131n\u0131z\u0131n b\u00fct\u00fcn sayfalar\u0131 haz\u0131r. L\u00fctfen her sayfay\u0131 inceleyin: her \u015fey yolundaysa \u201cOnayl\u0131yorum\u201da, de\u011fi\u015ftirmek istedi\u011finiz bir \u015fey varsa \u201cD\u00fczeltme istiyorum\u201da bas\u0131n.'), cta: '\u00d6nizlemeyi a\u00e7\u0131n' },
+    baski: { s: 'Kitab\u0131n\u0131z bask\u0131da', t: 'Kitab\u0131n\u0131z bask\u0131da', pre: 'Onay\u0131n\u0131z i\u00e7in te\u015fekk\u00fcrler, kitab\u0131n\u0131z bas\u0131l\u0131yor.',
+      body: P('Onay\u0131n\u0131z i\u00e7in te\u015fekk\u00fcrler. Kitab\u0131n\u0131z bask\u0131da; 5 i\u015f g\u00fcn\u00fc i\u00e7inde kargoya verilecek.'), cta: 'Sipari\u015finizi takip edin' },
+    kargo: { s: 'Kitab\u0131n\u0131z kargoda', t: 'Kitab\u0131n\u0131z yola \u00e7\u0131kt\u0131', pre: `${c.firm || 'Kargo'} \u00b7 takip numaras\u0131 ${c.no || ''}`,
+      body: P('Masal\u0131n\u0131z kargoya verildi, yak\u0131nda kap\u0131n\u0131zda.') + box(`<div style="padding:12px 0;font:15px/1.5 ${SANS};color:#4a3a33">${esc(c.firm)}<br><span style="color:#8a7468">Takip numaras\u0131:</span> <b style="font:600 18px/1.3 ${SERIF};color:#6b1d2a;letter-spacing:.04em">${esc(c.no)}</b></div>`), cta: 'Sipari\u015finizi takip edin' },
+    teslim: { s: 'Masal\u0131n\u0131z size ula\u015ft\u0131', t: 'Masal\u0131n\u0131z size ula\u015ft\u0131', pre: '\u0130yi okumalar!',
+      body: P(o.ships ? 'Kitab\u0131n\u0131z teslim edildi. \u0130yi okumalar! Masal\u0131n\u0131z\u0131 okurken \u00e7ekti\u011finiz bir foto\u011fraf\u0131 bizimle payla\u015f\u0131rsan\u0131z \u00e7ok seviniriz.' : 'Dijital kitab\u0131n\u0131z e-postan\u0131za g\u00f6nderildi. \u0130yi okumalar!'), cta: 'Sipari\u015finizi g\u00f6r\u00fcn' },
+    iptal: { s: 'Sipari\u015finiz iptal edildi', t: 'Sipari\u015finiz iptal edildi', pre: 'Sipari\u015finiz iptal edildi.',
+      body: P('Sipari\u015finiz iptal edildi.') + refund, cta: 'Sipari\u015finizi g\u00f6r\u00fcn' }
+  }[stage];
+  // the steps of the order, the current one in gold
+  const steps = stagesFor(o), cur = steps.indexOf(stage), NAMES = { tasarim: 'Tasar\u0131m', onizleme: '\u00d6nizleme', baski: 'Bask\u0131', kargo: 'Kargo', teslim: 'Teslim' };
+  const track = cur < 0 ? '' : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:4px 0 22px"><tr>${steps.map((k, i) => `<td align="center" valign="top" width="${Math.floor(100 / steps.length)}%" style="font:11px/1.3 ${SANS};color:${i <= cur ? '#6b1d2a' : '#b8a596'}"><div style="width:26px;height:26px;margin:0 auto 6px;border-radius:13px;background:${i < cur ? '#6b1d2a' : i === cur ? '#c99a52' : '#efe3d0'};color:${i <= cur ? '#fff8ec' : '#b8a596'};font:600 12px/26px ${SANS};text-align:center">${i < cur ? '\u2713' : i + 1}</div>${NAMES[k]}</td>`).join('')}</tr></table>`;
+  const first = o.contact.name ? esc(o.contact.name.split(' ')[0]) : '';
+  const button = `<table role="presentation" cellspacing="0" cellpadding="0" align="center" style="margin:8px auto 20px"><tr><td style="border-radius:8px;background:#6b1d2a"><a href="${link}" style="display:inline-block;padding:14px 30px;font:600 15px/1 ${SANS};color:#f6e2b5;text-decoration:none;letter-spacing:.03em;border-radius:8px">${M.cta}</a></td></tr></table>`;
+  const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${M.s}</title></head>
+<body style="margin:0;padding:0;background:#f3e9da">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f3e9da">${esc(M.pre)}</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3e9da"><tr><td align="center" style="padding:24px 10px 30px">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#fffaf2;border:1px solid #e6d3b3;border-radius:14px;overflow:hidden">
+  <tr><td align="center" style="background:#6b1d2a;padding:14px 20px 10px"><a href="${site}"><img src="${site}/img/logo/masaliya-logo-koyu.png" width="176" alt="Masaliya" style="display:block;width:176px;height:auto;border:0"></a></td></tr>
+  <tr><td style="height:4px;line-height:4px;font-size:0;background:#c99a52;background-image:linear-gradient(90deg,#b98a3e,#f1d9a4,#b98a3e)">&nbsp;</td></tr>
+  <tr><td style="padding:30px 30px 6px">
+    <div style="margin:0 0 6px;text-align:center;font:12px/1 ${SANS};letter-spacing:.18em;text-transform:uppercase;color:#b98a3e">Sipari\u015f ${o.id}</div>
+    <h1 style="margin:0 0 20px;text-align:center;font:600 26px/1.25 ${SERIF};color:#6b1d2a">${M.t}</h1>
+    ${track}
+    ${P(`Merhaba${first ? ' ' + first : ''},`)}
+    ${M.body}
+    ${button}
+  </td></tr>
+  <tr><td style="padding:18px 30px 24px;background:#fbf3e6;border-top:1px solid #ecdcc0;text-align:center;font:12px/1.6 ${SANS};color:#8a7468">
+    Sorunuz olursa bu e-postay\u0131 yan\u0131tlaman\u0131z yeterli.<br>
+    <a href="${site}" style="color:#6b1d2a;text-decoration:none;font:600 13px/1.6 ${SERIF};letter-spacing:.12em">MASAL\u0130YA</a> \u00b7 Foto\u011fraftan ki\u015fiye \u00f6zel masal kitaplar\u0131<br>
+    <a href="${site}/mesafeli-satis.html" style="color:#8a7468">\u00d6n Bilgilendirme Formu ve Mesafeli Sat\u0131\u015f S\u00f6zle\u015fmesi</a>
+  </td></tr>
+</table></td></tr></table></body></html>`;
+  return { subject: `${M.s} \u00b7 ${o.id}`, html };
 }
 
 /* ---------- clean-up (cron): unpaid orders and cart books older than 3 days ---------- */
