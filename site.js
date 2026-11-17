@@ -1650,7 +1650,11 @@ function renderProduct() {
     // phone: a slim bar with «Masalını oluştur» stays at hand until the order form is on screen
     const bar = document.getElementById('buybar');
     if (bar && buyF && 'IntersectionObserver' in window) {
-      new IntersectionObserver(([en]) => bar.classList.toggle('away', en.isIntersecting), { rootMargin: '0px 0px -20% 0px' }).observe(buyF);
+      // 17.11, her words: the bar stays at hand only on the way to the order form; once the form is reached it goes, and it does not
+      // come back further down (over the details or «Diğer Masallarımız»); scrolling back up above the form brings it back
+      let barTick = 0;
+      const barPlace = () => { barTick = 0; bar.classList.toggle('away', buyF.getBoundingClientRect().top < innerHeight * .8); };   // the form's top within the upper 80 % of the screen, or above it
+      addEventListener('scroll', () => { if (!barTick) barTick = requestAnimationFrame(barPlace); }, { passive: true }); addEventListener('resize', barPlace); barPlace();
       // «Masalını oluştur»: glides down to step 1, the hero's name. On a phone or tablet no focus, so no keyboard and no AutoFill bar
       // pops up on its own — they tap the field when ready; with a mouse the cursor waits in the field once the page has arrived
       bar.querySelector('a').addEventListener('click', e => {
