@@ -1534,3 +1534,9 @@ body[data-page="gizlilik"] main > .sec:last-child { padding-bottom: clamp(26px, 
 .ci-row > .ci-more { width: 100%; min-width: 0; }
 @media (hover: hover) and (pointer: fine) and (min-width: 721px) { .ci-more .row-wrap { position: relative; } .ci-more .row-arrow.prev { left: -10px; } .ci-more .row-arrow.next { right: -10px; } }
 .ci-more .row-arrow.prev[disabled] { visibility: hidden; }
+/* 17.11: Ürünlerimiz ends with one quiet line onward, not two big windows */
+.pr-onward { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 6px 14px; margin: clamp(18px, 2.6vw, 30px) auto clamp(30px, 4vw, 56px); padding: 0 16px; text-align: center; }
+.pr-onward a { font: italic 600 var(--t-lg)/1.3 var(--f-display); color: var(--gold-pale); text-decoration: underline; text-decoration-color: rgba(226,181,107,.35); text-underline-offset: 5px; }
+.pr-onward a:hover, .pr-onward a:focus-visible { text-decoration-color: var(--gold); }
+.pr-onward span { color: var(--gold); font-size: .8em; }
+@media (max-width: 560px) { .pr-onward { flex-direction: column; align-items: center; gap: 10px; } .pr-onward span { display: none; } }
