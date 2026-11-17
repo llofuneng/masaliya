@@ -1844,7 +1844,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sq.toBlob) sq.toBlob(b => { img.src = URL.createObjectURL(b); }); else img.src = sq.toDataURL();   // encoded off the main thread (17.11)
       });
       fitTitles();
-      g.querySelectorAll('.row-wrap').forEach(rowNav);
+      g.querySelectorAll('.row-wrap').forEach(w => rowNav(w));
       dealRun();
     }
   }
