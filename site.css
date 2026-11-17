@@ -1393,3 +1393,11 @@ hr.rule:has(+ .sec #related-head) { display: none; }
 .sec:has(+ hr.rule + .sec #related-head), .sec:has(+ .sec #related-head) { padding-bottom: clamp(12px, 2vw, 28px); }
 .sec:has(#related-head) { padding-top: clamp(14px, 2.2vw, 32px); }
 #related-head { margin-bottom: clamp(16px, 2vw, 30px); }
+/* 17.11, her words: the home page's flag never glides on its own — beside the seal from the start, and into the edge in step with the
+   scroll (--wa-in, 0 → 1, set by the script); a short smoothing only, so it follows the finger */
+.wa.wa-up, .wa.wa-up:hover, .wa.wa-up:focus-visible, .wa.wa-up.wa-away, .wa.wa-up.wa-away:hover, .wa.wa-up:not(.wa-away) {
+  transform: translateY(var(--wa-lift, 0px)) translateX(calc(var(--wa-in, 0) * 104%)); opacity: 1;
+  transition: transform .08s linear, translate .25s ease; }
+.wa.wa-up.wa-away { pointer-events: none; }
+.wa.wa-wait { visibility: hidden; }
+.wa.wa-still, .wa.wa-still:hover { transition: none !important; }

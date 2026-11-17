@@ -668,8 +668,13 @@ function renderChrome() {
       // out again — so it hides exactly while the books panel runs behind it
       if (seal) {
         wa.classList.toggle('wa-up', wa.style.getPropertyValue('--wa-lift') !== '0px');
+        // 17.11, her words «scroll down yaptıkça responsive olarak»: the flag goes into the edge step by step with the finger (no timed
+        // animation): out while the books panel is 140 px or more below it, all the way in once the panel reaches it, and out again,
+        // step by step, as the panel's end passes it
         const f = wa.getBoundingClientRect(), hb = document.querySelector('.hb-box'), h = hb && hb.getBoundingClientRect();
-        wa.classList.toggle('wa-away', !!h && h.top < f.bottom + 12 && h.bottom > f.top - 12);
+        const cl = v => Math.max(0, Math.min(1, v)), ease = v => v * v * (3 - 2 * v);
+        const pin = h ? ease(Math.min(cl((f.bottom + 140 - h.top) / 140), cl((h.bottom - f.top + 100) / (f.height + 100)))) : 0;
+        wa.style.setProperty('--wa-in', pin.toFixed(3)); wa.classList.toggle('wa-away', pin > .6);
       }
       const bar = document.getElementById('buybar'), barUp = bar && !bar.classList.contains('away') && !bar.classList.contains('hold') && getComputedStyle(bar).display !== 'none';
       wa.style.bottom = barUp ? `${bar.offsetHeight + 14}px` : '';
@@ -681,8 +686,15 @@ function renderChrome() {
     addEventListener('scroll', waSoon, { passive: true }); addEventListener('resize', () => { waLift(); waSoon(); });
     document.addEventListener('transitionend', e => { if (e.target.id === 'buybar') waSoon(); });
     waLift(); waPlace();
-    if (seal) { wa.classList.add('wa-still'); requestAnimationFrame(() => requestAnimationFrame(() => wa.classList.remove('wa-still'))); }   // no glide on arrival
-    addEventListener('load', () => { waLift(); waPlace(); });
+    // 17.11, her words «site açıldığında aşağıdan yukarı geliyor… sabit gelsin»: the flag is in its place beside the seal from the start;
+    // when the page finishes loading (pictures, fonts) and the seal settles, the flag follows it at once, never gliding
+    // until the seal's place is known the flag stays out of sight, then it simply appears there (no movement); every later
+    // re-measure (pictures, fonts) moves it without any glide
+    const waShow = () => { waLift(); waPlace(); if (!seal || wa.style.getPropertyValue('--wa-lift') !== '0px' || document.readyState === 'complete') wa.classList.remove('wa-wait'); };
+    if (seal) { wa.classList.add('wa-wait', 'wa-still'); addEventListener('scroll', () => wa.classList.remove('wa-still'), { once: true, passive: true }); }
+    waShow(); requestAnimationFrame(waShow);
+    addEventListener('load', waShow);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(waShow);
     setTimeout(waPlace, 300);
   }
   document.addEventListener('click', e => {
