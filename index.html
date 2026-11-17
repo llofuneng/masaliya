@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170948">
+<link rel="stylesheet" href="site.css?v=202611171010">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -335,10 +335,12 @@
 .scroll-down { display: none; }
 @media (min-width: 900px) and (hover: hover) {
   .hb-label { display: none; }
-  .lite .scroll-down { display: grid; place-items: center; position: absolute; left: 50%; bottom: 22px; z-index: 6; width: 44px; height: 44px; margin-left: -22px; border-radius: 50%;
-    color: var(--gold-pale); text-decoration: none; animation: sdBob 2.4s ease-in-out infinite; }
-  .scroll-down svg { width: 26px; height: 26px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.7)); }
-  .scroll-down:hover { color: #fff3d6; }
+  /* one chevron in a round gold ring (17.11) */
+  .lite .scroll-down { display: grid; place-items: center; position: absolute; left: 50%; bottom: 20px; z-index: 6; width: 46px; height: 46px; margin-left: -23px; border-radius: 50%;
+    border: 1px solid rgba(226,181,107,.75); background: rgba(20,9,10,.45); box-shadow: 0 6px 16px rgba(0,0,0,.45), inset 0 0 0 3px rgba(226,181,107,.08);
+    color: var(--gold-pale); text-decoration: none; animation: sdBob 2.4s ease-in-out infinite; transition: background .25s, border-color .25s; }
+  .scroll-down svg { width: 22px; height: 22px; margin-top: 2px; }
+  .scroll-down:hover { color: #fff3d6; border-color: var(--gold); background: rgba(107,29,42,.55); }
   .scroll-down:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
 }
 @keyframes sdBob { 50% { transform: translateY(6px); } }
@@ -402,7 +404,7 @@
       <a class="btn ghost adults" href="yetiskinler.html" data-aud="yetiskin">Yetişkinler için</a>
     </div>
   </div>
-  <a class="scroll-down" href="#hb-title" aria-label="Masallarımıza in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/><path d="M6 4.5l6 6 6-6" opacity=".45"/></svg></a>
+  <a class="scroll-down" href="#hb-title" aria-label="Masallarımıza in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></a>
 </section>
 
 <section class="sec home-books" aria-labelledby="hb-title">
@@ -443,7 +445,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170948" defer></script>
+<script src="site.js?v=202611171010" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {

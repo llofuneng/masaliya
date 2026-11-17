@@ -171,7 +171,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 }
 .card .visual img { width: 100%; height: 100%; object-fit: cover; }
 .card.book .visual::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 6%; background: linear-gradient(90deg, rgba(0,0,0,.35), rgba(255,255,255,.08), transparent); }
-@media (hover: hover) and (pointer: fine) { a.card:hover .visual, .card:has(.card-cta:hover) .visual { transform: translateY(-6px); box-shadow: 0 40px 60px -28px rgba(0,0,0,.95), 0 0 0 1px rgba(226,181,107,.5), 0 0 60px -20px rgba(226,181,107,.35); } }   /* the lift only with a real mouse: on a phone a tap left the picture lifted (17.11) */
+@media (hover: hover) and (pointer: fine) { a.card:hover .visual, .card:has(.card-cta:hover) .visual { box-shadow: 0 40px 60px -28px rgba(0,0,0,.95), 0 0 0 1px rgba(226,181,107,.5), 0 0 60px -20px rgba(226,181,107,.35); } }   /* a glow, but the picture stays where it is (17.11, her «görsel yukarı doğru oynuyor bu olmasın») */   /* the lift only with a real mouse: on a phone a tap left the picture lifted (17.11) */
 .badge { position: absolute; top: 12px; left: 12px; z-index: 2; background: rgba(20,11,9,.82); color: var(--gold-pale); border: 1px solid var(--line-strong); font-size: .66rem; letter-spacing: .22em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
 .card .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--t-xs); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
 .card h3 { font-size: var(--t-lg-r); }
@@ -1129,4 +1129,12 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
   #grid .book-row.big .card.book h3 { font-size: var(--t-md); }
   #grid .book-row.big .card.book > p { font-size: var(--t-xs); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   #grid .book-row.big .card.book .card-cta { margin: auto -7px 0; min-height: 44px; padding: 10px 4px; font-size: var(--t-xs); letter-spacing: 0; }
+}
+/* «Tümü»: in every pair the covers, titles, summaries and buttons on the same lines, whatever the title's length (17.11, her picture 1):
+   each card takes four rows of the grid and shares them with its neighbour */
+@supports (grid-template-rows: subgrid) {
+  #grid .book-row.big > .card.book { display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 8px; }
+  #grid .book-row.big .card.book h3 { margin: 4px 0 0; align-self: center; }
+  #grid .book-row.big .card.book > p { align-self: start; }
+  #grid .book-row.big .card.book .card-cta { margin-top: 0; align-self: end; }
 }
