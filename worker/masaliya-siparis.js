@@ -447,6 +447,7 @@ async function adminMail(url, env, req) {
 async function adminStats(url, env, req) {
   const cookie = ((req && req.headers.get('cookie')) || '').match(/(?:^|;\s*)mk=([0-9a-f]+)/);
   if (!env.ADMIN_KEY || !((url.searchParams.get('key') === env.ADMIN_KEY) || (cookie && cookie[1] === await ownerCookie(env)))) return new Response('Giri\u015f yetkisi yok. \u00d6nce sipari\u015f listesini ADMIN_KEY ile a\u00e7\u0131n.', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  let resetNote = null; try { resetNote = await resetOnce(env); } catch (e) { console.log('reset failed', e); }   // one time only (17.11)
   const all = async prefix => { const out = []; let cursor; do { const pg = await env.PHOTOS.list({ prefix, cursor }); out.push(...pg.objects.map(o => o.key)); cursor = pg.truncated ? pg.cursor : null; } while (cursor); return out; };
   const items = (await Promise.all((await all('items/')).filter(k => k.endsWith('/kitap.json')).map(k => getJson(env, k)))).filter(Boolean);
   const orders = (await Promise.all((await all('orders/')).filter(k => k.endsWith('/siparis.json')).map(k => getJson(env, k)))).filter(o => o && o.items);
@@ -461,7 +462,7 @@ async function adminStats(url, env, req) {
   const kit = days.reduce((m, [, d]) => { for (const [k, n] of Object.entries(d.kitaplar || {})) m[k] = (m[k] || 0) + n; return m; }, {});
   const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '\u2014';
   const opts = items.reduce((m, it) => { m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] = (m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] || 0) + 1; if (it.set && it.set !== 'tek') m[it.setName] = (m[it.setName] || 0) + 1; if (it.giftBox) m['Hediye kutusu'] = (m['Hediye kutusu'] || 0) + 1; if (it.about) m['\u201cKahraman hakk\u0131nda\u201d dolu'] = (m['\u201cKahraman hakk\u0131nda\u201d dolu'] || 0) + 1; return m; }, {});
-  return page('\u0130statistik', `<p><a href="/admin">\u2190 Sipari\u015fler</a></p><h1>Sipari\u015f hunisi</h1>
+  return page('\u0130statistik', `<p><a href="/admin">\u2190 Sipari\u015fler</a></p>${resetNote ? `<p class="flash">${esc(resetNote)}</p>` : ''}<h1>Sipari\u015f hunisi</h1>
     <h2>\u015eu an kay\u0131tl\u0131 olanlar (\u00f6denmeyenler ${UNPAID_DAYS} g\u00fcn tutulur)</h2>
     <table><tr><th>Sepete eklenen kitap</th><td>${items.length}</td></tr>
       <tr><th>Sepette kalan, \u00f6demeye ge\u00e7meyen</th><td>${cartOnly.length}</td></tr>
@@ -482,6 +483,7 @@ async function adminList(url, env, req) {
   const byKey = env.ADMIN_KEY && url.searchParams.get('key') === env.ADMIN_KEY, byCookie = env.ADMIN_KEY && cookie && cookie[1] === await ownerCookie(env);
   if (!byKey && !byCookie) return new Response('Giri\u015f yetkisi yok. Sipari\u015f listesini bir kez ADMIN_KEY ile a\u00e7\u0131n: /admin?key=\u2026', { status: 401, headers: { 'content-type': 'text/plain; charset=utf-8' } });
   try { await removeUnpaid(env); } catch (e) { console.log('clean-up failed', e); }   // unpaid orders older than 3 days go even without the Cron trigger (17.11)
+  try { const r = await resetOnce(env); if (r) url.searchParams.set('not', r); } catch (e) { console.log('reset failed', e); }   // one time only (17.11)
   const res = await adminListPage(url, env);
   const h = new Headers(res.headers);
   if (byKey) h.append('set-cookie', `mk=${await ownerCookie(env)}; Path=/admin; Max-Age=${60 * 60 * 24 * 60}; HttpOnly; Secure; SameSite=Lax`);
@@ -794,6 +796,29 @@ async function customerMail(env, o, stage, site) {
   </td></tr>
 </table></td></tr></table></body></html>`;
   return { subject: `${M.s} \u00b7 ${o.id}`, html };
+}
+
+/* ---------- a one-time reset of the test data (17.11, her \u00abthese are all tests, reset it once\u00bb) ----------
+   everything created before RESET_BEFORE goes: orders (with photos and previews), cart books, the daily counter up to that day;
+   anything that came later stays. It runs once \u2014 the marker sistem/sifirlama-1711.json stops it for good. */
+const RESET_BEFORE = '2026-11-17T19:20:00Z', RESET_MARK = 'sistem/sifirlama-1711.json';
+async function resetOnce(env) {
+  if (await env.PHOTOS.get(RESET_MARK)) return null;
+  const cut = Date.parse(RESET_BEFORE), del = [], n = { siparis: 0, kitap: 0, gun: 0 };
+  const all = async prefix => { const out = []; let cursor; do { const pg = await env.PHOTOS.list({ prefix, cursor }); out.push(...pg.objects.map(o => o.key)); cursor = pg.truncated ? pg.cursor : null; } while (cursor); return out; };
+  for (const [prefix, file, what] of [['orders/', '/siparis.json', 'siparis'], ['items/', '/kitap.json', 'kitap']]) {
+    const dirs = {};
+    for (const k of await all(prefix)) (dirs[k.split('/')[1]] = dirs[k.split('/')[1]] || []).push(k);
+    for (const ks of Object.values(dirs)) {
+      const meta = ks.find(k => k.endsWith(file)), x = meta ? await getJson(env, meta) : null;
+      if (!(x && Date.parse(x.created) >= cut)) { del.push(...ks); if (meta) n[what]++; }
+    }
+  }
+  const day = RESET_BEFORE.slice(0, 10);
+  for (const k of await all('istatistik/')) if (k.slice(11, 21) <= day) { del.push(k); n.gun++; }
+  for (let i = 0; i < del.length; i += 1000) await env.PHOTOS.delete(del.slice(i, i + 1000));
+  await putJson(env, RESET_MARK, { date: new Date().toISOString(), before: RESET_BEFORE, ...n });
+  return `\u2713 \u0422\u0435\u0441\u0442\u043e\u0432\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435 \u0443\u0434\u0430\u043b\u0435\u043d\u044b (\u043e\u0434\u0438\u043d \u0440\u0430\u0437): \u0437\u0430\u043a\u0430\u0437\u043e\u0432 ${n.siparis}, \u043a\u043d\u0438\u0433 \u0438\u0437 \u043a\u043e\u0440\u0437\u0438\u043d ${n.kitap}, \u0434\u043d\u0435\u0439 \u0441\u0447\u0451\u0442\u0447\u0438\u043a\u0430 ${n.gun}. \u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0430 \u043d\u0430\u0447\u0438\u043d\u0430\u0435\u0442\u0441\u044f \u0441 \u043d\u0443\u043b\u044f.`;
 }
 
 /* ---------- clean-up (cron): unpaid orders and cart books older than 3 days ---------- */
