@@ -1097,16 +1097,20 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .p-head h1 .ad { font-weight: inherit; -webkit-text-fill-color: inherit; color: inherit; }
 .p-head h1 .sc { text-transform: uppercase; font-size: .78em; }
 
-/* the promotion code in the cart (17.11): a label, the field and «Uygula» on one line; once applied, a line like the two-book discount */
-.promo { margin: 2px 0 10px; }
-.promo-label { display: block; margin-bottom: 8px; font-size: var(--t-xs); letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
-.promo-row { display: flex; gap: 8px; }
-.promo-row input { flex: 1 1 auto; min-width: 0; font: 500 var(--t-md) var(--f-body); letter-spacing: .06em; text-transform: uppercase; color: var(--cream);
-  background: rgba(0,0,0,.25); border: 1px solid var(--line-strong); border-radius: 6px; padding: .7em .9em; }
+/* the promotion code in the cart (17.11): small, right under the price — a slim field and a small «Uygula» (her «под ценой небольшое
+   поле… совсем маленькое»; first it was as big as the name fields) */
+.promo { margin: -2px 0 12px; }
+.promo-row { display: flex; gap: 6px; max-width: 260px; }
+.promo-row input { flex: 1 1 auto; min-width: 0; height: 34px; padding: 0 .7em; font: 400 var(--t-md) var(--f-body); letter-spacing: .04em; text-transform: uppercase;   /* 16 px: an iPhone does not zoom the page into a smaller field */
+  color: var(--cream); background: rgba(0,0,0,.2); border: 1px solid var(--line); border-radius: 5px; }
 .promo-row input::placeholder { text-transform: none; letter-spacing: 0; color: var(--muted); }
 .promo-row input:focus { outline: none; border-color: var(--gold); }
-.promo-row .btn { flex: none; padding-inline: 1.1em; }
-.promo-note { margin: 6px 0 0; font-size: var(--t-sm); color: var(--gold-pale); min-height: 0; }
+.promo-apply { flex: none; height: 34px; padding: 0 .9em; font: 500 var(--t-xs) var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--gold-pale);
+  background: transparent; border: 1px solid var(--line-strong); border-radius: 5px; cursor: pointer; }
+.promo-apply:hover { border-color: var(--gold); }
+.promo-apply:disabled { opacity: .5; }
+.promo-note { margin: 6px 0 0; font-size: var(--t-xs); color: var(--gold-pale); }
 .promo-note:empty { display: none; }
-.promo-on b { color: var(--gold-pale); letter-spacing: .06em; }
-.promo-x { margin-left: 6px; padding: 0; border: 0; background: none; font: 500 var(--t-xs) var(--f-body); color: var(--muted); text-decoration: underline; cursor: pointer; }
+.promo-on { margin: 0; font-size: var(--t-sm); color: var(--cream); }
+.promo-on b { color: var(--gold-pale); letter-spacing: .04em; font-weight: 500; }
+.promo-x { margin-left: 4px; padding: 0; border: 0; background: none; font: 400 var(--t-xs) var(--f-body); color: var(--muted); text-decoration: underline; cursor: pointer; }

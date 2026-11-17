@@ -872,13 +872,12 @@ function renderCart() {
       </ul>
       <form class="panel cart-pay" id="pay">
         ${deal}
-        <div class="promo" id="promo-box">${promo
-          ? `<div class="deal-line promo-on"><span>Promosyon kodu <b>${esc(promo.code)}</b> <button type="button" class="promo-x" id="promo-x">Kaldır</button></span><strong>−${fmt(promo.off)}</strong></div>`
-          : `<label class="promo-label" for="c-promo">Promosyon kodu</label>
-          <div class="promo-row"><input id="c-promo" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="Kodunuz varsa yazın"><button type="button" class="btn ghost" id="promo-apply">Uygula</button></div>`}
+        <div class="total"><span>Toplam <small>${items.length} kitap · Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
+        <div class="promo" id="promo-box">${promo   /* small, under the price (17.11, her «под ценой небольшое поле… совсем маленькое») */
+          ? `<p class="promo-on">Promosyon kodu <b>${esc(promo.code)}</b> · −${fmt(promo.off)} <button type="button" class="promo-x" id="promo-x">Kaldır</button></p>`
+          : `<div class="promo-row"><input id="c-promo" aria-label="Promosyon kodu" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="Promosyon kodu"><button type="button" class="promo-apply" id="promo-apply">Uygula</button></div>`}
           <p class="promo-note" id="promo-note" aria-live="polite"></p>
         </div>
-        <div class="total"><span>Toplam <small>${items.length} kitap · Kargo ücretsiz · Yalnızca Türkiye içine gönderim</small></span><strong>${fmt(total)}</strong></div>
         ${ships ? ETA() : ''}
         ${ships ? `<span class="step">Teslimat adresi</span>
         <label class="field" for="c-name">Alıcının adı soyadı<input id="c-name" autocomplete="shipping name" maxlength="80"></label>
