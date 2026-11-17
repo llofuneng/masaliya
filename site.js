@@ -688,13 +688,14 @@ function fitTitles() {
   const cards = [...document.querySelectorAll('.card.book h3')].filter(h => { h.style.fontSize = ''; return h.offsetParent; });
   if (cards.length) {
     const base = parseFloat(getComputedStyle(cards[0]).fontSize), floor = base * .62;
-    const fits = cards.map(h => { const f = fit(h, 2.5); h.style.fontSize = ''; return f; });
+    const lim = h => h.closest('.book-row') ? 3.5 : 2.5;   // a swipe row's narrow cards: up to three lines (17.11)
+    const fits = cards.map(h => { const f = fit(h, lim(h)); h.style.fontSize = ''; return f; });
     // only the one longest title may take a third line (and only when it would otherwise be far smaller): all the rest keep to two
     const sorted = [...fits].sort((x, y) => x - y);
     let S = sorted.length > 1 && sorted[0] < floor ? sorted[1] : sorted[0], n = 0;
     const set = () => cards.forEach(h => { h.style.fontSize = S.toFixed(2) + 'px'; });
     set();
-    while (cards.some(h => lines(h) > 3.5) && n++ < 20) { S *= .96; set(); }   // never more than three lines
+    while (cards.some(h => lines(h) > lim(h) + 1) && n++ < 20) { S *= .96; set(); }   // never more than one line over
   }
   // phones (17.11): a card's summary keeps to three lines, so the cover reaches the button line; rather a slightly
   // smaller font than a cut sentence (down to 11.5 px; below that the line clamp cuts it)
@@ -704,6 +705,22 @@ function fitTitles() {
     let fs = parseFloat(getComputedStyle(p).fontSize), n = 0;
     while (p.scrollHeight > p.clientHeight + 1 && fs > 11.5 && n++ < 12) { fs *= .96; p.style.fontSize = fs.toFixed(2) + 'px'; }
   });
+}
+// a swipe row of books (17.11): the dots follow the scroll, the arrows (computer) move it by a screenful; a row that fits needs neither
+function rowNav(w) {
+  const row = w.querySelector('.book-row'), dots = w.nextElementSibling, prev = w.querySelector('.prev'), next = w.querySelector('.next');
+  const step = () => { const c = row.querySelector('.card'); return c ? c.getBoundingClientRect().width + (parseFloat(getComputedStyle(row).columnGap) || 0) : row.clientWidth; };
+  const update = () => {
+    const max = row.scrollWidth - row.clientWidth, s = step(), n = max > 2 ? Math.round(max / s) + 1 : 1, at = Math.min(n - 1, Math.round(row.scrollLeft / s));
+    w.classList.toggle('fits', n < 2);
+    if (dots && dots.children.length !== n) dots.innerHTML = '<i></i>'.repeat(n);
+    if (dots) [...dots.children].forEach((d, i) => d.classList.toggle('on', i === at));
+    prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft > max - 4;
+  };
+  const go = d => { const s = step(); row.scrollBy({ left: d * Math.max(s, Math.floor(row.clientWidth / s) * s), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+  prev.addEventListener('click', () => go(-1)); next.addEventListener('click', () => go(1));
+  let raf = 0; row.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update); }, { passive: true });
+  addEventListener('resize', update); if (document.fonts) document.fonts.ready.then(update); update();
 }
 let fitTimer;
 addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitTitles, 120); });
@@ -1436,9 +1453,14 @@ document.addEventListener('DOMContentLoaded', () => {
     books.push(...all.filter(p => !books.includes(p)));
     const g = document.getElementById('home-grid');
     if (g) {
-      g.innerHTML = books.map(b => card(b, true)).join('');
+      // 17.11: two swipe rows, «Kız Çocukları İçin» and «Erkek Çocukları İçin» (the order of the windows on the first screen),
+      // each with «Tümü (n) ›» to its collection; dots under a row, gold arrows on a computer
+      const rows = Object.entries(AUDIENCES).filter(([, a]) => !a.hidden).map(([k, a]) => [a, all.filter(p => p.aud === k)]).filter(([, l]) => l.length);
+      g.innerHTML = rows.map(([a, list]) => `<div class="row-head"><h3>${a.name} İçin</h3><i class="row-line" aria-hidden="true"></i><a href="${a.page}">Tümü (${list.length}) ›</a></div>
+        <div class="row-wrap"><div class="book-row" role="group" tabindex="0" aria-label="${a.name} için masallar">${list.map(b => card(b, true)).join('')}</div><button class="row-arrow prev" type="button" aria-label="Önceki masallar">‹</button><button class="row-arrow next" type="button" aria-label="Sonraki masallar">›</button></div>
+        <div class="row-dots" aria-hidden="true"></div>`).join('');
       fitTitles();
-      if (books.length === 4) g.classList.add('n2');   // two by two, so no book is left alone on a row
+      g.querySelectorAll('.row-wrap').forEach(rowNav);
       dealRun();
     }
   }
