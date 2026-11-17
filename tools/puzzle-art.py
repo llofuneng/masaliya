@@ -2,8 +2,11 @@
 parça çıkmış… doğru şekilde dursun»): the book's clean cover art (img/<id>-temiz.jpg) cut into 35 pieces (5 × 7) with clear
 embossed seams; two pieces lifted out, lying picture-up on the puzzle with a soft shadow, the wooden board showing in their holes.
 python3 tools/puzzle-art.py            → writes img/<id>-yapboz.jpg for every book that has img/<id>-temiz.jpg and a puzzle
+17.11, her words «çizgiler yüzlerinden geçerken çok belli olur… itici gelmesin»: the seams are softer, and almost gone over the
+faces (tools/puzzle-faces.json: the faces' boxes, 0–1, found with the site's own face finder; two added by hand); the pieces taken
+out and the loose ones never touch a face.
 """
-import glob, math, os, random
+import glob, json, math, os, random
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 
 W, H, S = 800, 1067, 2            # output size, supersampling
@@ -22,7 +25,7 @@ def edge(p0, p1, sign):
     pts.append((x1, y1))
     return pts
 
-def build(src, dst, seed):
+def build(src, dst, seed, faces=()):
     rnd = random.Random(seed)
     im = Image.open(src).convert('RGB')
     # cover-fit to 3:4
@@ -38,12 +41,28 @@ def build(src, dst, seed):
     # the seams: a dark cut with a fine light edge beside it, so they read as real cuts
     lines = Image.new('RGBA', im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lines)
     seams = [hseam(r, c) for r in range(1, ROWS) for c in range(COLS)] + [vseam(r, c) for r in range(ROWS) for c in range(1, COLS)]
-    for s in seams: d.line([(x + 2, y + 2) for x, y in s], fill=(255, 244, 225, 120), width=3, joint='curve')
-    for s in seams: d.line(s, fill=(38, 26, 20, 225), width=5, joint='curve')
+    for s in seams: d.line([(x + 2, y + 2) for x, y in s], fill=(255, 244, 225, 150), width=3, joint='curve')
+    for s in seams: d.line(s, fill=(38, 26, 20, 255), width=4, joint='curve')
+    # softer seams, and a soft clearing over each face (with a margin), where they nearly vanish
+    fade = Image.new('L', im.size, 255); fd = ImageDraw.Draw(fade)
+    for x0, y0, x1, y1 in faces:
+        mx_, my_ = (x1 - x0) * .28, (y1 - y0) * .28
+        fd.ellipse(((x0 - mx_) * W * S, (y0 - my_) * H * S, (x1 + mx_) * W * S, (y1 + my_) * H * S), fill=28)
+    fade = fade.filter(ImageFilter.GaussianBlur(40))
+    lines.putalpha(ImageChops.multiply(lines.getchannel('A'), fade.point(lambda v: v * 165 // 255)))
     art = im.copy(); art.alpha_composite(lines)
-    # two pieces out: one on the right edge, one near the bottom (away from the face in the middle)
-    picks = [(3, 4), (6, 1)]
-    moves = [((-0.62, 0.42), 13), ((0.55, -0.62), -11)]
+    # two pieces out, away from the faces: one at a side edge, one in the bottom row, and their loose copies not over a face
+    def hits(cx, cy, rw, rh):
+        return any(not (cx + rw < x0 * W * S - 20 or cx - rw > x1 * W * S + 20 or cy + rh < y0 * H * S - 20 or cy - rh > y1 * H * S + 20) for x0, y0, x1, y1 in faces)
+    def cell_ok(r, c): return not hits((c + .5) * cw, (r + .5) * ch, cw * .75, ch * .75)
+    side = [(r, 4) for r in (3, 4, 2, 5)] + [(r, 0) for r in (3, 4, 2, 5)]
+    bottom = [(6, c) for c in (1, 3, 0, 4, 2)]
+    picks = [next((p for p in side if cell_ok(*p)), side[0]), next((p for p in bottom if cell_ok(*p)), bottom[0])]
+    moves = []
+    for (r, c), base in zip(picks, [(-0.62 if picks[0][1] == 4 else 0.62, 0.42), (0.55, -0.62)]):
+        tries = [base, (base[0], -base[1]), (base[0] * 1.3, base[1] * .4), (-base[0], base[1])]
+        mv = next((t for t in tries if not hits((c + .5 + t[0]) * cw, (r + .5 + t[1]) * ch, cw * .7, ch * .7) and 0 < (c + .5 + t[0]) * cw < W * S and 0 < (r + .5 + t[1]) * ch < H * S), base)
+        moves.append((mv, 13 if c == 4 else -11 if r == 6 else -13))
     out = art.copy()
     for (r, c) in picks:   # the holes: the wooden board, a soft shadow along their rim
         poly = piece(r, c)
@@ -78,8 +97,9 @@ def build(src, dst, seed):
 
 if __name__ == '__main__':
     os.chdir(os.path.join(os.path.dirname(__file__), '..'))
+    faces = json.load(open('tools/puzzle-faces.json'))
     for f in sorted(glob.glob('img/*-yapboz.jpg')):
         bid = os.path.basename(f)[:-len('-yapboz.jpg')]; src = f'img/{bid}-temiz.jpg'
         if not os.path.exists(src): print('skip', bid); continue
-        build(src, f, seed=sum(map(ord, bid)))
+        build(src, f, seed=sum(map(ord, bid)), faces=faces.get(bid, []))
         print('ok', bid)
