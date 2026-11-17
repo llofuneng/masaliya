@@ -1321,4 +1321,7 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
    on the medallion's middle */
 .row-head h3 { padding-bottom: 0; line-height: 1.08; }
 .row-head h3 span { display: block; }
-@media (min-width: 561px) { .row-ico { width: calc(2.16 * clamp(1.5rem, 1.1rem + 1.4vw, 2.2rem)); } }   /* the medallion as tall as the two lines */
+/* her words: the title not bigger than the medallion — the two lines are about 85 % of its height, on every screen */
+.row-head h3 { font-size: clamp(1.25rem, 1rem + 1.05vw, 1.85rem); }
+@media (min-width: 561px) { .row-ico { width: calc(2.16 * clamp(1.5rem, 1.1rem + 1.4vw, 2.2rem)); } }
+@media (max-width: 360px) { .row-head h3 { font-size: 1.05rem; } }
