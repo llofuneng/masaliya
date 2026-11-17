@@ -1477,3 +1477,4 @@ body[data-page="gizlilik"] .page-head h1 { background: linear-gradient(180deg, #
 body[data-page="urunler"] .page-head h1, .pr-pick h2 { background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
 .pr-cover { width: 52%; } .pr-c1 { left: 2%; } .pr-c2 { right: 2%; }
 @media (max-width: 760px) { .pr-pick .choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 420px; margin-inline: auto; } }
+.steps { border-top: 0; }   /* 17.11, her words: no line above «i.» */
