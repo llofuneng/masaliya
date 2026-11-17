@@ -536,7 +536,7 @@ const HEROES = [
 ];
 // picked = the window just tapped (17.11): a light ivory window, the figure in the window's own colour
 // layer: 'all' (the whole card), 'bg' (window and frame without the figure), 'fig' (only the figure, on a transparent card) — for the jump on a tap
-function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all') {
+function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all', k = 3.15) {   // k: the figure's size (17.11: taller windows, larger figures)
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d'), m = 14, R = (W - 2 * m) / 2;
   const arch = new Path2D(); arch.moveTo(m, H - m); arch.lineTo(m, m + R); arch.arc(W / 2, m + R, R, Math.PI, 0); arch.lineTo(W - m, H - m); arch.closePath();
@@ -556,7 +556,7 @@ function drawHeroCard(h, W = 512, H = 704, picked = false, layer = 'all') {
   }
   // the figure in gold
   if (layer !== 'bg') {
-  const k = 3.15, ox = W / 2 - 60 * k, oy = H - m - 160 * k - 18;
+  const ox = W / 2 - 60 * k, oy = H - m - 160 * k - 18;
   x.translate(ox, oy); x.scale(k, k);
   const gold = x.createLinearGradient(0, 10, 0, 150);
   if (picked && h.ink) { gold.addColorStop(0, h.ink[0]); gold.addColorStop(1, h.ink[1]); }
