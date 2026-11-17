@@ -1246,3 +1246,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .p-head .desc.clamp.has-more + .more { margin-top: -2px; justify-self: end; padding: 2px 0; min-height: 0; line-height: 1.4; }   /* 17.11: a little room under the «…» line, at the right */
 .p-head .desc.clamp.has-more { padding-right: 0; }
 .consent-photos { margin-top: 2px; }
+/* 17.11: the price closer to «Masal kitabı · 21 × 28 cm»; the photo consent closer to the delivery date above it */
+.p-head .meta + .p-price { margin-top: -8px; }
+#buy #eta-hard .eta, #buy #eta-digital { margin-bottom: 0; }
+#buy :is(#eta-hard, #eta-digital) + .consent, #buy #eta-digital + .consent { margin-top: -8px; }
