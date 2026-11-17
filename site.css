@@ -281,6 +281,13 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 }
 .wa svg { width: 26px; height: 26px; color: var(--gold); flex: none; }
 .wa:hover { border-color: var(--gold); transform: translateY(-2px); }
+/* WhatsApp green with the white mark and a soft ring going out, so it reads as the WhatsApp line at once (17.11, her choice A, the mark larger) */
+.wa { background: #25D366; border: 0; padding: 12px; box-shadow: 0 10px 26px -6px rgba(0,0,0,.6), 0 0 0 4px rgba(37,211,102,.18); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.wa svg { width: 40px; height: 40px; color: #fff; }   /* the mark draws in currentColor: white on the green button, gold in the footer */
+.wa::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(37,211,102,.55); pointer-events: none; animation: waPulse 2.4s ease-out infinite; }
+@keyframes waPulse { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
+.wa:hover { background: #2ee070; }
+@media (prefers-reduced-motion: reduce) { .wa::after { animation: none; opacity: .5; } }
 .wa { transition: border-color .2s, transform .2s, opacity .25s; }
 .wa.wa-off { opacity: 0; pointer-events: none; }
 /* what every order comes with: preview and approval, corrections, free delivery */
@@ -979,8 +986,8 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .psy-strip ul { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .psy-strip li { border: 1px solid var(--line-strong); border-radius: 999px; padding: 5px 12px; color: var(--gold-pale); font-size: var(--t-xs); }
 .psy-strip li::before { content: "✓ "; color: var(--gold); }
-.psy-strip.flash { animation: psyFlash 1.6s ease; }
-@keyframes psyFlash { 0%, 100% { box-shadow: none; } 30% { box-shadow: 0 0 0 2px var(--gold), 0 0 40px rgba(226,181,107,.35); } }
+.psy-strip.flash { animation: psyFlash 2.4s ease; }
+@keyframes psyFlash { 0%, 100% { box-shadow: none; border-color: var(--line-strong); } 25%, 55% { box-shadow: 0 0 0 2px var(--gold), 0 0 46px rgba(226,181,107,.45), inset 0 0 30px rgba(226,181,107,.12); border-color: var(--gold); } }
 @media (max-width: 720px) { .psy-strip { flex-direction: column; text-align: center; margin: 28px 16px 0; padding: 20px 18px; gap: 14px; scroll-margin-top: 80px; }
   .psy-strip .psy-face { width: 76px; height: 76px; } .psy-strip h3 { font-size: var(--t-xl); margin-bottom: 18px; } .psy-strip ul { justify-content: center; }
   .psy-strip > div > p:not(.eyebrow) { text-align: justify; text-align-last: left; hyphens: auto; -webkit-hyphens: auto; margin-top: 4px; } }

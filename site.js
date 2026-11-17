@@ -439,7 +439,8 @@ const NAV_ALL = [...NAV, ['gizlilik.html', 'Gizlilik'], ['sss.html', 'SSS']];
 // pages that count as "Ürünlerimiz" in the menu
 const IN_PRODUCTS = ['urunler.html', 'kizlar.html', 'erkekler.html', 'yetiskinler.html', 'urun.html'];
 const isCurrent = (h, cur) => h === cur || (h === 'urunler.html' && IN_PRODUCTS.includes(cur));
-const WA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/><path d="M9 8.6c.3 2.6 2.4 4.9 5.2 5.6l1-1.1 1.7.8-.4 1.6c-3.8.2-7.5-3.4-7.6-7.4l1.6-.4.8 1.7z" fill="currentColor" stroke="none"/></svg>';
+// the WhatsApp mark (17.11, her choice A): a white speech bubble with a handset, on WhatsApp green
+const WA_SVG = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4.2A11.6 11.6 0 0 0 6.1 21.8L4.6 27.4l5.8-1.5A11.6 11.6 0 1 0 16 4.2z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M11.6 10.4c.3-.6.6-.6.9-.6h.7c.2 0 .5 0 .7.6l1 2.3c.1.3 0 .6-.1.8l-.7.9c-.2.2-.2.4 0 .7.5.9 1.2 1.7 2 2.4.8.6 1.6 1 2.4 1.3.3.1.5 0 .7-.2l.9-1.1c.2-.3.5-.3.8-.2l2.2 1c.3.2.5.3.5.5 0 .4-.1 1.4-.8 2-.7.6-1.6.9-2.3.9-1 0-3.1-.6-5.1-2.4-2.3-2-3.3-4.5-3.4-5.4-.1-.9.3-2 .7-2.5z" fill="currentColor"/></svg>';
 function waLink(text) { return WHATSAPP ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text || 'Merhaba Masaliya, bilgi almak istiyorum.')}` : '#whatsapp'; }
 
 const thumb = src => src.replace('img/', 'img/t/');
@@ -1547,7 +1548,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (seal && strip) seal.addEventListener('click', e => {
       e.preventDefault();
       strip.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: innerWidth < 720 ? 'start' : 'center' });
-      strip.classList.remove('flash'); void strip.offsetWidth; strip.classList.add('flash');
+      // the frame lights up once the strip has arrived in front of us, not while the page is still moving (17.11)
+      strip.classList.remove('flash');
+      let t0 = 0, last = -1;
+      const wait = now => {
+        const r = strip.getBoundingClientRect(), still = Math.abs(r.top - last) < 1; last = r.top;
+        if (!t0) t0 = now;
+        if ((still && r.top < innerHeight && r.bottom > 0) || now - t0 > 2500) { void strip.offsetWidth; strip.classList.add('flash'); return; }
+        requestAnimationFrame(wait);
+      };
+      setTimeout(() => requestAnimationFrame(wait), 120);
     });
     // the story books, with their prices, just below the opening scene
     // the story books, a boy's and a girl's in turn
