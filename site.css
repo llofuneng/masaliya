@@ -1296,3 +1296,9 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
   linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
   radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; justify-self: center; }
 .coll-offer .price-note { color: var(--muted); }
+/* 17.11, her feedback: people thought the square box had cut their photo and worried how it would print. The box now shows the whole
+   photo (contain), filling the edges with a soft blurred copy of the same photo, so nothing looks cut and the box keeps its shape */
+.slot-img { overflow: hidden; }
+.slot-img::before, .slot-img::after { content: ""; position: absolute; inset: 0; background: var(--ph, none) center / contain no-repeat; }
+.slot-img::before { inset: -24px; background-size: cover; filter: blur(14px) brightness(.5) saturate(.85); }
+.slot-hint[hidden] { display: none; }
