@@ -1212,3 +1212,26 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .zoom { height: 36px; padding: 0 8px; font-weight: 400; }
 .zoom svg { opacity: .8; }
 @media (max-width: 520px) { .back { padding: .55em .5em .55em 0; } .menu-btn { padding: .55em 0 .55em .5em; } }
+
+/* the puzzle and the gift box: two small cards side by side, like «Sert Kapak» and «Dijital Kitap» (17.11) */
+.addon-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.addon-pair .extras { display: contents; }
+.addon-pair .extras[hidden] { display: none; }
+.addon-pair :is(.extra-opt, .gift-opt) { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 4px; padding: 18px 18px 16px; min-width: 0; }
+.addon-pair :is(.ex-pic, .gift-art) { display: none; }
+.addon-pair .extra-opt .ex-title { order: 0; padding: 0 40px 0 0; min-height: 0; font: 600 var(--t-md)/1.15 var(--f-display); white-space: normal; }
+.addon-pair .extra-opt .ex-text, .addon-pair .gift-opt .gift-text { display: contents; padding: 0; }
+.addon-pair .gift-opt .gift-text b { padding-right: 40px; font: 600 var(--t-md)/1.15 var(--f-display); }
+.addon-pair :is(.ex-price, .gift-price) { order: 1; grid-column: auto; font: 400 var(--t-lg)/1.1 var(--f-display); color: var(--gold-pale); }
+.addon-pair :is(.extra-opt small, .gift-opt small) { order: 2; font-size: var(--t-sm); color: var(--muted); line-height: 1.35; }
+.addon-pair .gift-opt .gift-text small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.addon-pair .extra-opt::after, .addon-pair .gift-opt::after { top: 14px; right: 14px; background-color: transparent; }
+@media (max-width: 560px) { .addon-pair { gap: 10px; } .addon-pair :is(.extra-opt, .gift-opt) { padding: 14px 12px 12px; } }
+/* the promise: one small line under the psychologist's, at the top */
+.p-promise { display: flex; gap: 8px; align-items: baseline; margin: 2px 0 2px; font: 400 var(--t-sm)/1.4 var(--f-body); color: var(--cream); }
+.p-promise span { flex: none; width: 24px; text-align: center; color: var(--gold); }
+/* the photo boxes nearer to square (17.11, her «kare mi yapsak»): less of the page taken by them */
+.slot { aspect-ratio: 1 / 1.08; }
+/* the gift box card shows its short line in full: two lines, smaller (17.11) */
+.addon-pair .gift-opt .gift-text small { -webkit-line-clamp: 3; font-size: var(--t-xs); }
+.addon-pair .gift-opt .gift-text b { padding-right: 34px; }
