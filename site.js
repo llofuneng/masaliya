@@ -784,6 +784,18 @@ function rowNav(w) {
 let fitTimer;
 addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitTitles, 120); });
 if (document.fonts) document.fonts.ready.then(() => fitTitles());
+// a tap anywhere on a book card (cover, title, summary) opens the book, as the button does (17.11); a swipe of a row is no tap,
+// links and buttons inside keep their own; Ctrl/Cmd or the middle button open a new tab
+document.addEventListener('click', e => {
+  const c = e.target.closest && e.target.closest('.card');
+  if (!c || e.defaultPrevented || e.target.closest('a, button, input, label, select, textarea')) return;
+  const a = c.querySelector('a.card-cta'); if (!a) return;
+  if (e.metaKey || e.ctrlKey || e.shiftKey) window.open(a.href, '_blank'); else location.href = a.href;
+});
+document.addEventListener('auxclick', e => {
+  const c = e.button === 1 && e.target.closest && e.target.closest('.card'); if (!c || e.target.closest('a')) return;
+  const a = c.querySelector('a.card-cta'); if (a) window.open(a.href, '_blank');
+});
 function card(p, withPrice = false, size = '') {
   const visual = `<img src="${coverSrc(p.img, size)}" ${jpgBack(p.img)} alt="${esc(p.alt)}" loading="lazy" decoding="async">`;
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
