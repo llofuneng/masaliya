@@ -768,7 +768,7 @@ function smallCaps(el) {
 }
 // the markup of a swipe row of book cards (17.11): the home rows, the collection pages, «Diğer masallarımız»
 function rowHTML(list, label, cls = '') {
-  return `<div class="row-wrap"><div class="book-row${cls ? ' ' + cls : ''}" role="group" tabindex="0" aria-label="${esc(label)}">${list.map(b => card(b, true, /\bbig\b/.test(cls) ? 'w' : 'c')).join('')}</div><button class="row-arrow prev" type="button" aria-label="Önceki masallar">‹</button><button class="row-arrow next" type="button" aria-label="Sonraki masallar">›</button></div>
+  return `<div class="row-wrap"><div class="book-row${cls ? ' ' + cls : ''}" role="group" tabindex="0" aria-label="${esc(label)}">${list.map((b, i) => card(b, true, /\bbig\b/.test(cls) ? 'w' : 'c', i < 3)).join('')}</div><button class="row-arrow prev" type="button" aria-label="Önceki masallar">‹</button><button class="row-arrow next" type="button" aria-label="Sonraki masallar">›</button></div>
         <div class="row-dots" aria-hidden="true"></div>`;
 }
 // the book cards in a grid (17.11): the cover 450 px on a phone (two in a row), 800 px on a computer (three in a row)
@@ -873,9 +873,9 @@ document.addEventListener('auxclick', e => {
   const c = e.button === 1 && e.target.closest && e.target.closest('.card'); if (!c || e.target.closest('a')) return;
   const a = c.querySelector('a.card-cta'); if (a) window.open(a.href, '_blank');
 });
-function card(p, withPrice = false, size = '') {
+function card(p, withPrice = false, size = '', eager = false) {
   const set = size === 'cw' && coverSrc(p.img, 'c') !== p.img ? ` srcset="${coverSrc(p.img, 'c')} 450w, ${coverSrc(p.img, 'w')} 800w" sizes="(max-width: 720px) 38vw, 360px"` : '';
-  const visual = `<img src="${coverSrc(p.img, size === 'cw' ? 'c' : size)}"${set} ${set ? jpgBack(p.img).replace('this.src=', "this.removeAttribute('srcset');this.src=") : jpgBack(p.img)} alt="${esc(p.alt)}" loading="lazy" decoding="async">`;
+  const visual = `<img src="${coverSrc(p.img, size === 'cw' ? 'c' : size)}"${set} ${set ? jpgBack(p.img).replace('this.src=', "this.removeAttribute('srcset');this.src=") : jpgBack(p.img)} alt="${esc(p.alt)}" loading="${eager ? 'eager' : 'lazy'}" decoding="async">`;   // the first books of a home row load with the page (17.11)
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
   // 17.11, her words «sadece İncele Sipariş ver butonu tıklanabilir olsun»: a card with the button is a plain frame and only the
   // button is a link; a card without a button stays one link as before
