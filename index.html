@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170406">
+<link rel="stylesheet" href="site.css?v=202611170928">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -260,7 +260,15 @@
   -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 .home-books #hb-title em { font-style: italic; font-weight: 600; }
 @media (max-width: 560px) { .home-books #hb-title { font-size: 2.1rem; line-height: 1.12; } }
-.how-box { margin: clamp(40px, 6vw, 72px) auto 0; max-width: 900px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.how-box { margin: clamp(40px, 6vw, 72px) auto 0; max-width: 900px; }
+/* instead of two full-width lines (17.11, her «o iki çizgi ortada baklava… daha sade»): a short gold line fading to both ends, with a small
+   gold diamond in the middle, above and below the three steps — like the divider under the first screen's headline */
+.how-box::before, .how-box::after { content: ""; display: block; width: min(240px, 62%); height: 12px; margin: 0 auto;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M6 0.8L11.2 6L6 11.2L0.8 6Z' fill='%23e2b56b'/%3E%3Cpath d='M6 3.6L8.4 6L6 8.4L3.6 6Z' fill='%23140b09'/%3E%3C/svg%3E") center / 12px 12px no-repeat,
+    linear-gradient(90deg, rgba(226,181,107,0), rgba(226,181,107,.75)) left center / calc(50% - 14px) 1px no-repeat,
+    linear-gradient(90deg, rgba(226,181,107,.75), rgba(226,181,107,0)) right center / calc(50% - 14px) 1px no-repeat; }
+.how-box::before { margin-bottom: 26px; }
+.how-box::after { margin-top: 26px; }
 .how3 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); counter-reset: s; }
 .how3 li { display: grid; justify-items: center; gap: 2px; text-align: center; padding: 22px 10px; position: relative; counter-increment: s; }
 .how3 li + li::before { content: "→"; position: absolute; left: -.5em; top: 50%; translate: 0 -50%; color: var(--gold); font-size: var(--t-md); }
@@ -462,7 +470,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170406" defer></script>
+<script src="site.js?v=202611170928" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {

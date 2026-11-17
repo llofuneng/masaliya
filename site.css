@@ -290,7 +290,9 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 .card .card-from { font: 500 var(--t-md) var(--f-body); color: var(--gold-pale); margin-top: 2px; }
 .secure-pay svg { width: 16px; height: 16px; flex: none; color: var(--gold); margin-top: 2px; }
 .secure-pay { display: grid; gap: 8px; justify-items: center; text-align: center; margin-top: 12px; font-size: var(--t-xs); line-height: 1.5; color: var(--muted); }
-.secure-pay > span:last-child { display: inline-flex; gap: 6px; align-items: flex-start; }
+.secure-pay > span:not(.cards) { display: inline-flex; gap: 6px; align-items: flex-start; }
+/* a quiet line under the safe-payment line (17.11): the bank's foreign-payment fee is given back — a caption, not a warning */
+.secure-pay .fee-note { font-size: inherit; color: inherit; text-wrap: balance; }
 .secure-pay .cards { display: flex; gap: 6px; }
 .secure-pay .cards svg { width: 40px; height: 25px; margin: 0; }
 .eta { margin: 2px 0 12px; font-size: var(--t-sm); color: var(--cream); }

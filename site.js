@@ -841,6 +841,7 @@ function renderCart() {
         <div class="secure-pay">
           <span class="cards" aria-label="Visa, Mastercard, Apple Pay, Google Pay">${CARD_MARKS}</span>
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4.5" y="10" width="15" height="11" rx="2" fill="currentColor"/></svg>Stripe ile güvenli ödeme · 3D Secure · Kart bilgileriniz bizde saklanmaz · Ödeme Türk lirası ile alınır</span>
+          <small class="fee-note">Bankanız ek işlem komisyonu uygularsa, farkı aynı gün iade ediyoruz.</small>
         </div>
         <p class="form-note" id="pay-note" aria-live="polite">${msg || ''}</p>
         <a class="link" href="urunler.html">+ Başka bir masal ekle</a>
