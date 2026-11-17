@@ -1403,3 +1403,30 @@ hr.rule:has(+ .sec #related-head) { display: none; }
 .wa.wa-still, .wa.wa-still:hover { transition: none !important; }
 /* the iPhone's stretch at the top: the flag follows the page by --wa-pull, with no delay (the short smoothing is for the tuck only) */
 .wa.wa-up, .wa.wa-up:hover, .wa.wa-up:focus-visible { translate: 0 var(--wa-pull, 0px); }
+/* ---- 17.11, her words «gizlilik… arka planı çok kötü, bizim dizayn dilimizde»: the four promises in one burgundy panel with the home
+   page's fine gold double frame; each promise under a round gold-ringed medallion, its title in gold foil, a gold divider between ---- */
+body[data-page="gizlilik"] .page-head h1 { background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.vows { position: relative; max-width: 920px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: clamp(22px, 3.6vw, 44px) clamp(14px, 3.6vw, 44px);
+  background: radial-gradient(60% 320px at 50% 0%, rgba(255,196,128,.16), transparent 72%), radial-gradient(110% 55% at 50% 55%, rgba(150,42,62,.3), transparent 75%), linear-gradient(180deg, #561a28 0%, #44141f 55%, #4f1825 100%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 20px 60px -20px rgba(0,0,0,.8), inset 0 0 90px rgba(20,6,8,.45); }
+.vows::before, .vows::after { content: ""; position: absolute; pointer-events: none; border: 1px solid rgba(226,181,107,.42); inset: 8px; }
+.vows::after { inset: 13px; border-color: rgba(226,181,107,.16); }
+.vow { position: relative; display: grid; justify-items: center; align-content: start; gap: 10px; text-align: center; padding: clamp(18px, 2.4vw, 28px) clamp(12px, 2vw, 26px); }
+.vow-ico { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 4px;
+  background: radial-gradient(circle at 35% 30%, #7a2236, #3d0f19); box-shadow: 0 0 0 1.5px var(--gold), 0 0 0 5px rgba(20,6,10,.35), 0 6px 14px rgba(0,0,0,.45); }
+.vow-ico svg { width: 28px; height: 28px; color: var(--gold-pale); stroke-width: 1.4; }
+.vow h3 { margin: 0; font: 600 var(--t-xl)/1.15 var(--f-display); background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 60%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.vow p { margin: 0; max-width: 36ch; color: rgba(246,236,220,.84); font-size: var(--t-md); line-height: 1.6; }
+/* the dividers: a fine gold line with a dot, between the promises */
+.vow::after { content: ""; position: absolute; pointer-events: none; }
+@media (min-width: 621px) {
+  .vow:nth-child(odd)::after { top: 18%; bottom: 18%; right: 0; width: 1px; background: linear-gradient(180deg, transparent, rgba(226,181,107,.45), transparent); }
+  .vow:nth-child(-n+2)::before { content: ""; position: absolute; left: 14%; right: 14%; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(226,181,107,.45), transparent); }
+}
+@media (max-width: 620px) {
+  .vows { grid-template-columns: 1fr; }
+  .vow + .vow::before { content: ""; display: block; width: min(200px, 60%); height: 12px; margin: 0 auto 10px; background:
+    linear-gradient(90deg, transparent, var(--gold) 45%, transparent 45%, transparent 55%, var(--gold) 55%, transparent) center / 100% 1px no-repeat,
+    radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) center / 12px 12px no-repeat; }
+}
