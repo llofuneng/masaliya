@@ -649,7 +649,7 @@ function backHref() {
     return `${AUDIENCES[p.aud].page}#${p.aud === 'yetiskin' ? p.occ : TYPES[p.type].tab}`;
   }
   if (AUDIENCES[document.body.dataset.page]) return 'urunler.html';   // a collection: back to the three choices
-  return './#sec';   // home, with the book already open on the three collections
+  return './';   // home (17.11: no «#sec» in the address any more)
 }
 
 /* ---------- Header, menu, footer ---------- */
@@ -896,7 +896,19 @@ function rowNav(w, endless = true) {   // endless: false = a row that ends (the 
     if (dots) [...dots.children].forEach((d, i) => d.classList.toggle('on', i === at));
     prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft > max - 4;
   };
-  const go = d => { wrap(); const s = step(); row.scrollBy({ left: d * Math.max(s, Math.floor(row.clientWidth / s) * s), behavior: reduce() ? 'auto' : 'smooth' }); };
+  // 17.11, her words «çok yavaş kayıyor»: the browser's own smooth scroll, with snapping, took half a second or more and could
+  // settle late; now a quick 0.32 s glide of our own, snapping off while it runs and back on at the end
+  let glide = 0;
+  const go = d => {
+    wrap(); const s = step(), dist = d * Math.max(s, Math.floor(row.clientWidth / s) * s);
+    if (reduce()) { row.scrollLeft += dist; return; }
+    cancelAnimationFrame(glide);
+    const from = row.scrollLeft, to = Math.max(0, Math.min(row.scrollWidth - row.clientWidth, from + dist)), t0 = performance.now(), dur = 320;
+    row.style.scrollSnapType = 'none';
+    const tick = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); row.scrollLeft = from + (to - from) * e;
+      if (k < 1) glide = requestAnimationFrame(tick); else { row.style.scrollSnapType = ''; glide = 0; } };
+    glide = requestAnimationFrame(tick);
+  };
   prev.addEventListener('click', () => go(-1)); next.addEventListener('click', () => go(1));
   // with a mouse the row can also be dragged sideways (17.11, her «desktopta da mouse ile kaydırma»); a drag does not open a book
   if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
