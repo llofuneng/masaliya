@@ -677,6 +677,15 @@ function renderChrome() {
 /* tale titles never run to a third line (16.11, her words «Masal isimleri 3 satır olmasın… her zaman 2 satıra sığdır»):
    a title that would take three lines gets a slightly smaller font, step by step, until it fits two */
 function fitTitles() {
+  // the home rows' titles («Kız Çocukları Masalları», 17.11): one size for both, as large as fits on one line next to the medallion
+  // and «Tümü»; on a wide screen the CSS size
+  const heads = [...document.querySelectorAll('.row-head')].filter(h => h.offsetParent);
+  if (heads.length) {
+    const ts = heads.map(h => h.querySelector('h3')); ts.forEach(t => { t.style.fontSize = ''; });
+    let k = 1;
+    heads.forEach((h, i) => { const over = h.scrollWidth - h.clientWidth, w = ts[i].getBoundingClientRect().width; if (over > 0 && w) k = Math.min(k, (w - over - 2) / w); });
+    if (k < 1) ts.forEach(t => { t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * k).toFixed(2) + 'px'; });
+  }
   const lines = h => { const cs = getComputedStyle(h); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.1; return (h.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth)) / lh; };
   // the largest size (from the CSS size down) at which the title keeps to `max` lines; 2.5 = two lines plus rounding, a third line is 3
   const fit = (h, max) => { let fs = parseFloat(getComputedStyle(h).fontSize), n = 0; while (lines(h) > max && n++ < 40) { fs *= .96; h.style.fontSize = fs.toFixed(2) + 'px'; } return fs; };
@@ -688,11 +697,11 @@ function fitTitles() {
   const cards = [...document.querySelectorAll('.card.book h3')].filter(h => { h.style.fontSize = ''; return h.offsetParent; });
   if (cards.length) {
     const base = parseFloat(getComputedStyle(cards[0]).fontSize), floor = base * .62;
-    const lim = h => h.closest('.book-row') ? 3.5 : 2.5;   // a swipe row's narrow cards: up to three lines (17.11)
+    const lim = h => 2.5;   // two lines everywhere; the single longest title may take a third (17.11: the row cards too, with Fraunces small capitals)
     const fits = cards.map(h => { const f = fit(h, lim(h)); h.style.fontSize = ''; return f; });
     // only the one longest title may take a third line (and only when it would otherwise be far smaller): all the rest keep to two
     const sorted = [...fits].sort((x, y) => x - y);
-    let S = sorted.length > 1 && sorted[0] < floor ? sorted[1] : sorted[0], n = 0;
+    let S = sorted.length > 1 && (sorted[0] < floor || sorted[0] < sorted[1] * .85) ? sorted[1] : sorted[0], n = 0;   // or far smaller than the next one (17.11)
     const set = () => cards.forEach(h => { h.style.fontSize = S.toFixed(2) + 'px'; });
     set();
     while (cards.some(h => lines(h) > lim(h) + 1) && n++ < 20) { S *= .96; set(); }   // never more than one line over
@@ -705,6 +714,29 @@ function fitTitles() {
     let fs = parseFloat(getComputedStyle(p).fontSize), n = 0;
     while (p.scrollHeight > p.clientHeight + 1 && fs > 11.5 && n++ < 12) { fs *= .96; p.style.fontSize = fs.toFixed(2) + 'px'; }
   });
+}
+// small capitals by hand (17.11): every run of lower-case letters goes into <span class="sc">, which CSS shows in capitals a little
+// smaller; with lang="tr" the capitals are Turkish (i → İ, ı → I) in every browser
+function smallCaps(el) {
+  const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodes = [];
+  while (walk.nextNode()) if (!walk.currentNode.parentNode.closest('.sc')) nodes.push(walk.currentNode);   // twice on one title changes nothing
+  nodes.forEach(n => {
+    const parts = n.data.split(/([a-zçğıöşüâîû]+)/);
+    if (parts.length < 2) return;
+    const frag = document.createDocumentFragment();
+    parts.forEach((t, i) => { if (!t) return; if (i % 2) { const sp = document.createElement('span'); sp.className = 'sc'; sp.textContent = t; frag.appendChild(sp); } else frag.appendChild(document.createTextNode(t)); });
+    n.replaceWith(frag);
+  });
+}
+// the markup of a swipe row of book cards (17.11): the home rows, the collection pages, «Diğer masallarımız»
+function rowHTML(list, label, cls = '') {
+  return `<div class="row-wrap"><div class="book-row${cls ? ' ' + cls : ''}" role="group" tabindex="0" aria-label="${esc(label)}">${list.map(b => card(b, true)).join('')}</div><button class="row-arrow prev" type="button" aria-label="Önceki masallar">‹</button><button class="row-arrow next" type="button" aria-label="Sonraki masallar">›</button></div>
+        <div class="row-dots" aria-hidden="true"></div>`;
+}
+// each row card's ground is its own cover (a small copy), blurred; the titles in hand-made small capitals (17.11)
+function litCards(root) {
+  root.querySelectorAll('.book-row .card').forEach(c => { const im = c.querySelector('.visual img'); if (im) c.style.setProperty('--cover', `url("${thumb(im.getAttribute('src'))}")`); });
+  root.querySelectorAll('.book-row .card.book h3').forEach(smallCaps);
 }
 // a swipe row of books (17.11): the dots follow the scroll, the arrows (computer) move it by a screenful; a row that fits needs neither
 function rowNav(w) {
@@ -778,6 +810,13 @@ function renderCollection(aud) {
     const list = isAdult
       ? items.filter(p => key === 'hepsi' || p.occ === key)
       : items.filter(p => TYPES[p.type].tab === key);
+    // the books: one row of big cards to swipe (17.11, her «İkinci uygulama»); anything else stays a grid
+    if (list.length && list.every(p => p.type === 'kitap')) {
+      grid.className = 'coll-rows';
+      grid.innerHTML = rowHTML(list, `${AUDIENCES[aud] ? AUDIENCES[aud].name + ' için ' : ''}masallar`, 'big');
+      litCards(grid); fitTitles(); rowNav(grid.querySelector('.row-wrap'));
+      return;
+    }
     grid.className = `grid${list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : ''}`;
     grid.innerHTML = list.length ? list.map(p => card(p)).join('') : '<p class="empty">Bu bölüm için yeni ürünler hazırlanıyor.</p>';
     fitTitles();
@@ -1171,6 +1210,7 @@ function renderProduct() {
       const sync = () => {
         const n = cap(nameIn.value.trim());
         document.getElementById('p-title').innerHTML = fullTitle(p, nameIn.value.trim());
+        smallCaps(document.getElementById('p-title'));
         fitTitles();
         clearTimeout(coverTimer); coverTimer = setTimeout(paintCover, 200);
       };
@@ -1367,8 +1407,11 @@ function renderProduct() {
     // all our other stories: this collection first, then the others
     const others = PRODUCTS.filter(x => x.id !== p.id && x.type === p.type && x.status === 'hazir' && onSale(x) && !(x.aud && AUDIENCES[x.aud] && AUDIENCES[x.aud].hidden));
     const rel = [...others.filter(x => x.aud === p.aud), ...others.filter(x => x.aud !== p.aud)];
-    document.getElementById('related').innerHTML = rel.map(p => card(p)).join('');
-    fitTitles();
+    const relEl = document.getElementById('related');
+    if (rel.length && rel.every(x => x.type === 'kitap')) {   // a row like the home page's (17.11)
+      relEl.className = 'book-rows'; relEl.innerHTML = rowHTML(rel, 'Diğer masallarımız'); litCards(relEl);
+      smallCaps(document.getElementById('p-title')); fitTitles(); rowNav(relEl.querySelector('.row-wrap'));
+    } else { relEl.className = 'grid'; relEl.innerHTML = rel.map(p => card(p)).join(''); smallCaps(document.getElementById('p-title')); fitTitles(); }
     const rh = document.getElementById('related-head'); if (rh) rh.hidden = !rel.length;
     if (location.hash === '#inside' && document.getElementById('inside')) requestAnimationFrame(() => document.getElementById('inside').scrollIntoView());
     else scrollTo(0, 0);
@@ -1456,10 +1499,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (g) {
       // 17.11: two swipe rows, «Kız Çocukları İçin» and «Erkek Çocukları İçin» (the order of the windows on the first screen),
       // each with «Tümü (n) ›» to its collection; dots under a row, gold arrows on a computer
-      const rows = Object.entries(AUDIENCES).filter(([, a]) => !a.hidden).map(([k, a]) => [a, all.filter(p => p.aud === k)]).filter(([, l]) => l.length);
-      g.innerHTML = rows.map(([a, list]) => `<div class="row-head"><h3>${a.name} İçin</h3><i class="row-line" aria-hidden="true"></i><a href="${a.page}">Tümü (${list.length}) ›</a></div>
-        <div class="row-wrap"><div class="book-row" role="group" tabindex="0" aria-label="${a.name} için masallar">${list.map(b => card(b, true)).join('')}</div><button class="row-arrow prev" type="button" aria-label="Önceki masallar">‹</button><button class="row-arrow next" type="button" aria-label="Sonraki masallar">›</button></div>
-        <div class="row-dots" aria-hidden="true"></div>`).join('');
+      const rows = Object.entries(AUDIENCES).filter(([, a]) => !a.hidden).map(([k, a]) => [a, all.filter(p => p.aud === k), k]).filter(([, l]) => l.length);
+      g.innerHTML = rows.map(([a, list, k]) => `<div class="row-head" data-aud="${k}"><span class="row-ico" aria-hidden="true"></span><h3>${a.name}</h3><i class="row-line" aria-hidden="true"></i><a href="${a.page}">Tümü (${list.length}) ›</a></div>
+        ${rowHTML(list, a.name + ' masalları')}`).join('');
+      // 17.11: each card's ground is its own cover (a small copy), blurred; the titles in hand-made small capitals; the window medallions
+      litCards(g);
+      g.querySelectorAll('.row-head').forEach(h => {
+        const hero = HEROES.find(x => AUDIENCES[h.dataset.aud] && x.href === AUDIENCES[h.dataset.aud].page), box = h.querySelector('.row-ico');
+        if (!hero || !box) return;
+        // the window is drawn at its own size (the figure is scaled for 512 × 704), then the square around the figure goes into the circle
+        const art = drawHeroCard(hero), sq = document.createElement('canvas'); sq.width = sq.height = 160;
+        sq.getContext('2d').drawImage(art, 35, 202, 460, 460, 0, 0, 160, 160);   // the figure (with the star / the sword) fills the circle
+        const img = new Image(); img.alt = ''; img.src = sq.toDataURL(); box.appendChild(img);
+      });
       fitTitles();
       g.querySelectorAll('.row-wrap').forEach(rowNav);
       dealRun();

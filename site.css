@@ -1000,3 +1000,94 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 @media (max-width: 620px) {
   .p-viewer .spread.on-cover:not(.portrait) { width: clamp(200px, calc((100svh - 370px) * 800 / 1075), 100%); }
 }
+
+
+/* ---------- Rows of book cards (17.11): the home page's two rows, the collection pages (big cards), «Diğer masallarımız» ---------- */
+/* the row titles read as sub-headings (17.11, her «sarı… ara başlık gibi daha belirgin»): larger, gold letters like the headline,
+   a thin gold line runs from the title to «Tümü» */
+.row-head { display: flex; align-items: center; gap: 10px; margin: clamp(22px, 3vw, 36px) 0 clamp(10px, 1.4vw, 16px); }
+.row-head h3 { flex: none; margin: 0; padding-bottom: .1em; font: italic 600 clamp(1.5rem, 1.1rem + 1.4vw, 2.2rem)/1.1 var(--f-display); white-space: nowrap;
+  color: #fbefd2; filter: drop-shadow(0 2px 6px rgba(0,0,0,.6)); }   /* cream, not gold: the book titles and the frame are the gold ones (17.11) */
+/* a round medallion of the collection's window before the row title (17.11, her «başına logo koymak hoş oldu») */
+.row-ico { flex: none; width: clamp(50px, 4.4vw, 64px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--gold);
+  box-shadow: 0 0 0 3px rgba(20,6,10,.4), 0 4px 10px rgba(0,0,0,.5); }
+.row-ico img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.row-line { flex: 1 1 0; min-width: 0; height: 1px; background: linear-gradient(90deg, rgba(251,239,210,.6), rgba(251,239,210,.08)); }
+.row-head a { flex: none; }   /* «Tümü (n) ›» without an underline (17.11, her words) */
+@media (max-width: 360px) { .row-head h3 { font-size: var(--t-lg); } .row-ico { width: 40px; } }
+@media (max-width: 480px) { .row-line { display: none; } .row-head a { margin-left: auto; } }   /* «Tümü» stays at the right edge */   /* on a phone no room for the line (it was a dash next to «Erkek Çocukları İçin»); «Tümü» stays at the right */
+.row-head a { font: 500 var(--t-xs)/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); text-decoration: none; white-space: nowrap; }
+.row-wrap { position: relative; }
+.book-row { display: flex; gap: clamp(12px, 1.6vw, 20px); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 4px 0 14px; }
+.book-row::-webkit-scrollbar { display: none; }
+.book-row:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
+@media (max-width: 720px) { .book-row { margin-inline: calc(-1 * var(--rp)); padding-inline: var(--rp); scroll-padding-inline: var(--rp); } }   /* on a phone the row runs to the frame */
+:is(#home-grid, #grid, #related) .book-row > .card.book { flex: 0 0 44%; display: flex; flex-direction: column; gap: 8px; padding: 8px; margin: 0; scroll-snap-align: start;
+  position: relative; overflow: hidden; isolation: isolate; background: #3a1a22; border-color: rgba(244,223,179,.8); box-shadow: 0 10px 22px -12px rgba(0,0,0,.7); }
+/* the card's ground is its own cover's light (17.11, her «kapak ışığı», B): the cover (a small copy), blurred, at the top, melting into
+   deep wine under the title and the button, so the cream title and the gold button read well on every book */
+:is(#home-grid, #grid, #related) .book-row > .card.book::before { content: ""; position: absolute; inset: -30px; z-index: -2; background: var(--cover) center top / cover; filter: blur(18px) saturate(1.5) brightness(.95); }
+:is(#home-grid, #grid, #related) .book-row > .card.book::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(255,240,220,.06) 0%, rgba(255,240,220,0) 38%, rgba(70,18,30,.86) 64%, rgba(52,12,22,.97) 100%); }
+:is(#home-grid, #grid, #related) .book-row .card.book .visual { box-shadow: 0 12px 18px -10px rgba(0,0,0,.6), 0 0 0 1px rgba(244,223,179,.55); }
+:is(#home-grid, #grid, #related) .book-row .card.book .visual { width: 100%; grid-row: auto; }
+:is(#home-grid, #grid, #related) .book-row .card.book h3 { margin: auto 0; text-align: center; font: 700 var(--t-md)/1.24 'Fraunces', var(--f-display); letter-spacing: .01em; text-transform: none;
+  background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: #fbefd2; color: #fbefd2; filter: drop-shadow(0 1px 2px rgba(0,0,0,.8)); }
+:is(#home-grid, #grid, #related) .book-row .card.book h3 .ad { font-style: normal; font-weight: inherit; -webkit-text-fill-color: inherit; }
+/* small capitals made by hand (smallCaps() in site.js): the lower-case letters in capitals, a little smaller — with lang="tr", so
+   «i» becomes «İ» in every browser (Safari's own small capitals do not know Turkish) */
+:is(#home-grid, #grid, #related) .book-row .card.book h3 .sc { text-transform: uppercase; font-size: .78em; }   /* centred in the free room, not stretched (fitTitles counts its lines by its height) */
+:is(#home-grid, #grid, #related) .book-row .card.book > p { display: none; }
+/* the gold button is the card's base, from edge to edge (17.11, her «Buton A»: «İncele'den önce ve ver'den sonra biraz daha alanımız olsun») */
+:is(#home-grid, #grid, #related) .book-row > .card.book { padding-bottom: 0; }
+:is(#home-grid, #grid, #related) .book-row .card.book .card-cta { margin: 2px -8px 0; align-self: stretch; min-height: 44px; padding: 12px 8px; border-width: 1px 0 0; border-radius: 0 0 3px 3px;
+  font-size: var(--t-xs); letter-spacing: 0; box-shadow: 0 -6px 14px -8px rgba(0,0,0,.5); }
+:is(#home-grid, #grid, #related) .book-row .card.book .card-cta .cta-plus { margin: 0 .22em; }
+@media (max-width: 350px) {   /* the narrowest phones: the words must fit the button (320 px: card 47 %, «+» closer) */
+  :is(#home-grid, #grid, #related) .book-row > .card.book { flex-basis: 47%; }
+  :is(#home-grid, #grid, #related) .book-row .card.book .card-cta { padding-inline: 2px; letter-spacing: 0; font-weight: 500; }
+  :is(#home-grid, #grid, #related) .book-row .card.book .card-cta .cta-plus { margin: 0 .14em; }
+}
+@media (min-width: 721px) {
+  :is(#home-grid, #grid, #related) .book-row > .card.book { flex-basis: clamp(190px, calc((100% - 100px) / 5.35), 250px); gap: 12px; padding: 12px 12px 0; }
+  :is(#home-grid, #grid, #related) .book-row .card.book h3 { font-size: var(--t-lg-r); }   /* fitTitles() then makes all titles one size, two lines */
+  :is(#home-grid, #grid, #related) .book-row .card.book .card-cta { margin: 2px -12px 0; min-height: 50px; padding: 14px 10px; letter-spacing: .08em; }
+}
+.row-arrow { display: none; }
+@media (hover: hover) and (pointer: fine) and (min-width: 721px) {
+  .row-arrow { display: grid; place-items: center; position: absolute; top: 40%; transform: translateY(-50%); z-index: 3; width: 48px; height: 48px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 1px solid #f4dfb3; background: linear-gradient(180deg, #f8e6b8, #c9964c); color: #3b1410; font: 600 22px/1 var(--f-body);
+    box-shadow: 0 10px 24px -8px rgba(0,0,0,.8), 0 0 0 4px rgba(20,11,9,.55); transition: opacity .25s ease, filter .25s ease; }
+  .row-arrow.prev { left: calc(var(--rp) * -.5 - 24px); } .row-arrow.next { right: calc(var(--rp) * -.5 - 24px); }
+  .row-arrow:hover:not([disabled]) { filter: brightness(1.08); }
+  .row-arrow[disabled] { opacity: .35; cursor: default; }
+  .row-wrap.fits .row-arrow { display: none; }
+}
+.row-dots { display: flex; justify-content: center; gap: 7px; margin: 2px 0 4px; }
+.row-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(226,181,107,.3); transition: width .25s ease, background .25s ease; }
+.row-dots i.on { width: 18px; background: var(--gold); }
+.row-wrap.fits + .row-dots { display: none; }
+@media (prefers-reduced-motion: reduce) { .row-dots i, .row-arrow { transition: none; } }
+/* outside the home frame the rows sit in .wrap (16 px sides): on a phone they run to the screen's edge; the arrows stay on the page */
+:is(#grid, #related) { --rp: max(16px, env(safe-area-inset-left, 0px)); }
+#grid.coll-rows, #related.book-rows { display: block; }
+@media (hover: hover) and (pointer: fine) and (min-width: 721px) { :is(#grid, #related) .row-arrow.prev { left: -10px; } :is(#grid, #related) .row-arrow.next { right: -10px; } }
+/* the collection pages: big cards with the summary (17.11, her «İkinci uygulama daha iyi gibi gözüküyor»): one card and the edge of the
+   next on a phone, about three and a half on a computer */
+#grid .book-row.big > .card.book { flex-basis: 74%; }
+#grid .book-row.big .card.book h3 { margin: 4px 0 0; font-size: var(--t-lg); }
+#grid .book-row.big .card.book > p { display: block; margin: 0 4px; text-align: center; font-size: var(--t-sm); line-height: 1.45; color: rgba(251,239,210,.86); opacity: 1; }
+#grid .book-row.big .card.book .card-cta { margin: auto -8px 0; min-height: 48px; font-size: var(--t-sm); letter-spacing: .06em; }
+@media (max-width: 350px) { #grid .book-row.big > .card.book { flex-basis: 80%; } #grid .book-row.big .card.book .card-cta { font-weight: 600; letter-spacing: .02em; } }
+@media (min-width: 721px) {
+  #grid .book-row.big > .card.book { flex-basis: clamp(240px, calc((100% - 60px) / 3.4), 330px); }
+  #grid .book-row.big .card.book h3 { font-size: var(--t-lg-r); }
+  #grid .book-row.big .card.book .card-cta { margin: auto -12px 0; min-height: 52px; }
+}
+/* the child's name: upright and cream like the rest of the title, everywhere (17.11, her «krem renkte… italik olmadan») */
+/* …and in the title's own letters: the global .ad (Cormorant 500, a little larger) made «Lina» thinner than «ve Noel Baba'ya Sürpriz» (17.11, her words) */
+.card.book h3 .ad, .p-head h1 .ad { font-style: normal; font-family: inherit; font-weight: inherit; font-size: 1em; }
+/* the book page's title in the cards' letters: Fraunces small capitals, cream, a soft shadow (17.11) */
+.p-head h1 { font-family: 'Fraunces', var(--f-display); font-weight: 700; line-height: 1.18; letter-spacing: .01em; text-transform: none;
+  background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: #fbefd2; color: #fbefd2; filter: drop-shadow(0 2px 6px rgba(0,0,0,.7)); }
+.p-head h1 .ad { font-weight: inherit; -webkit-text-fill-color: inherit; color: inherit; }
+.p-head h1 .sc { text-transform: uppercase; font-size: .78em; }

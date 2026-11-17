@@ -23,8 +23,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="site.css?v=202611170928">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,700&display=swap">
+<link rel="stylesheet" href="site.css?v=202611171025">
 <style>
 /* Intro: one candlelit room. A jewel-red leather book with the gold-foil logo lies on the table.
    A tap on the book (or "Masalı Aç") opens it; three gold heroes grow out of the pages:
@@ -330,47 +330,7 @@
 .home-books .hb-in .sec-head { max-width: 860px; margin: 0 auto 4px; }
 .home-books .hb-in .lede { text-wrap: balance; }   /* no word left alone on the last line (17.11, her words, seen on an iPhone); «size gösteriyoruz.» are also tied together */
 @media (max-width: 520px) { .hb-box { margin-inline: 8px; } }
-/* the row titles read as sub-headings (17.11, her «sarı… ara başlık gibi daha belirgin»): larger, gold letters like the headline,
-   a thin gold line runs from the title to «Tümü» */
-.row-head { display: flex; align-items: center; gap: 12px; margin: clamp(22px, 3vw, 36px) 0 clamp(10px, 1.4vw, 16px); }
-.row-head h3 { flex: none; margin: 0; padding-bottom: .1em; font: italic 600 var(--t-xl-r)/1.1 var(--f-display); white-space: nowrap;
-  background: linear-gradient(180deg, #f8e7bf 0%, #e2b56b 55%, #b98a3e 100%); -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 2px 6px rgba(0,0,0,.6)); }
-.row-line { flex: 1 1 0; min-width: 0; height: 1px; background: linear-gradient(90deg, rgba(226,181,107,.8), rgba(226,181,107,.12)); }
-.row-head a { flex: none; }   /* «Tümü (n) ›» without an underline (17.11, her words) */
-@media (max-width: 360px) { .row-head h3 { font-size: var(--t-lg); } }
-.row-head a { font: 500 var(--t-xs)/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); text-decoration: none; white-space: nowrap; }
-.row-wrap { position: relative; }
-.book-row { display: flex; gap: clamp(12px, 1.6vw, 20px); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 4px 0 14px; }
-.book-row::-webkit-scrollbar { display: none; }
-.book-row:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
-@media (max-width: 720px) { .book-row { margin-inline: calc(-1 * var(--rp)); padding-inline: var(--rp); scroll-padding-inline: var(--rp); } }   /* on a phone the row runs to the frame */
-#home-grid .book-row > .card.book { flex: 0 0 44%; display: flex; flex-direction: column; gap: 8px; padding: 8px; margin: 0; scroll-snap-align: start; }
-#home-grid .book-row .card.book .visual { width: 100%; grid-row: auto; }
-#home-grid .book-row .card.book h3 { margin: auto 0; text-align: center; font-size: var(--t-md); line-height: 1.1; }   /* centred in the free room, not stretched (fitTitles counts its lines by its height) */
-#home-grid .book-row .card.book > p { display: none; }
-#home-grid .book-row .card.book .card-cta { margin-top: 0; align-self: stretch; min-height: 34px; padding: 7px 2px; font-size: var(--t-xs); letter-spacing: 0; }
-#home-grid .book-row .card.book .card-cta .cta-plus { margin: 0 .22em; }
-@media (min-width: 721px) {
-  #home-grid .book-row > .card.book { flex-basis: clamp(190px, calc((100% - 100px) / 5.35), 250px); gap: 12px; padding: 12px; }
-  #home-grid .book-row .card.book h3 { font-size: var(--t-lg-r); }
-  #home-grid .book-row .card.book .card-cta { min-height: 40px; padding: 10px 4px; letter-spacing: .08em; }
-}
-.row-arrow { display: none; }
-@media (hover: hover) and (pointer: fine) and (min-width: 721px) {
-  .row-arrow { display: grid; place-items: center; position: absolute; top: 40%; transform: translateY(-50%); z-index: 3; width: 48px; height: 48px; padding: 0; border-radius: 50%; cursor: pointer;
-    border: 1px solid #f4dfb3; background: linear-gradient(180deg, #f8e6b8, #c9964c); color: #3b1410; font: 600 22px/1 var(--f-body);
-    box-shadow: 0 10px 24px -8px rgba(0,0,0,.8), 0 0 0 4px rgba(20,11,9,.55); transition: opacity .25s ease, filter .25s ease; }
-  .row-arrow.prev { left: calc(var(--rp) * -.5 - 24px); } .row-arrow.next { right: calc(var(--rp) * -.5 - 24px); }
-  .row-arrow:hover:not([disabled]) { filter: brightness(1.08); }
-  .row-arrow[disabled] { opacity: .35; cursor: default; }
-  .row-wrap.fits .row-arrow { display: none; }
-}
-.row-dots { display: flex; justify-content: center; gap: 7px; margin: 2px 0 4px; }
-.row-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(226,181,107,.3); transition: width .25s ease, background .25s ease; }
-.row-dots i.on { width: 18px; background: var(--gold); }
-.row-wrap.fits + .row-dots { display: none; }
-@media (prefers-reduced-motion: reduce) { .row-dots i, .row-arrow { transition: none; } }
+/* the rows of book cards: their styles are in site.css (shared with the collection pages and the book pages, 17.11) */
 </style>
 
 </head>
@@ -470,7 +430,7 @@
 <footer id="site-foot"></footer>
 
 <script>if (!document.documentElement.classList.contains('lite')) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer><\/script>');</script>
-<script src="site.js?v=202611170928" defer></script>
+<script src="site.js?v=202611171025" defer></script>
 <script>
 // runs after the deferred three.js and site.js
 addEventListener('DOMContentLoaded', () => {
