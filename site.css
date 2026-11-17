@@ -953,10 +953,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 @media (prefers-reduced-motion: reduce) { .psy-seal::after, .psy-seal { animation: none; } .psy-seal { transition: none; } }
 .intro-bottom { position: relative; }
 @media (max-width: 1000px) { .psy-seal { position: relative; top: auto; left: auto; width: 96px; height: 96px; margin: 12px auto 0; } }
-/* 17.11, her words «döner durur bir kez»: a little after the page opens the seal turns round once and stays still */
-.psy-seal svg { animation: psySpin 1.5s cubic-bezier(.45, 0, .2, 1) 1.2s 1 both; }
-@keyframes psySpin { from { rotate: 0deg; } to { rotate: 360deg; } }
-@media (prefers-reduced-motion: reduce) { .psy-seal svg { animation: none; } }
+/* 17.11: the seal does not turn any more (her words «böyle dönmesin, çok fazla»); its soft glow and sheen stay */
 .psy-strip { display: flex; align-items: center; gap: 24px; max-width: 900px; margin: 36px auto 0; padding: 22px 28px; border: 1px solid var(--line-strong);
   border-radius: 18px; background: rgba(246,236,220,.035); scroll-margin-top: 120px; }
 .psy-strip .psy-face { flex: none; width: 88px; height: 88px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--gold), 0 0 0 7px rgba(226,181,107,.14); }
