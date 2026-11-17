@@ -1478,3 +1478,6 @@ body[data-page="urunler"] .page-head h1, .pr-pick h2 { background: linear-gradie
 .pr-cover { width: 52%; } .pr-c1 { left: 2%; } .pr-c2 { right: 2%; }
 @media (max-width: 760px) { .pr-pick .choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 420px; margin-inline: auto; } }
 .steps { border-top: 0; }   /* 17.11, her words: no line above «i.» */
+/* 17.11, her words «i bayağı aşağıda kalmış… çok siyah boşluk var»: the steps closer to the page's head */
+body[data-page="nasil"] .page-head + .sec { padding-top: clamp(14px, 2.4vw, 32px); }
+body[data-page="nasil"] .steps li { padding-top: 12px; }
