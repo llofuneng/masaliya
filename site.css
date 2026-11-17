@@ -1347,3 +1347,14 @@ body[data-page="kiz"] .page-head .wrap, body[data-page="erkek"] .page-head .wrap
 @media (prefers-reduced-motion: reduce) { .wa svg { animation: none; } .wa { transition: opacity .25s; } }
 /* 17.11, her words «Desktop'a koymayalım»: no floating WhatsApp flag on a computer; the footer's WhatsApp link stays */
 @media (min-width: 1001px) and (hover: hover) and (pointer: fine) { .wa { display: none !important; } }
+/* 17.11, her choice: on the home page the flag slides right out of sight once the visitor heads to the books (it sat over the cards)
+   and comes back beside the seal at the top */
+.wa.wa-up.wa-away, .wa.wa-up.wa-away:hover { transform: translateY(var(--wa-lift, 0px)) translateX(115%); pointer-events: none; }
+.wa { transition: transform .6s cubic-bezier(.45,.05,.25,1), translate .25s ease, opacity .25s; }
+/* the book page's WhatsApp line, under the order buttons: WhatsApp's own logo (small) and a quiet sentence */
+.buy-wa { display: inline-flex; align-items: center; gap: 10px; justify-self: center; align-self: center; margin: 2px auto 0; padding: 8px 6px;
+  color: var(--muted); font-size: var(--t-sm); text-decoration: none; }
+.buy-wa svg { width: 24px; height: 24px; flex: none; }
+.buy-wa b { font-weight: 500; color: var(--gold-pale); text-decoration: underline; text-decoration-color: rgba(226,181,107,.4); text-underline-offset: 3px; }
+.buy-wa:hover b, .buy-wa:focus-visible b { text-decoration-color: var(--gold); }
+#buy .form-note:empty { display: none; }   /* the empty message line takes no room (17.11); it opens only when there is something to say */

@@ -636,8 +636,9 @@ function renderChrome() {
       </div>
     </div>`;
   }
-  // WhatsApp concierge, always at hand, on the home page too (17.11, her «ana sayfaya da bu ikonu koyacağız»)
-  {
+  // WhatsApp concierge: since 17.11 (her choice) a floating flag only on the home page, beside the seal on the first screen; on the
+  // other pages it sat over the book cards — there the footer link, and on a book page a line under the order buttons
+  if (document.body.dataset.page === 'home') {
     const wa = document.createElement('a');
     wa.className = 'wa'; wa.href = waLink(); wa.target = WHATSAPP ? '_blank' : ''; wa.rel = 'noopener';
     wa.setAttribute('aria-label', 'WhatsApp’tan danışmanınıza yazın'); wa.title = 'WhatsApp’tan danışmanınıza yazın';
@@ -656,7 +657,7 @@ function renderChrome() {
     };
     const waPlace = () => {
       waTick = 0;
-      if (seal) wa.classList.toggle('wa-up', scrollY < innerHeight * .25 && wa.style.getPropertyValue('--wa-lift') !== '0px');
+      if (seal) { wa.classList.toggle('wa-up', wa.style.getPropertyValue('--wa-lift') !== '0px'); wa.classList.toggle('wa-away', scrollY > innerHeight * .25); }
       const bar = document.getElementById('buybar'), barUp = bar && !bar.classList.contains('away') && !bar.classList.contains('hold') && getComputedStyle(bar).display !== 'none';
       wa.style.bottom = barUp ? `${bar.offsetHeight + 14}px` : '';
       const r = wa.getBoundingClientRect();
@@ -1287,6 +1288,7 @@ function renderProduct() {
         </div>
         <div class="secure-pay"><span class="cards" aria-label="Visa, Mastercard, Apple Pay, Google Pay">${CARD_MARKS}</span></div>
         <p class="form-note" id="buy-note" aria-live="polite"></p>
+        <a class="buy-wa" href="${waLink()}"${WHATSAPP ? ' target="_blank" rel="noopener"' : ''}>${WA_FLAG_SVG}<span>Sorunuz mu var? <b>WhatsApp’tan yazın</b></span></a>   <!-- 17.11: in the page, at the moment of decision, instead of a floating button over the cards -->
       </form>`
       : book ? (() => {
         const set = SETS.find(st => st.id === 'masal-seti'), sup = SETS.find(st => st.id === 'super-set');
