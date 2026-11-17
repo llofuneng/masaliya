@@ -857,9 +857,22 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
 /* 17.11, her words: the summary in the middle between the title and the button, not stuck to the title */
 .card.book:has(.card-cta) > p { margin-block: auto; }
 .card.book:has(.card-cta) > p + .card-cta { margin-top: 0; }   /* the free room goes only above and below the summary */
-.card .card-cta:hover, .card .card-cta:focus-visible { background: var(--gold); color: var(--ink); }   /* only the button lights up (17.11) */
+/* the gold button (17.11, her «dikkat çekecek»): gold like the titles, dark letters, the words side by side (the .btn gap made
+   «İNCELE   +   SİPARİŞ VER» fall apart), a soft light sweeps over it every 7 s */
+.card .card-cta { gap: 0; position: relative; overflow: hidden; border: 1px solid #f4dfb3; color: #3b1410; font-weight: 600; letter-spacing: .12em;
+  background: linear-gradient(180deg, #f8e6b8 0%, #e6bb6f 52%, #c9964c 100%);
+  box-shadow: 0 8px 18px -10px rgba(226,181,107,.75), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(120,70,20,.25);
+  transition: box-shadow .3s ease, filter .3s ease; }
+.card .card-cta::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: -40%; width: 30%; transform: skewX(-20deg); pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: ctaSheen 7s ease-in-out 1.5s infinite; }
+@keyframes ctaSheen { 0%, 70% { left: -40%; } 100% { left: 130%; } }
+.card .card-cta:hover, .card .card-cta:focus-visible { color: #3b1410; background: linear-gradient(180deg, #fbecc6 0%, #ecc47c 52%, #d2a056 100%);
+  box-shadow: 0 10px 24px -8px rgba(226,181,107,.9), 0 0 0 3px rgba(226,181,107,.22), inset 0 1px 0 rgba(255,255,255,.6); }   /* only the button lights up */
+@media (prefers-reduced-motion: reduce) { .card .card-cta::after { animation: none; display: none; } }
+/* the narrowest phones (320 px): «İNCELE + SİPARİŞ VER» still on one line inside the gold button */
+@media (max-width: 350px) { #grid .card a.card-cta, #home-grid .card a.card-cta, #related .card a.card-cta { letter-spacing: .02em; padding-inline: 3px; } #grid a.card-cta .cta-plus, #home-grid a.card-cta .cta-plus, #related a.card-cta .cta-plus { margin: 0 .25em; } }
 /* the «+» of «İncele + Sipariş ver» in the middle between the words and at the height of the capitals (17.11) */
-.card-cta .cta-plus { display: inline-block; margin: 0 .42em 0 .32em; letter-spacing: 0; font-size: 1.15em; line-height: 1; transform: translateY(-.06em); }
+.card-cta .cta-plus { display: inline-block; margin: 0 .38em; letter-spacing: 0; font-size: 1.15em; line-height: 1; transform: translateY(-.06em); }
 
 /* phones: compact book tiles in the lists (cover beside the text), so several stories fit on a screen */
 @media (max-width: 620px) {
@@ -867,7 +880,7 @@ body[data-page="kiz"] .price-note, body[data-page="erkek"] .price-note { margin-
   #grid .card .visual, #home-grid .card .visual, #related .card .visual { grid-row: 1 / -1; width: 100%; }
   #grid .card h3, #home-grid .card h3, #related .card h3 { font-size: var(--t-lg); line-height: 1.2; }
   #grid .card p, #home-grid .card p, #related .card p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: var(--t-sm); line-height: 1.45; margin: 0; }
-  #grid .card .card-cta, #home-grid .card .card-cta, #related .card .card-cta { align-self: end; min-height: 38px; padding: 8px 6px; font-size: var(--t-xs); letter-spacing: .1em; white-space: nowrap; }   /* «İncele + Sipariş ver» on one line (16.11) */
+  #grid .card .card-cta, #home-grid .card .card-cta, #related .card .card-cta { align-self: end; min-height: 38px; padding: 8px 6px; font-size: var(--t-xs); letter-spacing: .08em; white-space: nowrap; }   /* «İncele + Sipariş ver» on one line (16.11) */
   #grid .card .meta, #home-grid .card .meta, #related .card .meta { font-size: var(--t-xs); }
 }
 
