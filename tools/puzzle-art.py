@@ -25,6 +25,16 @@ def edge(p0, p1, sign):
     pts.append((x1, y1))
     return pts
 
+def wood(size, base, seed=0):
+    """plain birch plywood: the base colour with long soft grain streaks"""
+    w, h = size; rnd = random.Random(seed)
+    g = Image.new('L', (max(1, w // 6), h), 128); gd = ImageDraw.Draw(g)
+    for y in range(0, h, 3): gd.line((0, y, g.width, y), fill=128 + int(22 * math.sin(y / (9 + rnd.random() * 4)) + rnd.randint(-8, 8)))
+    g = g.resize((w, h)).filter(ImageFilter.GaussianBlur(1.5))
+    r_, g_, b_ = base
+    return Image.merge('RGBA', (g.point(lambda v: max(0, min(255, r_ + (v - 128)))), g.point(lambda v: max(0, min(255, g_ + (v - 128) * 3 // 4))),
+                                g.point(lambda v: max(0, min(255, b_ + (v - 128) // 2))), Image.new('L', size, 255)))
+
 def build(src, dst, seed, faces=()):
     rnd = random.Random(seed)
     im = Image.open(src).convert('RGB')
@@ -38,19 +48,25 @@ def build(src, dst, seed, faces=()):
     def hseam(r, c): return [P(c, r), P(c + 1, r)] if r in (0, ROWS) else edge(P(c, r), P(c + 1, r), hs[r][c])
     def vseam(r, c): return [P(c, r), P(c, r + 1)] if c in (0, COLS) else edge(P(c, r), P(c, r + 1), vs[r][c])
     def piece(r, c): return hseam(r, c) + vseam(r, c + 1) + hseam(r + 1, c)[::-1] + vseam(r, c)[::-1]
-    # the seams: a dark cut with a fine light edge beside it, so they read as real cuts
-    lines = Image.new('RGBA', im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lines)
+    # 17.11, her words «çok siyah çizgi gibi… tahta efekti vermiyor»: the seams as real laser cuts in a wooden board — a hairline gap in
+    # warm burnt wood (not black), each piece's edge bevelled: lit on the upper-left side, in shade on the lower-right
     seams = [hseam(r, c) for r in range(1, ROWS) for c in range(COLS)] + [vseam(r, c) for r in range(ROWS) for c in range(1, COLS)]
-    for s in seams: d.line([(x + 2, y + 2) for x, y in s], fill=(255, 244, 225, 150), width=3, joint='curve')
-    for s in seams: d.line(s, fill=(38, 26, 20, 255), width=4, joint='curve')
-    # softer seams, and a soft clearing over each face (with a margin), where they nearly vanish
+    cut = Image.new('L', im.size, 0); d = ImageDraw.Draw(cut)
+    for sm in seams: d.line(sm, fill=255, width=3, joint='curve')
+    # soft clearing over each face (with a margin), where the cuts nearly vanish
     fade = Image.new('L', im.size, 255); fd = ImageDraw.Draw(fade)
     for x0, y0, x1, y1 in faces:
         mx_, my_ = (x1 - x0) * .28, (y1 - y0) * .28
-        fd.ellipse(((x0 - mx_) * W * S, (y0 - my_) * H * S, (x1 + mx_) * W * S, (y1 + my_) * H * S), fill=28)
+        fd.ellipse(((x0 - mx_) * W * S, (y0 - my_) * H * S, (x1 + mx_) * W * S, (y1 + my_) * H * S), fill=40)
     fade = fade.filter(ImageFilter.GaussianBlur(40))
-    lines.putalpha(ImageChops.multiply(lines.getchannel('A'), fade.point(lambda v: v * 165 // 255)))
-    art = im.copy(); art.alpha_composite(lines)
+    soft = cut.filter(ImageFilter.GaussianBlur(2.2))
+    lit = ImageChops.subtract(soft.transform(im.size, Image.AFFINE, (1, 0, 2.5, 0, 1, 2.5)), soft)      # the edge facing the light
+    shade = ImageChops.subtract(soft.transform(im.size, Image.AFFINE, (1, 0, -2.5, 0, 1, -2.5)), soft)  # the edge turned away
+    art = im.copy()
+    def layer(rgb, mask, k): art.alpha_composite(Image.merge('RGBA', (*[Image.new('L', im.size, v) for v in rgb], ImageChops.multiply(mask.point(lambda v: min(255, int(v * k))), fade))))
+    layer((255, 236, 200), lit, 1.6)          # a warm light on the bevel
+    layer((60, 34, 18), shade, 1.5)           # its shadow
+    layer((92, 58, 34), cut.filter(ImageFilter.GaussianBlur(.6)), .78)   # the cut itself: burnt wood brown, slightly see-through
     # two pieces out, away from the faces: one at a side edge, one in the bottom row, and their loose copies not over a face
     def hits(cx, cy, rw, rh):
         return any(not (cx + rw < x0 * W * S - 20 or cx - rw > x1 * W * S + 20 or cy + rh < y0 * H * S - 20 or cy - rh > y1 * H * S + 20) for x0, y0, x1, y1 in faces)
@@ -67,24 +83,22 @@ def build(src, dst, seed, faces=()):
     for (r, c) in picks:   # the holes: the wooden board, a soft shadow along their rim
         poly = piece(r, c)
         m = Image.new('L', im.size, 0); ImageDraw.Draw(m).polygon(poly, fill=255)
-        board = Image.new('RGBA', im.size, (74, 50, 34, 255))
-        grain = Image.effect_noise(im.size, 18).convert('L').point(lambda v: v // 6)
-        board = ImageChops.subtract(board, Image.merge('RGBA', (grain, grain, grain, Image.new('L', im.size, 0))))
+        board = wood(im.size, (176, 132, 88), seed=r * 7 + c)
         out.paste(board, (0, 0), m)
-        rim = Image.new('L', im.size, 0); ImageDraw.Draw(rim).line(poly + poly[:1], fill=200, width=10)
-        rim = ImageChops.multiply(rim.filter(ImageFilter.GaussianBlur(6)), m)
-        out.paste((20, 12, 8, 255), (0, 0), rim)
+        rim = Image.new('L', im.size, 0); ImageDraw.Draw(rim).line(poly + poly[:1], fill=170, width=14)
+        rim = ImageChops.multiply(rim.filter(ImageFilter.GaussianBlur(8)), m)
+        out.paste((70, 44, 24, 255), (0, 0), rim)
     for (r, c), ((mx, my), ang) in zip(picks, moves):   # the loose pieces, picture up
         poly = piece(r, c)
         xs, ys = [p[0] for p in poly], [p[1] for p in poly]; bx0, by0, bx1, by1 = int(min(xs)) - 8, int(min(ys)) - 8, int(max(xs)) + 8, int(max(ys)) + 8
         m = Image.new('L', im.size, 0); ImageDraw.Draw(m).polygon(poly, fill=255)
         pc = Image.new('RGBA', im.size, (0, 0, 0, 0)); pc.paste(art, (0, 0), m)
         pc = pc.crop((bx0, by0, bx1, by1)); pm = m.crop((bx0, by0, bx1, by1))
-        edgeline = Image.new('RGBA', pc.size, (0, 0, 0, 0))
-        ImageDraw.Draw(edgeline).line([(x - bx0, y - by0) for x, y in poly + poly[:1]], fill=(38, 26, 20, 230), width=4)
-        pc.alpha_composite(edgeline)
+        rimm = Image.new('L', pc.size, 0); ImageDraw.Draw(rimm).line([(x - bx0, y - by0) for x, y in poly + poly[:1]], fill=255, width=5)
+        rimm = ImageChops.multiply(rimm.filter(ImageFilter.GaussianBlur(2)), pm)
+        pc.alpha_composite(Image.merge('RGBA', (*[Image.new('L', pc.size, v) for v in (255, 238, 205)], rimm.point(lambda v: v * 3 // 5))))
         # the wooden thickness under the piece
-        side = Image.new('RGBA', pc.size, (120, 84, 52, 255)); side.putalpha(pm)
+        side = wood(pc.size, (196, 156, 108), seed=c); side.putalpha(pm)
         piece_img = Image.new('RGBA', (pc.width + 12, pc.height + 12), (0, 0, 0, 0))
         piece_img.alpha_composite(side, (5, 7)); piece_img.alpha_composite(pc, (0, 0))
         piece_img = piece_img.rotate(ang, resample=Image.BICUBIC, expand=True)
