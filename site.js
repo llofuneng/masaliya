@@ -1229,8 +1229,8 @@ function renderProduct() {
     const wantSet = SETS.some(st => st.id === askedSet) ? askedSet : SETS[0].id;
     const buy = orderable ? `
       <form id="buy" class="info" style="gap:18px" autocomplete="off">
-        ${p.hero ? `<label class="field" for="hero-name"><span class="step">1 · Kahramanın adı</span><input id="hero-name" class="script" type="text" maxlength="16" placeholder="Adı" autocomplete="off"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
-        <label class="field" for="hero-about"><span class="step">2 · Kahraman hakkında <span class="opt">(opsiyonel<sup>*</sup>)</span></span><textarea id="hero-about" rows="1" maxlength="400" placeholder="Örneğin: 5 yaşında, kıvırcık saçlı, dinozor sever"></textarea></label>
+        ${p.hero ? `<label class="field" for="kahraman"><span class="step">1 · Kahramanın adı</span><input id="kahraman" name="kahraman-search" class="script" type="text" maxlength="16" placeholder="Adı" autocomplete="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"><small class="hint">Bu isim kapakta ve her sayfada yer alır.</small></label>` : ''}
+        <label class="field" for="hero-about"><span class="step">2 · Kahraman hakkında <span class="opt">(opsiyonel<sup>*</sup>)</span></span><textarea id="hero-about" name="about-search" rows="1" maxlength="400" autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" placeholder="Örneğin: 5 yaşında, kıvırcık saçlı, dinozor sever"></textarea></label>
         <div class="field"><span class="step">3 · Üç fotoğraf</span>
           <div class="slots">
             ${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="ph-${i + 1}"><input id="ph-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}
@@ -1260,7 +1260,7 @@ function renderProduct() {
           <span class="gift-text"><b>Hediye Kutusu</b><small>Kurdele, Masaliya mührü ve el yazısıyla not kartı</small></span>
           <span class="gift-price">${GIFT_BOX_PRICE ? '+ ' + fmt(GIFT_BOX_PRICE) : 'Fiyat yakında'}</span>
         </label>
-        <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" rows="3" maxlength="240" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
+        <label class="field" for="gift-note" id="gift-note-wrap" hidden>Not kartına ne yazalım?<textarea id="gift-note" name="note-search" rows="3" maxlength="240" autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" placeholder="Sevgili Elif’e, ilk masalı olsun diye…"></textarea></label>
         <div class="total"><span>Toplam <small>Türkiye içi kargo ücretsiz</small></span><strong id="total"></strong></div>
         ${p.type === 'kitap' ? `<div id="eta-hard">${ETA()}</div><p class="eta" id="eta-digital" hidden>Dijital kitap: <b>3 iş günü içinde</b> e-postanıza gelir<small>Önizlemeyi onayladığınızda PDF hemen gönderilir</small></p>` : ''}
         <label class="consent" for="ok-kvkk"><input type="checkbox" id="ok-kvkk"><span>Fotoğrafların bu kitap için işlenmesine ve aktarılmasına, <a href="kvkk.html#acik-riza" target="_blank">KVKK Aydınlatma Metni</a> kapsamında açık rıza veriyorum.</span></label>   <!-- 17.11: shorter (the subject, the purpose, processing and transfer, the notice and «açık rıza» all kept), back down just before the order buttons -->
@@ -1344,7 +1344,7 @@ function renderProduct() {
       root.querySelectorAll('[data-shot]').forEach(x => x.setAttribute('aria-current', String(x === b)));
     }));
     // Live name: in the title, on the cover, in the dedication suggestion
-    const nameIn = document.getElementById('hero-name');
+    const nameIn = document.getElementById('kahraman');
     let coverShown = true, coverTimer = 0;
     const mainBox = root.querySelector('.gallery .main, #cover-box'), coverCanvas = document.createElement('canvas');
     coverCanvas.className = 'cover-name-canvas'; coverCanvas.setAttribute('aria-hidden', 'true');
@@ -1554,20 +1554,31 @@ function renderProduct() {
 
     // inside the book: spreads for story books, single pages for coloring books
     if (inner) setupViewer([[shots[0][0], shots[0][1], 'cover'], ...inner, ...shots.slice(1).map(([src, alt]) => [src, alt, 'back'])], on => { coverShown = on; paintCover(); });
-    // to step 1 of the order form, the hero's name, just under the sticky header (17.11)
-    function toName() {
-      const t = document.querySelector('label[for="hero-name"]') || document.querySelector('.p-head');
+    // to step 1 of the order form, the hero's name, just under the sticky header (17.11). Her words: the page glides down slowly, not a jump —
+    // our own ease (about 1.2–1.6 s), because the browser's smooth scroll is quick and iOS cuts it short; a touch or the wheel stops it
+    function toName(done) {
+      const t = document.querySelector('label[for="kahraman"]') || document.querySelector('.p-head');
       const head = document.getElementById('site-head'), stick = head && getComputedStyle(head).position === 'sticky' ? head.offsetHeight : 0;
-      scrollTo({ top: t.getBoundingClientRect().top + scrollY - stick - 16, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      const from = scrollY, to = Math.max(0, Math.min(t.getBoundingClientRect().top + scrollY - stick - 16, document.documentElement.scrollHeight - innerHeight));
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches || Math.abs(to - from) < 4) { scrollTo({ top: to, behavior: 'instant' }); return done && done(); }
+      const dur = Math.min(1600, 900 + Math.abs(to - from) * .3), t0 = performance.now(), ease = x => (1 - Math.cos(Math.PI * x)) / 2;   // a soft, even glide
+      let stop = false; const halt = () => { stop = true; }, evs = ['wheel', 'touchstart', 'keydown'];
+      evs.forEach(n => addEventListener(n, halt, { passive: true, once: true }));
+      (function step(now) {
+        if (stop) return;
+        const k = Math.min(1, (now - t0) / dur); scrollTo({ top: from + (to - from) * ease(k), behavior: 'instant' });   // each step instant: html's own smooth scroll would fight it
+        if (k < 1) requestAnimationFrame(step); else { evs.forEach(n => removeEventListener(n, halt)); done && done(); }
+      })(t0);
     }
     // phone: a slim bar with «Masalını oluştur» stays at hand until the order form is on screen
     const bar = document.getElementById('buybar');
     if (bar && buyF && 'IntersectionObserver' in window) {
       new IntersectionObserver(([en]) => bar.classList.toggle('away', en.isIntersecting), { rootMargin: '0px 0px -20% 0px' }).observe(buyF);
-      // «Masalını oluştur» (17.11): straight to step 1, the hero's name, ready to type (the phone keyboard opens)
+      // «Masalını oluştur»: glides down to step 1, the hero's name. On a phone or tablet no focus, so no keyboard and no AutoFill bar
+      // pops up on its own — they tap the field when ready; with a mouse the cursor waits in the field once the page has arrived
       bar.querySelector('a').addEventListener('click', e => {
-        e.preventDefault(); toName();
-        const inp = document.getElementById('hero-name'); if (inp) { try { inp.focus({ preventScroll: true }); } catch (x) { inp.focus(); } }
+        e.preventDefault();
+        toName(() => { const inp = document.getElementById('kahraman'); if (inp && matchMedia('(hover: hover) and (pointer: fine)').matches) { try { inp.focus({ preventScroll: true }); } catch (x) { inp.focus(); } } });
       });
     }
 
