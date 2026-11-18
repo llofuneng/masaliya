@@ -354,6 +354,15 @@ const SPREADS_ATATURK = [
   ['img/ataturkten-yeni-yil-dilegi-s6.jpg', "1 Ocak 1929: balıkçıyla birlikte H-A-S-A-N"],
   ['img/ataturkten-yeni-yil-dilegi-s7.jpg', "Gece yarısı: yeni takvime ilk dilek"]
 ];
+const SPREADS_ATATURK_KIZ = [
+  ['img/ataturkten-yeni-yil-dilegi-kiz-s1.jpg', "Yılbaşı gecesi: takvimin son yaprağı kâğıttan bir kuş oluyor"],
+  ['img/ataturkten-yeni-yil-dilegi-kiz-s2.jpg', "Bursa, 1922: Atatürk'e bir gül"],
+  ['img/ataturkten-yeni-yil-dilegi-kiz-s3.jpg', "Samsun, 1924: «Mürşit, yol gösteren demek»"],
+  ['img/ataturkten-yeni-yil-dilegi-kiz-s4.jpg', "Ankara, 1926'nın son gecesi: karda kızak sevinci"],
+  ['img/ataturkten-yeni-yil-dilegi-kiz-s5.jpg', "Kayseri, 1928: kara tahtada kendi adı"],
+  ['img/ataturkten-yeni-yil-dilegi-kiz-s6.jpg', "1 Ocak 1929: bir nineyle birlikte A-Y-Ş-E"],
+  ['img/ataturkten-yeni-yil-dilegi-kiz-s7.jpg', "Gece yarısı: yeni takvime ilk dilek"]
+];
 const SPREADS_LAVIN = [
   ['img/deniz-kizi-kralligi-s1.jpg', 'Elif kumsalda deniz kabuğunu kulağına tutuyor'],
   ['img/deniz-kizi-kralligi-s2.jpg', 'Deniz kızı Mira dalgaların arasından çıkıyor'],
@@ -391,6 +400,11 @@ const PRODUCTS = [
     short: "Herkese hediye getiren Noel Baba'ya ilk kez gizlice bir sürpriz hazırlayan bir kızın yılbaşı masalı.",   // one sentence for the cards
     desc: "Noel Baba herkese hediye getirir. Peki ona kim hediye verir? Hiç kimse! Yılbaşı gecesi kahramanımız en küçük ren geyiğiyle Karlar Ülkesi'ne uçar. Dostlarıyla birlikte Noel Baba'nın sırrını bulacak, çamını süsleyecek ve şafak sökmeden ona gizlice bir sürpriz hazırlayacak. Noel Baba ne diyecek? Sürprizin, dostluğun ve sevindirmenin masalı.",
     extra: [['img/noel-babaya-surpriz-kiz-arka.jpg', 'Arka kapak']], spreads: SPREADS_NOEL_KIZ },
+  { id: 'ataturkten-yeni-yil-dilegi-kiz', coverTitle: { box: [0, .22], pre: "Atatürk'ten", post: 'İçin', sub: 'Yeni Yıl Dileği', font: 'sans', preSize: 41.5, nameSize: 72.6, subSize: 43.6, block: 186, top: 11, gap: 2.2, dx: 1.36, fx: .6 }, aud: 'kiz', type: 'kitap', status: 'hazir', pre: "Atatürk'ten", hero: 'Deniz', title: 'İçin Yeni Yıl Dileği',
+    img: 'img/ataturkten-yeni-yil-dilegi-kiz-kapak.jpg', clean: 'img/ataturkten-yeni-yil-dilegi-kiz-temiz.jpg', alt: "Atatürk'ten Deniz İçin Yeni Yıl Dileği kapağı: ışıklı bir yılbaşı akşamında Atatürk, kâğıttan bir kuş tutan kızı omuzlarından kucaklıyor",
+    short: "Kâğıttan bir kuşla takvimin eski sayfalarına uçup Atatürk'le tanışan bir kızın yılbaşı masalı.",   // one sentence for the cards
+    desc: "Yılbaşı gecesi eski takvimin son yaprağı kâğıttan bir kuşa dönüşür ve kahramanımızı takvimin eski sayfalarına, Atatürk'ün yanına götürür: Bursa'da ona bir gül verir, Kayseri'de kara tahtaya kendi adını yazar, yeni yılın ilk gününde yaşlı bir nineye adını yazmayı öğretir… Yeni yıla öğrenerek ve öğrendiğini paylaşarak başlamanın masalı.",
+    extra: [['img/ataturkten-yeni-yil-dilegi-kiz-arka.jpg', 'Arka kapak']], spreads: SPREADS_ATATURK_KIZ },
   { id: 'dunyada-yilbasi-kiz', coverTitle: { box: [0, .22], sub: 'ile Dünyada Yılbaşı', font: 'sans', nameSize: 122, subSize: 40, block: 165, top: 12, fx: .87 }, aud: 'kiz', type: 'kitap', status: 'hazir', hero: 'Melis', title: 'ile Dünyada Yılbaşı',
     img: 'img/dunyada-yilbasi-kiz-kapak.jpg', clean: 'img/dunyada-yilbasi-kiz-temiz.jpg', alt: 'Melis ile Dünyada Yılbaşı kapağı: uçan eski bir bavulun üstünde el sallayan kız, yanında minik bir yıldız, aşağıda gece şehirleri',
     short: 'Minik bir yıldızla bir gecede dünyayı dolaşıp her ülkede yeni yılı karşılayan bir kızın masalı.',   // one sentence for the cards
