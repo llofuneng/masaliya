@@ -1422,7 +1422,7 @@ function renderProduct() {
           <span class="slot-hint" id="slot-hint">Yüzü net görünen, yakın çekim 3 fotoğraf. Uygun olmayanı hemen size söyleriz.</span>
         </div>
         ${p.hero && p.type === 'kitap' ? `<div class="more-heroes" id="more-heroes"></div>
-        <button type="button" class="add-hero" id="add-hero"><span class="ah-plus" aria-hidden="true">+</span><span class="ah-text"><b>Bir kahraman daha ekle</b><small>Kardeşi, annesi, babası, arkadaşı ya da evcil hayvanı · ücretsiz</small></span></button>` : ''}
+        <button type="button" class="add-hero" id="add-hero"><span class="ah-plus" aria-hidden="true">+</span><span class="ah-text"><b id="add-hero-t">İkinci kahramanı ekle</b><small>Kardeşi, annesi, babası, arkadaşı ya da evcil hayvanı · ücretsiz</small></span></button>` : ''}
         <span class="step">4 · Seçenekler</span>
         ${options}
         ${p.type === 'kitap' ? `
@@ -1699,13 +1699,15 @@ function renderProduct() {
     }
     const mainSet = document.getElementById('slot-msgs') ? photoSet(document.getElementById('slot-msgs').closest('.field')) : { slots: [], checked: [], busy: () => false, missing: () => [] };
     const slots = mainSet.slots, checked = mainSet.checked;
-    // 18.11, her words «Добавить еще одного героя»: up to two more heroes in the book — free. Each: a name, who they are to the hero
+    // 18.11, her words «Добавить еще одного героя»: up to two more heroes in the book — free; numbered as the 2nd and the 3rd hero
+    // (her words: «не экстра героя, а второго героя… третьего героя»). Each: a name, who they are to the hero
     // (written by the customer: ablası, dedesi, kedisi…) and three photos; a pet's photos are taken too
     const MAX_EXTRA = 2, extraHeroes = [], moreBox = document.getElementById('more-heroes'), addHero = document.getElementById('add-hero');
     let heroSeq = 0;
     const relabel = () => {
-      extraHeroes.forEach((h, k) => { h.title.textContent = `${k + 1}. ek kahraman`; });
+      extraHeroes.forEach((h, k) => { h.title.textContent = `${k + 2}. kahraman`; });
       if (addHero) addHero.hidden = extraHeroes.length >= MAX_EXTRA;
+      const t = document.getElementById('add-hero-t'); if (t) t.textContent = `${['İkinci', 'Üçüncü'][Math.min(extraHeroes.length, 1)]} kahramanı ekle`;
     };
     if (addHero && moreBox) addHero.addEventListener('click', () => {
       if (extraHeroes.length >= MAX_EXTRA) return;
@@ -1714,7 +1716,7 @@ function renderProduct() {
       el.innerHTML = `<div class="hm-head"><span class="step hm-title" id="hm-t-${n}"></span><button type="button" class="hm-del">Kaldır</button></div>
         <div class="hm-fields">
           <label class="field" for="hm-ad-${n}">Adı<input id="hm-ad-${n}" name="ek-ad-search-${n}" class="script" type="text" maxlength="16" placeholder="Adı" ${off}></label>
-          <label class="field" for="hm-kim-${n}">Kahramanın nesi?<input id="hm-kim-${n}" name="ek-kim-search-${n}" type="text" maxlength="30" placeholder="Örneğin: ablası, dedesi, kedisi" ${off}></label>
+          <label class="field" for="hm-kim-${n}">1. kahramanın nesi?<input id="hm-kim-${n}" name="ek-kim-search-${n}" type="text" maxlength="30" placeholder="Örneğin: ablası, dedesi, kedisi" ${off}></label>
         </div>
         <div class="field hm-photos">
           <div class="slots">${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="hm-ph-${n}-${i + 1}"><input id="hm-ph-${n}-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}</div>
@@ -1748,9 +1750,9 @@ function renderProduct() {
       const missing = slots.map((sl, k) => k).filter(k => !checked[k] || !(checked[k].level === 'ok' || checked[k].accepted));
       if (missing.length) return say(`Lütfen 3 fotoğrafın hepsini uygun fotoğraflarla tamamlayın: ${missing.map(k => `${k + 1} · ${PHOTO_SLOTS[k]}`).join(', ')}.`, slots[missing[0]].querySelector('input'));
       for (const [k, h] of extraHeroes.entries()) {
-        const who = `${k + 1}. ek kahraman`;
+        const who = `${k + 2}. kahraman`;
         if (!h.name.value.trim()) return say(`Lütfen ${who}ın adını yazın.`, h.name);
-        if (!h.rel.value.trim()) return say(`Lütfen ${who} için «Kahramanın nesi?» kutusunu doldurun (örneğin: ablası, kedisi).`, h.rel);
+        if (!h.rel.value.trim()) return say(`Lütfen ${who} için «1. kahramanın nesi?» kutusunu doldurun (örneğin: ablası, kedisi).`, h.rel);
         if (h.photos.busy()) return say('Fotoğraflar kontrol ediliyor, birkaç saniye bekleyin.');
         const miss = h.photos.missing();
         if (miss.length) return say(`Lütfen ${who} için 3 fotoğrafın hepsini uygun fotoğraflarla tamamlayın: ${miss.map(j => `${j + 1} · ${PHOTO_SLOTS[j]}`).join(', ')}.`, h.photos.slots[miss[0]].querySelector('input'));
@@ -1782,7 +1784,7 @@ function renderProduct() {
         });
         if (status !== 200 || !out.id) throw new Error(out.error || 'Kitap sepete eklenemedi.');
         // the order server must have kept the extra heroes too (an older server would quietly drop them)
-        if (extraHeroes.length && (!out.extras || out.extras.length !== extraHeroes.length)) throw new Error('Ek kahramanlar şu anda kaydedilemedi.');
+        if (extraHeroes.length && (!out.extras || out.extras.length !== extraHeroes.length)) throw new Error('2. ve 3. kahramanlar şu anda kaydedilemedi.');
         if (!cart.add({ ...out, img: p.img })) {
           // the browser (often a private tab) does not let the site keep a cart: the book is saved with us, finish over WhatsApp
           btns.forEach(b => { b.disabled = false; });
