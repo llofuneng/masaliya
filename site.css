@@ -1595,3 +1595,9 @@ body[data-page="urunler"] .pr-sec { padding-bottom: 0; }
 .cart-grid > .cart-side { align-self: start; margin-top: 6px; }
 /* 17.11, her words «mobile koyma»: the side column only on a computer */
 @media (max-width: 860px) { .cart-grid > .cart-side { display: none; } }
+/* 18.11: the cart subtitle with the delivery date — even lines, the date never broken */
+.cart-lede { text-wrap: balance; }
+.lede-eta { white-space: nowrap; }
+/* 18.11: the two collection links now sit between the page head and the products panel — the same space above and below them */
+.page-head + .pr-onward { margin: clamp(22px, 3vw, 40px) auto 0; }
+.pr-onward + .pr-sec { padding-top: clamp(22px, 3vw, 40px); }

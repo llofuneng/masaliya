@@ -1052,8 +1052,7 @@ function cartSide(items, hardN) {
   return `<aside class="cart-side">
     <section class="cs-next"><h2>Sırada ne var?</h2>
       <ol><li><b>Bugün</b><span>Ödemeniz alınır, fotoğraflarınız tasarımcımıza ulaşır.</span></li>
-        <li><b>3 iş günü</b><span>Bütün sayfaların önizlemesi e-postanıza gelir.</span></li>
-        <li><b>Onayınızla</b><span>Baskı ve ücretsiz kargo · tahmini teslim ${etaRange()}</span></li></ol></section>
+        <li><b>3 iş günü</b><span>Bütün sayfaların önizlemesi e-postanıza gelir.</span></li></ol></section>
     ${picks.length ? `<section class="cs-more"><h2>Bir masal daha ekleyin</h2>${deal}
       <div class="cs-picks">${picks.map(p => `<a class="cs-pick" href="${productHref(p)}"><img src="${thumb(p.img)}" alt="" loading="lazy"><span>${esc((p.hero ? p.hero + ' ' : '') + p.title)}</span></a>`).join('')}</div></section>` : ''}
     <ul class="cs-trust"><li>Uzman Psikolog onaylı masallar</li><li>Fotoğraflarınız teslimden sonra silinir</li><li><a href="${waLink()}"${WHATSAPP ? ' target="_blank" rel="noopener"' : ''}>Sorunuz mu var? WhatsApp’tan yazın</a></li></ul>
@@ -1071,6 +1070,9 @@ function renderCart() {
     const head = document.querySelector('.page-head h1');
     if (head) head.textContent = items.length ? 'Masalınız neredeyse hazır' : 'Kimin masalını yazalım?';   // 17.11, her words: the empty cart leads on to the stories
     const lede = document.querySelector('.page-head .lede'); if (lede) lede.hidden = !items.length;   // «after you pay…» only with books in the cart
+    // 18.11, her words: «Onayınızla (tahmini teslim …)» moved from «Sırada ne var?» into this line, only when a printed book is in the cart
+    const leta = lede && lede.querySelector('.lede-eta');
+    if (leta) { const ships = items.some(it => it.cover !== 'digital'); leta.textContent = ships ? ` (tahmini teslim ${etaRange()})` : ''; leta.hidden = !ships; }
     if (!items.length) {
       // 17.11, her words «sepetiniz henüz boş… farklı bir yönlendirme, yine satışa»: an invitation instead of an empty box — the two
       // windows of the home page (a tap opens the collection), the campaign if it runs, and this season's stories to pick from
