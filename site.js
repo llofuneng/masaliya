@@ -345,6 +345,15 @@ const SPREADS_FIL = [
   ['img/karla-oynayan-fil-yavrusu-s6.jpg', "Ay tepeye gelince: TURURUUU!"],
   ['img/karla-oynayan-fil-yavrusu-s7.jpg', "Sabah karda kocaman ayak izleri ve bir kalp"]
 ];
+const SPREADS_ATATURK = [
+  ['img/ataturkten-yeni-yil-dilegi-s1.jpg', "Yılbaşı gecesi: takvimin son yaprağı kâğıttan bir kuş oluyor"],
+  ['img/ataturkten-yeni-yil-dilegi-s2.jpg', "Bursa, 1922: Atatürk'e bir gül"],
+  ['img/ataturkten-yeni-yil-dilegi-s3.jpg', "Samsun, 1924: «Mürşit, yol gösteren demek»"],
+  ['img/ataturkten-yeni-yil-dilegi-s4.jpg', "Ankara, 1926'nın son gecesi: karda kızak sevinci"],
+  ['img/ataturkten-yeni-yil-dilegi-s5.jpg', "Kayseri, 1928: kara tahtada kendi adı"],
+  ['img/ataturkten-yeni-yil-dilegi-s6.jpg', "1 Ocak 1929: balıkçıyla birlikte H-A-S-A-N"],
+  ['img/ataturkten-yeni-yil-dilegi-s7.jpg', "Gece yarısı: yeni takvime ilk dilek"]
+];
 const SPREADS_LAVIN = [
   ['img/deniz-kizi-kralligi-s1.jpg', 'Elif kumsalda deniz kabuğunu kulağına tutuyor'],
   ['img/deniz-kizi-kralligi-s2.jpg', 'Deniz kızı Mira dalgaların arasından çıkıyor'],
@@ -427,6 +436,11 @@ const PRODUCTS = [
     short: "Herkese hediye getiren Noel Baba'ya ilk kez gizlice bir sürpriz hazırlayan bir çocuğun yılbaşı masalı.",   // one sentence for the cards
     desc: "Noel Baba herkese hediye getirir. Peki ona kim hediye verir? Hiç kimse! Yılbaşı gecesi kahramanımız en küçük ren geyiğiyle Karlar Ülkesi'ne uçar. Dostlarıyla birlikte Noel Baba'nın sırrını bulacak, çamını süsleyecek ve şafak sökmeden ona gizlice bir sürpriz hazırlayacak. Noel Baba ne diyecek? Sürprizin, dostluğun ve sevindirmenin masalı.",
     extra: [['img/noel-babaya-hediye-arka.jpg', 'Arka kapak']], spreads: SPREADS_NOEL },
+  { id: 'ataturkten-yeni-yil-dilegi', coverTitle: { box: [0, .22], pre: "Atatürk'ten", post: 'İçin', sub: 'Yeni Yıl Dileği', font: 'sans', preSize: 41.5, nameSize: 72.6, subSize: 43.6, block: 186, top: 11, gap: 2.2, dx: 1.36, fx: .6 }, aud: 'erkek', type: 'kitap', status: 'hazir', pre: "Atatürk'ten", hero: 'Atlas', title: 'İçin Yeni Yıl Dileği',
+    img: 'img/ataturkten-yeni-yil-dilegi-kapak.jpg', clean: 'img/ataturkten-yeni-yil-dilegi-temiz.jpg', alt: "Atatürk'ten Atlas İçin Yeni Yıl Dileği kapağı: ışıklı bir yılbaşı akşamında Atatürk, kâğıttan bir kuş tutan çocuğu omuzlarından kucaklıyor",
+    short: "Kâğıttan bir kuşla takvimin eski sayfalarına uçup Atatürk'le tanışan bir çocuğun yılbaşı masalı.",   // one sentence for the cards
+    desc: "Yılbaşı gecesi eski takvimin son yaprağı kâğıttan bir kuşa dönüşür ve kahramanımızı takvimin eski sayfalarına, Atatürk'ün yanına götürür: Bursa'da ona bir gül verir, Kayseri'de kara tahtaya kendi adını yazar, yeni yılın ilk gününde bir balıkçıya adını yazmayı öğretir… Yeni yıla öğrenerek ve öğrendiğini paylaşarak başlamanın masalı.",
+    extra: [['img/ataturkten-yeni-yil-dilegi-arka.jpg', 'Arka kapak']], spreads: SPREADS_ATATURK },
   { id: 'dunyada-yilbasi', coverTitle: { box: [0, .22], sub: 'ile Dünyada Yılbaşı', font: 'sans', nameSize: 122, subSize: 40, block: 165, top: 12, fx: .87 }, aud: 'erkek', type: 'kitap', status: 'hazir', hero: 'Can', title: 'ile Dünyada Yılbaşı',
     img: 'img/dunyada-yilbasi-kapak.jpg', clean: 'img/dunyada-yilbasi-temiz.jpg', alt: 'Can ile Dünyada Yılbaşı kapağı: uçan eski bir bavulun üstünde el sallayan çocuk, yanında minik bir yıldız, aşağıda gece şehirleri',
     short: 'Minik bir yıldızla bir gecede dünyayı dolaşıp her ülkede yeni yılı karşılayan bir çocuğun masalı.',   // one sentence for the cards
@@ -522,7 +536,7 @@ const here = () => location.pathname.split('/').pop() || 'index.html';
 
 function fullTitle(p, name) {
   if (!p.hero) return esc(p.title);
-  return `<span class="ad">${esc(cap(name) || p.hero)}</span> ${esc(p.title)}`;
+  return `${p.pre ? esc(p.pre) + ' ' : ''}<span class="ad">${esc(cap(name) || p.hero)}</span> ${esc(p.title)}`;   // pre: a name inside the title (18.11)
 }
 function priceLine(p) {
   if (p.status !== 'hazir') return 'Yakında';
@@ -1055,7 +1069,7 @@ function cartSide(items, hardN) {
         <li><b>3 iş günü</b><span>Bütün sayfaların önizlemesi e-postanıza gelir.</span></li>
         <li><b>Onayınızla <span class="cs-eta">(tahmini teslim ${etaRange()})</span></b><span>Baskı ve ücretsiz kargo</span></li></ol></section>
     ${picks.length ? `<section class="cs-more"><h2>Bir masal daha ekleyin</h2>${deal}
-      <div class="cs-picks">${picks.map(p => `<a class="cs-pick" href="${productHref(p)}"><img src="${thumb(p.img)}" alt="" loading="lazy"><span>${esc((p.hero ? p.hero + ' ' : '') + p.title)}</span></a>`).join('')}</div></section>` : ''}
+      <div class="cs-picks">${picks.map(p => `<a class="cs-pick" href="${productHref(p)}"><img src="${thumb(p.img)}" alt="" loading="lazy"><span>${esc((p.pre ? p.pre + ' ' : '') + (p.hero ? p.hero + ' ' : '') + p.title)}</span></a>`).join('')}</div></section>` : ''}
     <ul class="cs-trust"><li>Uzman Psikolog onaylı masallar</li><li>Fotoğraflarınız teslimden sonra silinir</li><li><a href="${waLink()}"${WHATSAPP ? ' target="_blank" rel="noopener"' : ''}>Sorunuz mu var? WhatsApp’tan yazın</a></li></ul>
   </aside>`;
 }
@@ -1238,6 +1252,33 @@ function drawCoverName(canvas, img, p, name) {
     c.restore();
   }
   c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  if (ct.pre != null) {
+    // the name inside the first line (18.11, «Atatürk'ten ATLAS İçin / Yeni Yıl Dileği», white Nunito Black as the book):
+    // three pieces on one baseline, the name larger; a long name makes both lines smaller together, as in the book
+    const mm = W / 213.9, pt = .3528 * mm, font = s => `900 ${s}px ${COVER_FONTS.sans}`;
+    const piece = (t, size) => { c.font = font(size * pt); const m = c.measureText(t); return { t, size, w: m.width, a: m.actualBoundingBoxAscent, d: m.actualBoundingBoxDescent }; };
+    const line1 = k => [piece(ct.pre + ' ', ct.preSize * k), piece(name, ct.nameSize * k), piece(' ' + ct.post, ct.preSize * k)];
+    let l1 = line1(1);
+    const w1 = l1.reduce((s, r) => s + r.w, 0), k = w1 > ct.block * mm ? ct.block * mm / w1 : 1;
+    if (k < 1) l1 = line1(k);
+    const l2 = piece(ct.sub, ct.subSize * k), cx = W / 2 + (ct.dx || 0) * mm;
+    const base1 = ct.top * mm + Math.max(...l1.map(r => r.a));
+    const base2 = base1 + Math.max(...l1.map(r => r.d)) + ct.gap * mm * k + l2.a;
+    const runs = []; let x = cx - l1.reduce((s, r) => s + r.w, 0) / 2;
+    l1.forEach(r => { runs.push({ t: r.t, f: font(r.size * pt), x, y: base1 }); x += r.w; });
+    runs.push({ t: l2.t, f: font(l2.size * pt), x: cx - l2.w / 2, y: base2 });
+    c.textAlign = 'left';
+    const away = W * 4, f = ct.fx || 1;
+    const glow = (color, blur, dy = 0, times = 1) => {
+      c.save(); c.fillStyle = '#000'; c.shadowColor = color; c.shadowBlur = blur; c.shadowOffsetX = away; c.shadowOffsetY = dy;
+      for (let n = 0; n < times; n++) runs.forEach(r => { c.font = r.f; c.fillText(r.t, r.x - away, r.y); });
+      c.restore();
+    };
+    glow('rgba(40,28,18,.7)', 7 * mm * f, 0, 2);
+    glow('rgba(50,32,20,.75)', 1.2 * mm * f, 1.7 * mm * f);
+    c.save(); c.fillStyle = '#FFFFFC'; runs.forEach(r => { c.font = r.f; c.fillText(r.t, r.x, r.y); }); c.restore();
+    return;
+  }
   if (ct.font === 'sans' || ct.font === 'script') {
     const mm = W / 213.9, pt = .3528 * mm, block = ct.block * mm;
     const nameFont = s => ct.font === 'sans' ? `900 ${s}px ${COVER_FONTS.sans}` : `400 ${s}px ${COVER_FONTS.script}`;
@@ -1324,7 +1365,7 @@ function renderProduct() {
       return;
     }
     const a = AUDIENCES[p.aud];
-    if (!document.body.dataset.product) document.title = `${p.hero ? p.hero + ' ' : ''}${p.title} · Masaliya`;
+    if (!document.body.dataset.product) document.title = `${p.pre ? p.pre + ' ' : ''}${p.hero ? p.hero + ' ' : ''}${p.title} · Masaliya`;
     const crumbs = document.getElementById('crumbs');
     crumbs.innerHTML = `<a href="${a.page}">${a.name}</a> · ${p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].name}`;
 
@@ -1485,7 +1526,7 @@ function renderProduct() {
       if (!on) return;
       const img = new Image(); img.src = p.clean || p.img; if (p.clean) img.dataset.clean = '1';
       const f = p.coverTitle.font, faces = f === 'sans' ? ['900 40px "Nunito"', '800 40px "Nunito"'] : f === 'script' ? ['400 40px "Great Vibes"', 'italic 600 40px "Lora"'] : ['italic 500 40px "Cormorant Garamond"'];
-      Promise.all([img.decode(), ...faces.map(x => document.fonts.load(x, n + p.coverTitle.sub))]).then(() => drawCoverName(coverCanvas, img, p, n)).catch(() => {});
+      Promise.all([img.decode(), ...faces.map(x => document.fonts.load(x, n + (p.coverTitle.pre || '') + (p.coverTitle.post || '') + p.coverTitle.sub))]).then(() => drawCoverName(coverCanvas, img, p, n)).catch(() => {});
     }
     if (nameIn) {
       const sync = () => {

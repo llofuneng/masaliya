@@ -29,7 +29,7 @@ const written = [];
 
 for (const p of PRODUCTS) {
   const kind = p.aud === 'yetiskin' ? OCCASIONS[p.occ] : TYPES[p.type].one;
-  const name = `${p.hero ? p.hero + ' ' : ''}${p.title}`;
+  const name = `${p.pre ? p.pre + ' ' : ''}${p.hero ? p.hero + ' ' : ''}${p.title}`;
   const title = `${name} · ${kind} · Masaliya`;
   const desc = clip(`${kind}, ${AUDIENCES[p.aud].name.toLocaleLowerCase('tr-TR')}. ${p.desc}`, 158);
   const image = `${SITE}/${p.img || 'img/og.jpg'}`;
@@ -68,7 +68,7 @@ for (const f of ['index.html', 'kizlar.html', 'erkekler.html', 'urunler.html', '
 // the order server prices orders itself: give it the same catalogue
 const WORKER = path.join(ROOT, 'worker', 'masaliya-siparis.js');
 const catalog = {
-  books: Object.fromEntries(PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir').map(p => [p.id, { title: p.title, hero: p.hero }])),
+  books: Object.fromEntries(PRODUCTS.filter(p => p.type === 'kitap' && p.status === 'hazir').map(p => [p.id, { title: p.title, hero: p.hero, ...(p.pre ? { pre: p.pre } : {}) }])),
   prices: PRICES,
   // every set, also the ones switched off on the site: switching them back on then needs no new server code
   sets: ALL_SETS.map(({ id, name, items, discount }) => ({ id, name, items, discount })),
