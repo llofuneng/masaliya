@@ -1421,6 +1421,8 @@ function renderProduct() {
           <ul class="slot-msgs" id="slot-msgs" aria-live="polite"></ul>
           <span class="slot-hint" id="slot-hint">Yüzü net görünen, yakın çekim 3 fotoğraf. Uygun olmayanı hemen size söyleriz.</span>
         </div>
+        ${p.hero && p.type === 'kitap' ? `<div class="more-heroes" id="more-heroes"></div>
+        <button type="button" class="add-hero" id="add-hero"><span class="ah-plus" aria-hidden="true">+</span><span class="ah-text"><b>Bir kahraman daha ekle</b><small>Kardeşi, annesi, babası, arkadaşı ya da evcil hayvanı · ücretsiz</small></span></button>` : ''}
         <span class="step">4 · Seçenekler</span>
         ${options}
         ${p.type === 'kitap' ? `
@@ -1638,55 +1640,98 @@ function renderProduct() {
       extrasBox.addEventListener('change', pick); pick();
     }
     total();
-    // three photo slots: each photo is checked on the visitor's device as soon as it is chosen
-    const slots = [...root.querySelectorAll('.slot')];
-    const checked = [];   // per slot: { level, messages, blob, accepted }
-    const msgs = document.getElementById('slot-msgs');
+    // three photo slots: each photo is checked on the visitor's device as soon as it is chosen.
+    // 18.11: the same for each extra hero, in a set of its own (extra = may be a pet: no human face needed)
     let checker = null;
     const loadChecker = () => (checker = checker || import(`./photo-check.js?v=${VER}`));
-    function showMessages() {
-      if (!msgs) return;
-      // 17.11, her words: once a warning shows, the advice under the photos steps aside — the warning already says what to do
-      const hint = document.getElementById('slot-hint');
-      if (hint) hint.hidden = checked.some(r => r && (r.level === 'warn' || r.level === 'bad'));
-      msgs.innerHTML = slots.map((sl, i) => {
-        const r = checked[i];
-        if (!r || !r.messages.length) return '';
-        const buttons = r.level === 'warn' && !r.accepted ? `<span class="msg-actions"><button type="button" data-use="${i}">Yine de bu fotoğrafı kullan</button><button type="button" data-pick="${i}">Başka fotoğraf seç</button></span>`
-          : r.level === 'bad' ? `<span class="msg-actions"><button type="button" data-pick="${i}">Başka fotoğraf seç</button></span>` : '';
-        return `<li class="${r.level}${r.accepted ? ' accepted' : ''}"><b>${i + 1} · ${PHOTO_SLOTS[i]}</b> ${r.messages.map(esc).join(' ')}${r.accepted ? ' <em>Bu fotoğraf kullanılacak.</em>' : ''}${buttons}</li>`;
-      }).join('');
-    }
-    if (msgs) msgs.addEventListener('click', e => {
-      const use = e.target.closest('[data-use]'), pick = e.target.closest('[data-pick]');
-      if (use) { const i = +use.dataset.use; checked[i].accepted = true; slots[i].dataset.state = 'ok'; showMessages(); }
-      if (pick) slots[+pick.dataset.pick].querySelector('input').click();
-    });
-    // the face checker (about 15 MB) loads only when someone reaches for a photo, not when the photo boxes come near (17.11, «hız»):
-    // it had been loading with the page on a computer and slowing the cover down
-    slots.forEach((slot, i) => {
-      const input = slot.querySelector('input'), img = slot.querySelector('.slot-img');
-      // start loading the face checker as soon as someone reaches for a photo
-      ['pointerdown', 'focus'].forEach(ev => input.addEventListener(ev, () => loadChecker().then(m => m.warmUp()).catch(() => {}), { once: true }));
-      input.addEventListener('change', async () => {
-        const f = input.files[0];
-        if (!f) return;
-        slot.classList.add('filled');
-        // the whole photo, uncut, as a small printed photo (17.11, her choice C)
-        const old = img.querySelector('img'); if (old) { URL.revokeObjectURL(old.src); old.remove(); }
-        img.appendChild(Object.assign(new Image(), { alt: '', decoding: 'async', src: URL.createObjectURL(f) }));
-        slot.dataset.state = 'checking';
-        checked[i] = { level: 'checking', messages: ['Fotoğraf kontrol ediliyor…'] };
-        showMessages();
-        let r;
-        try { r = await (await loadChecker()).checkPhoto(f, i); }
-        catch (err) { r = { level: 'ok', messages: ['Otomatik kontrol yapılamadı; fotoğrafı biz kontrol edeceğiz.'], blob: f }; }
-        if (input.files[0] !== f) return;   // another photo was chosen meanwhile
-        checked[i] = r;
-        slot.dataset.state = r.level;
-        if (r.level === 'bad') input.value = '';
-        showMessages();
+    function photoSet(box, extra = false) {
+      const slots = [...box.querySelectorAll('.slot')];
+      const checked = [];   // per slot: { level, messages, blob, accepted }
+      const msgs = box.querySelector('.slot-msgs'), hint = box.querySelector('.slot-hint');
+      function showMessages() {
+        if (!msgs) return;
+        // 17.11, her words: once a warning shows, the advice under the photos steps aside — the warning already says what to do
+        if (hint) hint.hidden = checked.some(r => r && (r.level === 'warn' || r.level === 'bad'));
+        msgs.innerHTML = slots.map((sl, i) => {
+          const r = checked[i];
+          if (!r || !r.messages.length) return '';
+          const buttons = r.level === 'warn' && !r.accepted ? `<span class="msg-actions"><button type="button" data-use="${i}">Yine de bu fotoğrafı kullan</button><button type="button" data-pick="${i}">Başka fotoğraf seç</button></span>`
+            : r.level === 'bad' ? `<span class="msg-actions"><button type="button" data-pick="${i}">Başka fotoğraf seç</button></span>` : '';
+          return `<li class="${r.level}${r.accepted ? ' accepted' : ''}"><b>${i + 1} · ${PHOTO_SLOTS[i]}</b> ${r.messages.map(esc).join(' ')}${r.accepted ? ' <em>Bu fotoğraf kullanılacak.</em>' : ''}${buttons}</li>`;
+        }).join('');
+      }
+      if (msgs) msgs.addEventListener('click', e => {
+        const use = e.target.closest('[data-use]'), pick = e.target.closest('[data-pick]');
+        if (use) { const i = +use.dataset.use; checked[i].accepted = true; slots[i].dataset.state = 'ok'; showMessages(); }
+        if (pick) slots[+pick.dataset.pick].querySelector('input').click();
       });
+      // the face checker (about 15 MB) loads only when someone reaches for a photo, not when the photo boxes come near (17.11, «hız»):
+      // it had been loading with the page on a computer and slowing the cover down
+      slots.forEach((slot, i) => {
+        const input = slot.querySelector('input'), img = slot.querySelector('.slot-img');
+        // start loading the face checker as soon as someone reaches for a photo
+        ['pointerdown', 'focus'].forEach(ev => input.addEventListener(ev, () => loadChecker().then(m => m.warmUp()).catch(() => {}), { once: true }));
+        input.addEventListener('change', async () => {
+          const f = input.files[0];
+          if (!f) return;
+          slot.classList.add('filled');
+          // the whole photo, uncut, as a small printed photo (17.11, her choice C)
+          const old = img.querySelector('img'); if (old) { URL.revokeObjectURL(old.src); old.remove(); }
+          img.appendChild(Object.assign(new Image(), { alt: '', decoding: 'async', src: URL.createObjectURL(f) }));
+          slot.dataset.state = 'checking';
+          checked[i] = { level: 'checking', messages: ['Fotoğraf kontrol ediliyor…'] };
+          showMessages();
+          let r;
+          try { r = await (await loadChecker()).checkPhoto(f, i, { extra }); }
+          catch (err) { r = { level: 'ok', messages: ['Otomatik kontrol yapılamadı; fotoğrafı biz kontrol edeceğiz.'], blob: f }; }
+          if (input.files[0] !== f) return;   // another photo was chosen meanwhile
+          checked[i] = r;
+          slot.dataset.state = r.level;
+          if (r.level === 'bad') input.value = '';
+          showMessages();
+        });
+      });
+      return {
+        slots, checked,
+        busy: () => checked.some(r => r && r.level === 'checking'),
+        missing: () => slots.map((sl, k) => k).filter(k => !checked[k] || !(checked[k].level === 'ok' || checked[k].accepted))
+      };
+    }
+    const mainSet = document.getElementById('slot-msgs') ? photoSet(document.getElementById('slot-msgs').closest('.field')) : { slots: [], checked: [], busy: () => false, missing: () => [] };
+    const slots = mainSet.slots, checked = mainSet.checked;
+    // 18.11, her words «Добавить еще одного героя»: up to two more heroes in the book — free. Each: a name, who they are to the hero
+    // (written by the customer: ablası, dedesi, kedisi…) and three photos; a pet's photos are taken too
+    const MAX_EXTRA = 2, extraHeroes = [], moreBox = document.getElementById('more-heroes'), addHero = document.getElementById('add-hero');
+    let heroSeq = 0;
+    const relabel = () => {
+      extraHeroes.forEach((h, k) => { h.title.textContent = `${k + 1}. ek kahraman`; });
+      if (addHero) addHero.hidden = extraHeroes.length >= MAX_EXTRA;
+    };
+    if (addHero && moreBox) addHero.addEventListener('click', () => {
+      if (extraHeroes.length >= MAX_EXTRA) return;
+      const n = ++heroSeq, el = document.createElement('div'), off = 'autocomplete="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"';
+      el.className = 'hero-more'; el.setAttribute('role', 'group'); el.setAttribute('aria-labelledby', `hm-t-${n}`);
+      el.innerHTML = `<div class="hm-head"><span class="step hm-title" id="hm-t-${n}"></span><button type="button" class="hm-del">Kaldır</button></div>
+        <div class="hm-fields">
+          <label class="field" for="hm-ad-${n}">Adı<input id="hm-ad-${n}" name="ek-ad-search-${n}" class="script" type="text" maxlength="16" placeholder="Adı" ${off}></label>
+          <label class="field" for="hm-kim-${n}">Kahramanın nesi?<input id="hm-kim-${n}" name="ek-kim-search-${n}" type="text" maxlength="30" placeholder="Örneğin: ablası, dedesi, kedisi" ${off}></label>
+        </div>
+        <div class="field hm-photos">
+          <div class="slots">${PHOTO_SLOTS.map((t, i) => `<label class="slot" for="hm-ph-${n}-${i + 1}"><input id="hm-ph-${n}-${i + 1}" type="file" accept="image/*"><span class="slot-img"></span><span class="slot-plus" aria-hidden="true">+</span><span class="slot-state" aria-hidden="true"></span><b>${i + 1} · ${t}</b></label>`).join('')}</div>
+          <ul class="slot-msgs" aria-live="polite"></ul>
+          <span class="slot-hint">Yüzü net görünen 3 fotoğraf. Evcil hayvanın fotoğrafları da olur.</span>
+        </div>`;
+      moreBox.appendChild(el);
+      const h = { el, title: el.querySelector('.hm-title'), name: el.querySelector(`#hm-ad-${n}`), rel: el.querySelector(`#hm-kim-${n}`), photos: photoSet(el, true) };
+      h.name.addEventListener('blur', () => { if (h.name.value.trim()) h.name.value = cap(h.name.value.trim()); });
+      el.querySelector('.hm-del').addEventListener('click', () => {
+        extraHeroes.splice(extraHeroes.indexOf(h), 1); el.remove(); relabel();
+        if (!addHero.hidden) addHero.focus({ preventScroll: true });
+      });
+      extraHeroes.push(h); relabel();
+      el.classList.add('pop');
+      try { h.name.focus({ preventScroll: true }); } catch (x) { h.name.focus(); }
+      el.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     });
     const buyF = document.getElementById('buy');
     if (buyF) buyF.addEventListener('submit', async e => {
@@ -1702,6 +1747,14 @@ function renderProduct() {
       if (checked.some(r => r && r.level === 'checking')) return say('Fotoğraflar kontrol ediliyor, birkaç saniye bekleyin.');
       const missing = slots.map((sl, k) => k).filter(k => !checked[k] || !(checked[k].level === 'ok' || checked[k].accepted));
       if (missing.length) return say(`Lütfen 3 fotoğrafın hepsini uygun fotoğraflarla tamamlayın: ${missing.map(k => `${k + 1} · ${PHOTO_SLOTS[k]}`).join(', ')}.`, slots[missing[0]].querySelector('input'));
+      for (const [k, h] of extraHeroes.entries()) {
+        const who = `${k + 1}. ek kahraman`;
+        if (!h.name.value.trim()) return say(`Lütfen ${who}ın adını yazın.`, h.name);
+        if (!h.rel.value.trim()) return say(`Lütfen ${who} için «Kahramanın nesi?» kutusunu doldurun (örneğin: ablası, kedisi).`, h.rel);
+        if (h.photos.busy()) return say('Fotoğraflar kontrol ediliyor, birkaç saniye bekleyin.');
+        const miss = h.photos.missing();
+        if (miss.length) return say(`Lütfen ${who} için 3 fotoğrafın hepsini uygun fotoğraflarla tamamlayın: ${miss.map(j => `${j + 1} · ${PHOTO_SLOTS[j]}`).join(', ')}.`, h.photos.slots[miss[0]].querySelector('input'));
+      }
       if (!document.getElementById('ok-kvkk').checked) return say('Fotoğrafları kitabınız için kullanabilmemiz için açık rızanız gerekiyor.', document.getElementById('ok-kvkk'));
       if (!ORDER_API) return say('Ödeme sistemi birkaç gün içinde açılıyor. Şimdilik sipariş alamıyoruz.');
 
@@ -1709,11 +1762,13 @@ function renderProduct() {
       const item = {
         product: p.id, hero: cap(name), cover: c ? c.value : '', pdf: both, set: set ? set.value : 'tek',
         giftBox: !!(gift && gift.checked && !document.getElementById('gift-wrap').hidden),
-        giftNote: (document.getElementById('gift-note') || {}).value || '', about: (document.getElementById('hero-about') || {}).value || '', consentKvkk: true
+        giftNote: (document.getElementById('gift-note') || {}).value || '', about: (document.getElementById('hero-about') || {}).value || '', consentKvkk: true,
+        extras: extraHeroes.map(h => ({ name: cap(h.name.value.trim()), relation: h.rel.value.trim() }))
       };
       const data = new FormData();
       data.append('item', JSON.stringify(item));
       checked.forEach((r, k) => data.append(`photo${k + 1}`, r.blob, `foto-${k + 1}.jpg`));
+      extraHeroes.forEach((h, k) => h.photos.checked.forEach((r, j) => data.append(`ek${k + 1}photo${j + 1}`, r.blob, `ek${k + 1}-foto-${j + 1}.jpg`)));
       btns.forEach(b => { b.disabled = true; }); say('Fotoğraflarınız yükleniyor…');
       try {
         const { status, out } = await new Promise((done, fail) => {
@@ -1726,6 +1781,8 @@ function renderProduct() {
           x.send(data);
         });
         if (status !== 200 || !out.id) throw new Error(out.error || 'Kitap sepete eklenemedi.');
+        // the order server must have kept the extra heroes too (an older server would quietly drop them)
+        if (extraHeroes.length && (!out.extras || out.extras.length !== extraHeroes.length)) throw new Error('Ek kahramanlar şu anda kaydedilemedi.');
         if (!cart.add({ ...out, img: p.img })) {
           // the browser (often a private tab) does not let the site keep a cart: the book is saved with us, finish over WhatsApp
           btns.forEach(b => { b.disabled = false; });

@@ -65,8 +65,10 @@ function upload(src) {
 const score = (shapes, name) => (shapes.find(c => c.categoryName === name) || {}).score || 0;
 
 /* slot: 0 = from the front, 1 = slightly from the side, 2 = smiling.
+   extra: an extra hero (18.11) — may be a pet: with no human face in the photo only the light and the sharpness of the
+   middle of the picture are checked, and the photo is taken.
    Returns { level: 'ok' | 'warn' | 'bad', messages: [...], blob } */
-export async function checkPhoto(file, slot) {
+export async function checkPhoto(file, slot, { extra = false } = {}) {
   const bad = [], warn = [];
   let src;
   try { src = await open(file); }
@@ -90,14 +92,21 @@ export async function checkPhoto(file, slot) {
     return { pts, shapes: (found.faceBlendshapes[i] || {}).categories || [], box: { x0, y0, x1, y1 }, size };
   }).sort((a, b) => b.size - a.size);
 
-  if (!faces.length) {
+  if (!faces.length && extra) {
+    // no person here: a pet (or a face the finder missed); we look at every photo ourselves anyway
+    const { light, sharp } = lightAndSharpness(look, { x0: .15, y0: .15, x1: .85, y1: .85 });
+    if (light < 40) bad.push('Fotoğraf çok karanlık. Daha aydınlık bir fotoğraf seçin.');
+    else if (light > 235) bad.push('Fotoğraf çok parlak, ayrıntılar kaybolmuş. Başka bir fotoğraf seçin.');
+    else if (sharp < 6) bad.push('Fotoğraf bulanık. Net bir fotoğraf seçin.');
+    else if (sharp < 18) warn.push('Fotoğraf biraz bulanık görünüyor. Daha net bir fotoğraf daha iyi sonuç verir.');
+  } else if (!faces.length) {
     bad.push('Fotoğrafta yüz bulunamadı ya da yüz çok uzakta kaldı. Yüzün yakından ve net göründüğü bir fotoğraf seçin.');
   } else {
     const f = faces[0], b = f.box;
     if (b.x0 < .005 || b.y0 < .005 || b.x1 > .995 || b.y1 > .995) bad.push('Yüzün bir kısmı fotoğrafın dışında kalmış. Yüzün tamamen göründüğü bir fotoğraf seçin.');
-    if (f.size < .12) bad.push('Yüz çok küçük, çocuk uzakta kalmış. Daha yakından çekilmiş bir fotoğraf seçin.');
+    if (f.size < .12) bad.push(`Yüz çok küçük, ${extra ? 'kişi' : 'çocuk'} uzakta kalmış. Daha yakından çekilmiş bir fotoğraf seçin.`);
     else if (f.size < .2) warn.push('Yüz biraz küçük. Daha yakından çekilmiş bir fotoğraf daha iyi sonuç verir.');
-    if (faces[1] && faces[1].size > f.size * .5) warn.push('Fotoğrafta birden fazla kişi var. Mümkünse yalnızca kahramanın olduğu bir fotoğraf seçin.');
+    if (faces[1] && faces[1].size > f.size * .5) warn.push(`Fotoğrafta birden fazla kişi var. Mümkünse yalnızca ${extra ? 'bu kişinin' : 'kahramanın'} olduğu bir fotoğraf seçin.`);
 
     const { light, sharp } = lightAndSharpness(look, b);
     if (light < 55) bad.push('Yüz çok karanlık. Daha aydınlık bir fotoğraf seçin.');

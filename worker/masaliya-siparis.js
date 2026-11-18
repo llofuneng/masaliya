@@ -66,7 +66,7 @@ export default {
       if (req.method === 'GET' && url.pathname === '/admin') return await adminList(url, env, req);
       if (req.method === 'GET' && url.pathname === '/admin/istatistik') return await adminStats(url, env, req);
       if (req.method === 'GET' && url.pathname === '/admin/eposta') return await adminMail(url, env, req);
-      const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/foto-([123])\.jpg)?$/);
+      const m = url.pathname.match(/^\/admin\/(MSL-[A-Z0-9]{6})(?:\/(KTP-[A-Z0-9]{8})\/((?:ek[12]-)?foto-[123])\.jpg)?$/);
       if (req.method === 'GET' && m) {
         const res = await adminOrder(m[1], m[2], m[3], url, env);
         // an open order page lets "\u2190 Sipari\u015fler" lead straight to the whole order list on this browser
@@ -104,7 +104,14 @@ async function addItem(req, env) {
   if (!hero) return json({ error: 'Kahraman\u0131n ad\u0131 eksik.' }, 400);
   if (o.consentKvkk !== true) return json({ error: 'Foto\u011fraflar i\u00e7in a\u00e7\u0131k r\u0131za gerekiyor.' }, 400);
   const photos = [1, 2, 3].map(n => form.get('photo' + n));
-  if (photos.some(f => !f || typeof f === 'string' || !/^image\//.test(f.type) || f.size > MAX_PHOTO || f.size < 1000)) return json({ error: '\u00dc\u00e7 foto\u011fraf\u0131n \u00fc\u00e7\u00fc de gerekli (en fazla 12 MB).' }, 400);
+  const badPhoto = f => !f || typeof f === 'string' || !/^image\//.test(f.type) || f.size > MAX_PHOTO || f.size < 1000;
+  if (photos.some(badPhoto)) return json({ error: '\u00dc\u00e7 foto\u011fraf\u0131n \u00fc\u00e7\u00fc de gerekli (en fazla 12 MB).' }, 400);
+  // 18.11: up to two more heroes in the same book (a sibling, a parent, a friend, a pet), free; each with a name, who they are to
+  // the hero (written by the customer) and three photos of their own, kept as items/<id>/ek1-foto-1.jpg \u2026
+  const extras = (Array.isArray(o.extras) ? o.extras : []).slice(0, MAX_EXTRA).map(x => ({ name: String((x && x.name) || '').trim().slice(0, 32), relation: String((x && x.relation) || '').trim().slice(0, 40) }));
+  if (extras.some(x => !x.name)) return json({ error: 'Ek kahraman\u0131n ad\u0131 eksik.' }, 400);
+  const extraPhotos = extras.map((x, k) => [1, 2, 3].map(n => form.get(`ek${k + 1}photo${n}`)));
+  if (extraPhotos.some(ph => ph.some(badPhoto))) return json({ error: 'Ek kahraman i\u00e7in de \u00fc\u00e7 foto\u011fraf gerekli (en fazla 12 MB).' }, 400);
 
   // the price is worked out here, never taken from the browser
   const parts = set.items.map(([t, f]) => CATALOG.prices[t][f]);
@@ -116,16 +123,22 @@ async function addItem(req, env) {
   const item = {
     id: newId('KTP-', 8), status: 'sepette', created: new Date().toISOString(),
     product: o.product, title: `${book.pre ? book.pre + ' ' : ''}${hero} ${book.title}`, hero, about, cover: o.cover, pdf, set: set.id, setName: set.name,
-    contents: [CATALOG.covers[o.cover], ...(pdf ? [CATALOG.covers.digital] : []), ...set.items.map(([t]) => PART_NAMES[t])].join(' + '),
+    contents: [CATALOG.covers[o.cover], ...(pdf ? [CATALOG.covers.digital] : []), ...set.items.map(([t]) => PART_NAMES[t])].join(' + ') + (extras.length ? ' \u00b7 ' + extraLine(extras) : ''),
+    extras,
     giftBox, giftNote: giftBox ? String(o.giftNote || '').slice(0, 240) : '', ships,
     price: { set: setPrice, giftBox: giftBox ? CATALOG.giftBox : 0, total: setPrice + (giftBox ? CATALOG.giftBox : 0) }
   };
-  await Promise.all(photos.map((f, i) => env.PHOTOS.put(`items/${item.id}/foto-${i + 1}.jpg`, f.stream(), { httpMetadata: { contentType: f.type } })));
+  await Promise.all([[photos, ''], ...extraPhotos.map((ph, k) => [ph, `ek${k + 1}-`])].flatMap(([ph, pre]) => ph.map((f, i) => env.PHOTOS.put(`items/${item.id}/${pre}foto-${i + 1}.jpg`, f.stream(), { httpMetadata: { contentType: f.type } }))));
   await putJson(env, `items/${item.id}/kitap.json`, item);
   await countDay(env, 'sepet', item.product);
   return json(publicItem(item));
 }
-const publicItem = it => ({ id: it.id, product: it.product, title: it.title, contents: it.contents, setName: it.setName, cover: it.cover, giftBox: it.giftBox, giftNote: it.giftNote, price: it.price });
+const publicItem = it => ({ id: it.id, product: it.product, title: it.title, contents: it.contents, setName: it.setName, cover: it.cover, giftBox: it.giftBox, giftNote: it.giftNote, price: it.price, extras: it.extras || [] });
+const MAX_EXTRA = 2;
+// «Ek kahraman: Ali (kardeşi)» / «2 ek kahraman: Ali (kardeşi), Pamuk (kedisi)» — in the cart, on the payment page, in the mails
+const extraLine = xs => `${xs.length === 1 ? 'Ek kahraman' : xs.length + ' ek kahraman'}: ${xs.map(x => x.relation ? `${x.name} (${x.relation})` : x.name).join(', ')}`;
+// every photo kept for a book: the hero's three and the extra heroes' (deleting a key that is not there does nothing)
+const itemPhotos = dir => ['', ...Array.from({ length: MAX_EXTRA }, (_, k) => `ek${k + 1}-`)].flatMap(pre => [1, 2, 3].map(n => `${dir}/${pre}foto-${n}.jpg`));
 
 /* ---------- the cart to the payment page ---------- */
 // a promotion code for this cart (17.11): exists, active, not used up, not expired; one product only. The discount is worked out
@@ -461,7 +474,7 @@ async function adminStats(url, env, req) {
   const tot = days.reduce((t, [, d]) => ({ sepet: t.sepet + (d.sepet || 0), odemeye: t.odemeye + (d.odemeye || 0), odendi: t.odendi + (d.odendi || 0) }), { sepet: 0, odemeye: 0, odendi: 0 });
   const kit = days.reduce((m, [, d]) => { for (const [k, n] of Object.entries(d.kitaplar || {})) m[k] = (m[k] || 0) + n; return m; }, {});
   const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '\u2014';
-  const opts = items.reduce((m, it) => { m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] = (m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] || 0) + 1; if (it.set && it.set !== 'tek') m[it.setName] = (m[it.setName] || 0) + 1; if (it.giftBox) m['Hediye kutusu'] = (m['Hediye kutusu'] || 0) + 1; if (it.about) m['\u201cKahraman hakk\u0131nda\u201d dolu'] = (m['\u201cKahraman hakk\u0131nda\u201d dolu'] || 0) + 1; return m; }, {});
+  const opts = items.reduce((m, it) => { m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] = (m[it.cover === 'digital' ? 'Dijital' : it.pdf ? 'Sert kapak + PDF' : 'Sert kapak'] || 0) + 1; if (it.set && it.set !== 'tek') m[it.setName] = (m[it.setName] || 0) + 1; if (it.giftBox) m['Hediye kutusu'] = (m['Hediye kutusu'] || 0) + 1; if (it.about) m['\u201cKahraman hakk\u0131nda\u201d dolu'] = (m['\u201cKahraman hakk\u0131nda\u201d dolu'] || 0) + 1; if ((it.extras || []).length) m['Ek kahraman'] = (m['Ek kahraman'] || 0) + 1; return m; }, {});
   return page('\u0130statistik', `<p><a href="/admin">\u2190 Sipari\u015fler</a></p>${resetNote ? `<p class="flash">${esc(resetNote)}</p>` : ''}<h1>Sipari\u015f hunisi</h1>
     <h2>\u015eu an kay\u0131tl\u0131 olanlar (\u00f6denmeyenler ${UNPAID_DAYS} g\u00fcn tutulur)</h2>
     <table><tr><th>Sepete eklenen kitap</th><td>${items.length}</td></tr>
@@ -511,9 +524,9 @@ async function adminOrder(id, itemId, photo, url, env) {
   if (!o || !o.items) return new Response('Sipari\u015f bulunamad\u0131', { status: 404 });
   if (photo) {
     if (!o.items.some(it => it.id === itemId)) return new Response('Foto\u011fraf bulunamad\u0131', { status: 404 });
-    const obj = await env.PHOTOS.get(`items/${itemId}/foto-${photo}.jpg`);
+    const obj = await env.PHOTOS.get(`items/${itemId}/${photo}.jpg`);
     if (!obj) return new Response('Foto\u011fraf bulunamad\u0131', { status: 404 });
-    return new Response(obj.body, { headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, no-store', 'content-disposition': `inline; filename="${id}-${itemId}-foto-${photo}.jpg"` } });
+    return new Response(obj.body, { headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, no-store', 'content-disposition': `inline; filename="${id}-${itemId}-${photo}.jpg"` } });
   }
   const note = url.searchParams.get('not'), sent = +url.searchParams.get('gonderildi') || 0;
   const modal = sent ? `<div class="modal" id="sent" role="dialog" aria-modal="true" aria-labelledby="sent-t"><div class="box">
@@ -539,7 +552,7 @@ async function workflow(o, t, origin, env, view, note) {
   const r = o.review, c = o.cargo || {};
   let body = '';
   if (view === 'tasarim') {
-    body = `<p class="lead">M\u00fc\u015fterinin g\u00f6nderdikleri a\u015fa\u011f\u0131da: kahraman\u0131n ad\u0131, \u201cKahraman hakk\u0131nda\u201d notu ve foto\u011fraflar. Resimleri haz\u0131rlad\u0131\u011f\u0131n\u0131zda \u00f6nizlemeye ge\u00e7in.</p>
+    body = `<p class="lead">M\u00fc\u015fterinin g\u00f6nderdikleri a\u015fa\u011f\u0131da: kahraman\u0131n ad\u0131, \u201cKahraman hakk\u0131nda\u201d notu, foto\u011fraflar ve varsa ek kahramanlar. Resimleri haz\u0131rlad\u0131\u011f\u0131n\u0131zda \u00f6nizlemeye ge\u00e7in.</p>
       <a class="next" href="${href('onizleme')}">\u00d6nizlemeyi haz\u0131rla \u2192</a>`;
   } else if (view === 'onizleme') {
     const link = `${env.SITE_URL || 'https://masaliya.com'}/siparis.html?siparis=${o.id}&k=${await ctoken(env, o.id)}`;
@@ -691,10 +704,14 @@ function orderHtml(o, origin, t) {
     <table>
       <tr><th>Set</th><td>${esc(it.setName)} \u00b7 ${esc(it.contents)}</td></tr>
       ${it.about ? `<tr><th>Kahraman hakk\u0131nda</th><td>${esc(it.about)}</td></tr>` : ''}
+      ${(it.extras || []).length ? `<tr><th>Ek kahraman</th><td>${it.extras.map(x => `<b>${esc(x.name)}</b>${x.relation ? ` \u00b7 ${esc(x.relation)}` : ''}`).join('<br>')}</td></tr>` : ''}
       <tr><th>Hediye kutusu</th><td>${it.giftBox ? 'Evet' + (it.giftNote ? ` \u00b7 not: \u201c${esc(it.giftNote)}\u201d` : '') : 'Hay\u0131r'}</td></tr>
       <tr><th>Tutar</th><td>${it.price.total.toLocaleString('tr-TR')} TL</td></tr>
     </table>
-    <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(it.hero)} \u00b7 foto\u011fraf ${n}"></a>`; }).join('')}</div>`).join('');
+    ${(it.extras || []).length ? `<h3>${esc(it.hero)}</h3>` : ''}
+    <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(it.hero)} \u00b7 foto\u011fraf ${n}"></a>`; }).join('')}</div>
+    ${(it.extras || []).map((x, k) => `<h3>Ek kahraman: ${esc(x.name)}${x.relation ? ` \u00b7 ${esc(x.relation)}` : ''}</h3>
+    <div class="photos">${[1, 2, 3].map(n => { const src = `${origin}/admin/${o.id}/${it.id}/ek${k + 1}-foto-${n}.jpg?t=${t}`; return `<a href="${src}"><img src="${src}" alt="${esc(x.name)} \u00b7 foto\u011fraf ${n}"></a>`; }).join('')}</div>`).join('')}`).join('');
   return `<h1>${o.id} \u00b7 ${stageLabel(o)} ${refundBadge(o)}</h1>
     <table>
       <tr><th>Tutar</th><td>${paidSum(o).toLocaleString('tr-TR')} TL${promoNote(o)} \u00b7 ${o.items.length} kitap${o.price.discount ? ` \u00b7 2 kitap indirimi \u2212${o.price.discount.toLocaleString('tr-TR')} TL` : ''}</td></tr>
@@ -832,7 +849,7 @@ async function removeUnpaid(env) {
         if (!obj.key.endsWith(file)) continue;
         const x = await getJson(env, obj.key);
         if (!x) continue;
-        const dir = obj.key.slice(0, -file.length), photos = d => [1, 2, 3].map(n => `${d}/foto-${n}.jpg`);
+        const dir = obj.key.slice(0, -file.length), photos = itemPhotos;
         if (x.status !== 'odendi' && Date.parse(x.created) < limit) {
           await env.PHOTOS.delete(photos(dir).concat(obj.key));
         } else if (file === '/siparis.json' && x.items && !x.photosDeleted && x.history && (x.cancelled ? Date.parse(x.history.iptal) : x.stage === 'teslim' ? Date.parse(x.history.teslim) : Infinity) < Date.now() - PHOTO_DAYS * 864e5) {
