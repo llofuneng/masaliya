@@ -1,6 +1,13 @@
 /* Masaliya shared styles.
    Layout: an old private library at night. Dark mahogany ground, burgundy and candle-gold accents
    taken from the Dua cover; rooms of content separated by gold hairlines. Single dark world by design. */
+/* 18.11 (layout shift on desktop): until Cormorant arrives the browser draws the headings in Times New Roman, which is wider —
+   at 1440 px the home headline took two lines, then jumped to one and pulled the windows up 30 px. This stand-in is Times
+   made as narrow as Cormorant (one face per weight and slant), so the lines break in the same places before and after. */
+@font-face { font-family: "Cormorant Yedek"; font-weight: 300 549; font-style: normal; src: local("Times New Roman"), local("TimesNewRomanPSMT"), local("Liberation Serif"), local("Tinos"); size-adjust: 95.9%; }
+@font-face { font-family: "Cormorant Yedek"; font-weight: 550 900; font-style: normal; src: local("Times New Roman Bold"), local("TimesNewRomanPS-BoldMT"), local("Liberation Serif Bold"), local("Tinos Bold"); size-adjust: 90.4%; }
+@font-face { font-family: "Cormorant Yedek"; font-weight: 300 549; font-style: italic; src: local("Times New Roman Italic"), local("TimesNewRomanPS-ItalicMT"), local("Liberation Serif Italic"), local("Tinos Italic"); size-adjust: 88.5%; }
+@font-face { font-family: "Cormorant Yedek"; font-weight: 550 900; font-style: italic; src: local("Times New Roman Bold Italic"), local("TimesNewRomanPS-BoldItalicMT"), local("Liberation Serif Bold Italic"), local("Tinos Bold Italic"); size-adjust: 86.9%; }
 :root {
   --ink: #140b09;
   --wood: #22120e;
@@ -14,7 +21,7 @@
   --line: rgba(226,181,107,.22);
   --line-strong: rgba(226,181,107,.45);
 
-  --f-display: "Cormorant Garamond", "Cormorant", Garamond, "Times New Roman", serif;
+  --f-display: "Cormorant Garamond", "Cormorant", "Cormorant Yedek", Garamond, "Times New Roman", serif;
   --f-body: "Jost", "Futura", "Avenir Next", "Segoe UI", system-ui, sans-serif;
 
   /* the type scale (17.11): six sizes on a phone — 12, 14, 16, 20, 28, 40 px; the «-r» ones grow on wide screens */
