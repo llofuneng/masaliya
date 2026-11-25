@@ -141,12 +141,19 @@ const extraLine = xs => xs.map((x, k) => `${k + 2}. kahraman: ${x.name}${x.relat
 const itemPhotos = dir => ['', ...Array.from({ length: MAX_EXTRA }, (_, k) => `ek${k + 1}-`)].flatMap(pre => [1, 2, 3].map(n => `${dir}/${pre}foto-${n}.jpg`));
 
 /* ---------- the cart to the payment page ---------- */
-// a promotion code for this cart (17.11): exists, active, not used up, not expired; one product only. The discount is worked out
+// the campaign: the second of every two hardcover books costs less (until the date in the catalogue): item id -> TL off
+function pairCut(items) {
+  const deal = CATALOG.pairDeal && Date.now() <= Date.parse(CATALOG.pairDeal.until) ? CATALOG.pairDeal.off : 0, cut = new Map();
+  if (deal) items.filter(it => it.cover === 'hard').forEach((it, i) => { if (i % 2 === 1) cut.set(it.id, deal); });
+  return cut;
+}
+const cutSum = cut => [...cut.values()].reduce((a, b) => a + b, 0);
+// a promotion code for this cart (17.11): exists, active, not used up, not expired. A 100 % code (a free book for a blogger) is for
+// one product only; any other code (25.11, the giveaway) is for any cart, on top of the two-book discount. The discount is worked out
 // the way Stripe will apply it, so the cart shows the real total before the payment page.
 async function findPromo(env, raw, items, total) {
   const code = String(raw || '').trim().toUpperCase().replace(/\s+/g, '');
   if (!/^[A-Z0-9_-]{3,40}$/.test(code)) return { error: 'Bu promosyon kodu ge\u00e7ersiz. Kodu Latin harfleri ve rakamlarla yaz\u0131n.' };
-  if (items.length !== 1) return { error: 'Promosyon kodu yaln\u0131zca tek \u00fcr\u00fcnl\u00fck sipari\u015flerde ge\u00e7erli. Sepette bir masal b\u0131rak\u0131n.' };
   let list;
   try { list = await stripe(env, `promotion_codes?code=${encodeURIComponent(code)}&active=true&limit=1`); } catch (e) { return { error: 'Kod \u015fu anda kontrol edilemedi. L\u00fctfen biraz sonra tekrar deneyin.' }; }
   const pc = list.data && list.data[0];
@@ -156,11 +163,13 @@ async function findPromo(env, raw, items, total) {
   let cp = pc.coupon || (pc.promotion && pc.promotion.coupon);
   if (typeof cp === 'string') { try { cp = await stripe(env, `coupons/${cp}`); } catch (e) { cp = null; } }
   if (!cp || cp.valid === false) return { error: 'Bu promosyon kodu art\u0131k ge\u00e7erli de\u011fil.' };
+  const single = cp.percent_off === 100;
+  if (single && items.length !== 1) return { error: 'Promosyon kodu yaln\u0131zca tek \u00fcr\u00fcnl\u00fck sipari\u015flerde ge\u00e7erli. Sepette bir masal b\u0131rak\u0131n.' };
   const r = pc.restrictions || {};
   if (r.minimum_amount && (!r.minimum_amount_currency || r.minimum_amount_currency === 'try') && total * 100 < r.minimum_amount) return { error: `Bu kod ${(r.minimum_amount / 100).toLocaleString('tr-TR')} TL ve \u00fczeri sipari\u015flerde ge\u00e7erli.` };
   const off = cp.percent_off ? Math.round(total * cp.percent_off) / 100 : cp.amount_off && (!cp.currency || cp.currency === 'try') ? Math.min(total, cp.amount_off / 100) : 0;
   if (!off) return { error: 'Bu promosyon kodu bu sipari\u015fe uygulanam\u0131yor.' };
-  return { pc, cp, code: pc.code, off, total: Math.max(0, total - off) };
+  return { pc, cp, code: pc.code, off, single, total: Math.max(0, total - off) };
 }
 // the cart asks before the payment page: { code, items } -> the discount and the new total
 async function checkCode(req, env) {
@@ -169,10 +178,10 @@ async function checkCode(req, env) {
   const ids = [...new Set(Array.isArray(b.items) ? b.items : [])].slice(0, MAX_ITEMS + 1);
   const items = await Promise.all(ids.map(id => /^KTP-[A-Z0-9]{8}$/.test(id) ? getJson(env, `items/${id}/kitap.json`) : null));
   if (!items.length || items.some(it => !it || it.status === 'odendi')) return json({ error: 'Sepetinizdeki kitaplar bulunamad\u0131. Sayfay\u0131 yenileyip tekrar deneyin.' }, 409);
-  const total = items.reduce((a, it) => a + it.price.total, 0);   // one product: no two-book discount here
+  const total = items.reduce((a, it) => a + it.price.total, 0) - cutSum(pairCut(items));   // the same total as in createOrder
   const pr = await findPromo(env, b.code, items, total);
   if (pr.error) return json({ error: pr.error }, 400);
-  return json({ ok: true, code: pr.code, off: pr.off, total: pr.total });
+  return json({ ok: true, code: pr.code, off: pr.off, total: pr.total, single: pr.single });
 }
 
 async function createOrder(req, env) {
@@ -200,11 +209,8 @@ async function createOrder(req, env) {
     if (shipping.line1.length < 10 || shipping.city.length < 2 || shipping.state.length < 3) return json({ error: 'Teslimat adresi eksik: il, il\u00e7e ve a\u00e7\u0131k adres gerekli.' }, 400);
     if (shipping.postal_code && !/^\d{5}$/.test(shipping.postal_code)) return json({ error: 'Posta kodu 5 rakamdan olu\u015fur.' }, 400);
   }
-  // campaign: the second of every two hardcover books costs less (until the date in the catalogue)
-  const deal = CATALOG.pairDeal && Date.now() <= Date.parse(CATALOG.pairDeal.until) ? CATALOG.pairDeal.off : 0;
-  const cut = new Map();
-  if (deal) items.filter(it => it.cover === 'hard').forEach((it, i) => { if (i % 2 === 1) cut.set(it.id, deal); });
-  const discount = [...cut.values()].reduce((a, b) => a + b, 0);
+  const cut = pairCut(items);
+  const discount = cutSum(cut);
   const total = items.reduce((a, it) => a + it.price.total, 0) - discount;
   const boxes = items.filter(it => it.giftBox).length;
   const order = {
@@ -244,9 +250,10 @@ async function createOrder(req, env) {
     p.set('payment_intent_data[shipping][phone]', phone);
     for (const k of ['line1', 'city', 'state', 'postal_code', 'country']) if (shipping[k]) p.set(`payment_intent_data[shipping][address][${k}]`, shipping[k]);
   }
-  // promotion codes (17.11: a free book for a blogger, any product but only one). A code written in our cart comes with the order,
-  // is checked again here and goes to Stripe already applied; without one, a one-product order still gets the code field on the
-  // payment page (Stripe allows one or the other). A cart of two or more books pays as usual; every line is quantity 1.
+  // promotion codes: a blogger's 100 % code is for one product only (17.11), the giveaway codes for any cart (25.11). A code written
+  // in our cart comes with the order, is checked again here and goes to Stripe already applied; without one, a one-product order
+  // still gets the code field on the payment page (Stripe allows one or the other). With two or more books the payment page has no
+  // code field (a 100 % code would make the whole cart free there): the code goes into our cart.
   if (o.promo) {
     const pr = await findPromo(env, o.promo, items, total);
     if (pr.error) return json({ error: pr.error, promo: true }, 400);

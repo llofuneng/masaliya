@@ -1122,14 +1122,17 @@ function renderCart() {
     }
     const off = pairOff(items), full = items.reduce((a, it) => a + it.price.total, 0) - off;
     // a promotion code written here (17.11, her «поле… прямо на сайте, до «Ödemeye geç»»): checked by the order server, the total
-    // below already without it; kept only while the cart holds the same single product
-    let promo = draft.promo && items.length === 1 && draft.promo.item === items[0].id ? draft.promo : null;
-    if (draft.promo && !promo) { delete draft.promo; try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) {} if (items.length > 1 && !msg) msg = 'Promosyon kodu yalnızca tek ürünlük siparişlerde geçerli; kod kaldırıldı.'; }
+    // below already without it. The discount belongs to this very cart: when books are added or removed the same code is checked
+    // again (25.11: the giveaway codes work with any number of books; a blogger's 100 % code with one, promo.single)
+    const cartKey = items.map(it => it.id).sort().join();
+    const promo = draft.promo && (draft.promo.cart || draft.promo.item) === cartKey ? draft.promo : null;
+    const again = draft.promo && !promo ? draft.promo.code : '';
+    if (again) { delete draft.promo; try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) {} }
     const total = promo ? Math.max(0, full - promo.off) : full;
     const ships = items.some(it => it.cover !== 'digital');
     const hardN = items.filter(it => it.cover === 'hard').length;
     // the campaign: what was taken off, or how to get it with one more book
-    const deal = promo || !pairOn() ? '' : off   // with a code applied, no «add one more book» hint (a second book would end the code)
+    const deal = (promo && promo.single) || !pairOn() ? '' : off   // with a one-book code applied, no «add one more book» hint (a second book would end the code)
       ? `<div class="deal-line"><span>2 kitap indirimi <small>İkinci sert kapak kitapta %${PAIR_DEAL.pct} · ${PAIR_DEAL.untilText}’a kadar</small></span><strong>−${fmt(off)}</strong></div>`
       : hardN % 2 === 1 ? `<p class="deal-hint">Bir sert kapak kitap daha ekleyin: ikinci kitapta <b>%${PAIR_DEAL.pct} indirim</b>, ${PAIR_DEAL.untilText}’a kadar. <a href="urunler.html">Kitapları gör</a></p>` : '';
     root.innerHTML = `<div class="cart-grid">
@@ -1184,18 +1187,19 @@ function renderCart() {
     const applyPromo = async () => {
       const code = promoIn.value.trim().toUpperCase().replace(/\s+/g, '');
       if (!code) { promoNote.textContent = 'Lütfen kodunuzu yazın.'; promoIn.focus(); return; }
-      if (items.length !== 1) { promoNote.textContent = 'Promosyon kodu yalnızca tek ürünlük siparişlerde geçerli. Sepette bir masal bırakın.'; return; }
-      promoBtn.disabled = true; promoNote.textContent = 'Kod kontrol ediliyor…';
+      const payBtn = document.getElementById('pay-btn');   // no payment at the old total while the code is being checked
+      promoBtn.disabled = payBtn.disabled = true; promoNote.textContent = 'Kod kontrol ediliyor…';
       try {
         const res = await fetch(ORDER_API + '/api/kod', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code, items: items.map(it => it.id) }) });
         const out = await res.json().catch(() => ({}));
         if (!res.ok || !out.ok) throw new Error(out.error || 'Kod şu anda kontrol edilemedi.');
-        keepPromo({ code: out.code, off: out.off, item: items[0].id });
+        keepPromo({ code: out.code, off: out.off, cart: cartKey, single: !!out.single });
         show();
         const n = document.getElementById('promo-note'); if (n) n.textContent = out.total ? 'Kod uygulandı.' : 'Kod uygulandı: siparişiniz ücretsiz.';
-      } catch (err) { promoBtn.disabled = false; promoNote.textContent = err.message; }
+      } catch (err) { promoBtn.disabled = payBtn.disabled = false; promoNote.textContent = err.message; }
     };
     if (promoBtn) { promoBtn.addEventListener('click', applyPromo); promoIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } }); }
+    if (again && promoBtn) { promoIn.value = again; applyPromo(); }   // the cart changed: the same code for the new cart
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const note = document.getElementById('pay-note'), btn = document.getElementById('pay-btn');
