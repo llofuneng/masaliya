@@ -165,6 +165,7 @@ async function findPromo(env, raw, items, total) {
   if (!cp || cp.valid === false) return { error: 'Bu promosyon kodu art\u0131k ge\u00e7erli de\u011fil.' };
   const single = cp.percent_off === 100;
   if (single && items.length !== 1) return { error: 'Promosyon kodu yaln\u0131zca tek \u00fcr\u00fcnl\u00fck sipari\u015flerde ge\u00e7erli. Sepette bir masal b\u0131rak\u0131n.' };
+  if (!single && items.some(it => it.cover === 'digital')) return { error: 'Promosyon kodu yaln\u0131zca bas\u0131l\u0131 kitaplarda ge\u00e7erli. Dijital kitapta kullan\u0131lamaz.' };   // 25.11, her words: the giveaway codes only for a printed book
   const r = pc.restrictions || {};
   if (r.minimum_amount && (!r.minimum_amount_currency || r.minimum_amount_currency === 'try') && total * 100 < r.minimum_amount) return { error: `Bu kod ${(r.minimum_amount / 100).toLocaleString('tr-TR')} TL ve \u00fczeri sipari\u015flerde ge\u00e7erli.` };
   const off = cp.percent_off ? Math.round(total * cp.percent_off) / 100 : cp.amount_off && (!cp.currency || cp.currency === 'try') ? Math.min(total, cp.amount_off / 100) : 0;
@@ -259,7 +260,7 @@ async function createOrder(req, env) {
     if (pr.error) return json({ error: pr.error, promo: true }, 400);
     p.set('discounts[0][promotion_code]', pr.pc.id);
     order.promoCode = pr.pc.code; await saveOrder(env, order);
-  } else if (items.length === 1) p.set('allow_promotion_codes', 'true');
+  } else if (items.length === 1 && items[0].cover !== 'digital') p.set('allow_promotion_codes', 'true');   // no code field for a digital book
   const session = await stripe(env, 'checkout/sessions', p);
   order.stripeSession = session.id;
   await saveOrder(env, order);
